@@ -12,6 +12,7 @@
         :src="icon"
         :class="iconClass"
         class="place-self-center"
+        data-test="icon"
       ></inline-svg>
       <p v-if="displayTitle" :class="titleClass" data-test="title">
         {{ title }}
@@ -104,7 +105,7 @@ export default {
     localIconConfig() {
       // merges the default icon config and the icon config coming
       // as a prop -> places that into "localIconConfig"
-      var localCopy = this.iconConfig
+      let localCopy = this.iconConfig
       Object.entries(this.defaultIconConifg).forEach(([key, val]) => {
         if (!(key in localCopy)) {
           localCopy[key] = val
@@ -115,7 +116,7 @@ export default {
     localTitleConfig() {
       // merges the default title config and the title config coming
       // as a prop -> places that into "localTitleConfig"
-      var localCopy = this.titleConfig
+      let localCopy = this.titleConfig
       Object.entries(this.defaultTitleConfig).forEach(([key, val]) => {
         if (!(key in localCopy)) {
           localCopy[key] = val
