@@ -158,7 +158,7 @@ jobs:
           install: false
           start: npm run serve
           wait-on: 'http://localhost:8080'
-          command: npx cypress run --record
+          command: yolo
         env:
           # pass the Dashboard record key as an environment variable
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
