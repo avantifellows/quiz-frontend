@@ -51,11 +51,4 @@ jobs:
           headless: true
           start: npm run serve
           wait-on: 'http://localhost:8080'
-          command: npx cypress open
-        env:
-          # pass the Dashboard record key as an environment variable
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          # pass GitHub token to allow accurately detecting a build vs a re-run build
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # https://github.com/cypress-io/github-action/issues/124#issuecomment-653180260
-          COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
+          command: npx cypress run --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
