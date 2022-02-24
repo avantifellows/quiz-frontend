@@ -137,9 +137,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install Cypress
-        run: npm i cypress
-
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
