@@ -1,6 +1,7 @@
 # Content Set Player
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Codecov](https://codecov.io/gh/avantifellows/content-set-player/branch/master/graph/badge.svg)](https://codecov.io/gh/avantifellows/content-set-player)
 [![Discord](https://img.shields.io/discord/717975833226248303.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2&style=flat-square)](https://discord.gg/29qYD7fZtZ)
 
 A generic player for playing different types of content (questions, etc.) in a mobile-friendly webapp.
