@@ -2,6 +2,8 @@ name: CI
 
 on:
   pull_request:
+  push:
+    branches: [main]
 
 jobs:
   pre-commit:
@@ -27,3 +29,122 @@ jobs:
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
+
+  e2e-tests-chrome-desktop:
+    name: E2E tests on Chrome Desktop
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/Cypress
+            node_modules
+          key: my-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install Cypress
+        run: npm i cypress
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v2
+        with:
+          browser: chrome
+          install: false
+          record: true
+          tag: chrome-desktop
+          start: npm run serve
+          wait-on: 'http://localhost:8080'
+        env:
+          # pass the Dashboard record key as an environment variable
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          # pass GitHub token to allow accurately detecting a build vs a re-run build
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # https://github.com/cypress-io/github-action/issues/124#issuecomment-653180260
+          COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
+
+  e2e-tests-chrome-mobile:
+    name: E2E tests on Chrome Mobile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/Cypress
+            node_modules
+          key: my-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install Cypress
+        run: npm i cypress
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v2
+        with:
+          config: 'viewportWidth=375,viewportHeight=667'
+          browser: chrome
+          install: false
+          record: true
+          tag: chrome-mobile
+          start: npm run serve
+          wait-on: 'http://localhost:8080'
+        env:
+          # pass the Dashboard record key as an environment variable
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          # pass GitHub token to allow accurately detecting a build vs a re-run build
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # https://github.com/cypress-io/github-action/issues/124#issuecomment-653180260
+          COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
+
+  install:
+    runs-on: ubuntu-latest
+    container: cypress/browsers:node14.17.0-chrome88-ff89
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Cypress install
+        uses: cypress-io/github-action@v2
+        with:
+          runTests: false
+
+  e2e-tests-firefox-desktop:
+    name: E2E tests on Firefox Desktop
+    runs-on: ubuntu-latest
+    container:
+      image: cypress/browsers:node14.17.0-chrome88-ff89
+      options: --user 1001
+    needs: install
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/Cypress
+            node_modules
+          key: my-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install Cypress
+        run: npm i cypress
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v2
+        with:
+          browser: firefox
+          install: false
+          record: true
+          tag: firefox-desktop
+          start: npm run serve
+          wait-on: 'http://localhost:8080'
+        env:
+          # pass the Dashboard record key as an environment variable
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          # pass GitHub token to allow accurately detecting a build vs a re-run build
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # https://github.com/cypress-io/github-action/issues/124#issuecomment-653180260
+          COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
