@@ -51,6 +51,7 @@ jobs:
           browser: chrome
           install: false
           record: true
+          tag: chrome-desktop
           start: npm run serve
           wait-on: 'http://localhost:8080'
         env:
@@ -85,6 +86,7 @@ jobs:
           browser: chrome
           install: false
           record: true
+          tag: chrome-mobile
           start: npm run serve
           wait-on: 'http://localhost:8080'
         env:
@@ -134,6 +136,7 @@ jobs:
           browser: firefox
           install: false
           record: true
+          tag: firefox-desktop
           start: npm run serve
           wait-on: 'http://localhost:8080'
         env:
