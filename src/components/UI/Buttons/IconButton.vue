@@ -1,3 +1,4 @@
+<!-- a generic button with icon -->
 <template>
   <button
     type="button"
