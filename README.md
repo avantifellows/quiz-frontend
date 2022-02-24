@@ -3,11 +3,47 @@
 A generic player for playing different types of content (questions, etc.) in a mobile-friendly webapp.
 
 - [Project Setup](#project-setup)
+  - [Pre-requisites](#pre-requisites)
+    - [Pre-commit](#pre-commit)
+  - [Installation](#installation)
+  - [Compiles and hot-reloads for development](#compiles-and-hot-reloads-for-development)
+  - [Compiles and minifies for production](#compiles-and-minifies-for-production)
+  - [Run the unit tests](#run-the-unit-tests)
+  - [Run the end-to-end tests](#run-the-end-to-end-tests)
 
-## Project setup
+## Project Setup
+
+### Pre-requisites
+
+#### Pre-commit
+
+The project uses `pre-commit` for identifying and fixing simple issues before you even make a commit.
+
+1. Install pre-commit
+   Use `pip` to install pre-commit
+
+   ```sh
+   pip install pre-commit
+   ```
+
+   Or using homebrew on macOS
+
+   ```sh
+   brew install pre-commit
+   ```
+
+   For more installation alternatives, check out [Pre-commit official documentation](https://pre-commit.com/#install).
+
+2. Verify pre-commit installation
+   ```sh
+   pre-commit --version
+   ```
+
+### Installation
 
 ```
 npm install
+pre-commit install
 ```
 
 ### Compiles and hot-reloads for development
@@ -22,18 +58,14 @@ npm run serve
 npm run build
 ```
 
-### Run your unit tests
+### Run the unit tests
 
 ```
 npm run test:unit
 ```
 
-### Run your end-to-end tests
+### Run the end-to-end tests
 
 ```
 npx cypress run
 ```
-
-### Customize configuration
-
-See [Configuration Reference](https://cli.vuejs.org/config/).
