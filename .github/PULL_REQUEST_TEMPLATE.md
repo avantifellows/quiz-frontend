@@ -28,6 +28,7 @@ Fixes #{issue id}
 - [ ] Cross-Browser Testing
   - [ ] Chrome
   - [ ] Firefox
+  - [ ] Edge
 - [ ] Local Language Support
 - [ ] Hygiene and Housekeeping
   - [ ] Self-review
