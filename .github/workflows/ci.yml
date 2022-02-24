@@ -99,7 +99,8 @@ jobs:
           # https://github.com/cypress-io/github-action/issues/124#issuecomment-653180260
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
 
-  install:
+  install-cypress:
+    name: Install Cypress
     runs-on: ubuntu-latest
     container: cypress/browsers:node14.17.0-chrome88-ff89
     steps:
@@ -117,7 +118,7 @@ jobs:
     container:
       image: cypress/browsers:node14.17.0-chrome88-ff89
       options: --user 1001
-    needs: install
+    needs: install-cypress
     steps:
       - uses: actions/checkout@v2
 
