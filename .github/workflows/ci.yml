@@ -137,14 +137,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Cache dependencies
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/AppData\Local\Cypress\Cache
-            node_modules
-          key: my-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-
       - name: Install Cypress
         run: npm i cypress
 
@@ -152,7 +144,6 @@ jobs:
         uses: cypress-io/github-action@v2
         with:
           browser: edge
-          install: false
           record: true
           start: npm run serve
           wait-on: 'http://localhost:8080'
