@@ -8,11 +8,11 @@ import { config } from "@vue/test-utils";
 
 // inline-svg stub
 const InlineSvg = {
-  template: "<img />"
+  template: "<img />",
 };
 
 config.global = {
   stubs: {
-    InlineSvg: InlineSvg
-  }
+    InlineSvg: InlineSvg,
+  },
 };

@@ -7,9 +7,9 @@ describe("IconButton.vue", () => {
     const wrapper = mount(IconButton, {
       props: {
         titleConfig: {
-          value: buttonText
-        }
-      }
+          value: buttonText,
+        },
+      },
     });
     expect(wrapper.text()).toMatch(buttonText);
   });
