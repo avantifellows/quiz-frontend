@@ -35,15 +35,23 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install Dependencies & Run Server
-        run: npm install
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/Cypress
+            node_modules
+          key: my-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - run: npm i cypress
 
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
+          install: false
           record: true
+          headless: true
           start: npm run serve
           wait-on: 'http://localhost:8080'
+          command: npx cypress open
         env:
           # pass the Dashboard record key as an environment variable
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
