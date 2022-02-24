@@ -143,7 +143,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
-            ~/.cache/Cypress
+            /AppData/Local/Cypress/Cache
             node_modules
           key: my-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
