@@ -8,7 +8,7 @@
         :isFullscreen="false"
         :previewMode="false"
         @toggle-minimize="toggleMinimize"
-        @skip-question="skipQuestion"
+        @skip-item="skipItem"
         :isSkipEnabled="true"
         data-test="header"
       ></item-header>
@@ -67,7 +67,7 @@ export default {
   },
   methods: {
     toggleMinimize() {},
-    skipQuestion() {}
+    skipItem() {}
   }
 }
 </script>
