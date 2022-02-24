@@ -156,9 +156,9 @@ jobs:
         with:
           browser: edge
           install: false
-          record: true
           start: npm run serve
           wait-on: 'http://localhost:8080'
+          command: npx cypress run --record
         env:
           # pass the Dashboard record key as an environment variable
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
