@@ -29,7 +29,7 @@ jobs:
         uses: codecov/codecov-action@v1
 
   e2e-tests-chrome-desktop:
-    name: End-to-End tests
+    name: E2E tests on Chrome Desktop
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -63,7 +63,7 @@ jobs:
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
 
   e2e-tests-chrome-mobile:
-    name: End-to-End tests
+    name: E2E tests on Chrome Mobile
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -98,7 +98,7 @@ jobs:
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
 
   e2e-tests-firefox-desktop:
-    name: End-to-End tests
+    name: E2E tests on Firefox Desktop
     runs-on: ubuntu-latest
     container:
       image: cypress/browsers:node12.16.1-chrome80-ff73
@@ -135,7 +135,7 @@ jobs:
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
 
   e2e-tests-edge-desktop:
-    name: End-to-End tests
+    name: E2E tests on Edge Windows Desktop
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
