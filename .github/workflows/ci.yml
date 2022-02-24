@@ -130,24 +130,3 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # https://github.com/cypress-io/github-action/issues/124#issuecomment-653180260
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
-
-  e2e-tests-edge-desktop:
-    name: E2E tests on Edge Windows Desktop
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Cypress run
-        uses: cypress-io/github-action@v2
-        with:
-          browser: edge
-          record: true
-          start: npm run serve
-          wait-on: 'http://localhost:8080'
-        env:
-          # pass the Dashboard record key as an environment variable
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          # pass GitHub token to allow accurately detecting a build vs a re-run build
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # https://github.com/cypress-io/github-action/issues/124#issuecomment-653180260
-          COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
