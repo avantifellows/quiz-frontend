@@ -5,7 +5,6 @@
       v-if="isSkipEnabled"
       :titleConfig="skipButtonTitleConfig"
       @click="skipItem"
-      :class="{ hidden: isAnswerSubmitted || previewMode }"
       :buttonClass="skipButtonClass"
       data-test="skip"
     ></icon-button>
@@ -45,16 +44,6 @@ export default {
     }
   },
   props: {
-    /** whether the answer has been submitted */
-    isAnswerSubmitted: {
-      default: false,
-      type: Boolean
-    },
-    /** whether the modal is in fullscreen */
-    isFullscreen: {
-      default: false,
-      type: Boolean
-    },
     /** whether the item modal will be shown in editor's mini-preview mode */
     previewMode: {
       default: false,

@@ -3,13 +3,9 @@
     <div>
       <!-- header -->
       <item-header
-        :isAnswerSubmitted="false"
-        :isModalMinimized="false"
-        :isFullscreen="false"
         :previewMode="false"
-        @toggle-minimize="toggleMinimize"
-        @skip-item="skipItem"
         :isSkipEnabled="true"
+        @skip-item="skipItem"
         data-test="header"
       ></item-header>
     </div>
@@ -66,7 +62,6 @@ export default {
     }
   },
   methods: {
-    toggleMinimize() {},
     skipItem() {}
   }
 }

@@ -105,7 +105,7 @@ export default {
     localIconConfig() {
       // merges the default icon config and the icon config coming
       // as a prop -> places that into "localIconConfig"
-      let localCopy = this.iconConfig
+      const localCopy = this.iconConfig
       Object.entries(this.defaultIconConifg).forEach(([key, val]) => {
         if (!(key in localCopy)) {
           localCopy[key] = val
@@ -116,7 +116,7 @@ export default {
     localTitleConfig() {
       // merges the default title config and the title config coming
       // as a prop -> places that into "localTitleConfig"
-      let localCopy = this.titleConfig
+      const localCopy = this.titleConfig
       Object.entries(this.defaultTitleConfig).forEach(([key, val]) => {
         if (!(key in localCopy)) {
           localCopy[key] = val
