@@ -27,6 +27,12 @@ jobs:
         # command to run tests and generate coverage metrics
         run: npm run test:unit
 
+      - name: Store artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          if-no-files-found: error
+          path: coverage
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
 
@@ -63,6 +69,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # https://github.com/cypress-io/github-action/issues/124#issuecomment-653180260
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
+
+      - name: Store artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          if-no-files-found: error
+          path: coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
 
   e2e-tests-chrome-mobile:
     name: E2E tests on Chrome Mobile
