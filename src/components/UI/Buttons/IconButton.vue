@@ -37,7 +37,6 @@ export default {
       }
     }
   },
-  created() {},
   props: {
     iconConfig: {
       type: Object,
