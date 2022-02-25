@@ -29,6 +29,8 @@ jobs:
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
+        with:
+          flags: unittest,chrome
 
   e2e-tests-chrome-desktop:
     name: E2E tests on Chrome Desktop
@@ -63,6 +65,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # https://github.com/cypress-io/github-action/issues/124#issuecomment-653180260
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          flags: ui,chrome
 
   e2e-tests-chrome-mobile:
     name: E2E tests on Chrome Mobile
