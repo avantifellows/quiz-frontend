@@ -9,13 +9,13 @@
   >
     <div :class="innerContainerStyleClass">
       <inline-svg
-        v-if="isIconConfigEnabled"
+        v-if="isIconShown"
         :src="icon"
         :class="iconClass"
         class="place-self-center"
         data-test="icon"
       ></inline-svg>
-      <p v-if="displayTitle" :class="titleClass" data-test="title">
+      <p v-if="isTitleShown" :class="titleClass" data-test="title">
         {{ title }}
       </p>
     </div>
@@ -47,6 +47,7 @@ export default {
         props.innerContainerClass
       ]
     })
+    // whether the icon and text need to be stacked vertically
     const isStackedVertically = computed(() => {
       return props.orientation == 'vertical'
     })
@@ -54,16 +55,13 @@ export default {
     const iconName = computed(() => {
       return localIconConfig.value.iconName
     })
-    // imports and returns the icon
     const icon = computed(() => {
       return require('@/assets/images/' + iconName.value + '.svg')
     })
-    // class specific to the icon
     const iconClass = computed(() => {
       return localIconConfig.value.iconClass || ''
     })
-    // whether icon needs to be shown
-    const isIconConfigEnabled = computed(() => {
+    const isIconShown = computed(() => {
       return localIconConfig.value.enabled
     })
     // merges the default icon config and the icon config coming
@@ -88,27 +86,25 @@ export default {
       })
       return localCopy
     })
-    // // title text
     const title = computed(() => {
       return localTitleConfig.value.value
     })
-    // class specific to the title
     const titleClass = computed(() => {
       return localTitleConfig.value.class || ''
     })
-    // whether the title prop is to be displayed
-    const displayTitle = computed(() => {
+    const isTitleShown = computed(() => {
       return localTitleConfig.value.value != null && localTitleConfig.value.value != ''
     })
     return {
       ...toRefs(data),
       innerContainerStyleClass,
       icon,
+      iconName,
       iconClass,
-      isIconConfigEnabled,
+      isIconShown,
       title,
       titleClass,
-      displayTitle
+      isTitleShown
     }
   },
   props: {
