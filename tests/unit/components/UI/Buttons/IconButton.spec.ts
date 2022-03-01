@@ -1,5 +1,5 @@
 import { mount } from "@vue/test-utils";
-import IconButton from "@/components/UI/Buttons/IconButton";
+import IconButton from "@/components/UI/Buttons/IconButton.vue";
 
 describe("IconButton.vue", () => {
   it("renders title correctly", () => {

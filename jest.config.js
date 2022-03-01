@@ -1,13 +1,13 @@
 module.exports = {
-  preset: "@vue/cli-plugin-unit-jest",
+  preset: "@vue/cli-plugin-unit-jest/presets/typescript-and-babel",
   transform: {
     "^.+\\.vue$": "@vue/vue3-jest",
   },
   collectCoverage: true,
   collectCoverageFrom: [
-    "src/**/*.{js,vue}",
-    "!src/main.js",
-    "!src/**/dist/*.js",
+    "src/**/*.{js,ts,vue}",
+    "!src/main.tx",
+    "!src/**/dist/*.{js,ts}",
   ],
-  setupFiles: ["<rootDir>/jest.init.js"],
+  setupFiles: ["<rootDir>/jest.init.ts"],
 };
