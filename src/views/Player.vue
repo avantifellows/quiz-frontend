@@ -14,14 +14,15 @@
 
 <script>
 import ItemHeader from '@/components/Items/Header'
+import { reactive, toRefs } from 'vue'
 
 export default {
   name: 'Player',
   components: {
     ItemHeader
   },
-  data() {
-    return {
+  setup() {
+    const data = reactive({
       currentItemIndex: 0,
       items: [
         {
@@ -59,10 +60,13 @@ export default {
           }
         }
       ]
+    })
+    function skipItem() {}
+
+    return {
+      ...toRefs(data),
+      skipItem
     }
-  },
-  methods: {
-    skipItem() {}
   }
 }
 </script>

@@ -9,13 +9,13 @@
   >
     <div :class="innerContainerStyleClass">
       <inline-svg
-        v-if="isIconConfigEnabled"
+        v-if="isIconShown"
         :src="icon"
         :class="iconClass"
         class="place-self-center"
         data-test="icon"
       ></inline-svg>
-      <p v-if="displayTitle" :class="titleClass" data-test="title">
+      <p v-if="isTitleShown" :class="titleClass" data-test="title">
         {{ title }}
       </p>
     </div>
@@ -23,10 +23,12 @@
 </template>
 
 <script>
+import { reactive, toRefs, computed } from 'vue'
 export default {
-  data() {
-    return {
-      defaultIconConifg: {
+  name: 'IconButton',
+  setup(props) {
+    const data = reactive({
+      defaultIconConfig: {
         enabled: false,
         iconName: 'spinner-solid',
         iconClass: 'stroke-0 text-white white'
@@ -35,9 +37,76 @@ export default {
         value: '',
         class: 'text-white'
       }
+    })
+    const innerContainerStyleClass = computed(() => {
+      return [
+        {
+          'flex-col': isStackedVertically.value,
+          'space-x-2': !isStackedVertically.value
+        },
+        props.innerContainerClass
+      ]
+    })
+    // whether the icon and text need to be stacked vertically
+    const isStackedVertically = computed(() => {
+      return props.orientation == 'vertical'
+    })
+    // name of the icon image file under assets/images
+    const iconName = computed(() => {
+      return localIconConfig.value.iconName
+    })
+    const icon = computed(() => {
+      return require('@/assets/images/' + iconName.value + '.svg')
+    })
+    const iconClass = computed(() => {
+      return localIconConfig.value.iconClass || ''
+    })
+    const isIconShown = computed(() => {
+      return localIconConfig.value.enabled
+    })
+    // merges the default icon config and the icon config coming
+    // as a prop -> places that into "localIconConfig"
+    const localIconConfig = computed(() => {
+      const localCopy = props.iconConfig
+      Object.entries(data.defaultIconConfig).forEach(([key, val]) => {
+        if (!(key in localCopy)) {
+          localCopy[key] = val
+        }
+      })
+      return localCopy
+    })
+    // merges the default title config and the title config coming
+    // as a prop -> places that into "localTitleConfig"
+    const localTitleConfig = computed(() => {
+      const localCopy = props.titleConfig
+      Object.entries(data.defaultTitleConfig).forEach(([key, val]) => {
+        if (!(key in localCopy)) {
+          localCopy[key] = val
+        }
+      })
+      return localCopy
+    })
+    const title = computed(() => {
+      return localTitleConfig.value.value
+    })
+    const titleClass = computed(() => {
+      return localTitleConfig.value.class || ''
+    })
+    const isTitleShown = computed(() => {
+      return localTitleConfig.value.value != null && localTitleConfig.value.value != ''
+    })
+    return {
+      ...toRefs(data),
+      innerContainerStyleClass,
+      icon,
+      iconName,
+      iconClass,
+      isIconShown,
+      title,
+      titleClass,
+      isTitleShown
     }
   },
-  created() {},
   props: {
     iconConfig: {
       type: Object,
@@ -72,70 +141,6 @@ export default {
     ariaLabel: {
       type: String,
       default: ''
-    }
-  },
-  computed: {
-    innerContainerStyleClass() {
-      return [
-        {
-          'flex-col': this.isStackedVertically,
-          'space-x-2': !this.isStackedVertically
-        },
-        this.innerContainerClass
-      ]
-    },
-    isStackedVertically() {
-      return this.orientation == 'vertical'
-    },
-    iconName() {
-      // name of the icon image file under assets/images
-      return this.localIconConfig.iconName
-    },
-    icon() {
-      // imports and returns the icon
-      return require('@/assets/images/' + this.iconName + '.svg')
-    },
-    iconClass() {
-      // class specific to the icon
-      return this.localIconConfig.iconClass || ''
-    },
-    isIconConfigEnabled() {
-      // whether icon needs to be shown
-      return this.localIconConfig.enabled
-    },
-    localIconConfig() {
-      // merges the default icon config and the icon config coming
-      // as a prop -> places that into "localIconConfig"
-      const localCopy = this.iconConfig
-      Object.entries(this.defaultIconConifg).forEach(([key, val]) => {
-        if (!(key in localCopy)) {
-          localCopy[key] = val
-        }
-      })
-      return localCopy
-    },
-    localTitleConfig() {
-      // merges the default title config and the title config coming
-      // as a prop -> places that into "localTitleConfig"
-      const localCopy = this.titleConfig
-      Object.entries(this.defaultTitleConfig).forEach(([key, val]) => {
-        if (!(key in localCopy)) {
-          localCopy[key] = val
-        }
-      })
-      return localCopy
-    },
-    title() {
-      // title text
-      return this.localTitleConfig.value
-    },
-    titleClass() {
-      // class specific to the title
-      return this.localTitleConfig.class || ''
-    },
-    displayTitle() {
-      // whether the title prop is to be displayed
-      return this.localTitleConfig.value != null && this.localTitleConfig.value != ''
     }
   }
 }
