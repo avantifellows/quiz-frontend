@@ -1,4 +1,4 @@
-// contains all the types that we want to use
+// contains all the custom types that we want to use
 
 type itemType = "question";
 type questionType = "mcq" | "checkbox" | "subjective";
