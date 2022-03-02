@@ -11,8 +11,6 @@ const InlineSvg = {
   template: "<img />",
 };
 
-config.global = {
-  stubs: {
-    InlineSvg: InlineSvg,
-  },
+config.global.stubs = {
+  InlineSvg: InlineSvg,
 };
