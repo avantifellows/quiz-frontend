@@ -5,7 +5,7 @@
 [![Cypress](https://img.shields.io/endpoint?url=https://dashboard.cypress.io/badge/simple/ux33ap/main&style=flat&logo=cypress)](https://dashboard.cypress.io/projects/ux33ap/runs)
 [![Discord](https://img.shields.io/discord/717975833226248303.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2&style=flat-square)](https://discord.gg/29qYD7fZtZ)
 
-A generic player for playing different types of content (questions, etc.) in a mobile-friendly webapp.
+A generic player for playing different types of questions (mcq, subjective, images, audio etc.) in a mobile-friendly webapp.
 
 **Table of Contents**
 
