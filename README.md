@@ -1,7 +1,7 @@
 # Question Set Player
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![codecov](https://codecov.io/gh/avantifellows/content-set-player/branch/main/graph/badge.svg)](https://codecov.io/gh/avantifellows/content-set-player)
+[![codecov](https://codecov.io/gh/avantifellows/question-set-player/branch/main/graph/badge.svg)](https://codecov.io/gh/avantifellows/question-set-player)
 [![Cypress](https://img.shields.io/endpoint?url=https://dashboard.cypress.io/badge/simple/ux33ap/main&style=flat&logo=cypress)](https://dashboard.cypress.io/projects/ux33ap/runs)
 [![Discord](https://img.shields.io/discord/717975833226248303.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2&style=flat-square)](https://discord.gg/29qYD7fZtZ)
 
