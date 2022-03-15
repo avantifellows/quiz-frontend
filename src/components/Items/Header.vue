@@ -12,10 +12,10 @@
 
 <script lang="ts">
 import IconButton from "../UI/Buttons/IconButton.vue";
-import { reactive, toRefs } from "vue";
+import { defineComponent, reactive, toRefs } from "vue";
 import { IconButtonTitleConfig } from "../../types";
 
-export default {
+export default defineComponent({
   name: "Header",
   setup(_, context) {
     const state = reactive({
@@ -43,5 +43,5 @@ export default {
   },
   components: { IconButton },
   emits: ["skip-item"],
-};
+});
 </script>

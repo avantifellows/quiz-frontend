@@ -23,10 +23,10 @@
 </template>
 
 <script lang="ts">
-import { reactive, toRefs, computed, PropType } from "vue";
+import { defineComponent, reactive, toRefs, computed, PropType } from "vue";
 import { IconButtonTitleConfig, IconButtonIconConfig } from "../../../types";
 
-export default {
+export default defineComponent({
   name: "IconButton",
   setup(props) {
     const state = reactive({
@@ -59,10 +59,11 @@ export default {
     // merges the default icon config and the icon config coming
     // as a prop -> places that into "localIconConfig"
     const localIconConfig = computed((): IconButtonIconConfig => {
-      const localCopy = props.iconConfig;
+      const localCopy: IconButtonIconConfig = props.iconConfig;
       Object.entries(state.defaultIconConfig).forEach(([key, val]) => {
         if (!(key in localCopy)) {
-          localCopy[key] = val;
+          // @ts-ignore
+          localCopy[key as keyof IconButtonIconConfig] = val;
         }
       });
       return localCopy;
@@ -88,7 +89,7 @@ export default {
       const localCopy = props.titleConfig;
       Object.entries(state.defaultTitleConfig).forEach(([key, val]) => {
         if (!(key in localCopy)) {
-          localCopy[key] = val;
+          localCopy[key as keyof IconButtonTitleConfig] = val;
         }
       });
       return localCopy;
@@ -154,5 +155,5 @@ export default {
       default: "",
     },
   },
-};
+});
 </script>
