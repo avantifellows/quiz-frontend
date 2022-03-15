@@ -36,7 +36,7 @@
               />
             </svg>
             <div class="flex items-center">
-              <p class="font-poppins">10 questions</p>
+              <p class="font-poppins-regular">10 questions</p>
             </div>
           </div>
           <div class="flex space-x-4 border-primary">
@@ -56,7 +56,7 @@
               />
             </svg>
             <div class="flex items-center">
-              <p class="font-poppins">Class 8</p>
+              <p class="font-poppins-regular">Class 8</p>
             </div>
           </div>
         </div>
@@ -94,7 +94,7 @@
             </svg>
 
             <div class="flex items-center">
-              <p class="font-poppins">Maths</p>
+              <p class="font-poppins-regular">Maths</p>
             </div>
           </div>
           <div class="flex space-x-4 border-primary">
@@ -187,7 +187,7 @@
             </svg>
 
             <div class="flex items-center">
-              <p class="font-poppins">CBSE</p>
+              <p class="font-poppins-regular">CBSE</p>
             </div>
           </div>
         </div>
@@ -214,7 +214,7 @@ export default defineComponent({
     const state = reactive({
       startButtonTextConfig: {
         value: "Let's Start",
-        class: "text-lg md:text-xl lg:text-2xl text-primary",
+        class: "text-lg md:text-xl lg:text-2xl text-primary font-poppins-bold",
       },
     });
 
@@ -230,13 +230,18 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Londrina+Solid&family=Poppins&display=swap");
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Londrina+Solid&family=Poppins:wght@400;700&display=swap");
 
 .font-londrina {
   font-family: "Londrina Solid";
 }
-.font-poppins {
+.font-poppins-regular {
   font-family: "Poppins", sans-serif;
+  font-weight: 400;
+}
+.font-poppins-bold {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
 }
 </style>
