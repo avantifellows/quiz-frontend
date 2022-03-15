@@ -4,7 +4,7 @@
     <icon-button
       :titleConfig="skipButtonTitleConfig"
       :buttonClass="skipButtonClass"
-      @click="skipItem"
+      @click="skipQuestion"
       data-test="skip"
     ></icon-button>
   </div>
@@ -32,16 +32,16 @@ export default defineComponent({
       } as IconButtonTitleConfig,
     });
 
-    function skipItem() {
-      context.emit("skip-item");
+    function skipQuestion() {
+      context.emit("skip-question");
     }
 
     return {
       ...toRefs(state),
-      skipItem,
+      skipQuestion,
     };
   },
   components: { IconButton },
-  emits: ["skip-item"],
+  emits: ["skip-question"],
 });
 </script>
