@@ -11,7 +11,7 @@
       class="bg-primary flex flex-col space-y-16 bp-420:space-y-10 items-center rounded-2xl py-12"
     >
       <!-- title -->
-      <p class="font-londrina text-white text-5xl">Geometry Quiz</p>
+      <p class="font-londrina text-white text-5xl">{{ displayTitle }}</p>
 
       <!-- metadata -->
       <div class="flex flex-col space-y-4 w-full items-center">
@@ -22,7 +22,7 @@
               :iconClass="metadataIconClass"
             ></BasicIcon>
             <div class="flex items-center">
-              <p :class="metadataTitleClass">10 questions</p>
+              <p :class="metadataTitleClass">{{ numQuestions }} questions</p>
             </div>
           </div>
           <div :class="metadataCellClass">
@@ -32,7 +32,7 @@
             ></BasicIcon>
 
             <div class="flex items-center">
-              <p :class="metadataTitleClass">Class 8</p>
+              <p :class="metadataTitleClass">Class {{ classNumber }}</p>
             </div>
           </div>
         </div>
@@ -41,7 +41,7 @@
           <div :class="metadataCellClass" class="border-r-2">
             <BasicIcon name="math" :iconClass="metadataIconClass"></BasicIcon>
             <div class="flex items-center">
-              <p :class="metadataTitleClass">Maths</p>
+              <p :class="metadataTitleClass">{{ subject }}</p>
             </div>
           </div>
           <div :class="metadataCellClass">
@@ -50,7 +50,7 @@
               :iconClass="metadataIconClass"
             ></BasicIcon>
             <div class="flex items-center">
-              <p :class="metadataTitleClass">CBSE</p>
+              <p :class="metadataTitleClass">{{ examType }}</p>
             </div>
           </div>
         </div>
@@ -70,15 +70,36 @@
 <script lang="ts">
 import IconButton from "./UI/Buttons/IconButton.vue";
 import BasicIcon from "./UI/Icons/BasicIcon.vue";
-
-import { defineComponent, reactive, toRefs } from "vue";
+import { defineComponent, computed, reactive, toRefs } from "vue";
 export default defineComponent({
   name: "Splash",
   components: {
     IconButton,
     BasicIcon,
   },
-  setup() {
+  props: {
+    title: {
+      type: String,
+      required: true,
+    },
+    subject: {
+      type: String,
+      required: true,
+    },
+    examType: {
+      type: String,
+      required: true,
+    },
+    numQuestions: {
+      type: Number,
+      required: true,
+    },
+    classNumber: {
+      type: Number,
+      required: true,
+    },
+  },
+  setup(props) {
     const state = reactive({
       startButtonTextConfig: {
         value: "Let's Start",
@@ -96,9 +117,16 @@ export default defineComponent({
       event.preventDefault();
     }
 
+    /** title of the plio. "Untitled" if no title is present */
+    const displayTitle = computed(() => {
+      if (props.title != undefined) return props.title || "Untitled";
+      return "Untitled";
+    });
+
     return {
       ...toRefs(state),
       preventScrolling,
+      displayTitle,
     };
   },
 });

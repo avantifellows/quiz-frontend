@@ -1,6 +1,12 @@
 <template>
   <div>
-    <splash></splash>
+    <splash
+      :title="title"
+      :subject="metadata.subject"
+      :classNumber="metadata.class"
+      :numQuestions="questions.length"
+      :examType="metadata.examType"
+    ></splash>
     <div
       v-if="isQuestionShown"
       class="flex flex-col bg-white w-full h-full overflow-hidden"
@@ -28,6 +34,12 @@ export default defineComponent({
   setup() {
     const state = reactive({
       currentQuestionIndex: -1 as number,
+      title: "Geometry Quiz",
+      metadata: {
+        examType: "CBSE",
+        subject: "Maths",
+        class: 8,
+      },
       questions: [
         {
           type: "mcq",
