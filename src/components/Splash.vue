@@ -62,6 +62,7 @@
         buttonClass="bg-white hover:bg-gray-200 rounded-lg h-14 w-40 sm:h-20 sm:w-60 ring-primary px-2 border-b-outset border-primary"
         class="rounded-2xl shadow-lg mt-4 place-self-center"
         data-test="startQuiz"
+        @click="start"
       ></icon-button>
     </div>
   </div>
@@ -99,7 +100,7 @@ export default defineComponent({
       required: true,
     },
   },
-  setup(props) {
+  setup(props, context) {
     const state = reactive({
       startButtonTextConfig: {
         value: "Let's Start",
@@ -113,22 +114,28 @@ export default defineComponent({
       metadataTitleClass: "font-poppins-regular text-sm sm:text-base",
     });
 
-    function preventScrolling(event: Event) {
-      event.preventDefault();
-    }
-
     /** title of the plio. "Untitled" if no title is present */
     const displayTitle = computed(() => {
       if (props.title != undefined) return props.title || "Untitled";
       return "Untitled";
     });
 
+    function preventScrolling(event: Event) {
+      event.preventDefault();
+    }
+
+    function start() {
+      context.emit("start");
+    }
+
     return {
       ...toRefs(state),
-      preventScrolling,
       displayTitle,
+      preventScrolling,
+      start,
     };
   },
+  emits: ["start"],
 });
 </script>
 

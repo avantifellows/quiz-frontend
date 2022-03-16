@@ -1,11 +1,13 @@
 <template>
   <div>
     <splash
+      v-if="!isQuestionShown"
       :title="title"
       :subject="metadata.subject"
       :classNumber="metadata.class"
       :numQuestions="questions.length"
       :examType="metadata.examType"
+      @start="startQuiz"
     ></splash>
     <div
       v-if="isQuestionShown"
@@ -73,10 +75,15 @@ export default defineComponent({
       return state.currentQuestionIndex >= 0;
     });
 
+    function startQuiz() {
+      state.currentQuestionIndex = 0;
+    }
+
     return {
       ...toRefs(state),
-      skipQuestion,
       isQuestionShown,
+      skipQuestion,
+      startQuiz,
     };
   },
 });
