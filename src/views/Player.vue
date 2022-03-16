@@ -1,5 +1,6 @@
 <template>
   <div>
+    {{ isQuestionShown }}
     <splash
       v-if="!isQuestionShown"
       :title="title"
@@ -8,6 +9,7 @@
       :numQuestions="questions.length"
       :examType="metadata.examType"
       @start="startQuiz"
+      data-test="splash"
     ></splash>
     <div
       v-if="isQuestionShown"
