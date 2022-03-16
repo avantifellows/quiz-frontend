@@ -4,7 +4,7 @@ import IconButton from "@/components/UI/Buttons/IconButton.vue";
 describe("IconButton.vue", () => {
   it("renders title correctly", () => {
     const buttonText = "Test Button";
-    const wrapper = mount(IconButton.component, {
+    const wrapper = mount(IconButton, {
       props: {
         titleConfig: {
           value: buttonText,
@@ -15,7 +15,7 @@ describe("IconButton.vue", () => {
   });
   it("renders icon correctly", () => {
     const iconName = "chevron-right-solid";
-    const wrapper = mount(IconButton.component, {
+    const wrapper = mount(IconButton, {
       props: {
         iconConfig: {
           enabled: true,

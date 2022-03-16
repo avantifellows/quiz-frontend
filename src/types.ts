@@ -13,11 +13,11 @@ export interface Question {
 
 export interface IconButtonTitleConfig {
   value: string;
-  class: string;
+  class?: string;
 }
 
 export interface IconButtonIconConfig {
   enabled: boolean;
   iconName: string;
-  iconClass: string;
+  iconClass?: string;
 }
