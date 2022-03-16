@@ -4,6 +4,7 @@
     <StudentInClass v-if="name == 'student-in-class'"></StudentInClass>
     <Math v-if="name == 'math'"></Math>
     <Notepad v-if="name == 'notepad'"></Notepad>
+    <Splash v-if="name == 'splash'"></Splash>
   </div>
 </template>
 
@@ -12,6 +13,7 @@ import QuestionMarkRound from "./QuestionMarkRound.vue";
 import StudentInClass from "./StudentInClass.vue";
 import Math from "./Math.vue";
 import Notepad from "./Notepad.vue";
+import Splash from "./Splash.vue";
 
 export default {
   name: "BasicIcon",
@@ -20,6 +22,7 @@ export default {
     StudentInClass,
     Math,
     Notepad,
+    Splash,
   },
   props: {
     name: {

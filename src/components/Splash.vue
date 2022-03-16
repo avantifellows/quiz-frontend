@@ -1,14 +1,12 @@
 <template>
   <div class="flex flex-col justify-center" @wheel="preventScrolling">
-    <img
-      src="../assets/images/question.svg"
-      class="mt-24 sm:mt-16 place-self-center"
-      height="300"
-      width="600"
+    <BasicIcon
+      name="splash"
+      iconClass="w-11/12 bp-500:w-9/12 md:w-6/12 lg:w-5/12 mt-24 sm:mt-16 place-self-center"
     />
 
     <div
-      class="bg-primary flex flex-col space-y-16 bp-420:space-y-10 items-center rounded-2xl py-12"
+      class="bg-primary flex flex-col space-y-16 bp-360:space-y-14 bp-420:space-y-10 lg:space-y-12 items-center rounded-2xl py-12 bp-500:py-10 md:py-11 lg:py-12"
     >
       <!-- title -->
       <p class="font-londrina text-white text-5xl">{{ displayTitle }}</p>
@@ -59,7 +57,7 @@
       <!-- start button -->
       <icon-button
         :titleConfig="startButtonTextConfig"
-        buttonClass="bg-white hover:bg-gray-200 rounded-lg h-14 w-40 sm:h-20 sm:w-60 ring-primary px-2 border-b-outset border-primary"
+        buttonClass="bg-white hover:bg-gray-200 rounded-lg h-14 w-40  ring-primary px-2 border-b-outset border-primary"
         class="rounded-2xl shadow-lg mt-4 place-self-center"
         data-test="startQuiz"
         @click="start"
@@ -104,7 +102,7 @@ export default defineComponent({
     const state = reactive({
       startButtonTextConfig: {
         value: "Let's Start",
-        class: "text-lg md:text-xl lg:text-2xl text-primary font-poppins-bold",
+        class: "text-lg md:text-xl text-primary font-poppins-bold",
       },
       metadataContainerClass:
         "grid grid-cols-2 space-x-6 bg-yellow-400 p-4 rounded-2xl w-11/12 bp-360:w-10/12 sm:w-2/3 md:w-1/2 xl:w-1/3",
