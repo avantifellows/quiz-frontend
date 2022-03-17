@@ -6,7 +6,7 @@
       :subject="metadata.subject"
       :classNumber="metadata.class"
       :numQuestions="questions.length"
-      :examType="metadata.examType"
+      :quizType="metadata.quizType"
       @start="startQuiz"
       data-test="splash"
     ></splash>
@@ -39,7 +39,7 @@ export default defineComponent({
       currentQuestionIndex: -1 as number,
       title: "Geometry Quiz",
       metadata: {
-        examType: "CBSE",
+        quizType: "CBSE",
         subject: "Maths",
         class: 8,
       },

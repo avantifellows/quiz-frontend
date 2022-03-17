@@ -16,7 +16,7 @@ import Notepad from "./Notepad.vue";
 import Splash from "./Splash.vue";
 
 export default {
-  name: "BasicIcon",
+  name: "BaseIcon",
   components: {
     QuestionMarkRound,
     StudentInClass,
