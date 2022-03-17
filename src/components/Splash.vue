@@ -9,7 +9,9 @@
       class="bg-primary flex flex-col space-y-16 bp-360:space-y-14 bp-420:space-y-10 lg:space-y-12 items-center rounded-2xl py-12 bp-500:py-10 md:py-11 lg:py-12"
     >
       <!-- title -->
-      <p class="font-londrina text-white text-5xl">{{ displayTitle }}</p>
+      <p class="font-londrina text-white text-5xl" data-test="title">
+        {{ displayTitle }}
+      </p>
 
       <!-- metadata -->
       <div class="flex flex-col space-y-4 w-full items-center">
@@ -19,17 +21,14 @@
               name="question-mark-round"
               :iconClass="metadataIconClass"
             ></BasicIcon>
-            <div class="flex items-center">
+            <div class="flex items-center" data-test="numQuestions">
               <p :class="metadataTitleClass">{{ numQuestions }} questions</p>
             </div>
           </div>
           <div :class="metadataCellClass">
-            <BasicIcon
-              name="student-in-class"
-              :iconClass="metadataIconClass"
-            ></BasicIcon>
+            <BasicIcon name="student-in-class" :iconClass="metadataIconClass"></BasicIcon>
 
-            <div class="flex items-center">
+            <div class="flex items-center" data-test="classNumber">
               <p :class="metadataTitleClass">Class {{ classNumber }}</p>
             </div>
           </div>
@@ -38,16 +37,13 @@
         <div :class="metadataContainerClass">
           <div :class="metadataCellClass" class="border-r-2">
             <BasicIcon name="math" :iconClass="metadataIconClass"></BasicIcon>
-            <div class="flex items-center">
+            <div class="flex items-center" data-test="subject">
               <p :class="metadataTitleClass">{{ subject }}</p>
             </div>
           </div>
           <div :class="metadataCellClass">
-            <BasicIcon
-              name="notepad"
-              :iconClass="metadataIconClass"
-            ></BasicIcon>
-            <div class="flex items-center">
+            <BasicIcon name="notepad" :iconClass="metadataIconClass"></BasicIcon>
+            <div class="flex items-center" data-test="examType">
               <p :class="metadataTitleClass">{{ examType }}</p>
             </div>
           </div>
