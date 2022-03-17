@@ -1,6 +1,5 @@
 <template>
   <div>
-    {{ isQuestionShown }}
     <splash
       v-if="!isQuestionShown"
       :title="title"
