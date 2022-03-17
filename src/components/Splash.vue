@@ -1,6 +1,9 @@
 <template>
   <div class="flex flex-col justify-center" @wheel="preventScrolling">
-    <BasicIcon name="splash" iconClass="w-11/12 bp-500:w-9/12 md:w-6/12 lg:w-5/12 mt-24 sm:mt-16 place-self-center"/>
+    <BasicIcon
+      name="splash"
+      iconClass="w-11/12 bp-500:w-9/12 md:w-6/12 lg:w-5/12 mt-24 sm:mt-16 place-self-center"
+    />
 
     <div
       class="bg-primary flex flex-col space-y-16 bp-360:space-y-14 bp-420:space-y-10 lg:space-y-12 items-center rounded-2xl py-12 bp-500:py-10 md:py-11 lg:py-12"
@@ -23,7 +26,10 @@
             </div>
           </div>
           <div :class="metadataCellClass">
-            <BasicIcon name="student-in-class" :iconClass="metadataIconClass"></BasicIcon>
+            <BasicIcon
+              name="student-in-class"
+              :iconClass="metadataIconClass"
+            ></BasicIcon>
 
             <div class="flex items-center" data-test="classNumber">
               <p :class="metadataTitleClass">Class {{ classNumber }}</p>
@@ -39,7 +45,10 @@
             </div>
           </div>
           <div :class="metadataCellClass">
-            <BasicIcon name="notepad" :iconClass="metadataIconClass"></BasicIcon>
+            <BasicIcon
+              name="notepad"
+              :iconClass="metadataIconClass"
+            ></BasicIcon>
             <div class="flex items-center" data-test="examType">
               <p :class="metadataTitleClass">{{ examType }}</p>
             </div>

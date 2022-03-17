@@ -6,4 +6,9 @@ describe("Player", () => {
     cy.get('[data-test="splash"]').should("exist");
     cy.get('[data-test="header"]').should("not.exist");
   });
+
+  it("shows start button on splash screen", () => {
+    cy.visit("/");
+    cy.get('[data-test="startQuiz"]').should("exist");
+  });
 });
