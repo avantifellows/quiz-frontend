@@ -21,3 +21,10 @@ export interface IconButtonIconConfig {
   iconName: string;
   iconClass?: string;
 }
+
+export interface InputTextValidationConfig {
+  enabled: boolean;
+  isValid: boolean;
+  validMessage: String;
+  invalidMessage: String;
+}
