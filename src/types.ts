@@ -1,6 +1,5 @@
 // contains all the custom types that we want to use
 
-type itemType = "question";
 type questionType = "mcq" | "checkbox" | "subjective";
 
 export interface Question {
@@ -12,18 +11,13 @@ export interface Question {
   max_char_limit: number | null;
 }
 
-export interface Item {
-  type: itemType;
-  details: Question;
-}
-
 export interface IconButtonTitleConfig {
   value: string;
-  class: string;
+  class?: string;
 }
 
 export interface IconButtonIconConfig {
   enabled: boolean;
   iconName: string;
-  iconClass: string;
+  iconClass?: string;
 }
