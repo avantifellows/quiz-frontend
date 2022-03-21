@@ -46,8 +46,8 @@
           </div>
           <div :class="metadataCellClass">
             <BaseIcon name="notepad" :iconClass="metadataIconClass"></BaseIcon>
-            <div class="flex items-center" data-test="examType">
-              <p :class="metadataTitleClass">{{ examType }}</p>
+            <div class="flex items-center" data-test="quizType">
+              <p :class="metadataTitleClass">{{ quizType }}</p>
             </div>
           </div>
         </div>
