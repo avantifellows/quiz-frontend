@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col justify-center" @wheel="preventScrolling">
-    <BasicIcon
+    <BaseIcon
       name="splash"
       iconClass="w-11/12 bp-500:w-9/12 md:w-6/12 lg:w-5/12 mt-24 sm:mt-16 place-self-center"
     />
@@ -17,19 +17,19 @@
       <div class="flex flex-col space-y-4 w-full items-center">
         <div :class="metadataContainerClass">
           <div :class="metadataCellClass" class="border-r-2">
-            <BasicIcon
+            <BaseIcon
               name="question-mark-round"
               :iconClass="metadataIconClass"
-            ></BasicIcon>
+            ></BaseIcon>
             <div class="flex items-center" data-test="numQuestions">
               <p :class="metadataTitleClass">{{ numQuestions }} questions</p>
             </div>
           </div>
           <div :class="metadataCellClass">
-            <BasicIcon
+            <BaseIcon
               name="student-in-class"
               :iconClass="metadataIconClass"
-            ></BasicIcon>
+            ></BaseIcon>
 
             <div class="flex items-center" data-test="classNumber">
               <p :class="metadataTitleClass">Class {{ classNumber }}</p>
@@ -39,16 +39,13 @@
 
         <div :class="metadataContainerClass">
           <div :class="metadataCellClass" class="border-r-2">
-            <BasicIcon name="math" :iconClass="metadataIconClass"></BasicIcon>
+            <BaseIcon name="math" :iconClass="metadataIconClass"></BaseIcon>
             <div class="flex items-center" data-test="subject">
               <p :class="metadataTitleClass">{{ subject }}</p>
             </div>
           </div>
           <div :class="metadataCellClass">
-            <BasicIcon
-              name="notepad"
-              :iconClass="metadataIconClass"
-            ></BasicIcon>
+            <BaseIcon name="notepad" :iconClass="metadataIconClass"></BaseIcon>
             <div class="flex items-center" data-test="examType">
               <p :class="metadataTitleClass">{{ examType }}</p>
             </div>
@@ -70,13 +67,13 @@
 
 <script lang="ts">
 import IconButton from "./UI/Buttons/IconButton.vue";
-import BasicIcon from "./UI/Icons/BasicIcon.vue";
+import BaseIcon from "./UI/Icons/BaseIcon.vue";
 import { defineComponent, computed, reactive, toRefs } from "vue";
 export default defineComponent({
   name: "Splash",
   components: {
     IconButton,
-    BasicIcon,
+    BaseIcon,
   },
   props: {
     title: {
@@ -87,7 +84,7 @@ export default defineComponent({
       type: String,
       required: true,
     },
-    examType: {
+    quizType: {
       type: String,
       required: true,
     },
@@ -114,7 +111,7 @@ export default defineComponent({
       metadataTitleClass: "font-poppins-regular text-sm sm:text-base",
     });
 
-    /** title of the plio. "Untitled" if no title is present */
+    /** title of the quiz. "Untitled" if no title is present */
     const displayTitle = computed(() => {
       if (props.title != undefined) return props.title || "Untitled";
       return "Untitled";
