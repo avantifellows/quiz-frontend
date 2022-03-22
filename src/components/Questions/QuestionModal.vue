@@ -1,0 +1,158 @@
+<template>
+  <div>
+    <Body
+      class="mt-10"
+      :text="currentQuestion.text"
+      :options="currentQuestion.options"
+      :correctAnswer="questionCorrectAnswer"
+      :questionType="questionType"
+      :isSurveyQuestion="isSurveyQuestion"
+      :maxCharLimit="currentQuestion.max_char_limit"
+      :isPortrait="isPortrait"
+      :imageData="currentQuestion?.image"
+      :draftAnswer="draftResponses[currentQuestionIndex]"
+      :submittedAnswer="currentQuestionResponseAnswer"
+      :isAnswerSubmitted="isAnswerSubmitted"
+      @option-selected="questionOptionSelected"
+    ></Body>
+  </div>
+</template>
+
+<script lang="ts">
+import Body from "./Body.vue";
+import {
+  defineComponent,
+  PropType,
+  reactive,
+  toRefs,
+  onUnmounted,
+  computed,
+} from "vue";
+import { isScreenPortrait } from "../../services/Functional/Utilities";
+import { Question, SubmittedResponse, DraftResponse } from "../../types";
+
+export default defineComponent({
+  name: "QuestionModal",
+  components: {
+    Body,
+  },
+  props: {
+    questions: {
+      required: true,
+      type: Array as PropType<Question[]>,
+    },
+    currentQuestionIndex: {
+      type: Number,
+      default: 0,
+    },
+    responses: {
+      required: true,
+      type: Array as PropType<SubmittedResponse[]>,
+    },
+  },
+  setup(props) {
+    const state = reactive({
+      isPortrait: true, // whether the screen is in portrait mode
+      draftResponses: [] as DraftResponse[], // stores the options selected by the user but not yet submitted
+    });
+
+    function checkScreenOrientation() {
+      state.isPortrait = isScreenPortrait();
+    }
+
+    /**
+     * triggered upon selecting an option
+     */
+    function questionOptionSelected(optionIndex: number) {
+      if (isQuestionTypeMCQ.value) {
+        // for MCQ, simply set the option as the current response
+        state.draftResponses[props.currentQuestionIndex] = [optionIndex];
+        return;
+      }
+
+      if (isQuestionTypeCheckbox.value) {
+        if (state.draftResponses[props.currentQuestionIndex] == null) {
+          state.draftResponses[props.currentQuestionIndex] = [];
+        }
+
+        // if the selection option was already in the response
+        // remove it from the response (uncheck it); otherwise add it (check it)
+        const currentResponse =
+          state.draftResponses[props.currentQuestionIndex];
+
+        // TODO: this is ideally not needed but typescript is giving an error that
+        // "currentResponse could be possibly null" without this line, which is
+        // not correct as the null case has been handled above.
+        if (currentResponse == null) return;
+
+        const optionPositionInResponse = currentResponse.indexOf(optionIndex);
+        if (optionPositionInResponse != -1) {
+          currentResponse.splice(optionPositionInResponse, 1);
+        } else {
+          currentResponse.push(optionIndex);
+          currentResponse.sort();
+        }
+      }
+    }
+
+    onUnmounted(() => {
+      // remove listeners
+      window.removeEventListener("resize", checkScreenOrientation);
+    });
+
+    const currentQuestion = computed(
+      () => props.questions[props.currentQuestionIndex]
+    );
+
+    const questionType = computed(() => currentQuestion.value.type);
+
+    const questionCorrectAnswer = computed(
+      () => currentQuestion.value?.correct_answer
+    );
+
+    const isSurveyQuestion = computed(() => currentQuestion.value.survey);
+
+    const isQuestionTypeCheckbox = computed(
+      () => questionType.value == "checkbox"
+    );
+    const isQuestionTypeMCQ = computed(() => questionType.value == "mcq");
+
+    const currentQuestionResponse = computed(
+      () => props.responses[props.currentQuestionIndex]
+    );
+
+    const currentQuestionResponseAnswer = computed(
+      () => currentQuestionResponse.value.answer
+    );
+
+    const isAnswerSubmitted = computed(() => {
+      if (currentQuestionResponseAnswer.value == null) return false;
+      if (isQuestionTypeMCQ.value || isQuestionTypeCheckbox.value) {
+        return currentQuestionResponseAnswer.value.length > 0;
+      }
+      return true;
+    });
+
+    // instantiating draftResponses here
+    props.questions.forEach(() => {
+      state.draftResponses.push(null);
+    });
+
+    // determine the screen orientation when the item modal is created
+    checkScreenOrientation();
+    // add listener for screen size being changed
+    window.addEventListener("resize", checkScreenOrientation);
+
+    return {
+      ...toRefs(state),
+      questionOptionSelected,
+      currentQuestion,
+      questionType,
+      questionCorrectAnswer,
+      isSurveyQuestion,
+      currentQuestionResponseAnswer,
+      isAnswerSubmitted,
+    };
+  },
+});
+</script>

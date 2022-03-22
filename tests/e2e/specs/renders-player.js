@@ -6,13 +6,13 @@ describe("Player", () => {
   });
   it("shows splash screen", () => {
     cy.get('[data-test="splash"]').should("exist");
-    cy.get('[data-test="header"]').should("not.exist");
+    cy.get('[data-test="modal"]').should("not.exist");
     cy.get('[data-test="startQuiz"]').should("exist");
   });
 
   it("on click of start button on splash screen", () => {
     cy.get('[data-test="startQuiz"]').trigger("click");
     cy.get('[data-test="splash"]').should("not.exist");
-    cy.get('[data-test="header"]').should("exist");
+    cy.get('[data-test="modal"]').should("exist");
   });
 });

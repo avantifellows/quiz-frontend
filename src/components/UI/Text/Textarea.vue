@@ -71,23 +71,23 @@ export default defineComponent({
     const state = reactive({
       localValue: props.value,
     });
-    function inputChange(event) {
+    function inputChange(event: Event) {
       // invoked on input change
       context.emit("update:value", state.localValue);
 
       // auto expand the textbox if a `maxHeightLimit` has been specified
-      if (this.maxHeightLimit > 0) {
-        const textareaElement = event.srcElement;
+      if (props.maxHeightLimit > 0) {
+        const textareaElement = event.target as HTMLInputElement;
         textareaElement.style.height = "";
         textareaElement.style.height =
-          Math.min(textareaElement.scrollHeight, this.maxHeightLimit) + "px";
+          Math.min(textareaElement.scrollHeight, props.maxHeightLimit) + "px";
       }
     }
-    function keyPress(event) {
+    function keyPress(event: KeyboardEvent) {
       // invoked by pressing a key
       context.emit("keypress", event);
     }
-    function keyDown(event) {
+    function keyDown(event: KeyboardEvent) {
       // invoked by the event keydown
       context.emit("keydown", event);
     }
