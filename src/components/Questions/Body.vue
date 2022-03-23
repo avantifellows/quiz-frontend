@@ -221,26 +221,16 @@ export default defineComponent({
     function optionBackgroundClass(optionIndex: Number) {
       // returns the background class for the option
       if (!props.isAnswerSubmitted) return {};
-      if (isQuestionTypeMCQ.value) {
-        if ([optionIndex] == props.correctAnswer && !props.isSurveyQuestion) {
-          return state.correctOptionClass;
-        }
-        if ([optionIndex] == props.submittedAnswer) {
-          if (props.isSurveyQuestion) return state.surveyAnswerClass;
-          return state.wrongOptionClass;
-        }
+
+      if (
+        !props.isSurveyQuestion &&
+        props.correctAnswer.indexOf(optionIndex) != -1
+      ) {
+        return state.correctOptionClass;
       }
-      if (isQuestionTypeCheckbox.value) {
-        if (
-          !props.isSurveyQuestion &&
-          props.correctAnswer.indexOf(optionIndex) != -1
-        ) {
-          return state.correctOptionClass;
-        }
-        if (props.submittedAnswer.indexOf(optionIndex) != -1) {
-          if (props.isSurveyQuestion) return state.surveyAnswerClass;
-          return state.wrongOptionClass;
-        }
+      if (props.submittedAnswer.indexOf(optionIndex) != -1) {
+        if (props.isSurveyQuestion) return state.surveyAnswerClass;
+        return state.wrongOptionClass;
       }
     }
 

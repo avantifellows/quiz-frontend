@@ -1,7 +1,7 @@
 <template>
   <div class="h-screen">
     <Splash
-      v-if="!isQuestionShown"
+      v-if="isSplashShown"
       :title="title"
       :subject="metadata.subject"
       :classNumber="metadata.class"
@@ -13,8 +13,8 @@
 
     <QuestionModal
       :questions="questions"
-      :currentQuestionIndex="currentQuestionIndex"
-      :responses="responses"
+      v-model:currentQuestionIndex="currentQuestionIndex"
+      v-model:responses="responses"
       v-if="isQuestionShown"
       data-test="modal"
     ></QuestionModal>
@@ -49,30 +49,39 @@ export default defineComponent({
           options: ["option 1", "option 2"],
           correct_answer: [0],
           image: null,
+          survey: false,
           max_char_limit: null,
         },
         {
-          type: "subjective",
+          type: "checkbox",
           text: "efgh",
-          options: null,
-          correct_answer: null,
+          options: ["option 1", "option 2", "op3", "option 4"],
+          correct_answer: [2, 3],
           image: null,
-          max_char_limit: 1000,
+          survey: false,
+          max_char_limit: null,
         },
         {
           type: "checkbox",
           text: "ijkl",
           options: ["", "", ""],
           correct_answer: [0, 1],
-          image:
-            "https://plio-prod-assets.s3.ap-south-1.amazonaws.com/images/afbxudrmbl.png",
+          image: {
+            url: "https://plio-prod-assets.s3.ap-south-1.amazonaws.com/images/afbxudrmbl.png",
+            alt_text: "some image",
+          },
+          survey: true,
           max_char_limit: null,
         },
       ] as Question[],
       responses: [] as SubmittedResponse[], // holds the responses to each item submitted by the viewer
     });
+    const isSplashShown = computed(() => state.currentQuestionIndex == -1);
     const isQuestionShown = computed(() => {
-      return state.currentQuestionIndex >= 0;
+      return (
+        state.currentQuestionIndex >= 0 &&
+        state.currentQuestionIndex < state.questions.length
+      );
     });
 
     function startQuiz() {
@@ -88,6 +97,7 @@ export default defineComponent({
     return {
       ...toRefs(state),
       isQuestionShown,
+      isSplashShown,
       startQuiz,
     };
   },

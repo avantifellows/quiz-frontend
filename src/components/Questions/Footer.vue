@@ -5,7 +5,6 @@
       <icon-button
         :iconConfig="previousQuestionButtonIconConfig"
         :buttonClass="previousQuestionButtonClass"
-        :isDisabled="!isSubmitEnabled"
         v-if="isPreviousButtonEnabled"
         @click="gotToPreviousQuestion"
         data-test="previousQuestionButton"

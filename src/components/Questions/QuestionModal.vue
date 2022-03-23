@@ -21,6 +21,9 @@
       :isAnswerSubmitted="isAnswerSubmitted"
       :isPreviousButtonEnabled="currentQuestionIndex > 0"
       :isSubmitEnabled="isAttemptValid"
+      @submit-question="submitQuestion"
+      @continue="showNextQuestion"
+      @previous="showPreviousQuestion"
     ></Footer>
   </div>
 </template>
@@ -35,6 +38,7 @@ import {
   toRefs,
   onUnmounted,
   computed,
+  watch,
 } from "vue";
 import { isScreenPortrait } from "../../services/Functional/Utilities";
 import { Question, SubmittedResponse, DraftResponse } from "../../types";
@@ -59,8 +63,10 @@ export default defineComponent({
       type: Array as PropType<SubmittedResponse[]>,
     },
   },
-  setup(props) {
+  setup(props, context) {
     const state = reactive({
+      localCurrentQuestionIndex: props.currentQuestionIndex, // local copy of currentQuestionIndex
+      localResponses: props.responses, // local copy of responses
       isPortrait: true, // whether the screen is in portrait mode
       draftResponses: [] as DraftResponse[], // stores the options selected by the user but not yet submitted
     });
@@ -68,6 +74,21 @@ export default defineComponent({
     function checkScreenOrientation() {
       state.isPortrait = isScreenPortrait();
     }
+
+    watch(
+      () => state.localCurrentQuestionIndex,
+      (newValue) => {
+        context.emit("update:currentQuestionIndex", newValue);
+      }
+    );
+
+    watch(
+      () => state.localResponses,
+      (newValue) => {
+        context.emit("update:responses", newValue);
+      },
+      { deep: true }
+    );
 
     /**
      * triggered upon selecting an option
@@ -102,6 +123,20 @@ export default defineComponent({
           currentResponse.sort();
         }
       }
+    }
+
+    function submitQuestion() {
+      state.localResponses[props.currentQuestionIndex].answer =
+        state.draftResponses[props.currentQuestionIndex];
+      context.emit("submit-question");
+    }
+
+    function showNextQuestion() {
+      state.localCurrentQuestionIndex += 1;
+    }
+
+    function showPreviousQuestion() {
+      state.localCurrentQuestionIndex -= 1;
     }
 
     onUnmounted(() => {
@@ -164,6 +199,9 @@ export default defineComponent({
     return {
       ...toRefs(state),
       questionOptionSelected,
+      submitQuestion,
+      showNextQuestion,
+      showPreviousQuestion,
       currentQuestion,
       questionType,
       questionCorrectAnswer,
@@ -173,5 +211,6 @@ export default defineComponent({
       isAttemptValid,
     };
   },
+  emits: ["update:currentQuestionIndex", "update:responses", "submit-question"],
 });
 </script>
