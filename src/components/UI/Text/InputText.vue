@@ -9,11 +9,10 @@
       <div class="pr-2" v-if="isValidationEnabled">
         <div class="flex text-xs">
           <!-- validation icon -->
-          <inline-svg
-            :src="validationIcon"
-            class="h-5 w-2.5 place-self-center"
-            :class="validationColorClass"
-          ></inline-svg>
+          <BaseIcon
+            :name="validationIconName"
+            :iconClass="validationIconClass"
+          />
 
           <!-- validation message -->
           <p
@@ -33,6 +32,7 @@
 <script lang="ts">
 import { computed, PropType, defineComponent } from "vue";
 import { InputTextValidationConfig } from "../../../types";
+import BaseIcon from "../Icons/BaseIcon.vue";
 
 export default defineComponent({
   name: "InputText",
@@ -76,15 +76,18 @@ export default defineComponent({
       }
       return props.validation.invalidMessage;
     });
-    const validationIcon = computed(() => {
+    const validationIconName = computed(() => {
       // fetches and returns the icon object, depending on "isValid"
       if (isValid.value) {
-        // @ts-ignore
-        return require("@/assets/images/check.svg");
+        return "correct";
       }
-      // @ts-ignore
-      return require("@/assets/images/times-solid.svg");
+      return "wrong";
     });
+
+    const validationIconClass = computed(() => [
+      validationColorClass.value,
+      `h-5 w-2.5 place-self-center`,
+    ]);
 
     return {
       isTitleShown,
@@ -92,7 +95,8 @@ export default defineComponent({
       isValid,
       validationColorClass,
       validationMessage,
-      validationIcon,
+      validationIconName,
+      validationIconClass,
     };
   },
 });

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col justify-center" @wheel="preventScrolling">
+  <div class="flex flex-col justify-center h-full" @wheel="preventScrolling">
     <BaseIcon
       name="splash"
       iconClass="w-11/12 bp-500:w-9/12 md:w-6/12 lg:w-5/12 mt-24 sm:mt-16 place-self-center"

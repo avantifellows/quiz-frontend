@@ -1,5 +1,7 @@
 <template>
-  <div>
+  <div
+    class="flex flex-col bg-white w-full h-full justify-between overflow-hidden"
+  >
     <Body
       class="mt-10"
       :text="currentQuestion.text"
@@ -15,11 +17,17 @@
       :isAnswerSubmitted="isAnswerSubmitted"
       @option-selected="questionOptionSelected"
     ></Body>
+    <Footer
+      :isAnswerSubmitted="isAnswerSubmitted"
+      :isPreviousButtonEnabled="currentQuestionIndex > 0"
+      :isSubmitEnabled="isAttemptValid"
+    ></Footer>
   </div>
 </template>
 
 <script lang="ts">
 import Body from "./Body.vue";
+import Footer from "./Footer.vue";
 import {
   defineComponent,
   PropType,
@@ -35,6 +43,7 @@ export default defineComponent({
   name: "QuestionModal",
   components: {
     Body,
+    Footer,
   },
   props: {
     questions: {
@@ -133,6 +142,15 @@ export default defineComponent({
       return true;
     });
 
+    const isAttemptValid = computed(() => {
+      const currentDraftResponse = state.draftResponses[
+        props.currentQuestionIndex
+      ] as DraftResponse;
+      if (currentDraftResponse == null) return false;
+      // if (this.isQuestionTypeSubjective) return currentDraftResponse != "";
+      return currentDraftResponse.length > 0;
+    });
+
     // instantiating draftResponses here
     props.questions.forEach(() => {
       state.draftResponses.push(null);
@@ -152,6 +170,7 @@ export default defineComponent({
       isSurveyQuestion,
       currentQuestionResponseAnswer,
       isAnswerSubmitted,
+      isAttemptValid,
     };
   },
 });

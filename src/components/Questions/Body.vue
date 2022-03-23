@@ -13,10 +13,10 @@
         class="flex justify-center"
         v-if="isImageLoading"
       >
-        <inline-svg
-          :src="require('@/assets/images/spinner-solid.svg')"
-          class="animate-spin h-4 object-scale-down"
-        ></inline-svg>
+        <BaseIcon
+          name="spinner-solid"
+          iconClass="animate-spin h-4 object-scale-down"
+        />
       </div>
       <!-- question image container -->
       <div :class="questionImageContainerClass" v-if="isQuestionImagePresent">
@@ -109,8 +109,12 @@
 <script lang="ts">
 // import Textarea from "../UI/Text/Textarea.vue";
 import { defineComponent, reactive, toRefs, computed } from "vue";
+import BaseIcon from "../UI/Icons/BaseIcon.vue";
 
 export default defineComponent({
+  components: {
+    BaseIcon,
+  },
   // data() {
   //   return {
   //     subjectiveAnswer: "", // holds the answer to the subjective question

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="h-screen">
     <Splash
       v-if="!isQuestionShown"
       :title="title"
@@ -15,7 +15,6 @@
       :questions="questions"
       :currentQuestionIndex="currentQuestionIndex"
       :responses="responses"
-      class="flex flex-col bg-white w-full h-full overflow-hidden"
       v-if="isQuestionShown"
       data-test="modal"
     ></QuestionModal>
@@ -45,7 +44,7 @@ export default defineComponent({
       },
       questions: [
         {
-          type: "checkbox",
+          type: "mcq",
           text: "abcd",
           options: ["option 1", "option 2"],
           correct_answer: [0],
