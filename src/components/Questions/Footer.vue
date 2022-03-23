@@ -48,9 +48,10 @@ export default defineComponent({
   setup(props, context) {
     const state = reactive({
       // main styling class for this component
-      containerClass: "flex w-full bg-white p-6 justify-between" as String,
+      containerClass:
+        "flex w-full bg-white p-6 bp-500:p-8 md:p-10 lg:p-12 justify-between" as String,
       previousQuestionButtonClass:
-        "bg-yellow-500 hover:bg-yellow-600 ring-yellow-500 p-2 px-6 rounded-xl shadow-xl" as String,
+        "bg-yellow-500 hover:bg-yellow-600 ring-yellow-500 p-2 px-6 bp-500:p-4 bp-500:px-8 rounded-2xl shadow-xl" as String,
       previousQuestionButtonIconConfig: {
         enabled: true,
         iconName: "right-arrow",
@@ -70,7 +71,8 @@ export default defineComponent({
     const submitButtonTitleConfig = computed(() => {
       return {
         value: props.isAnswerSubmitted ? "Continue" : "Submit",
-        class: "text-white text-sm sm:text-md lg:text-lg font-bold",
+        class:
+          "text-white text-md bp-500:text-lg lg:text-xl xl:text-2xl font-bold",
       };
     });
 
@@ -81,7 +83,7 @@ export default defineComponent({
         "bg-primary hover:bg-primary-hover ring-primary":
           props.isAnswerSubmitted,
       },
-      `p-4 px-8 rounded-xl shadow-xl disabled:opacity-50 disabled:pointer-events-none`,
+      `p-4 px-8 bp-500:p-6 bp-500:px-12 rounded-2xl shadow-xl disabled:opacity-50 disabled:pointer-events-none`,
     ]);
 
     return {
