@@ -159,12 +159,12 @@ export default defineComponent({
     },
     correctAnswer: {
       default: null,
-      type: Array,
+      type: [String, Array],
     },
     /** answer for the question which has been submitted */
     submittedAnswer: {
       default: null,
-      type: Array,
+      type: [String, Array],
     },
     /** answer for the question which has been entered but not submitted */
     draftAnswer: {
@@ -220,7 +220,13 @@ export default defineComponent({
 
     function optionBackgroundClass(optionIndex: Number) {
       // returns the background class for the option
-      if (!props.isAnswerSubmitted) return {};
+      if (
+        !props.isAnswerSubmitted ||
+        typeof props.correctAnswer == "string" ||
+        typeof props.submittedAnswer == "string"
+      ) {
+        return {};
+      }
 
       if (
         !props.isSurveyQuestion &&

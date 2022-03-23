@@ -31,8 +31,8 @@ export interface InputTextValidationConfig {
   invalidMessage: String;
 }
 
-export type DraftResponse = number[] | null;
+export type DraftResponse = number[] | string | null;
 
 export interface SubmittedResponse {
-  answer: number[] | null;
+  answer: number[] | string | null;
 }

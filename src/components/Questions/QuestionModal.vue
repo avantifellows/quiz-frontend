@@ -113,7 +113,9 @@ export default defineComponent({
         // TODO: this is ideally not needed but typescript is giving an error that
         // "currentResponse could be possibly null" without this line, which is
         // not correct as the null case has been handled above.
-        if (currentResponse == null) return;
+        if (currentResponse == null || typeof currentResponse == "string") {
+          return;
+        }
 
         const optionPositionInResponse = currentResponse.indexOf(optionIndex);
         if (optionPositionInResponse != -1) {
