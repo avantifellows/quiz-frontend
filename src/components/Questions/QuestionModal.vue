@@ -19,7 +19,7 @@
     ></Body>
     <Footer
       :isAnswerSubmitted="isAnswerSubmitted"
-      :isPreviousButtonEnabled="currentQuestionIndex > 0"
+      :isPreviousButtonShown="currentQuestionIndex > 0"
       :isSubmitEnabled="isAttemptValid"
       @submit-question="submitQuestion"
       @continue="showNextQuestion"
