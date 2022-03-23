@@ -15,7 +15,7 @@
       >
         <BaseIcon
           name="spinner-solid"
-          iconClass="animate-spin h-4 object-scale-down"
+          iconClass="animate-spin h-4 w-4 object-scale-down"
         />
       </div>
       <!-- question image container -->
@@ -108,7 +108,7 @@
 
 <script lang="ts">
 // import Textarea from "../UI/Text/Textarea.vue";
-import { defineComponent, reactive, toRefs, computed } from "vue";
+import { defineComponent, reactive, toRefs, computed, watch } from "vue";
 import BaseIcon from "../UI/Icons/BaseIcon.vue";
 
 export default defineComponent({
@@ -136,17 +136,9 @@ export default defineComponent({
   //     }
   //     this.$emit("answer-updated", this.subjectiveAnswer);
   //   },
-  //   imageData: {
-  //     // invoked when another question pops up which has an image
-  //     handler(value) {
-  //       if (value != null) this.startImageLoading();
-  //     },
-  //     deep: true,
-  //   },
   // },
   // async created() {
   //   this.subjectiveAnswer = this.defaultAnswer;
-  //   if (this.isQuestionImagePresent) this.startImageLoading();
   // },
   props: {
     text: {
@@ -250,6 +242,10 @@ export default defineComponent({
       return [{ "h-4 sm:h-5": optionText == "" }, "flex content-center"];
     }
 
+    function startImageLoading() {
+      state.isImageLoading = true;
+    }
+
     // styling class for the question image and loading spinner containers
     const questionImageAreaClass = computed(() => ({
       "h-56 mb-4": props.isPortrait,
@@ -309,6 +305,17 @@ export default defineComponent({
         (!props.isPortrait && !isQuestionImagePresent.value),
     }));
 
+    watch(
+      () => props.imageData,
+      (newValue) => {
+        // invoked when another item pops up which has an image
+        if (newValue != null) startImageLoading();
+      },
+      { deep: true }
+    );
+
+    if (isQuestionImagePresent.value) startImageLoading();
+
     return {
       ...toRefs(state),
       imageLoaded,
@@ -331,10 +338,6 @@ export default defineComponent({
   emits: ["option-selected"],
   // components: { Textarea },
   // methods: {
-  //   startImageLoading() {
-  //     // sets the image state as loading
-  //     this.isImageLoading = true;
-  //   },
   //   checkCharLimit(event) {
   //     // checks if character limit is reached in case it is set
   //     if (!this.hasCharLimit) return;
