@@ -1,5 +1,5 @@
 <template>
-  <InputText :title="title" :validation="validation">
+  <InputText :title="title" :inputValidation="inputValidation">
     <div class="flex relative mt-1">
       <!-- input text area -->
       <textarea
@@ -34,7 +34,7 @@ export default defineComponent({
       type: String,
     },
     /** whether to show any validation for the input */
-    validation: {
+    inputValidation: {
       default: () => ({
         enabled: false,
       }),
@@ -71,7 +71,7 @@ export default defineComponent({
     const state = reactive({
       localValue: props.value,
     });
-    function inputChange(event: Event) {
+    function inputChange(event: KeyboardEvent) {
       // invoked on input change
       context.emit("update:value", state.localValue);
 

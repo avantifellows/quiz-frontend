@@ -1,11 +1,14 @@
 <template>
-  <div :class="containerClass">
+  <div
+    class="flex w-full bg-white p-6 bp-500:p-8 md:p-10 lg:p-12 justify-between"
+  >
     <div class="place-self-start flex h-full">
       <!-- back button -->
       <icon-button
         :iconConfig="previousQuestionButtonIconConfig"
-        :buttonClass="previousQuestionButtonClass"
-        v-if="isPreviousButtonEnabled"
+        buttonClass="bg-yellow-500 hover:bg-yellow-600 ring-yellow-500 p-2 px-6 bp-500:p-4 bp-500:px-8 rounded-2xl shadow-xl"
+        ariaLabel="Previous Question"
+        v-if="isPreviousButtonShown"
         @click="gotToPreviousQuestion"
         data-test="previousQuestionButton"
       ></icon-button>
@@ -16,7 +19,7 @@
       <icon-button
         :titleConfig="submitButtonTitleConfig"
         :buttonClass="submitButtonClass"
-        :isDisabled="!isSubmitEnabled"
+        :isDisabled="!isAnswerSubmitted && !isSubmitEnabled"
         @click="submitQuestion"
         data-test="submitButton"
       ></icon-button>
@@ -40,18 +43,13 @@ export default defineComponent({
       default: false,
       type: Boolean,
     },
-    isPreviousButtonEnabled: {
+    isPreviousButtonShown: {
       default: false,
       type: Boolean,
     },
   },
   setup(props, context) {
     const state = reactive({
-      // main styling class for this component
-      containerClass:
-        "flex w-full bg-white p-6 bp-500:p-8 md:p-10 lg:p-12 justify-between" as String,
-      previousQuestionButtonClass:
-        "bg-yellow-500 hover:bg-yellow-600 ring-yellow-500 p-2 px-6 bp-500:p-4 bp-500:px-8 rounded-2xl shadow-xl" as String,
       previousQuestionButtonIconConfig: {
         enabled: true,
         iconName: "right-arrow",
@@ -61,7 +59,7 @@ export default defineComponent({
 
     function submitQuestion() {
       if (props.isAnswerSubmitted) context.emit("continue");
-      else context.emit("submit-question");
+      else context.emit("submit");
     }
 
     function gotToPreviousQuestion() {
@@ -94,6 +92,6 @@ export default defineComponent({
       submitButtonClass,
     };
   },
-  emits: ["submit-question", "previous", "continue"],
+  emits: ["submit", "previous", "continue"],
 });
 </script>

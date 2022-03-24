@@ -42,7 +42,7 @@ export default defineComponent({
       type: String,
     },
     /** whether to show any validation for the input */
-    validation: {
+    inputValidation: {
       default: () => ({
         enabled: false,
       }),
@@ -56,11 +56,11 @@ export default defineComponent({
 
     const isValidationEnabled = computed(() => {
       // whether input validation is on
-      return props.validation.enabled;
+      return props.inputValidation.enabled;
     });
     const isValid = computed(() => {
       // whether the input is valid
-      return isValidationEnabled.value && props.validation.isValid;
+      return isValidationEnabled.value && props.inputValidation.isValid;
     });
     const validationColorClass = computed(() => {
       // https://v3.vuejs.org/guide/class-and-style.html#class-and-style-bindings
@@ -72,9 +72,9 @@ export default defineComponent({
     const validationMessage = computed(() => {
       // message to show for valid/invalid input
       if (isValid.value) {
-        return props.validation.validMessage;
+        return props.inputValidation.validMessage;
       }
-      return props.validation.invalidMessage;
+      return props.inputValidation.invalidMessage;
     });
     const validationIconName = computed(() => {
       // fetches and returns the icon object, depending on "isValid"
