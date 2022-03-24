@@ -176,7 +176,7 @@ export default defineComponent({
       type: Boolean,
     },
     questionType: {
-      required: true,
+      default: "mcq",
       type: String,
     },
     /** the character limit to be used if present */
