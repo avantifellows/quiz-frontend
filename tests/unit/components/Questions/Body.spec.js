@@ -1,4 +1,4 @@
-import { mount } from "@vue/test-utils";
+import { flushPromises, mount } from "@vue/test-utils";
 import Body from "@/components/Questions/Body";
 
 describe("Body.vue", () => {
@@ -20,18 +20,17 @@ describe("Body.vue", () => {
       expect(wrapper.find('[data-test="text"]').text()).toBe(testQuestionText);
     });
 
-    // it("starts loading image if imageData is passed", () => {
-    //   // const startImageLoading = (wrapper.vm.startImageLoading = jest.fn());
-    //   wrapper.setProps({
-    //     questionType: "mcq",
-    //     imageData: {
-    //       url: "mock",
-    //       alt_text: "mock",
-    //     },
-    //   });
-    //   console.log(wrapper.vm.isImageLoading);
-    //   // expect(wrapper.vm.isImageLoading).toHaveBeenCalled();
-    // });
+    it("starts loading image if imageData is passed", async () => {
+      await wrapper.setProps({
+        questionType: "mcq",
+        imageData: {
+          url: "mock",
+          alt_text: "mock",
+        },
+      });
+      await flushPromises();
+      expect(wrapper.vm.isImageLoading).toBeTruthy();
+    });
   });
 
   // describe("mcq questions", () => {
