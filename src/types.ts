@@ -24,13 +24,6 @@ export interface IconButtonIconConfig {
   iconClass?: string;
 }
 
-export interface InputTextValidationConfig {
-  enabled: boolean;
-  isValid: boolean;
-  validMessage: String;
-  invalidMessage: String;
-}
-
 export type DraftResponse = number[] | null;
 
 export interface SubmittedResponse {
