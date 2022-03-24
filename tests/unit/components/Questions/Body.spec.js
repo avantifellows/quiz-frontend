@@ -33,167 +33,146 @@ describe("Body.vue", () => {
     });
   });
 
-  // describe("mcq questions", () => {
-  //   const options = ["a", ""];
+  describe("mcq questions", () => {
+    const options = ["a", ""];
+    const wrapper = mount(Body, {
+      props: {
+        options: options,
+      },
+    });
 
-  //   beforeEach(() => {
-  //     wrapper = mount(Body, {
-  //       props: {
-  //         options: options,
-  //       },
-  //     });
-  //   });
+    it("renders options", () => {
+      expect(wrapper.find('[data-test="option-0"]').exists()).toBe(true);
+      expect(wrapper.find('[data-test="option-1"]').exists()).toBe(true);
+      expect(wrapper.find('[data-test="option-2"]').exists()).toBe(false);
+      expect(wrapper.find('[data-test="option-0"]').text()).toBe(options[0]);
+      expect(wrapper.vm.optionInputType).toBe("radio");
+    });
 
-  //   it("renders mcq options", async () => {
-  //     const options = ["a", ""];
-  //     await wrapper.setProps({
-  //       options: options,
-  //     });
-  //     expect(wrapper.find('[data-test="option-0"]').exists()).toBe(true);
-  //     expect(wrapper.find('[data-test="option-1"]').exists()).toBe(true);
-  //     expect(wrapper.find('[data-test="option-2"]').exists()).toBe(false);
-  //     expect(wrapper.find('[data-test="option-0"]').text()).toBe(options[0]);
-  //     expect(wrapper.vm.optionInputType).toBe("radio");
-  //   });
+    it("set options selected based on draft answer", async () => {
+      const draftAnswer = [0];
+      await wrapper.setProps({
+        draftAnswer: draftAnswer,
+      });
 
-  //   it("renders options", () => {
-  //     expect(wrapper.find('[data-test="option-0"]').exists()).toBe(true);
-  //     expect(wrapper.find('[data-test="option-1"]').exists()).toBe(true);
-  //     expect(wrapper.find('[data-test="option-2"]').exists()).toBe(false);
-  //     expect(wrapper.find('[data-test="option-0"]').text()).toBe(options[0]);
-  //     expect(wrapper.vm.optionInputType).toBe("radio");
-  //   });
+      expect(wrapper.vm.isOptionMarked(0)).toBeTruthy();
+      expect(wrapper.vm.isOptionMarked(1)).toBeFalsy();
+    });
 
-  //   it("set options selected based on draft answer", async () => {
-  //     const draftAnswer = 0;
-  //     await wrapper.setProps({
-  //       draftAnswer: draftAnswer,
-  //     });
+    it("option text selected correctly", () => {
+      wrapper.find('[data-test="option-0"]').trigger("click");
+      expect(wrapper.emitted()).toHaveProperty("option-selected");
+    });
 
-  //     expect(wrapper.vm.isOptionMarked(draftAnswer)).toBeTruthy();
-  //     expect(wrapper.vm.isOptionMarked(1)).toBeFalsy();
-  //   });
+    it("option radio selected correctly", () => {
+      wrapper.find('[data-test="optionSelector-0"]').trigger("click");
+      expect(wrapper.emitted()).toHaveProperty("option-selected");
+    });
 
-  //   it("option text selected correctly", () => {
-  //     wrapper.find('[data-test="option-0"]').trigger("click");
-  //     expect(wrapper.emitted()).toHaveProperty("option-selected");
-  //   });
+    it("highlights options based on correct/wrong answers", async () => {
+      const submittedAnswer = [0];
+      const correctAnswer = [1];
+      await wrapper.setProps({
+        submittedAnswer: submittedAnswer,
+        correctAnswer: correctAnswer,
+        isAnswerSubmitted: true,
+      });
 
-  //   it("option radio selected correctly", () => {
-  //     wrapper.find('[data-test="optionSelector-0"]').trigger("click");
-  //     expect(wrapper.emitted()).toHaveProperty("option-selected");
-  //   });
+      expect(
+        wrapper.find(`[data-test="optionContainer-1"]`).classes()
+      ).toContain("bg-green-500");
+      expect(
+        wrapper.find(`[data-test="optionContainer-0"]`).classes()
+      ).toContain("bg-red-500");
+    });
 
-  //   it("highlights options based on correct/wrong answers", async () => {
-  //     const submittedAnswer = 0;
-  //     const correctAnswer = 1;
-  //     await wrapper.setProps({
-  //       submittedAnswer: submittedAnswer,
-  //       correctAnswer: correctAnswer,
-  //       isAnswerSubmitted: true,
-  //     });
+    it("highlights options as gray for survey mode answers", async () => {
+      const submittedAnswer = [0];
+      await wrapper.setProps({
+        submittedAnswer: submittedAnswer,
+        isAnswerSubmitted: true,
+        isSurveyQuestion: true,
+      });
 
-  //     expect(
-  //       wrapper.find(`[data-test="optionContainer-${correctAnswer}"]`).classes()
-  //     ).toContain("bg-green-500");
-  //     expect(
-  //       wrapper
-  //         .find(`[data-test="optionContainer-${submittedAnswer}"]`)
-  //         .classes()
-  //     ).toContain("bg-red-500");
-  //   });
+      expect(
+        wrapper.find(`[data-test="optionContainer-0"]`).classes()
+      ).toContain("bg-gray-200");
+    });
+  });
 
-  //   it("highlights options gray for survey mode answers", async () => {
-  //     const submittedAnswer = 0;
-  //     await wrapper.setProps({
-  //       submittedAnswer: submittedAnswer,
-  //       isAnswerSubmitted: true,
-  //       isSurveyQuestion: true,
-  //     });
+  describe("checkbox", () => {
+    const options = ["a", "b", "c"];
+    const wrapper = mount(Body, {
+      props: {
+        options: options,
+        questionType: "checkbox",
+      },
+    });
 
-  //     expect(
-  //       wrapper
-  //         .find(`[data-test="optionContainer-${submittedAnswer}"]`)
-  //         .classes()
-  //     ).toContain("bg-gray-200");
-  //   });
-  // });
+    it("renders options", () => {
+      expect(wrapper.find('[data-test="option-0"]').exists()).toBe(true);
+      expect(wrapper.find('[data-test="option-1"]').exists()).toBe(true);
+      expect(wrapper.find('[data-test="option-2"]').exists()).toBe(true);
+      expect(wrapper.find('[data-test="option-3"]').exists()).toBe(false);
+      expect(wrapper.find('[data-test="option-0"]').text()).toBe(options[0]);
+      expect(wrapper.vm.optionInputType).toBe("checkbox");
+    });
 
-  // describe("checkbox", () => {
-  //   const options = ["a", "b", "c"];
-  //   beforeEach(() => {
-  //     wrapper = mount(Body, {
-  //       props: {
-  //         options: options,
-  //         questionType: "checkbox",
-  //       },
-  //     });
-  //   });
+    it("set options selected based on draft answer", async () => {
+      const draftAnswer = [1, 2];
+      await wrapper.setProps({
+        draftAnswer: draftAnswer,
+      });
 
-  //   it("renders options", () => {
-  //     expect(wrapper.find('[data-test="option-0"]').exists()).toBe(true);
-  //     expect(wrapper.find('[data-test="option-1"]').exists()).toBe(true);
-  //     expect(wrapper.find('[data-test="option-2"]').exists()).toBe(true);
-  //     expect(wrapper.find('[data-test="option-3"]').exists()).toBe(false);
-  //     expect(wrapper.find('[data-test="option-0"]').text()).toBe(options[0]);
-  //     expect(wrapper.vm.optionInputType).toBe("checkbox");
-  //   });
+      expect(wrapper.vm.isOptionMarked(0)).toBeFalsy();
+      expect(wrapper.vm.isOptionMarked(1)).toBeTruthy();
+      expect(wrapper.vm.isOptionMarked(2)).toBeTruthy();
+    });
 
-  //   it("set options selected based on draft answer", async () => {
-  //     const draftAnswer = [1, 2];
-  //     await wrapper.setProps({
-  //       draftAnswer: draftAnswer,
-  //     });
+    it("option text selected correctly", () => {
+      wrapper.find('[data-test="option-0"]').trigger("click");
+      expect(wrapper.emitted()).toHaveProperty("option-selected");
+    });
 
-  //     expect(wrapper.vm.isOptionMarked(0)).toBeFalsy();
-  //     expect(wrapper.vm.isOptionMarked(1)).toBeTruthy();
-  //     expect(wrapper.vm.isOptionMarked(2)).toBeTruthy();
-  //   });
+    it("option checkbox selected correctly", () => {
+      wrapper.find('[data-test="optionSelector-0"]').trigger("click");
+      expect(wrapper.emitted()).toHaveProperty("option-selected");
+    });
 
-  //   it("option text selected correctly", () => {
-  //     wrapper.find('[data-test="option-0"]').trigger("click");
-  //     expect(wrapper.emitted()).toHaveProperty("option-selected");
-  //   });
+    it("highlights options based on correct/wrong answers", async () => {
+      const submittedAnswer = [1, 2];
+      const correctAnswer = [0, 1];
+      await wrapper.setProps({
+        submittedAnswer: submittedAnswer,
+        correctAnswer: correctAnswer,
+        isAnswerSubmitted: true,
+      });
 
-  //   it("option checkbox selected correctly", () => {
-  //     wrapper.find('[data-test="optionSelector-0"]').trigger("click");
-  //     expect(wrapper.emitted()).toHaveProperty("option-selected");
-  //   });
+      expect(
+        wrapper.find('[data-test="optionContainer-0"]').classes()
+      ).toContain("bg-green-500");
+      expect(
+        wrapper.find('[data-test="optionContainer-1"]').classes()
+      ).toContain("bg-green-500");
+      expect(
+        wrapper.find('[data-test="optionContainer-2"]').classes()
+      ).toContain("bg-red-500");
+    });
 
-  //   it("highlights options based on correct/wrong answers", async () => {
-  //     const submittedAnswer = [1, 2];
-  //     const correctAnswer = [0, 1];
-  //     await wrapper.setProps({
-  //       submittedAnswer: submittedAnswer,
-  //       correctAnswer: correctAnswer,
-  //       isAnswerSubmitted: true,
-  //     });
+    it("highlights options gray for survey mode answers", async () => {
+      const submittedAnswer = [1, 2];
+      await wrapper.setProps({
+        submittedAnswer: submittedAnswer,
+        isAnswerSubmitted: true,
+        isSurveyQuestion: true,
+      });
 
-  //     expect(
-  //       wrapper.find('[data-test="optionContainer-0"]').classes()
-  //     ).toContain("bg-green-500");
-  //     expect(
-  //       wrapper.find('[data-test="optionContainer-1"]').classes()
-  //     ).toContain("bg-green-500");
-  //     expect(
-  //       wrapper.find('[data-test="optionContainer-2"]').classes()
-  //     ).toContain("bg-red-500");
-  //   });
-
-  //   it("highlights options gray for survey mode answers", async () => {
-  //     const submittedAnswer = [1, 2];
-  //     await wrapper.setProps({
-  //       submittedAnswer: submittedAnswer,
-  //       isAnswerSubmitted: true,
-  //       isSurveyQuestion: true,
-  //     });
-
-  //     expect(
-  //       wrapper.find('[data-test="optionContainer-1"]').classes()
-  //     ).toContain("bg-gray-200");
-  //     expect(
-  //       wrapper.find('[data-test="optionContainer-2"]').classes()
-  //     ).toContain("bg-gray-200");
-  //   });
-  // });
+      expect(
+        wrapper.find('[data-test="optionContainer-1"]').classes()
+      ).toContain("bg-gray-200");
+      expect(
+        wrapper.find('[data-test="optionContainer-2"]').classes()
+      ).toContain("bg-gray-200");
+    });
+  });
 });
