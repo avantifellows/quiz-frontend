@@ -1,5 +1,5 @@
 import { flushPromises, mount } from "@vue/test-utils";
-import Body from "@/components/Questions/Body";
+import Body from "@/components/Questions/Body.vue";
 
 describe("Body.vue", () => {
   const wrapper = mount(Body);

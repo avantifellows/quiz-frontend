@@ -16,6 +16,7 @@
       :submittedAnswer="currentQuestionResponseAnswer"
       :isAnswerSubmitted="isAnswerSubmitted"
       @option-selected="questionOptionSelected"
+      data-test="body"
     ></Body>
     <Footer
       :isAnswerSubmitted="isAnswerSubmitted"
@@ -24,6 +25,7 @@
       @submit="submitQuestion"
       @continue="showNextQuestion"
       @previous="showPreviousQuestion"
+      data-test="footer"
     ></Footer>
   </div>
 </template>
@@ -65,8 +67,8 @@ export default defineComponent({
   },
   setup(props, context) {
     const state = reactive({
-      localCurrentQuestionIndex: props.currentQuestionIndex, // local copy of currentQuestionIndex
-      localResponses: props.responses, // local copy of responses
+      localCurrentQuestionIndex: props.currentQuestionIndex as number, // local copy of currentQuestionIndex
+      localResponses: props.responses as SubmittedResponse[], // local copy of responses
       isPortrait: true, // whether the screen is in portrait mode
       draftResponses: [] as DraftResponse[], // stores the options selected by the user but not yet submitted
     });
@@ -79,6 +81,13 @@ export default defineComponent({
       () => state.localCurrentQuestionIndex,
       (newValue) => {
         context.emit("update:currentQuestionIndex", newValue);
+      }
+    );
+
+    watch(
+      () => props.currentQuestionIndex,
+      (newValue: Number) => {
+        state.localCurrentQuestionIndex = newValue.valueOf();
       }
     );
 
@@ -132,7 +141,7 @@ export default defineComponent({
     }
 
     function showNextQuestion() {
-      state.localCurrentQuestionIndex += 1;
+      state.localCurrentQuestionIndex = state.localCurrentQuestionIndex + 1;
     }
 
     function showPreviousQuestion() {
