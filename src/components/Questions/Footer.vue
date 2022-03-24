@@ -19,7 +19,7 @@
       <icon-button
         :titleConfig="submitButtonTitleConfig"
         :buttonClass="submitButtonClass"
-        :isDisabled="!isSubmitEnabled"
+        :isDisabled="!isAnswerSubmitted && !isSubmitEnabled"
         @click="submitQuestion"
         data-test="submitButton"
       ></icon-button>
@@ -59,7 +59,7 @@ export default defineComponent({
 
     function submitQuestion() {
       if (props.isAnswerSubmitted) context.emit("continue");
-      else context.emit("submit-question");
+      else context.emit("submit");
     }
 
     function gotToPreviousQuestion() {
@@ -92,6 +92,6 @@ export default defineComponent({
       submitButtonClass,
     };
   },
-  emits: ["submit-question", "previous", "continue"],
+  emits: ["submit", "previous", "continue"],
 });
 </script>

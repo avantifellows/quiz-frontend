@@ -21,7 +21,7 @@
       :isAnswerSubmitted="isAnswerSubmitted"
       :isPreviousButtonShown="currentQuestionIndex > 0"
       :isSubmitEnabled="isAttemptValid"
-      @submit-question="submitQuestion"
+      @submit="submitQuestion"
       @continue="showNextQuestion"
       @previous="showPreviousQuestion"
     ></Footer>
