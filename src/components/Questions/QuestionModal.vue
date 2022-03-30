@@ -69,7 +69,7 @@ export default defineComponent({
     const state = reactive({
       localCurrentQuestionIndex: props.currentQuestionIndex as number, // local copy of currentQuestionIndex
       localResponses: props.responses as SubmittedResponse[], // local copy of responses
-      isPortrait: true, // whether the screen is in portrait mode
+      isPortrait: true,
       draftResponses: [] as DraftResponse[], // stores the options selected by the user but not yet submitted
     });
 
