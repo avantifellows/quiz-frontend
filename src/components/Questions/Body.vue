@@ -84,7 +84,7 @@
           placeholder="Enter your answer here"
           :isDisabled="isAnswerSubmitted"
           :maxHeightLimit="250"
-          @keypress="checkCharLimit"
+          @keypress="preventKeypressIfApplicable"
           data-test="subjectiveAnswer"
         ></Textarea>
         <!-- character limit -->
@@ -188,13 +188,19 @@ export default defineComponent({
 
     /**
      * returns the background class for an option
+     *
+     * handles the 4 different cases:
+     * - the given option has not been selected
+     * - question is non-survey and given option is the right answer
+     * - question is non-survey and given option is the wrong answer
+     * - question is survey and the given option has been selected
      * @param {Number} optionIndex - index of the option
      */
     function optionBackgroundClass(optionIndex: Number) {
       if (
         !props.isAnswerSubmitted ||
-        typeof props.correctAnswer == "string" ||
-        typeof props.submittedAnswer == "string"
+        typeof props.correctAnswer == "string" || // check for typescript
+        typeof props.submittedAnswer == "string" // check for typescript
       ) {
         return {};
       }
@@ -232,7 +238,7 @@ export default defineComponent({
       state.isImageLoading = true;
     }
 
-    function checkCharLimit(event: KeyboardEvent) {
+    function preventKeypressIfApplicable(event: KeyboardEvent) {
       // checks if character limit is reached in case it is set
       if (!hasCharLimit.value) return;
       if (!charactersLeft.value) event.preventDefault();
@@ -364,7 +370,7 @@ export default defineComponent({
       isOptionMarked,
       selectOption,
       labelClass,
-      checkCharLimit,
+      preventKeypressIfApplicable,
       questionImageAreaClass,
       questionImageContainerClass,
       isQuestionImagePresent,
