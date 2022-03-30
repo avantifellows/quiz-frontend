@@ -22,7 +22,7 @@
 <script lang="ts">
 import InputText from "./InputText.vue";
 import { InputTextValidationConfig } from "../../../types";
-import { PropType, defineComponent, reactive, toRefs } from "vue";
+import { PropType, defineComponent, reactive, toRefs, watch } from "vue";
 
 export default defineComponent({
   components: {
@@ -84,6 +84,7 @@ export default defineComponent({
       }
     }
     function keyPress(event: KeyboardEvent) {
+      console.log("oh yeah");
       // invoked by pressing a key
       context.emit("keypress", event);
     }
@@ -91,6 +92,13 @@ export default defineComponent({
       // invoked by the event keydown
       context.emit("keydown", event);
     }
+
+    watch(
+      () => props.value,
+      (newValue) => {
+        state.localValue = newValue;
+      }
+    );
 
     return {
       ...toRefs(state),
