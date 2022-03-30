@@ -1,7 +1,7 @@
 <template>
   <div class="overflow-y-auto flex flex-col">
     <!-- question text -->
-    <div class="px-4 md:px-6">
+    <div class="mx-6 md:mx-10">
       <p :class="questionTextClass" data-test="text">
         {{ text }}
       </p>
@@ -70,25 +70,25 @@
         </ul>
       </div>
       <!-- subjective question answer -->
-      <!-- <div
+      <div
         v-if="isQuestionTypeSubjective"
         class="flex flex-col"
         :class="answerContainerClass"
         data-test="subjectiveAnswerContainer"
-      > -->
-      <!-- input area for the answer -->
-      <!-- <Textarea
+      >
+        <!-- input area for the answer -->
+        <Textarea
           v-model:value="subjectiveAnswer"
           class="px-2 w-full"
-          :boxStyling="subjectiveAnswerBoxStyling"
-          :placeholder="subjectiveAnswerInputPlaceholder"
-          :isDisabled="isAnswerSubmitted || previewMode"
-          :maxHeightLimit="subjectiveBoxHeightLimit"
+          boxStyling="bp-420:h-20 sm:h-28 md:h-36 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary"
+          placeholder="Enter your answer here"
+          :isDisabled="isAnswerSubmitted"
+          :maxHeightLimit="250"
           @keypress="checkCharLimit"
           data-test="subjectiveAnswer"
-        ></Textarea> -->
-      <!-- character limit -->
-      <!-- <div
+        ></Textarea>
+        <!-- character limit -->
+        <div
           class="flex items-end px-6 mt-2"
           v-if="hasCharLimit && !isAnswerSubmitted"
           data-test="charLimitContainer"
@@ -101,45 +101,21 @@
             {{ charactersLeft }}
           </p>
         </div>
-      </div> -->
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-// import Textarea from "../UI/Text/Textarea.vue";
+import Textarea from "../UI/Text/Textarea.vue";
 import { defineComponent, reactive, toRefs, computed, watch } from "vue";
 import BaseIcon from "../UI/Icons/BaseIcon.vue";
 
 export default defineComponent({
   components: {
     BaseIcon,
+    Textarea,
   },
-  // data() {
-  //   return {
-  //     subjectiveAnswer: "", // holds the answer to the subjective question
-  //     subjectiveBoxHeightLimit: 250, // maximum allowed height of the subjective answer text box in px
-  //   };
-  // },
-  // watch: {
-  //   subjectiveAnswer() {
-  //     if (
-  //       this.subjectiveAnswer != null &&
-  //       this.hasCharLimit &&
-  //       this.subjectiveAnswer.length > this.maxCharLimit
-  //     ) {
-  //       // prevent answers more than the character limit from being entered via copy pasting
-  //       this.subjectiveAnswer = this.subjectiveAnswer.substring(
-  //         0,
-  //         this.maxCharLimit
-  //       );
-  //     }
-  //     this.$emit("answer-updated", this.subjectiveAnswer);
-  //   },
-  // },
-  // async created() {
-  //   this.subjectiveAnswer = this.defaultAnswer;
-  // },
   props: {
     text: {
       default: "",
@@ -161,7 +137,7 @@ export default defineComponent({
     /** answer for the question which has been entered but not submitted */
     draftAnswer: {
       default: null,
-      type: Array,
+      type: [String, Array],
     },
     isAnswerSubmitted: {
       default: false,
@@ -203,6 +179,7 @@ export default defineComponent({
         "text-lg md:text-xl lg:text-2xl mx-4 m-2 font-bold leading-tight whitespace-pre-wrap",
       optionTextClass:
         "p-2 text-lg md:text-xl lg:text-2xl border rounded-md mx-2 whitespace-pre-wrap",
+      subjectiveAnswer: "", // holds the answer to the subjective question
     });
 
     // stop the loading spinner when the image has been loaded
@@ -236,6 +213,7 @@ export default defineComponent({
     function isOptionMarked(optionIndex: Number) {
       return (
         props.draftAnswer != null &&
+        typeof props.draftAnswer != "string" &&
         props.draftAnswer.indexOf(optionIndex) != -1
       );
     }
@@ -250,6 +228,12 @@ export default defineComponent({
 
     function startImageLoading() {
       state.isImageLoading = true;
+    }
+
+    function checkCharLimit(event: KeyboardEvent) {
+      // checks if character limit is reached in case it is set
+      if (!hasCharLimit.value) return;
+      if (!charactersLeft.value) event.preventDefault();
     }
 
     // styling class for the question image and loading spinner containers
@@ -311,6 +295,40 @@ export default defineComponent({
         (!props.isPortrait && !isQuestionImagePresent.value),
     }));
 
+    const hasCharLimit = computed(() => props.maxCharLimit != -1);
+
+    const maxCharLimitClass = computed(() => {
+      // class for the character limit text
+      if (charactersLeft.value > 0.2 * props.maxCharLimit) {
+        return "text-gray-400";
+      } else if (charactersLeft.value > 0.1 * props.maxCharLimit) {
+        return "text-yellow-500";
+      } else return "text-red-400";
+    });
+    const charactersLeft = computed(() => {
+      // number of characters left for the subjective answer if a limit is given
+      return props.maxCharLimit - currentAnswerLength.value;
+    });
+    const currentAnswerLength = computed(() => {
+      // length of the current answer (for subjective question)
+      if (state.subjectiveAnswer == null) return 0;
+      return state.subjectiveAnswer.length;
+    });
+    const defaultAnswer = computed(() => {
+      // the default answer to be shown for the subjective question
+      if (
+        props.submittedAnswer != null &&
+        typeof props.submittedAnswer == "string"
+      ) {
+        return props.submittedAnswer;
+      }
+      if (typeof props.draftAnswer == "string") return props.draftAnswer;
+
+      return "";
+    });
+
+    state.subjectiveAnswer = defaultAnswer.value;
+
     watch(
       () => props.imageData,
       (newValue) => {
@@ -318,6 +336,21 @@ export default defineComponent({
         if (newValue != null) startImageLoading();
       },
       { deep: true }
+    );
+
+    watch(
+      () => state.subjectiveAnswer,
+      (newValue) => {
+        if (
+          newValue != null &&
+          hasCharLimit.value &&
+          newValue.length > props.maxCharLimit
+        ) {
+          // prevent answers more than the character limit from being entered via copy pasting
+          state.subjectiveAnswer = newValue.substring(0, props.maxCharLimit);
+        }
+        context.emit("answer-entered", state.subjectiveAnswer);
+      }
     );
 
     if (isQuestionImagePresent.value) startImageLoading();
@@ -329,6 +362,7 @@ export default defineComponent({
       isOptionMarked,
       selectOption,
       labelClass,
+      checkCharLimit,
       questionImageAreaClass,
       questionImageContainerClass,
       isQuestionImagePresent,
@@ -339,58 +373,11 @@ export default defineComponent({
       orientationClass,
       optionInputType,
       answerContainerClass,
+      hasCharLimit,
+      maxCharLimitClass,
     };
   },
-  emits: ["option-selected"],
-  // components: { Textarea },
-  // methods: {
-  //   checkCharLimit(event) {
-  //     // checks if character limit is reached in case it is set
-  //     if (!this.hasCharLimit) return;
-  //     if (!this.charactersLeft) event.preventDefault();
-  //   },
-  // },
-  // computed: {
-  //   subjectiveAnswerBoxStyling() {
-  //     // classes for the subjective answer box
-  //     return [
-  //       {
-  //         "bp-420:h-20 sm:h-28 md:h-36": !this.previewMode,
-  //         "bp-420:h-16 sm:h-20 md:h-16 text-xs bp-420:text-sm sm:text-base md:text-sm lg:text-base":
-  //           this.previewMode,
-  //       },
-  //       "px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-transparent",
-  //     ];
-  //   },
-  //   maxCharLimitClass() {
-  //     // class for the character limit text
-  //     if (this.charactersLeft > 0.2 * this.maxCharLimit) return "text-gray-400";
-  //     else if (this.charactersLeft > 0.1 * this.maxCharLimit)
-  //       return "text-yellow-500";
-  //     else return "text-red-400";
-  //   },
-  //   charactersLeft() {
-  //     // number of characters left for the subjective answer if a limit is given
-  //     return this.maxCharLimit - this.currentAnswerLength;
-  //   },
-  //   currentAnswerLength() {
-  //     // length of the current answer (for subjective question)
-  //     if (this.subjectiveAnswer == null) return 0;
-  //     return this.subjectiveAnswer.length;
-  //   },
-  //   defaultAnswer() {
-  //     // the default answer to be shown
-  //     if (this.submittedAnswer != null) {
-  //       return this.submittedAnswer;
-  //     }
-  //     return this.draftAnswer;
-  //   },
-  //   subjectiveAnswerInputPlaceholder() {
-  //     // placeholder for the subjective answer input area
-  //     return this.$t("player.question.placeholder");
-  //   },
-  // },
-  // emits: ["option-selected", "answer-updated"],
+  emits: ["option-selected", "answer-entered"],
 });
 </script>
 

@@ -36,6 +36,9 @@ import BaseIcon from "../Icons/BaseIcon.vue";
 
 export default defineComponent({
   name: "InputText",
+  components: {
+    BaseIcon,
+  },
   props: {
     title: {
       default: "",

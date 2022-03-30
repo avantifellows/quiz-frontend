@@ -53,6 +53,15 @@ export default defineComponent({
           max_char_limit: null,
         },
         {
+          type: "subjective",
+          text: "yolo",
+          options: ["", ""],
+          correct_answer: null,
+          image: null,
+          survey: false,
+          max_char_limit: 100,
+        },
+        {
           type: "checkbox",
           text: "efgh",
           options: ["option 1", "option 2", "op3", "option 4"],
