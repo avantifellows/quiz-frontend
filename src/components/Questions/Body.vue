@@ -24,7 +24,7 @@
           :src="imageData.url"
           class="object-contain h-full w-full"
           :alt="imageData.alt_text"
-          @load="imageLoaded"
+          @load="stopImageLoading"
           ref="questionImage"
           :class="{ invisible: isImageLoading }"
         />
@@ -47,7 +47,7 @@
               <!-- each option is defined here -->
               <!-- adding <label> so that touch input is just not limited to the radio/checkbox button -->
               <label :class="labelClass(option)">
-                <!-- understand the meaning of the keys here:
+                <!-- understand the meaning of the attributes here:
                     https://www.w3schools.com/tags/att_input_type_radio.asp -->
                 <input
                   :type="optionInputType"
@@ -157,7 +157,6 @@ export default defineComponent({
       default: null,
       type: Object,
     },
-    /** whether the screen is in portrait mode */
     isPortrait: {
       default: false,
       type: Boolean,
@@ -182,13 +181,16 @@ export default defineComponent({
       subjectiveAnswer: "", // holds the answer to the subjective question
     });
 
-    // stop the loading spinner when the image has been loaded
-    function imageLoaded() {
+    /** stop the loading spinner when the image has been loaded **/
+    function stopImageLoading() {
       state.isImageLoading = false;
     }
 
+    /**
+     * returns the background class for an option
+     * @param {Number} optionIndex - index of the option
+     */
     function optionBackgroundClass(optionIndex: Number) {
-      // returns the background class for the option
       if (
         !props.isAnswerSubmitted ||
         typeof props.correctAnswer == "string" ||
@@ -357,7 +359,7 @@ export default defineComponent({
 
     return {
       ...toRefs(state),
-      imageLoaded,
+      stopImageLoading,
       optionBackgroundClass,
       isOptionMarked,
       selectOption,
