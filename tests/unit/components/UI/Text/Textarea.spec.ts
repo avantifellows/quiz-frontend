@@ -1,5 +1,5 @@
 import { mount } from "@vue/test-utils";
-import Textarea from "@/components/UI/Text/Textarea";
+import Textarea from "@/components/UI/Text/Textarea.vue";
 
 describe("Textarea.vue", () => {
   const wrapper = mount(Textarea);
@@ -17,7 +17,9 @@ describe("Textarea.vue", () => {
     await wrapper.setProps({
       isDisabled: true,
     });
-    expect(wrapper.find('[data-test="input"]').element.disabled).toBe(true);
+    expect(
+      (wrapper.find('[data-test="input"]').element as HTMLInputElement).disabled
+    ).toBe(true);
   });
 
   it("renders value sent through prop", async () => {
@@ -26,9 +28,9 @@ describe("Textarea.vue", () => {
       value: value,
     });
 
-    expect(wrapper.find('[data-test="input"]').element.value).toBe(
-      String(value)
-    );
+    expect(
+      (wrapper.find('[data-test="input"]').element as HTMLInputElement).value
+    ).toBe(String(value));
   });
 
   it("renders value set through input field", async () => {
@@ -36,6 +38,6 @@ describe("Textarea.vue", () => {
     const input = wrapper.find('[data-test="input"]');
     await input.setValue(value);
 
-    expect(input.element.value).toBe(String(value));
+    expect((input.element as HTMLInputElement).value).toBe(String(value));
   });
 });
