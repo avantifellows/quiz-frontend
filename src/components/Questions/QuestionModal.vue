@@ -16,6 +16,7 @@
       :submittedAnswer="currentQuestionResponseAnswer"
       :isAnswerSubmitted="isAnswerSubmitted"
       @option-selected="questionOptionSelected"
+      @answer-entered="subjectiveAnswerUpdated"
       data-test="body"
     ></Body>
     <Footer
@@ -122,7 +123,9 @@ export default defineComponent({
         // TODO: this is ideally not needed but typescript is giving an error that
         // "currentResponse could be possibly null" without this line, which is
         // not correct as the null case has been handled above.
-        if (currentResponse == null) return;
+        if (currentResponse == null || typeof currentResponse == "string") {
+          return;
+        }
 
         const optionPositionInResponse = currentResponse.indexOf(optionIndex);
         if (optionPositionInResponse != -1) {
@@ -148,6 +151,11 @@ export default defineComponent({
       state.localCurrentQuestionIndex -= 1;
     }
 
+    /** update the attempt to the current question - valid for subjective questions */
+    function subjectiveAnswerUpdated(answer: string) {
+      state.draftResponses[props.currentQuestionIndex] = answer;
+    }
+
     onUnmounted(() => {
       // remove listeners
       window.removeEventListener("resize", checkScreenOrientation);
@@ -169,6 +177,9 @@ export default defineComponent({
       () => questionType.value == "checkbox"
     );
     const isQuestionTypeMCQ = computed(() => questionType.value == "mcq");
+    const isQuestionTypeSubjective = computed(
+      () => questionType.value == "subjective"
+    );
 
     const currentQuestionResponse = computed(
       () => props.responses[props.currentQuestionIndex]
@@ -191,7 +202,7 @@ export default defineComponent({
         props.currentQuestionIndex
       ] as DraftResponse;
       if (currentDraftResponse == null) return false;
-      // if (this.isQuestionTypeSubjective) return currentDraftResponse != "";
+      if (isQuestionTypeSubjective.value) return currentDraftResponse != "";
       return currentDraftResponse.length > 0;
     });
 
@@ -211,6 +222,7 @@ export default defineComponent({
       submitQuestion,
       showNextQuestion,
       showPreviousQuestion,
+      subjectiveAnswerUpdated,
       currentQuestion,
       questionType,
       questionCorrectAnswer,

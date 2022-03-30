@@ -175,4 +175,142 @@ describe("Body.vue", () => {
       ).toContain("bg-gray-200");
     });
   });
+
+  describe("subjective questions", () => {
+    const wrapper = mount(Body, {
+      props: {
+        questionType: "subjective",
+      },
+    });
+
+    it("should render question with default values", () => {
+      expect(
+        wrapper.find('[data-test="optionContainer"]').exists()
+      ).toBeFalsy();
+      expect(
+        wrapper.find('[data-test="subjectiveAnswerContainer"]').exists()
+      ).toBeTruthy();
+    });
+
+    it("renders char limit correctly", async () => {
+      // default
+      expect(
+        wrapper.find('[data-test="charLimitContainer"]').exists()
+      ).toBeFalsy();
+
+      // set char limit
+      const maxCharLimit = 50;
+      await wrapper.setProps({
+        maxCharLimit: maxCharLimit,
+      });
+
+      expect(
+        wrapper.find('[data-test="charLimitContainer"]').exists()
+      ).toBeTruthy();
+      expect(wrapper.find('[data-test="charLimit"]').text()).toBe(
+        String(maxCharLimit)
+      );
+
+      // add input such that chars left = > 0.2 * maxCharLimit
+      const value = "thetest";
+      await wrapper
+        .find('[data-test="subjectiveAnswer"]')
+        .find('[data-test="input"]')
+        .setValue(value);
+      expect(wrapper.vm.charactersLeft).toBe(maxCharLimit - value.length);
+      expect(wrapper.vm.maxCharLimitClass).toBe("text-gray-400");
+
+      // add input such that chars left = < 0.2 * maxCharLimit, > 0.1 * charLimit
+      await wrapper
+        .find('[data-test="subjectiveAnswer"]')
+        .find('[data-test="input"]')
+        .setValue("thetestthetestthetestthetestthetestthetest");
+      expect(wrapper.vm.maxCharLimitClass).toBe("text-yellow-500");
+
+      // add input such that chars left = < 0.1 * maxCharLimit
+      await wrapper
+        .find('[data-test="subjectiveAnswer"]')
+        .find('[data-test="input"]')
+        .setValue("thetestthetestthetestthetestthetestthetestthetest");
+      expect(wrapper.vm.maxCharLimitClass).toBe("text-red-400");
+    });
+
+    it("renders disabled answer input field when answer submitted", async () => {
+      await wrapper.setProps({
+        isAnswerSubmitted: true,
+      });
+
+      expect(
+        (
+          wrapper
+            .find('[data-test="subjectiveAnswer"]')
+            .find('[data-test="input"]').element as HTMLInputElement
+        ).disabled
+      ).toBe(true);
+
+      await wrapper.setProps({
+        isAnswerSubmitted: false,
+      });
+    });
+
+    it("displays the answer when default answer given", async () => {
+      const draftAnswer = "abc";
+      const wrapper = mount(Body, {
+        props: {
+          questionType: "subjective",
+          draftAnswer: draftAnswer,
+        },
+      });
+
+      expect(
+        (
+          wrapper
+            .find('[data-test="subjectiveAnswer"]')
+            .find('[data-test="input"]').element as HTMLInputElement
+        ).value
+      ).toBe(draftAnswer);
+    });
+
+    it("displays the answer when submitted answer given", async () => {
+      const submittedAnswer = "abc";
+      const wrapper = mount(Body, {
+        props: {
+          questionType: "subjective",
+          submittedAnswer: submittedAnswer,
+        },
+      });
+
+      expect(
+        (
+          wrapper
+            .find('[data-test="subjectiveAnswer"]')
+            .find('[data-test="input"]').element as HTMLInputElement
+        ).value
+      ).toBe(submittedAnswer);
+    });
+
+    it("updates the answer through the input field", async () => {
+      const value = "test";
+      await wrapper
+        .find('[data-test="subjectiveAnswer"]')
+        .find('[data-test="input"]')
+        .setValue(value);
+
+      expect(wrapper.vm.subjectiveAnswer).toBe(value);
+    });
+
+    it("corrects the answer when it exceeds the max char limit", async () => {
+      const maxCharLimit = 10;
+      await wrapper.setProps({
+        maxCharLimit: maxCharLimit,
+      });
+
+      const value = "thetestthetest";
+      await wrapper
+        .find('[data-test="subjectiveAnswer"]')
+        .find('[data-test="input"]')
+        .setValue(value);
+      expect(wrapper.vm.subjectiveAnswer).toBe(value.slice(0, maxCharLimit));
+    });
+  });
 });
