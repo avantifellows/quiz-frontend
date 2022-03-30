@@ -42,7 +42,7 @@ export default {
       required: true,
     },
     iconClass: {
-      type: String,
+      type: [String, Array],
       default: "",
     },
   },
