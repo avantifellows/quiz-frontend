@@ -5,6 +5,8 @@
     <Math v-if="name == 'math'"></Math>
     <Notepad v-if="name == 'notepad'"></Notepad>
     <Splash v-if="name == 'splash'"></Splash>
+    <SpinnerSolid v-if="name == 'spinner-solid'"></SpinnerSolid>
+    <RightArrow v-if="name == 'right-arrow'"></RightArrow>
   </div>
 </template>
 
@@ -14,6 +16,8 @@ import StudentInClass from "./StudentInClass.vue";
 import Math from "./Math.vue";
 import Notepad from "./Notepad.vue";
 import Splash from "./Splash.vue";
+import SpinnerSolid from "./SpinnerSolid.vue";
+import RightArrow from "./RightArrow.vue";
 
 export default {
   name: "BaseIcon",
@@ -23,6 +27,8 @@ export default {
     Math,
     Notepad,
     Splash,
+    SpinnerSolid,
+    RightArrow,
   },
   props: {
     name: {

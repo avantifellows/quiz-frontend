@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <splash
-      v-if="!isQuestionShown"
+  <div class="h-screen">
+    <Splash
+      v-if="isSplashShown"
       :title="title"
       :subject="metadata.subject"
       :classNumber="metadata.class"
@@ -9,35 +9,34 @@
       :quizType="metadata.quizType"
       @start="startQuiz"
       data-test="splash"
-    ></splash>
-    <div
+    ></Splash>
+
+    <QuestionModal
+      :questions="questions"
+      v-model:currentQuestionIndex="currentQuestionIndex"
+      v-model:responses="responses"
       v-if="isQuestionShown"
-      class="flex flex-col bg-white w-full h-full overflow-hidden"
-    >
-      <!-- header -->
-      <question-header
-        @skip-question="skipQuestion"
-        data-test="header"
-      ></question-header>
-    </div>
+      data-test="modal"
+    ></QuestionModal>
   </div>
 </template>
 
 <script lang="ts">
-import QuestionHeader from "../components/Questions/Header.vue";
+import QuestionModal from "../components/Questions/QuestionModal.vue";
 import Splash from "../components/Splash.vue";
 import { defineComponent, reactive, toRefs, computed } from "vue";
-import { Question } from "../types";
+import { Question, SubmittedResponse } from "../types";
+
 export default defineComponent({
   name: "Player",
   components: {
-    QuestionHeader,
     Splash,
+    QuestionModal,
   },
   setup() {
     const state = reactive({
       currentQuestionIndex: -1 as number,
-      title: "Geometry Quiz",
+      title: "Geometry Quiz" as string,
       metadata: {
         quizType: "CBSE",
         subject: "Maths",
@@ -46,44 +45,59 @@ export default defineComponent({
       questions: [
         {
           type: "mcq",
-          options: ["", ""],
-          correct_answer: 0,
+          text: "abcd",
+          options: ["option 1", "option 2"],
+          correct_answer: [0],
           image: null,
-          has_char_limit: false,
+          survey: false,
           max_char_limit: null,
-        },
-        {
-          type: "subjective",
-          options: null,
-          correct_answer: null,
-          image: null,
-          has_char_limit: true,
-          max_char_limit: 1000,
         },
         {
           type: "checkbox",
+          text: "efgh",
+          options: ["option 1", "option 2", "op3", "option 4"],
+          correct_answer: [2, 3],
+          image: null,
+          survey: false,
+          max_char_limit: null,
+        },
+        {
+          type: "checkbox",
+          text: "ijkl",
           options: ["", "", ""],
           correct_answer: [0, 1],
-          image:
-            "https://plio-prod-assets.s3.ap-south-1.amazonaws.com/images/afbxudrmbl.png",
-          has_char_limit: false,
+          image: {
+            url: "https://plio-prod-assets.s3.ap-south-1.amazonaws.com/images/afbxudrmbl.png",
+            alt_text: "some image",
+          },
+          survey: true,
           max_char_limit: null,
         },
       ] as Question[],
+      responses: [] as SubmittedResponse[], // holds the responses to each item submitted by the viewer
     });
-    function skipQuestion() {}
+    const isSplashShown = computed(() => state.currentQuestionIndex == -1);
     const isQuestionShown = computed(() => {
-      return state.currentQuestionIndex >= 0;
+      return (
+        state.currentQuestionIndex >= 0 &&
+        state.currentQuestionIndex < state.questions.length
+      );
     });
 
     function startQuiz() {
       state.currentQuestionIndex = 0;
     }
 
+    state.questions.forEach((_, itemIndex) => {
+      state.responses.push({
+        answer: null,
+      });
+    });
+
     return {
       ...toRefs(state),
       isQuestionShown,
-      skipQuestion,
+      isSplashShown,
       startQuiz,
     };
   },

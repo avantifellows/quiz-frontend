@@ -1,14 +1,16 @@
 // contains all the custom types that we want to use
 
-type questionType = "mcq" | "checkbox" | "subjective";
+type questionWithOptions = "mcq" | "checkbox";
+type questionType = questionWithOptions | "subjective";
 
 export interface Question {
   type: questionType;
+  text: string;
   options: string[];
   correct_answer: number | number[] | null;
   image: string | null;
-  has_char_limit: boolean;
   max_char_limit: number | null;
+  survey: boolean;
 }
 
 export interface IconButtonTitleConfig {
@@ -20,4 +22,10 @@ export interface IconButtonIconConfig {
   enabled: boolean;
   iconName: string;
   iconClass?: string;
+}
+
+export type DraftResponse = number[] | null;
+
+export interface SubmittedResponse {
+  answer: number[] | null;
 }

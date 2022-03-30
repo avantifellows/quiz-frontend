@@ -8,13 +8,13 @@
     :aria-label="ariaLabel"
   >
     <div :class="innerContainerStyleClass">
-      <inline-svg
+      <BaseIcon
         v-if="isIconShown"
-        :src="icon"
-        :class="iconClass"
+        :name="iconName"
+        :iconClass="iconClass"
         class="place-self-center"
         data-test="icon"
-      ></inline-svg>
+      ></BaseIcon>
       <p v-if="isTitleShown" :class="titleClass" data-test="title">
         {{ title }}
       </p>
@@ -25,9 +25,13 @@
 <script lang="ts">
 import { defineComponent, reactive, toRefs, computed, PropType } from "vue";
 import { IconButtonTitleConfig, IconButtonIconConfig } from "../../../types";
+import BaseIcon from "../Icons/BaseIcon.vue";
 
 export default defineComponent({
   name: "IconButton",
+  components: {
+    BaseIcon,
+  },
   setup(props) {
     const state = reactive({
       defaultIconConfig: {
@@ -72,10 +76,6 @@ export default defineComponent({
     const iconName = computed(() => {
       return localIconConfig.value.iconName;
     });
-    const icon = computed(() => {
-      // @ts-ignore
-      return require("@/assets/images/" + iconName.value + ".svg");
-    });
     const iconClass = computed(() => {
       return localIconConfig.value.iconClass || "";
     });
@@ -110,7 +110,6 @@ export default defineComponent({
     return {
       ...toRefs(state),
       innerContainerStyleClass,
-      icon,
       iconName,
       iconClass,
       isIconShown,
