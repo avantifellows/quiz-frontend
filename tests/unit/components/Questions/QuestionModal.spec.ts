@@ -25,16 +25,13 @@ describe("ItemModal.vue", () => {
       max_char_limit: null,
     },
     {
-      type: "checkbox",
-      text: "ijkl",
-      options: ["", "", ""],
-      correct_answer: [0, 1],
-      image: {
-        url: "https://plio-prod-assets.s3.ap-south-1.amazonaws.com/images/afbxudrmbl.png",
-        alt_text: "some image",
-      },
-      survey: true,
-      max_char_limit: null,
+      type: "subjective",
+      text: "yolo",
+      options: ["", ""],
+      correct_answer: null,
+      image: null,
+      survey: false,
+      max_char_limit: 100,
     },
   ] as Question[];
 
@@ -199,6 +196,55 @@ describe("ItemModal.vue", () => {
           .trigger("click");
 
         expect(wrapper.vm.localCurrentQuestionIndex).toBe(2);
+      });
+    });
+  });
+
+  describe("subjective questions", () => {
+    const questionIndex = 2;
+
+    beforeEach(() => mountWrapper({ currentQuestionIndex: questionIndex }));
+
+    it("entering answer makes answer valid", async () => {
+      // initially answer should be invalid
+      expect(wrapper.vm.isAttemptValid).toBeFalsy();
+
+      // select an option
+      await wrapper.find('[data-test="input"]').setValue("abcd");
+
+      // the answer should now be valid
+      expect(wrapper.vm.isAttemptValid).toBeTruthy();
+    });
+
+    describe("submits question", () => {
+      const answer = "abcd";
+      beforeEach(async () => {
+        await mountWrapper({ currentQuestionIndex: questionIndex });
+
+        // enter answer
+        await wrapper.find('[data-test="input"]').setValue(answer);
+
+        // submit the answer
+        wrapper
+          .find('[data-test="footer"]')
+          .find('[data-test="submitButton"]')
+          .trigger("click");
+      });
+
+      it("responses have been updated", () => {
+        expect(wrapper.vm.localResponses[questionIndex]).toEqual({
+          answer: answer,
+        });
+        expect(wrapper.emitted()).toHaveProperty("submit-question");
+      });
+
+      it("proceeds with question on answering", () => {
+        wrapper
+          .find('[data-test="footer"]')
+          .find('[data-test="submitButton"]')
+          .trigger("click");
+
+        expect(wrapper.vm.localCurrentQuestionIndex).toBe(3);
       });
     });
   });
