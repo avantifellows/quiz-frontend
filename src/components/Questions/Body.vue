@@ -149,7 +149,7 @@ export default defineComponent({
     },
     /** the character limit to be used if present */
     maxCharLimit: {
-      default: 0,
+      default: -1,
       type: Number,
     },
     /** data of the image to be shown on a question. Contains URL and alt_text */
@@ -374,6 +374,7 @@ export default defineComponent({
       optionInputType,
       answerContainerClass,
       hasCharLimit,
+      charactersLeft,
       maxCharLimitClass,
     };
   },
