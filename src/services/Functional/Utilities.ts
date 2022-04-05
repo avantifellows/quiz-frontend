@@ -53,3 +53,12 @@ export function throwConfetti(
   };
   frame();
 }
+
+/**
+ * Resets the animation frame request for the confetti being rendered
+ */
+export function resetConfetti() {
+  if (animationFrameRequest != undefined) {
+    cancelAnimationFrame(animationFrameRequest);
+  }
+}

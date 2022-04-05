@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col bg-yellow-100 w-full h-full overflow-hidden">
+  <div class="flex flex-col bg-[#F4EAE1] w-full h-full overflow-hidden">
     <div
       class="flex justify-center w-full mx-auto my-auto h-full py-4"
       ref="container"
@@ -53,7 +53,10 @@
               class="w-full h-full flex flex-row justify-center space-x-2 bp-500:mt-2 lg:mt-0"
             >
               <!-- metric icon -->
-              <BaseIcon name="wrong" :iconClass="metric.icon.class"></BaseIcon>
+              <BaseIcon
+                :name="metric.icon.source"
+                :iconClass="metric.icon.class"
+              ></BaseIcon>
               <!-- numeric value of the metric -->
               <p
                 class="text-xl bp-360:text-2xl md:text-3xl lg:text-4xl font-bold my-auto"
@@ -85,20 +88,18 @@
           <!-- share button -->
           <icon-button
             :titleConfig="shareButtonTitleConfig"
-            :iconConfig="shareIconConfig"
             :buttonClass="shareButtonClass"
             @click="shareScorecard"
             data-test="share"
           ></icon-button>
 
-          <!-- back button
+          <!-- back button -->
           <icon-button
             :titleConfig="watchAgainButtonTitleConfig"
-            :iconConfig="watchAgainIconConfig"
             :buttonClass="watchAgainButtonClass"
-            @click="restartVideo"
+            @click="restartQuiz"
             data-test="watchAgainButton"
-          ></icon-button> -->
+          ></icon-button>
         </div>
       </div>
     </div>
@@ -397,12 +398,12 @@ export default defineComponent({
           hideSpinner();
         });
     }
-    // /**
-    //  * Emits an event to restart the video
-    //  */
-    // function restartVideo() {
-    //   context.emit("restart-video");
-    // }
+    /**
+     * Emits an event to restart the quiz
+     */
+    function restartQuiz() {
+      context.emit("restart-quiz");
+    }
 
     // determine the screen orientation when the item modal is created
     checkScreenOrientation();
@@ -416,7 +417,7 @@ export default defineComponent({
       ...toRefs(state),
       container,
       shareScorecard,
-      // restartVideo,
+      restartQuiz,
       isCircularProgressShown,
       watchAgainButtonTitleConfig,
       shareButtonTitleConfig,
@@ -425,6 +426,6 @@ export default defineComponent({
       progressBarResult,
     };
   },
-  // emits: ["restart-video"],
+  emits: ["restart-quiz"],
 });
 </script>

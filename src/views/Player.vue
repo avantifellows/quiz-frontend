@@ -30,6 +30,7 @@
       :progressPercentage="scorecardProgress"
       :title="title"
       :numQuestionsAnswered="numQuestionsAnswered"
+      @restart-quiz="restartQuiz"
       ref="scorecard"
     ></Scorecard>
   </div>
@@ -39,6 +40,7 @@
 import QuestionModal from "../components/Questions/QuestionModal.vue";
 import Splash from "../components/Splash.vue";
 import Scorecard from "../components/Scorecard.vue";
+import { resetConfetti } from "@/services/Functional/Utilities";
 import { defineComponent, reactive, toRefs, computed } from "vue";
 import { Question, SubmittedResponse } from "../types";
 
@@ -146,7 +148,7 @@ export default defineComponent({
           icon: {
             source: "correct",
             class:
-              "text-green-500 h-6 bp-360:h-10 bp-500:h-6 lg:h-8 w-6 bp-360:w-10 bp-500:w-4 md:w-6 lg:w-8 place-self-center",
+              "text-green-500 h-7 bp-360:h-8 bp-500:h-10 lg:h-10 w-8 bp-360:w-8 bp-500:w-10 md:w-10 lg:w-10 place-self-center",
           },
           value: state.numCorrect,
         },
@@ -155,7 +157,7 @@ export default defineComponent({
           icon: {
             source: "wrong",
             class:
-              "text-red-500 h-6 bp-360:h-10 bp-500:h-6 lg:h-8 w-6 bp-360:w-10 bp-500:w-4 md:w-6 lg:w-8 place-self-center",
+              "text-red-500 h-8 bp-360:h-8 bp-500:h-10 lg:h-11 w-6 bp-360:w-6 bp-500:w-6 md:w-7 lg:w-8 place-self-center",
           },
           value: state.numWrong,
         },
@@ -233,6 +235,15 @@ export default defineComponent({
       }
     }
 
+    /**
+     * remove the scorecard, restart the video and remove the confetti
+     */
+    function restartQuiz() {
+      state.isScorecardShown = false;
+      state.currentQuestionIndex -= 1;
+      resetConfetti();
+    }
+
     return {
       ...toRefs(state),
       isQuestionShown,
@@ -242,6 +253,7 @@ export default defineComponent({
       scorecardMetrics,
       scorecardProgress,
       numQuestionsAnswered,
+      restartQuiz,
     };
   },
 });
