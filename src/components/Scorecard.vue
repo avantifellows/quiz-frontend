@@ -235,19 +235,12 @@ export default defineComponent({
      */
     const isCircularProgressShown = computed(() => {
       if (props.progressPercentage == null || state.isMobileLandscape) {
-        console.log("percen", props.progressPercentage);
-        console.log("mobile", state.isMobileLandscape);
-        console.log("false");
         return false;
       }
-      console.log(props.progressPercentage);
-      console.log(state.isMobileLandscape);
-      console.log("true");
       return true;
     });
     /** the result to show in the centre of the progress bar */
     const progressBarResult = computed(() => {
-      console.log("resuly", Math.round(state.localProgressBarPercentage));
       return {
         enabled: true,
         title: "Accuracy",
@@ -300,12 +293,6 @@ export default defineComponent({
      * screen in landscape mode
      */
     function checkMobileLandscapeMode() {
-      console.log(
-        "MOBILE_SCREEN_HEIGHT_THRESHOLD",
-        MOBILE_SCREEN_HEIGHT_THRESHOLD
-      );
-      console.log("windowInnerHeight.value", window.innerHeight);
-      console.log("isPortrait", state.isPortrait);
       return (
         !state.isPortrait && window.innerHeight < MOBILE_SCREEN_HEIGHT_THRESHOLD
       );

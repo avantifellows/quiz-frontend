@@ -170,7 +170,6 @@ export default defineComponent({
     const scorecardProgress = computed(() => {
       const totalAttempted = state.numCorrect + state.numWrong;
       if (totalAttempted == 0) return null;
-      console.log((state.numCorrect / totalAttempted) * 100);
       return (state.numCorrect / totalAttempted) * 100;
     });
 

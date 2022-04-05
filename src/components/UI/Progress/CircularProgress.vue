@@ -90,7 +90,6 @@ export default defineComponent({
      * percentage of progress to be shown in the progress bar
      */
     const progressBarPercent = computed(() => {
-      console.log(props.result.value);
       return props.result.value;
     });
     /**
