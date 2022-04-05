@@ -34,7 +34,7 @@
         <p
           class="text-lg bp-360:text-xl sm:text-3xl lg:text-5xl font-bold text-center"
         >
-          {{ Math.trunc(progressBarPercent) }}%
+          {{ progressBarPercent }}%
         </p>
       </div>
       <div class="w-full flex justify-center">
@@ -73,6 +73,7 @@ export default defineComponent({
         return {
           enabled: false,
           title: "",
+          value: Number,
         };
       },
       type: Object,
@@ -89,6 +90,7 @@ export default defineComponent({
      * percentage of progress to be shown in the progress bar
      */
     const progressBarPercent = computed(() => {
+      console.log(props.result.value);
       return props.result.value;
     });
     /**

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col bg-peach w-full h-full overflow-hidden">
+  <div class="flex flex-col bg-yellow-100 w-full h-full overflow-hidden">
     <div
       class="flex justify-center w-full mx-auto my-auto h-full py-4"
       ref="container"
@@ -53,10 +53,7 @@
               class="w-full h-full flex flex-row justify-center space-x-2 bp-500:mt-2 lg:mt-0"
             >
               <!-- metric icon -->
-              <BaseIcon
-                name="correct"
-                :iconClass="metric.icon.class"
-              ></BaseIcon>
+              <BaseIcon name="wrong" :iconClass="metric.icon.class"></BaseIcon>
               <!-- numeric value of the metric -->
               <p
                 class="text-xl bp-360:text-2xl md:text-3xl lg:text-4xl font-bold my-auto"
@@ -116,7 +113,6 @@ import {
   toRefs,
   onUnmounted,
   computed,
-  watch,
 } from "vue";
 import CircularProgress from "@/components/UI/Progress/CircularProgress.vue";
 import {
@@ -129,11 +125,6 @@ import domtoimage from "dom-to-image";
 import { useStore } from "vuex";
 
 const confetti = require("canvas-confetti");
-const confettiCanvas = document.getElementById("confetticanvas");
-const confettiHandler = confetti.create(confettiCanvas, {
-  resize: true,
-  useWorker: true,
-});
 const PROGRESS_BAR_ANIMATION_DELAY_TIME = 500; // a time delay to be used for animating the progress bar
 const MOBILE_SCREEN_HEIGHT_THRESHOLD = 500; // the maximum height of the screen in pixels that is classified as a mobile screen
 
@@ -171,17 +162,16 @@ export default defineComponent({
       required: true,
       type: Number,
     },
-    /** whether the scorecard has to be shown */
-    isShown: {
-      required: true,
-      type: Boolean,
-    },
     title: {
       required: true,
       type: String,
     },
   },
   setup(props, context) {
+    const confettiCanvas = document.getElementById("confetticanvas");
+    const confettiHandler = confetti.create(confettiCanvas, {
+      resize: true,
+    });
     const state = reactive({
       localProgressBarPercentage: 0, // local value of progress
       innerWidth: window.innerWidth, // variable to hold the width of window
@@ -194,6 +184,7 @@ export default defineComponent({
       store: useStore(),
       isPortrait: true,
       isMobileLandscape: false, // whether the screen corresponds to a mobile screen in landscape mode
+      confettiHandler: confettiHandler,
     });
 
     function checkScreenOrientation() {
@@ -201,36 +192,18 @@ export default defineComponent({
       state.innerWidth = window.innerWidth;
       state.isPortrait = isScreenPortrait();
       state.isMobileLandscape = checkMobileLandscapeMode();
+      setTimeout(() => {
+        state.localProgressBarPercentage = props.progressPercentage;
+      }, PROGRESS_BAR_ANIMATION_DELAY_TIME);
     }
 
     const container = ref();
-    const windowInnerHeight = computed(
-      () => state.store.state.windowInnerHeight
-    );
     function showSpinner() {
       state.store.dispatch("showSpinner");
     }
     function hideSpinner() {
       state.store.dispatch("hideSpinner");
     }
-    watch(
-      () => props.isShown,
-      (newValue) => {
-        if (newValue) {
-          // if scorecard pops up then wait some time to update the
-          // progress bar percentage to make the progress bar animate
-          setTimeout(() => {
-            state.localProgressBarPercentage = props.progressPercentage;
-          }, PROGRESS_BAR_ANIMATION_DELAY_TIME);
-
-          // also, throw some confetti in there
-          throwConfetti(confettiHandler);
-        } else {
-          // if scorecard is not visible anymore, reset things
-          state.localProgressBarPercentage = 0;
-        }
-      }
-    );
 
     onUnmounted(() => {
       window.removeEventListener("resize", checkScreenOrientation);
@@ -261,12 +234,19 @@ export default defineComponent({
      */
     const isCircularProgressShown = computed(() => {
       if (props.progressPercentage == null || state.isMobileLandscape) {
+        console.log("percen", props.progressPercentage);
+        console.log("mobile", state.isMobileLandscape);
+        console.log("false");
         return false;
       }
+      console.log(props.progressPercentage);
+      console.log(state.isMobileLandscape);
+      console.log("true");
       return true;
     });
     /** the result to show in the centre of the progress bar */
     const progressBarResult = computed(() => {
+      console.log("resuly", Math.round(state.localProgressBarPercentage));
       return {
         enabled: true,
         title: "Accuracy",
@@ -319,9 +299,14 @@ export default defineComponent({
      * screen in landscape mode
      */
     function checkMobileLandscapeMode() {
+      console.log(
+        "MOBILE_SCREEN_HEIGHT_THRESHOLD",
+        MOBILE_SCREEN_HEIGHT_THRESHOLD
+      );
+      console.log("windowInnerHeight.value", window.innerHeight);
+      console.log("isPortrait", state.isPortrait);
       return (
-        !state.isPortrait &&
-        windowInnerHeight.value < MOBILE_SCREEN_HEIGHT_THRESHOLD
+        !state.isPortrait && window.innerHeight < MOBILE_SCREEN_HEIGHT_THRESHOLD
       );
     }
     /**
@@ -423,6 +408,9 @@ export default defineComponent({
     checkScreenOrientation();
     // add listener for screen size being changed
     window.addEventListener("resize", checkScreenOrientation);
+
+    // throw some confetti in there
+    throwConfetti(state.confettiHandler);
 
     return {
       ...toRefs(state),

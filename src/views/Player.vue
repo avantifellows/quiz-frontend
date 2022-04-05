@@ -28,7 +28,6 @@
       }"
       :metrics="scorecardMetrics"
       :progressPercentage="scorecardProgress"
-      :isShown="isScorecardShown"
       :title="title"
       :numQuestionsAnswered="numQuestionsAnswered"
       ref="scorecard"
@@ -146,7 +145,8 @@ export default defineComponent({
           name: "Correct",
           icon: {
             source: "correct",
-            class: "text-green-500",
+            class:
+              "text-green-500 h-6 bp-360:h-10 bp-500:h-6 lg:h-8 w-6 bp-360:w-10 bp-500:w-4 md:w-6 lg:w-8 place-self-center",
           },
           value: state.numCorrect,
         },
@@ -154,7 +154,8 @@ export default defineComponent({
           name: "Wrong",
           icon: {
             source: "wrong",
-            class: "text-red-500",
+            class:
+              "text-red-500 h-6 bp-360:h-10 bp-500:h-6 lg:h-8 w-6 bp-360:w-10 bp-500:w-4 md:w-6 lg:w-8 place-self-center",
           },
           value: state.numWrong,
         },
@@ -167,6 +168,7 @@ export default defineComponent({
     const scorecardProgress = computed(() => {
       const totalAttempted = state.numCorrect + state.numWrong;
       if (totalAttempted == 0) return null;
+      console.log((state.numCorrect / totalAttempted) * 100);
       return (state.numCorrect / totalAttempted) * 100;
     });
 

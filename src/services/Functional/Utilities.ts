@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 
-const duration = require("dayjs/plugin/duration");
+import duration from "dayjs/plugin/duration";
 dayjs.extend(duration);
 
 /**
@@ -24,9 +24,9 @@ export let animationFrameRequest: number = 0;
  * @param {Array} colors - Colors for the confetti
  */
 export function throwConfetti(
-  confettiHandler: any,
-  duration: number = 3,
-  colors: Array<any> = ["#ff718d", "#fdff6a"]
+  confettiHandler,
+  duration = 3,
+  colors: Array<string> = ["#ff718d", "#fdff6a"]
 ) {
   const animationEndTime = Date.now() + duration * 1000;
   const frame = () => {
