@@ -214,7 +214,11 @@ export default defineComponent({
      * returns the text to be shared for % accuracy and number of questions answered
      */
     const resultTextToShare = computed(() => {
-      return `I answered ${numQuestionsAnsweredText.value} questions with ${progressBarResult.value} accuracy on Plio today`;
+      return `I answered ${
+        numQuestionsAnsweredText.value
+      } questions with ${Math.round(
+        state.localProgressBarPercentage
+      )} accuracy on Avanti Fellows quiz today!`;
     });
 
     // const metadataIconClass = computed(() => {
