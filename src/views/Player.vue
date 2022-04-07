@@ -147,7 +147,7 @@ export default defineComponent({
           icon: {
             source: "correct",
             class:
-              "text-green-500 h-7 bp-360:h-8 bp-500:h-10 lg:h-10 w-8 bp-360:w-8 bp-500:w-10 md:w-10 lg:w-10 place-self-center",
+              "text-green-500 h-7 bp-360:h-8 bp-500:h-10 lg:h-10 w-8 bp-360:w-8 bp-500:w-10 md:w-10 my-1 lg:w-10 place-self-center",
           },
           value: state.numCorrect,
         },
@@ -156,7 +156,7 @@ export default defineComponent({
           icon: {
             source: "wrong",
             class:
-              "text-red-500 h-8 bp-360:h-8 bp-500:h-10 lg:h-11 w-6 bp-360:w-6 bp-500:w-6 md:w-7 lg:w-8 place-self-center",
+              "text-red-500 h-8 bp-360:h-8 bp-500:h-10 lg:h-11 w-6 bp-360:w-6 bp-500:w-6 md:w-7 lg:w-8 mx-1 place-self-center",
           },
           value: state.numWrong,
         },
@@ -240,6 +240,8 @@ export default defineComponent({
     function restartQuiz() {
       state.isScorecardShown = false;
       state.currentQuestionIndex -= 1;
+      state.numCorrect = 0;
+      state.numWrong = 0;
       resetConfetti();
     }
 
