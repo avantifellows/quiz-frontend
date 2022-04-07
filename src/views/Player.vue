@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col min-h-screen">
+  <div class="h-screen">
     <Splash
       v-if="isSplashShown"
       :title="title"
