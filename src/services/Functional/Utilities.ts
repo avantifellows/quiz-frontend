@@ -1,8 +1,3 @@
-import dayjs from "dayjs";
-
-import duration from "dayjs/plugin/duration";
-dayjs.extend(duration);
-
 /**
  * custom logic for deciding when the screen is considered to be in portrait mode
  */
@@ -24,9 +19,9 @@ export let animationFrameRequest: number = 0;
  * @param {Array} colors - Colors for the confetti
  */
 export function throwConfetti(
-  confettiHandler,
+  confettiHandler: any,
   duration = 3,
-  colors: Array<string> = ["#ff718d", "#fdff6a"]
+  colors: string[] = ["#ff718d", "#fdff6a"]
 ) {
   const animationEndTime = Date.now() + duration * 1000;
   const frame = () => {

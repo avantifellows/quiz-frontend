@@ -94,8 +94,7 @@ export default defineComponent({
           options: ["", "", ""],
           correct_answer: [0, 1],
           image: {
-            url:
-              "https://plio-prod-assets.s3.ap-south-1.amazonaws.com/images/afbxudrmbl.png",
+            url: "https://plio-prod-assets.s3.ap-south-1.amazonaws.com/images/afbxudrmbl.png",
             alt_text: "some image",
           },
           survey: true,
@@ -117,11 +116,13 @@ export default defineComponent({
     });
     const showScorecard = computed(() => {
       if (areAllQuestionsSurvey.value) return false;
-      if (state.currentQuestionIndex == state.questions.length) scorecard();
+      if (state.currentQuestionIndex == state.questions.length) {
+        calculateScorecard();
+      }
       return state.currentQuestionIndex == state.questions.length;
     });
 
-    function scorecard() {
+    function calculateScorecard() {
       state.isScorecardShown = true;
       calculateScorecardMetrics();
     }
@@ -135,8 +136,6 @@ export default defineComponent({
         answer: null,
       });
     });
-
-    // scorecard
 
     /**
      * defines all the metrics to show in the scorecard here
@@ -185,9 +184,6 @@ export default defineComponent({
       state.questions.forEach((itemDetail) => {
         if (itemDetail.survey) count += 1;
       });
-      // for (itemDetail of state.questions) {
-      //   if (itemDetail.survey) count += 1;
-      // }
       return count;
     });
 
@@ -207,7 +203,11 @@ export default defineComponent({
       if (itemDetail.survey) {
         return;
       }
-      if (itemDetail.type == "mcq" && !isNaN(userAnswer)) {
+      if (
+        itemDetail.type == "mcq" &&
+        userAnswer != null &&
+        userAnswer.length > 0
+      ) {
         const correctAnswer = itemDetail.correct_answer;
         isEqual(userAnswer, correctAnswer)
           ? (state.numCorrect += 1)
@@ -235,7 +235,7 @@ export default defineComponent({
     }
 
     /**
-     * remove the scorecard, restart the video and remove the confetti
+     * remove the scorecard, display last question and remove the confetti
      */
     function restartQuiz() {
       state.isScorecardShown = false;

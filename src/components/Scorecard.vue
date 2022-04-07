@@ -350,7 +350,7 @@ export default defineComponent({
             transform: "scale(" + scale + ")",
             "transform-origin": "top center",
           },
-          filter: (node) => {
+          filter: (node: any) => {
             // ignore DOM elements containing the attribute 'ignore-share-scorecard'
             if (
               node.attributes != undefined &&
@@ -361,7 +361,7 @@ export default defineComponent({
             return true;
           },
         })
-        .then((blob) => {
+        .then((blob: any) => {
           // navigator.share requires an array of File objects
           const file = new File([blob], "scorecard.png", { type: blob.type });
           const filesArray = [file];
