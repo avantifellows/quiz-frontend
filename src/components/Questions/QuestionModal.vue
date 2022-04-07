@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-col bg-white w-full h-screen justify-between overflow-hidden"
+    class="flex flex-col bg-white w-full h-full justify-between overflow-hidden"
   >
     <Body
       class="mt-10"
