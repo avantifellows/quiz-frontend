@@ -16,7 +16,7 @@
           class="text-center text-lg md:text-xl lg:text-2xl font-extrabold font-sans"
           :class="{ 'mb-4': isCircularProgressShown }"
         >
-          Hooray! Congrats on completing the quiz! 🎉
+          {{ greeting }}
         </div>
 
         <!-- name of the plio -->
@@ -114,6 +114,7 @@ import {
   toRefs,
   onUnmounted,
   computed,
+  watch,
 } from "vue";
 import CircularProgress from "@/components/UI/Progress/CircularProgress.vue";
 import {
@@ -158,6 +159,16 @@ export default defineComponent({
       required: true,
       type: Number,
     },
+    /** greeting of the scorecard */
+    greeting: {
+      default: "",
+      type: String,
+    },
+    /** whether the scorecard has to be shown */
+    isShown: {
+      default: false,
+      type: Boolean,
+    },
     /** progress to show on the progress bar (in %) */
     progressPercentage: {
       required: true,
@@ -193,9 +204,6 @@ export default defineComponent({
       state.innerWidth = window.innerWidth;
       state.isPortrait = isScreenPortrait();
       state.isMobileLandscape = checkMobileLandscapeMode();
-      setTimeout(() => {
-        state.localProgressBarPercentage = props.progressPercentage;
-      }, PROGRESS_BAR_ANIMATION_DELAY_TIME);
     }
 
     const container = ref();
@@ -210,6 +218,22 @@ export default defineComponent({
       window.removeEventListener("resize", checkScreenOrientation);
     });
 
+    watch(
+      () => props.isShown,
+      (newValue) => {
+        if (newValue) {
+          setTimeout(() => {
+            state.localProgressBarPercentage = props.progressPercentage;
+          }, PROGRESS_BAR_ANIMATION_DELAY_TIME);
+          // throw some confetti in there
+          throwConfetti(state.confettiHandler);
+        } else {
+          // if scorecard is not visible anymore, reset things
+          state.localProgressBarPercentage = 0;
+        }
+      }
+    );
+
     /**
      * returns the text to be shared for % accuracy and number of questions answered
      */
@@ -218,7 +242,7 @@ export default defineComponent({
         numQuestionsAnsweredText.value
       } questions with ${Math.round(
         state.localProgressBarPercentage
-      )} accuracy on Avanti Fellows quiz today!`;
+      )}% accuracy on Avanti Fellows quiz today!`;
     });
 
     // const metadataIconClass = computed(() => {
@@ -400,9 +424,6 @@ export default defineComponent({
     checkScreenOrientation();
     // add listener for screen size being changed
     window.addEventListener("resize", checkScreenOrientation);
-
-    // throw some confetti in there
-    throwConfetti(state.confettiHandler);
 
     return {
       ...toRefs(state),

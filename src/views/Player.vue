@@ -20,7 +20,6 @@
     ></QuestionModal>
 
     <Scorecard
-      v-if="showScorecard"
       id="scorecardmodal"
       class="absolute z-10"
       :class="{
@@ -28,7 +27,9 @@
       }"
       :metrics="scorecardMetrics"
       :progressPercentage="scorecardProgress"
+      :isShown="isScorecardShown"
       :title="title"
+      greeting="Hooray! Congrats on completing the quiz! 🎉"
       :numQuestionsAnswered="numQuestionsAnswered"
       @restart-quiz="restartQuiz"
       ref="scorecard"
@@ -41,7 +42,7 @@ import QuestionModal from "../components/Questions/QuestionModal.vue";
 import Splash from "../components/Splash.vue";
 import Scorecard from "../components/Scorecard.vue";
 import { resetConfetti } from "@/services/Functional/Utilities";
-import { defineComponent, reactive, toRefs, computed } from "vue";
+import { defineComponent, reactive, toRefs, computed, watch } from "vue";
 import { Question, SubmittedResponse } from "../types";
 
 export default defineComponent({
@@ -114,18 +115,17 @@ export default defineComponent({
         state.currentQuestionIndex < state.questions.length
       );
     });
-    const showScorecard = computed(() => {
-      if (areAllQuestionsSurvey.value) return false;
-      if (state.currentQuestionIndex == state.questions.length) {
-        calculateScorecard();
-      }
-      return state.currentQuestionIndex == state.questions.length;
-    });
 
-    function calculateScorecard() {
-      state.isScorecardShown = true;
-      calculateScorecardMetrics();
-    }
+    watch(
+      () => state.currentQuestionIndex,
+      (newValue) => {
+        if (newValue == state.questions.length) {
+          state.isScorecardShown = true;
+          calculateScorecardMetrics();
+          if (areAllQuestionsSurvey.value) state.isScorecardShown = false;
+        }
+      }
+    );
 
     function startQuiz() {
       state.currentQuestionIndex = 0;
@@ -248,7 +248,6 @@ export default defineComponent({
       isQuestionShown,
       isSplashShown,
       startQuiz,
-      showScorecard,
       scorecardMetrics,
       scorecardProgress,
       numQuestionsAnswered,
