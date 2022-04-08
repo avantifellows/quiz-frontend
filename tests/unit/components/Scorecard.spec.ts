@@ -72,6 +72,31 @@ describe("Scorecard.vue", () => {
     expect(mockWindowOpen).toHaveBeenCalled();
   });
 
+  it("should show/hide the scorecard popup using isShown prop", async () => {
+    const progressPercentage = 50;
+    const wrapper = mount(Scorecard, {
+      props: {
+        progressPercentage: progressPercentage,
+      },
+    });
+
+    await wrapper.setProps({
+      isShown: true,
+    });
+    await flushPromises();
+    await jest.advanceTimersByTime(1000);
+
+    expect(wrapper.vm.localProgressBarPercentage).toBe(progressPercentage);
+
+    await wrapper.setProps({
+      isShown: false,
+    });
+    await flushPromises();
+    await jest.advanceTimersByTime(1000);
+
+    expect(wrapper.vm.localProgressBarPercentage).toBe(0);
+  });
+
   it("share text on whatsapp when no questions answered", async () => {
     const wrapper = mount(Scorecard);
     await wrapper.find('[data-test="share"]').trigger("click");
@@ -87,6 +112,8 @@ describe("Scorecard.vue", () => {
     await wrapper.setProps({
       numQuestionsAnswered: 4,
       progressPercentage: progressPercentage,
+      isShown: true,
+      title: "Geometry Quiz",
     });
     await flushPromises();
     await jest.advanceTimersByTime(1000);
@@ -94,7 +121,7 @@ describe("Scorecard.vue", () => {
     await wrapper.find('[data-test="share"]').trigger("click");
 
     expect(mockWindowOpen).toHaveBeenCalledWith(
-      `https://api.whatsapp.com/send/?phone&text=%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%0A%0A%F0%9F%8F%86%20*Hooray!%20I%20completed%20a%20Quiz!*%20%F0%9F%8F%86%0A%0A%F0%9F%8C%9F%20*undefined*%20%F0%9F%8C%9F%0A%0AI%20answered%204%20questions%20with%200%25%20accuracy%20on%20Avanti%20Fellows%20quiz%20today!%20%F0%9F%98%87%0A%0A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A`
+      `https://api.whatsapp.com/send/?phone&text=%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%0A%0A%F0%9F%8F%86%20*Hooray!%20I%20completed%20a%20Quiz!*%20%F0%9F%8F%86%0A%0A%F0%9F%8C%9F%20*Geometry%20Quiz*%20%F0%9F%8C%9F%0A%0AI%20answered%204%20questions%20with%2050%25%20accuracy%20on%20Avanti%20Fellows%20quiz%20today!%20%F0%9F%98%87%0A%0A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A`
     );
   });
 
@@ -104,6 +131,8 @@ describe("Scorecard.vue", () => {
     await wrapper.setProps({
       numQuestionsAnswered: 4,
       progressPercentage: progressPercentage,
+      isShown: true,
+      title: "Geometry Quiz",
     });
     await flushPromises();
     await jest.advanceTimersByTime(1000);
@@ -111,7 +140,7 @@ describe("Scorecard.vue", () => {
     await wrapper.find('[data-test="share"]').trigger("click");
 
     expect(mockWindowOpen).toHaveBeenCalledWith(
-      `https://api.whatsapp.com/send/?phone&text=%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%0A%0A%F0%9F%8F%86%20*Hooray!%20I%20completed%20a%20Quiz!*%20%F0%9F%8F%86%0A%0A%F0%9F%8C%9F%20*undefined*%20%F0%9F%8C%9F%0A%0AI%20answered%204%20questions%20with%200%25%20accuracy%20on%20Avanti%20Fellows%20quiz%20today!%20%F0%9F%98%87%0A%0A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A`
+      `https://api.whatsapp.com/send/?phone&text=%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%0A%0A%F0%9F%8F%86%20*Hooray!%20I%20completed%20a%20Quiz!*%20%F0%9F%8F%86%0A%0A%F0%9F%8C%9F%20*Geometry%20Quiz*%20%F0%9F%8C%9F%0A%0AI%20answered%204%20questions%20with%2050%25%20accuracy%20on%20Avanti%20Fellows%20quiz%20today!%20%F0%9F%98%87%0A%0A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A`
     );
   });
 });
