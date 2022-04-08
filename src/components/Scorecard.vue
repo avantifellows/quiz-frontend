@@ -19,7 +19,7 @@
           {{ greeting }}
         </div>
 
-        <!-- name of the plio -->
+        <!-- name of the quiz -->
         <div
           class="text-center text-sm md:text-lg lg:text-xl font-medium truncate"
         >
@@ -329,7 +329,7 @@ export default defineComponent({
      * share the scorecard message on whatsapp
      */
     function shareOnWhatsApp() {
-      let message = `🎉🎊🎉🎊🎉🎊🎉🎊🎉🎊\n\n🏆 *Hooray! I completed a Plio!* 🏆\n\n`;
+      let message = `🎉🎊🎉🎊🎉🎊🎉🎊🎉🎊\n\n🏆 *Hooray! I completed a Quiz!* 🏆\n\n`;
 
       // add title if it is non-empty
       if (props.title != "") message += `🌟 *${props.title}* 🌟\n\n`;
@@ -405,7 +405,7 @@ export default defineComponent({
             navigator
               .share({
                 files: filesArray,
-                title: "Plio Scorecard",
+                title: "Quiz Scorecard",
                 text: message,
               })
               .catch((error) => console.log("Sharing failed", error));
