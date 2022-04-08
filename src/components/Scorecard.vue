@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col bg-[#F4EAE1] w-full h-full overflow-hidden">
+  <div class="flex flex-col bg-[#FFEDDA] w-full h-full overflow-hidden">
     <div
       class="flex justify-center w-full mx-auto my-auto h-full py-4"
       ref="container"
@@ -16,7 +16,7 @@
           class="text-center text-lg md:text-xl lg:text-2xl font-extrabold font-sans"
           :class="{ 'mb-4': isCircularProgressShown }"
         >
-          Hooray! Congrats on completing the quiz! 🎉
+          {{ greeting }}
         </div>
 
         <!-- name of the plio -->
@@ -42,15 +42,15 @@
 
         <!-- metric boxes -->
         <div
-          class="flex bp-500:flex-row flex-col justify-center space-y-1 bp-500:space-x-1 bp-500:space-y-0 px-4 bp-500:px-10 max-w-4xl place-self-center"
+          class="flex bp-500:flex-row justify-center space-x-6 px-4 bp-500:px-10 max-w-4xl place-self-center"
         >
           <div
             v-for="metric in metrics"
-            class="rounded-md bp-500:rounded-2xl bg-yellow-400 grid grid-cols-2 bp-500:grid-rows-2 bp-500:grid-cols-none lg:grid-cols-2 lg:grid-rows-none border-2 px-4 lg:px-6 w-full h-14 bp-500:h-20 min-w-max"
+            class="rounded-2xl bg-[#FFB830] grid grid-rows-2 grid-cols-none border-2 px-4 lg:px-6 h-16 bp-500:h-20 min-w-max"
             :key="metric"
           >
             <div
-              class="w-full h-full flex flex-row justify-center space-x-2 bp-500:mt-2 lg:mt-0"
+              class="w-full h-full flex flex-row justify-center space-x-3 mt-2"
             >
               <!-- metric icon -->
               <BaseIcon
@@ -66,7 +66,7 @@
             </div>
             <!-- name of the metric -->
             <div
-              class="text-center text-sm bp-320:text-base md:text-base lg:text-xl font-medium my-auto bp-500:whitespace-nowrap lg:whitespace-normal px-2 h-full flex items-center"
+              class="text-center text-sm bp-320:text-sm md:text-base font-medium my-auto bp-500:whitespace-nowrap px-1 h-full flex place-self-center items-center"
             >
               <p>
                 {{ metric.name }}
@@ -77,10 +77,10 @@
 
         <!-- action buttons -->
         <div
-          class="place-self-center mt-8 flex"
+          class="place-self-center mt-12 flex h-14 w-100"
           :class="{
             'mt-5': isCircularProgressShown,
-            'flex-row space-x-4': !isPortrait,
+            'flex-row space-x-8': !isPortrait,
             'flex-col space-y-4': isPortrait,
           }"
           ignore-share-scorecard
@@ -114,6 +114,7 @@ import {
   toRefs,
   onUnmounted,
   computed,
+  watch,
 } from "vue";
 import CircularProgress from "@/components/UI/Progress/CircularProgress.vue";
 import {
@@ -158,6 +159,16 @@ export default defineComponent({
       required: true,
       type: Number,
     },
+    /** greeting of the scorecard */
+    greeting: {
+      default: "",
+      type: String,
+    },
+    /** whether the scorecard has to be shown */
+    isShown: {
+      default: false,
+      type: Boolean,
+    },
     /** progress to show on the progress bar (in %) */
     progressPercentage: {
       required: true,
@@ -179,9 +190,9 @@ export default defineComponent({
       reRenderKey: false, // a key to re-render a component
       // classes for watch again button
       watchAgainButtonClass:
-        "bg-primary hover:bg-primary-hover px-6 py-3 bp-500:p-4 bp-500:px-10 sm:p-6 rounded-md shadow-xl disabled:opacity-50 disabled:pointer-events-none",
+        "bg-[#F78000] hover:bg-primary-hover bp-500:w-40 px-6 py-3 bp-500:p-4 bp-500:px-10 sm:p-6 rounded-xl shadow-xl disabled:opacity-50 disabled:pointer-events-none",
       shareButtonClass:
-        "bg-green-500 hover:bg-green-600 px-6 py-3 bp-500:p-4 bp-500:px-10 sm:p-6 rounded-md shadow-xl disabled:opacity-50 disabled:pointer-events-none",
+        "bg-green-500 hover:bg-green-600 bp-500:w-40 px-6 py-3 bp-500:p-4 bp-500:px-10 sm:p-6 rounded-xl shadow-xl disabled:opacity-50 disabled:pointer-events-none",
       store: useStore(),
       isPortrait: true,
       isMobileLandscape: false, // whether the screen corresponds to a mobile screen in landscape mode
@@ -193,9 +204,6 @@ export default defineComponent({
       state.innerWidth = window.innerWidth;
       state.isPortrait = isScreenPortrait();
       state.isMobileLandscape = checkMobileLandscapeMode();
-      setTimeout(() => {
-        state.localProgressBarPercentage = props.progressPercentage;
-      }, PROGRESS_BAR_ANIMATION_DELAY_TIME);
     }
 
     const container = ref();
@@ -210,11 +218,31 @@ export default defineComponent({
       window.removeEventListener("resize", checkScreenOrientation);
     });
 
+    watch(
+      () => props.isShown,
+      (newValue) => {
+        if (newValue) {
+          setTimeout(() => {
+            state.localProgressBarPercentage = props.progressPercentage;
+          }, PROGRESS_BAR_ANIMATION_DELAY_TIME);
+          // throw some confetti in there
+          throwConfetti(state.confettiHandler);
+        } else {
+          // if scorecard is not visible anymore, reset things
+          state.localProgressBarPercentage = 0;
+        }
+      }
+    );
+
     /**
      * returns the text to be shared for % accuracy and number of questions answered
      */
     const resultTextToShare = computed(() => {
-      return `I answered ${numQuestionsAnsweredText.value} questions with ${progressBarResult.value} accuracy on Plio today`;
+      return `I answered ${
+        numQuestionsAnsweredText.value
+      } questions with ${Math.round(
+        state.localProgressBarPercentage
+      )}% accuracy on Avanti Fellows quiz today!`;
     });
 
     // const metadataIconClass = computed(() => {
@@ -252,8 +280,8 @@ export default defineComponent({
      * according to the screen width
      */
     const circularProgressRadius = computed(() => {
-      if (state.innerWidth >= 1200) return 150;
-      else if (state.innerWidth < 1200 && state.innerWidth >= 1024) return 130;
+      if (state.innerWidth >= 1200) return 130;
+      else if (state.innerWidth < 1200 && state.innerWidth >= 1024) return 120;
       else if (state.innerWidth < 1024 && state.innerWidth >= 768) return 110;
       else if (state.innerWidth < 768 && state.innerWidth >= 640) return 90;
       else if (state.innerWidth < 640 && state.innerWidth >= 380) return 80;
@@ -265,8 +293,8 @@ export default defineComponent({
      * according to the screen width
      */
     const circularProgressStroke = computed(() => {
-      if (state.innerWidth >= 1200) return 22;
-      else if (state.innerWidth < 1200 && state.innerWidth >= 1024) return 20;
+      if (state.innerWidth >= 1200) return 20;
+      else if (state.innerWidth < 1200 && state.innerWidth >= 1024) return 18;
       else if (state.innerWidth < 1024 && state.innerWidth >= 768) return 18;
       else if (state.innerWidth < 768 && state.innerWidth >= 640) return 14;
       else if (state.innerWidth < 640 && state.innerWidth >= 380) return 12;
@@ -276,7 +304,7 @@ export default defineComponent({
     /** config for the text of the watch again button */
     const watchAgainButtonTitleConfig = computed(() => {
       return {
-        value: "Back",
+        value: "Go Back",
         class: "text-white text-md sm:text-lg lg:text-xl font-bold",
       };
     });
@@ -346,7 +374,7 @@ export default defineComponent({
             transform: "scale(" + scale + ")",
             "transform-origin": "top center",
           },
-          filter: (node) => {
+          filter: (node: any) => {
             // ignore DOM elements containing the attribute 'ignore-share-scorecard'
             if (
               node.attributes != undefined &&
@@ -357,7 +385,7 @@ export default defineComponent({
             return true;
           },
         })
-        .then((blob) => {
+        .then((blob: any) => {
           // navigator.share requires an array of File objects
           const file = new File([blob], "scorecard.png", { type: blob.type });
           const filesArray = [file];
@@ -396,9 +424,6 @@ export default defineComponent({
     checkScreenOrientation();
     // add listener for screen size being changed
     window.addEventListener("resize", checkScreenOrientation);
-
-    // throw some confetti in there
-    throwConfetti(state.confettiHandler);
 
     return {
       ...toRefs(state),

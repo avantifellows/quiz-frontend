@@ -3,7 +3,6 @@ import { createStore } from "vuex";
 export default createStore({
   state: {
     isSpinnerShown: false,
-    windowInnerHeight: null,
   },
   getters: {},
   mutations: {
@@ -12,9 +11,6 @@ export default createStore({
     },
     hideSpinner(state) {
       state.isSpinnerShown = false;
-    },
-    setWindowInnerHeight(state, windowInnerHeight) {
-      state.windowInnerHeight = windowInnerHeight;
     },
   },
   actions: {

@@ -20,7 +20,6 @@
     ></QuestionModal>
 
     <Scorecard
-      v-if="showScorecard"
       id="scorecardmodal"
       class="absolute z-10"
       :class="{
@@ -28,7 +27,9 @@
       }"
       :metrics="scorecardMetrics"
       :progressPercentage="scorecardProgress"
+      :isShown="isScorecardShown"
       :title="title"
+      greeting="Hooray! Congrats on completing the quiz! 🎉"
       :numQuestionsAnswered="numQuestionsAnswered"
       @restart-quiz="restartQuiz"
       ref="scorecard"
@@ -41,7 +42,7 @@ import QuestionModal from "../components/Questions/QuestionModal.vue";
 import Splash from "../components/Splash.vue";
 import Scorecard from "../components/Scorecard.vue";
 import { resetConfetti } from "@/services/Functional/Utilities";
-import { defineComponent, reactive, toRefs, computed } from "vue";
+import { defineComponent, reactive, toRefs, computed, watch } from "vue";
 import { Question, SubmittedResponse } from "../types";
 
 export default defineComponent({
@@ -94,8 +95,7 @@ export default defineComponent({
           options: ["", "", ""],
           correct_answer: [0, 1],
           image: {
-            url:
-              "https://plio-prod-assets.s3.ap-south-1.amazonaws.com/images/afbxudrmbl.png",
+            url: "https://plio-prod-assets.s3.ap-south-1.amazonaws.com/images/afbxudrmbl.png",
             alt_text: "some image",
           },
           survey: true,
@@ -115,16 +115,17 @@ export default defineComponent({
         state.currentQuestionIndex < state.questions.length
       );
     });
-    const showScorecard = computed(() => {
-      if (areAllQuestionsSurvey.value) return false;
-      if (state.currentQuestionIndex == state.questions.length) scorecard();
-      return state.currentQuestionIndex == state.questions.length;
-    });
 
-    function scorecard() {
-      state.isScorecardShown = true;
-      calculateScorecardMetrics();
-    }
+    watch(
+      () => state.currentQuestionIndex,
+      (newValue) => {
+        if (newValue == state.questions.length) {
+          state.isScorecardShown = true;
+          calculateScorecardMetrics();
+          if (areAllQuestionsSurvey.value) state.isScorecardShown = false;
+        }
+      }
+    );
 
     function startQuiz() {
       state.currentQuestionIndex = 0;
@@ -136,8 +137,6 @@ export default defineComponent({
       });
     });
 
-    // scorecard
-
     /**
      * defines all the metrics to show in the scorecard here
      */
@@ -148,7 +147,7 @@ export default defineComponent({
           icon: {
             source: "correct",
             class:
-              "text-green-500 h-7 bp-360:h-8 bp-500:h-10 lg:h-10 w-8 bp-360:w-8 bp-500:w-10 md:w-10 lg:w-10 place-self-center",
+              "text-green-500 h-7 bp-360:h-8 bp-500:h-10 lg:h-10 w-8 bp-360:w-8 bp-500:w-10 md:w-10 my-1 lg:w-10 place-self-center",
           },
           value: state.numCorrect,
         },
@@ -157,7 +156,7 @@ export default defineComponent({
           icon: {
             source: "wrong",
             class:
-              "text-red-500 h-8 bp-360:h-8 bp-500:h-10 lg:h-11 w-6 bp-360:w-6 bp-500:w-6 md:w-7 lg:w-8 place-self-center",
+              "text-red-500 h-8 bp-360:h-8 bp-500:h-10 lg:h-11 w-6 bp-360:w-6 bp-500:w-6 md:w-7 lg:w-8 mx-1 place-self-center",
           },
           value: state.numWrong,
         },
@@ -185,9 +184,6 @@ export default defineComponent({
       state.questions.forEach((itemDetail) => {
         if (itemDetail.survey) count += 1;
       });
-      // for (itemDetail of state.questions) {
-      //   if (itemDetail.survey) count += 1;
-      // }
       return count;
     });
 
@@ -207,7 +203,11 @@ export default defineComponent({
       if (itemDetail.survey) {
         return;
       }
-      if (itemDetail.type == "mcq" && !isNaN(userAnswer)) {
+      if (
+        itemDetail.type == "mcq" &&
+        userAnswer != null &&
+        userAnswer.length > 0
+      ) {
         const correctAnswer = itemDetail.correct_answer;
         isEqual(userAnswer, correctAnswer)
           ? (state.numCorrect += 1)
@@ -235,11 +235,13 @@ export default defineComponent({
     }
 
     /**
-     * remove the scorecard, restart the video and remove the confetti
+     * remove the scorecard, display last question and remove the confetti
      */
     function restartQuiz() {
       state.isScorecardShown = false;
       state.currentQuestionIndex -= 1;
+      state.numCorrect = 0;
+      state.numWrong = 0;
       resetConfetti();
     }
 
@@ -248,7 +250,6 @@ export default defineComponent({
       isQuestionShown,
       isSplashShown,
       startQuiz,
-      showScorecard,
       scorecardMetrics,
       scorecardProgress,
       numQuestionsAnswered,

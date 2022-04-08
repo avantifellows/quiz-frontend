@@ -80,7 +80,7 @@ export default defineComponent({
       required: true,
     },
   },
-  setup(props, context) {
+  setup(props) {
     const state = reactive({
       progressBarBackgroundColor: "#C4C5C5",
       progressBarForegroundColor: "#2B9D05",
