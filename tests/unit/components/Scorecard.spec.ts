@@ -1,5 +1,6 @@
 import { mount, flushPromises } from "@vue/test-utils";
 import Scorecard from "@/components/Scorecard.vue";
+import domtoimage from "dom-to-image";
 
 jest.mock("@/services/Functional/Utilities.ts", () => ({
   __esModule: true,
@@ -74,10 +75,9 @@ describe("Scorecard.vue", () => {
 
   it("should show/hide the scorecard popup using isShown prop", async () => {
     const progressPercentage = 50;
-    const wrapper = mount(Scorecard, {
-      props: {
-        progressPercentage: progressPercentage,
-      },
+    const wrapper = mount(Scorecard);
+    await wrapper.setProps({
+      progressPercentage: progressPercentage,
     });
 
     await wrapper.setProps({
@@ -142,5 +142,58 @@ describe("Scorecard.vue", () => {
     expect(mockWindowOpen).toHaveBeenCalledWith(
       `https://api.whatsapp.com/send/?phone&text=%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%0A%0A%F0%9F%8F%86%20*Hooray!%20I%20completed%20a%20Quiz!*%20%F0%9F%8F%86%0A%0A%F0%9F%8C%9F%20*Geometry%20Quiz*%20%F0%9F%8C%9F%0A%0AI%20answered%204%20questions%20with%2050%25%20accuracy%20on%20Avanti%20Fellows%20quiz%20today!%20%F0%9F%98%87%0A%0A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A`
     );
+  });
+
+  it("triggers domtoimage when share button is clicked where supported", async () => {
+    const toBlob = jest.spyOn(domtoimage, "toBlob");
+
+    const wrapper = mount(Scorecard);
+    await wrapper.setProps({
+      numQuestionsAnswered: 4,
+    });
+
+    // mock navigator.canShare
+    globalThis.navigator.canShare = jest.fn(() => true);
+    globalThis.navigator.share = jest.fn(
+      () => new Promise((resolve) => resolve())
+    );
+
+    await wrapper.find('[data-test="share"]').trigger("click");
+    expect(toBlob).toBeCalled();
+  });
+
+  it("calls navigator.share when domtoimage is done preparing the blob", async () => {
+    const wrapper = mount(Scorecard);
+    await wrapper.setProps({
+      numQuestionsAnswered: 4,
+    });
+
+    // mock navigator.canShare
+    globalThis.navigator.canShare = jest.fn(() => true);
+    globalThis.navigator.share = jest.fn(() => {
+      return new Promise((resolve) => resolve());
+    });
+
+    await wrapper.find('[data-test="share"]').trigger("click");
+    expect(wrapper.vm.isSpinnerShown).toBeTruthy();
+  });
+
+  it("triggers sharing whatsapp text if canShare in general but can't share the image", async () => {
+    const wrapper = mount(Scorecard);
+    await wrapper.setProps({
+      numQuestionsAnswered: 4,
+    });
+
+    // mock navigator.canShare
+    globalThis.navigator.canShare = jest.fn((arg: any) => {
+      if (arg.files != undefined) return false;
+      return true;
+    });
+    globalThis.navigator.share = jest.fn(() => {
+      return new Promise((resolve) => resolve());
+    });
+
+    await wrapper.find('[data-test="share"]').trigger("click");
+    expect(globalThis.navigator.share).not.toHaveBeenCalled();
   });
 });
