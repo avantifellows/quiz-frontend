@@ -10,6 +10,20 @@ const routes = [
     component: () =>
       import(/* webpackChunkName: "about" */ "@/views/Player.vue"),
   },
+  {
+    path: "/404-not-found",
+    name: "404",
+    component: () =>
+      import(/* webpackChunkName: "error" */ "@/views/Error.vue"),
+    props: { type: "404" },
+  },
+  {
+    // refer to: https://stackoverflow.com/a/64186073/7870587
+    path: "/:pathMatch(.*)*",
+    redirect: {
+      name: "404",
+    },
+  },
 ];
 
 const router = createRouter({

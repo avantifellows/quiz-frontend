@@ -7,14 +7,14 @@ describe("Splash.vue", () => {
     const subject = "Maths";
     const quizType = "CBSE";
     const numQuestions = 3;
-    const classNumber = 8;
+    const grade = "8";
     const wrapper = mount(Splash, {
       props: {
         title: title,
         subject: subject,
         quizType: quizType,
         numQuestions: numQuestions,
-        classNumber: classNumber,
+        grade: grade,
       },
     });
     expect(wrapper.find('[data-test="title"]').text()).toBe(title);
@@ -23,9 +23,7 @@ describe("Splash.vue", () => {
     expect(wrapper.find('[data-test="numQuestions"]').text()).toContain(
       numQuestions + ""
     );
-    expect(wrapper.find('[data-test="classNumber"]').text()).toContain(
-      classNumber + ""
-    );
+    expect(wrapper.find('[data-test="grade"]').text()).toContain(grade + "");
   });
   it("emits start when start button is clicked", async () => {
     const wrapper = mount(Splash);

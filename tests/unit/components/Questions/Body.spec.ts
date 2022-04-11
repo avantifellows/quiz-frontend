@@ -22,7 +22,7 @@ describe("Body.vue", () => {
 
     it("starts loading image if imageData is passed", async () => {
       await wrapper.setProps({
-        questionType: "mcq",
+        questionType: "single-choice",
         imageData: {
           url: "mock",
           alt_text: "mock",
@@ -33,7 +33,7 @@ describe("Body.vue", () => {
     });
   });
 
-  describe("mcq questions", () => {
+  describe("single-choice questions", () => {
     const options = ["a", ""];
     const wrapper = mount(Body, {
       props: {
@@ -86,12 +86,12 @@ describe("Body.vue", () => {
       ).toContain("bg-red-500");
     });
 
-    it("highlights options as gray for survey mode answers", async () => {
+    it("highlights options as gray for non-graded questions", async () => {
       const submittedAnswer = [0];
       await wrapper.setProps({
         submittedAnswer: submittedAnswer,
         isAnswerSubmitted: true,
-        isSurveyQuestion: true,
+        isGradedQuestion: false,
       });
 
       expect(
@@ -100,12 +100,12 @@ describe("Body.vue", () => {
     });
   });
 
-  describe("checkbox", () => {
+  describe("multi-choice", () => {
     const options = ["a", "b", "c"];
     const wrapper = mount(Body, {
       props: {
         options: options,
-        questionType: "checkbox",
+        questionType: "multi-choice",
       },
     });
 
@@ -129,12 +129,12 @@ describe("Body.vue", () => {
       expect(wrapper.vm.isOptionMarked(2)).toBeTruthy();
     });
 
-    it("option text selected correctly", () => {
+    it("selects option text correctly", () => {
       wrapper.find('[data-test="option-0"]').trigger("click");
       expect(wrapper.emitted()).toHaveProperty("option-selected");
     });
 
-    it("option checkbox selected correctly", () => {
+    it("selects option checkbox correctly", () => {
       wrapper.find('[data-test="optionSelector-0"]').trigger("click");
       expect(wrapper.emitted()).toHaveProperty("option-selected");
     });
@@ -159,12 +159,12 @@ describe("Body.vue", () => {
       ).toContain("bg-red-500");
     });
 
-    it("highlights options gray for survey mode answers", async () => {
+    it("highlights options gray for non-graded questions", async () => {
       const submittedAnswer = [1, 2];
       await wrapper.setProps({
         submittedAnswer: submittedAnswer,
         isAnswerSubmitted: true,
-        isSurveyQuestion: true,
+        isGradedQuestion: false,
       });
 
       expect(

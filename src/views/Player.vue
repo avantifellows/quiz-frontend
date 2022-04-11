@@ -1,31 +1,34 @@
 <template>
   <div class="h-screen">
-    <Splash
-      v-if="isSplashShown"
-      :title="title"
-      :subject="metadata.subject"
-      :classNumber="metadata.class"
-      :numQuestions="questions.length"
-      :quizType="metadata.quizType"
-      @start="startQuiz"
-      data-test="splash"
-    ></Splash>
+    <div v-if="isQuizLoaded" class="h-full">
+      <Splash
+        v-if="isSplashShown"
+        :title="title"
+        :subject="metadata.subject"
+        :grade="metadata.grade"
+        :numQuestions="questions.length"
+        :quizType="metadata.quiz_type"
+        @start="startQuiz"
+        data-test="splash"
+      ></Splash>
 
-    <QuestionModal
-      :questions="questions"
-      v-model:currentQuestionIndex="currentQuestionIndex"
-      v-model:responses="responses"
-      v-if="isQuestionShown"
-      data-test="modal"
-    ></QuestionModal>
+      <QuestionModal
+        :questions="questions"
+        v-model:currentQuestionIndex="currentQuestionIndex"
+        v-model:responses="responses"
+        v-if="isQuestionShown"
+        data-test="modal"
+      ></QuestionModal>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import QuestionModal from "../components/Questions/QuestionModal.vue";
 import Splash from "../components/Splash.vue";
+import QuizAPIService from "../services/API/Quiz";
 import { defineComponent, reactive, toRefs, computed } from "vue";
-import { Question, SubmittedResponse } from "../types";
+import { Question, SubmittedResponse, QuizMetadata } from "../types";
 
 export default defineComponent({
   name: "Player",
@@ -37,52 +40,8 @@ export default defineComponent({
     const state = reactive({
       currentQuestionIndex: -1 as number,
       title: "Geometry Quiz" as string,
-      metadata: {
-        quizType: "CBSE",
-        subject: "Maths",
-        class: 8,
-      },
-      questions: [
-        {
-          type: "mcq",
-          text: "abcd",
-          options: ["option 1", "option 2"],
-          correct_answer: [0],
-          image: null,
-          survey: false,
-          max_char_limit: null,
-        },
-        {
-          type: "subjective",
-          text: "yolo",
-          options: ["", ""],
-          correct_answer: null,
-          image: null,
-          survey: false,
-          max_char_limit: 100,
-        },
-        {
-          type: "checkbox",
-          text: "efgh",
-          options: ["option 1", "option 2", "op3", "option 4"],
-          correct_answer: [2, 3],
-          image: null,
-          survey: false,
-          max_char_limit: null,
-        },
-        {
-          type: "checkbox",
-          text: "ijkl",
-          options: ["", "", ""],
-          correct_answer: [0, 1],
-          image: {
-            url: "https://plio-prod-assets.s3.ap-south-1.amazonaws.com/images/afbxudrmbl.png",
-            alt_text: "some image",
-          },
-          survey: true,
-          max_char_limit: null,
-        },
-      ] as Question[],
+      metadata: {} as QuizMetadata,
+      questions: [] as Question[],
       responses: [] as SubmittedResponse[], // holds the responses to each item submitted by the viewer
     });
     const isSplashShown = computed(() => state.currentQuestionIndex == -1);
@@ -92,22 +51,37 @@ export default defineComponent({
         state.currentQuestionIndex < state.questions.length
       );
     });
+    const isQuizLoaded = computed(() => state.questions.length > 0);
 
     function startQuiz() {
       state.currentQuestionIndex = 0;
     }
 
-    state.questions.forEach((_, itemIndex) => {
-      state.responses.push({
-        answer: null,
+    async function getQuiz() {
+      const quizDetails = await QuizAPIService.getQuiz(
+        "62540adb0f748c8e206c1612"
+      );
+      // since we know that there is going to be only one
+      // question set for now
+      const questionSet = quizDetails.question_sets[0];
+      state.questions = questionSet.questions;
+      state.metadata = quizDetails.metadata;
+
+      state.questions.forEach((_) => {
+        state.responses.push({
+          answer: null,
+        });
       });
-    });
+    }
+
+    getQuiz();
 
     return {
       ...toRefs(state),
       isQuestionShown,
       isSplashShown,
       startQuiz,
+      isQuizLoaded,
     };
   },
 });

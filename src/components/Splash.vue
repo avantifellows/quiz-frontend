@@ -31,8 +31,8 @@
               :iconClass="metadataIconClass"
             ></BaseIcon>
 
-            <div class="flex items-center" data-test="classNumber">
-              <p :class="metadataTitleClass">Class {{ classNumber }}</p>
+            <div class="flex items-center" data-test="grade">
+              <p :class="metadataTitleClass">Class {{ grade }}</p>
             </div>
           </div>
         </div>
@@ -92,8 +92,8 @@ export default defineComponent({
       type: Number,
       required: true,
     },
-    classNumber: {
-      type: Number,
+    grade: {
+      type: String,
       required: true,
     },
   },
