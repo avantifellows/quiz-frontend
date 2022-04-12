@@ -1,16 +1,10 @@
 import axios, { AxiosRequestConfig, AxiosError, AxiosInstance } from "axios";
 import ErrorHandling from "./ErrorHandling";
 
-// const headers = {
-//   Accept: "application/json",
-//   "Content-Type": "application/json",
-// };
-
 // backend API client
 const client = axios.create({
   baseURL: process.env.VUE_APP_BACKEND,
   withCredentials: false,
-  // headers,
 });
 
 // handle errors in responses for API requests

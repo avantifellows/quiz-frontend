@@ -36,7 +36,13 @@ export default defineComponent({
     Splash,
     QuestionModal,
   },
-  setup() {
+  props: {
+    quizId: {
+      type: String,
+      required: true,
+    },
+  },
+  setup(props) {
     const state = reactive({
       currentQuestionIndex: -1 as number,
       title: "Geometry Quiz" as string,
@@ -58,15 +64,14 @@ export default defineComponent({
     }
 
     async function getQuiz() {
-      const quizDetails = await QuizAPIService.getQuiz(
-        "62540adb0f748c8e206c1612"
-      );
+      const quizDetails = await QuizAPIService.getQuiz(props.quizId);
       // since we know that there is going to be only one
       // question set for now
       const questionSet = quizDetails.question_sets[0];
       state.questions = questionSet.questions;
       state.metadata = quizDetails.metadata;
 
+      // prepare responses
       state.questions.forEach((_) => {
         state.responses.push({
           answer: null,
