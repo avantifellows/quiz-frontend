@@ -34,7 +34,14 @@ describe("Body.vue", () => {
   });
 
   describe("single-choice questions", () => {
-    const options = ["a", ""];
+    const options = [
+      {
+        text: "a",
+      },
+      {
+        text: "",
+      },
+    ];
     const wrapper = mount(Body, {
       props: {
         options: options,
@@ -45,7 +52,9 @@ describe("Body.vue", () => {
       expect(wrapper.find('[data-test="option-0"]').exists()).toBe(true);
       expect(wrapper.find('[data-test="option-1"]').exists()).toBe(true);
       expect(wrapper.find('[data-test="option-2"]').exists()).toBe(false);
-      expect(wrapper.find('[data-test="option-0"]').text()).toBe(options[0]);
+      expect(wrapper.find('[data-test="option-0"]').text()).toBe(
+        options[0].text
+      );
       expect(wrapper.vm.optionInputType).toBe("radio");
     });
 
@@ -101,7 +110,17 @@ describe("Body.vue", () => {
   });
 
   describe("multi-choice", () => {
-    const options = ["a", "b", "c"];
+    const options = [
+      {
+        text: "a",
+      },
+      {
+        text: "b",
+      },
+      {
+        text: "c",
+      },
+    ];
     const wrapper = mount(Body, {
       props: {
         options: options,
@@ -114,7 +133,9 @@ describe("Body.vue", () => {
       expect(wrapper.find('[data-test="option-1"]').exists()).toBe(true);
       expect(wrapper.find('[data-test="option-2"]').exists()).toBe(true);
       expect(wrapper.find('[data-test="option-3"]').exists()).toBe(false);
-      expect(wrapper.find('[data-test="option-0"]').text()).toBe(options[0]);
+      expect(wrapper.find('[data-test="option-0"]').text()).toBe(
+        options[0].text
+      );
       expect(wrapper.vm.optionInputType).toBe("checkbox");
     });
 
