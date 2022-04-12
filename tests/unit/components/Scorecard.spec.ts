@@ -1,6 +1,7 @@
 import { mount, flushPromises } from "@vue/test-utils";
 import Scorecard from "@/components/Scorecard.vue";
 import domtoimage from "dom-to-image";
+import { createStore } from "vuex";
 
 jest.mock("@/services/Functional/Utilities.ts", () => ({
   __esModule: true,
@@ -144,56 +145,69 @@ describe("Scorecard.vue", () => {
     );
   });
 
-  it("triggers domtoimage when share button is clicked where supported", async () => {
-    const toBlob = jest.spyOn(domtoimage, "toBlob");
+  describe("create mock store", () => {
+    let wrapper: any;
+    beforeEach(() => {
+      wrapper = mount(Scorecard, {
+        global: {
+          provide: {
+            store: createStore({
+              state: {
+                isSpinnerShown: false,
+              },
+              mutations: {
+                showSpinner(state) {
+                  state.isSpinnerShown = true;
+                },
+                hideSpinner(state) {
+                  state.isSpinnerShown = false;
+                },
+              },
+              actions: {
+                showSpinner({ commit }) {
+                  commit("showSpinner");
+                },
+                hideSpinner({ commit }) {
+                  commit("hideSpinner");
+                },
+              },
+            }),
+          },
+        },
+      });
+    });
+    it("triggers domtoimage when share button is clicked where supported", async () => {
+      const toBlob = jest.spyOn(domtoimage, "toBlob");
+      await wrapper.setProps({
+        numQuestionsAnswered: 4,
+      });
 
-    const wrapper = mount(Scorecard);
-    await wrapper.setProps({
-      numQuestionsAnswered: 4,
+      // mock navigator.canShare
+      globalThis.navigator.canShare = jest.fn(() => true);
+      globalThis.navigator.share = jest.fn(
+        () => new Promise((resolve) => resolve())
+      );
+
+      await wrapper.find('[data-test="share"]').trigger("click");
+      expect(toBlob).toBeCalled();
     });
 
-    // mock navigator.canShare
-    globalThis.navigator.canShare = jest.fn(() => true);
-    globalThis.navigator.share = jest.fn(
-      () => new Promise((resolve) => resolve())
-    );
+    it("triggers sharing whatsapp text if canShare in general but can't share the image", async () => {
+      await wrapper.setProps({
+        numQuestionsAnswered: 4,
+      });
 
-    await wrapper.find('[data-test="share"]').trigger("click");
-    expect(toBlob).toBeCalled();
-  });
+      // mock navigator.canShare
+      globalThis.navigator.canShare = jest.fn((arg: any) => {
+        if (arg.files != undefined) return false;
+        return true;
+      });
+      globalThis.navigator.share = jest.fn(() => {
+        return new Promise((resolve) => resolve());
+      });
 
-  it("calls navigator.share when domtoimage is done preparing the blob", async () => {
-    const wrapper = mount(Scorecard);
-    await wrapper.setProps({
-      numQuestionsAnswered: 4,
+      await wrapper.find('[data-test="share"]').trigger("click");
+      expect(globalThis.navigator.share).not.toHaveBeenCalled();
     });
-
-    // mock navigator.canShare
-    globalThis.navigator.canShare = jest.fn(() => true);
-    globalThis.navigator.share = jest.fn(() => {
-      return new Promise((resolve) => resolve());
-    });
-
-    await wrapper.find('[data-test="share"]').trigger("click");
-    expect(wrapper.vm.isSpinnerShown).toBeTruthy();
-  });
-
-  it("triggers sharing whatsapp text if canShare in general but can't share the image", async () => {
-    const wrapper = mount(Scorecard);
-    await wrapper.setProps({
-      numQuestionsAnswered: 4,
-    });
-
-    // mock navigator.canShare
-    globalThis.navigator.canShare = jest.fn((arg: any) => {
-      if (arg.files != undefined) return false;
-      return true;
-    });
-    globalThis.navigator.share = jest.fn(() => {
-      return new Promise((resolve) => resolve());
-    });
-
-    await wrapper.find('[data-test="share"]').trigger("click");
-    expect(globalThis.navigator.share).not.toHaveBeenCalled();
   });
 });
