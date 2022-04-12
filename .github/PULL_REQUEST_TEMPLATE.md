@@ -28,16 +28,13 @@ Fixes #{issue id}
 - [ ] Cross-Browser Testing
   - [ ] Chrome
   - [ ] Firefox
-- [ ] Local Language Support
+- [ ] ~Local Language Support~
 - [ ] Hygiene and Housekeeping
   - [ ] Self-review
   - [ ] Comments have been added appropriately
   - [ ] Check for bundle size [here](https://bundlephobia.com/) if adding a package
   - [ ] Added relevant details like Labels/Projects/Milestones etc.
-  - [ ] If adding or removing any environment variable:
-    - [ ] update `docs/ENV.md`
-    - [ ] update Github Workflow files
-    - [ ] update the secrets for staging and production
+  - [ ] If adding or removing any environment variable, update `docs/ENV.md`
 - [ ] Testing
   - [ ] Wrote tests
   - [ ] Tested locally
@@ -49,4 +46,4 @@ Fixes #{issue id}
   - [ ] Any `<img>` tags have `width` and `height` specified
   - [ ] Any `target="_blank"` links have `rel="noopener"`
   - [ ] Only SVGs are used as images. If PNGs are used, their size has been optimised.
-  - [ ] Any SVGs without text have their `aria-label` attributes set
+  - [ ] Any SVG buttons without text have their `aria-label` attributes set
