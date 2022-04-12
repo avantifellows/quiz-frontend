@@ -28,7 +28,7 @@ Fixes #{issue id}
 - [ ] Cross-Browser Testing
   - [ ] Chrome
   - [ ] Firefox
-- [ ] Local Language Support
+- [ ] ~Local Language Support~
 - [ ] Hygiene and Housekeeping
   - [ ] Self-review
   - [ ] Comments have been added appropriately
