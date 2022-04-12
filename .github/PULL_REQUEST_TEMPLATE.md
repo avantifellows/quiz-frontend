@@ -49,4 +49,4 @@ Fixes #{issue id}
   - [ ] Any `<img>` tags have `width` and `height` specified
   - [ ] Any `target="_blank"` links have `rel="noopener"`
   - [ ] Only SVGs are used as images. If PNGs are used, their size has been optimised.
-  - [ ] Any SVGs without text have their `aria-label` attributes set
+  - [ ] Any SVG buttons without text have their `aria-label` attributes set
