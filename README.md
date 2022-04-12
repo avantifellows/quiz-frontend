@@ -13,8 +13,10 @@ A generic player for playing different types of questions (mcq, subjective, imag
   - [Pre-requisites](#pre-requisites)
     - [Pre-commit](#pre-commit)
   - [Installation](#installation)
-  - [Compiles and hot-reloads for development](#compiles-and-hot-reloads-for-development)
-  - [Compiles and minifies for production](#compiles-and-minifies-for-production)
+  - [Compile and setup hot-reloading for development](#compile-and-setup-hot-reloading-for-development)
+  - [Compile and minify for deployment](#compile-and-minify-for-deployment)
+    - [Staging](#staging)
+    - [Production](#production)
   - [Run the unit tests](#run-the-unit-tests)
   - [Run the end-to-end tests](#run-the-end-to-end-tests)
 
@@ -48,18 +50,43 @@ The project uses `pre-commit` for identifying and fixing simple issues before yo
 
 ### Installation
 
+- Install the packages
+
 ```
 npm install
+```
+
+- Install `pre-commit`
+
+```
 pre-commit install
 ```
 
-### Compiles and hot-reloads for development
+- Copy `.env.example` to `.env.local` and set the appropriate values of the environment variables. The list of all environment variables along with their meanings can be found in [ENV.md](./docs/ENV.md)
+
+### Compile and setup hot-reloading for development
 
 ```
 npm run serve
 ```
 
-### Compiles and minifies for production
+### Compile and minify for deployment
+
+#### Staging
+
+- Copy `.env.example` to `.env.staging.local` and set the appropriate values of the environment variables.
+
+- Run the following command
+
+```
+npm run build --mode staging
+```
+
+#### Production
+
+- Copy `.env.example` to `.env.production.local` and set the appropriate values of the environment variables.
+
+- Run the following command
 
 ```
 npm run build
