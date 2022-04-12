@@ -115,16 +115,18 @@ import {
   onUnmounted,
   computed,
   watch,
+  PropType,
 } from "vue";
-import CircularProgress from "@/components/UI/Progress/CircularProgress.vue";
+import CircularProgress from "./UI/Progress/CircularProgress.vue";
 import {
   throwConfetti,
   isScreenPortrait,
-} from "@/services/Functional/Utilities";
+} from "../services/Functional/Utilities";
 import BaseIcon from "./UI/Icons/BaseIcon.vue";
-import IconButton from "@/components/UI/Buttons/IconButton.vue";
+import IconButton from "./UI/Buttons/IconButton.vue";
 import domtoimage from "dom-to-image";
 import { useStore } from "vuex";
+import { ScorecardMetric } from "../types";
 
 const confetti = require("canvas-confetti");
 const PROGRESS_BAR_ANIMATION_DELAY_TIME = 500; // a time delay to be used for animating the progress bar
@@ -138,21 +140,12 @@ export default defineComponent({
     BaseIcon,
   },
   props: {
+    /**
+     * details of all the metrics to show
+     */
     metrics: {
-      /**
-       * details of all the metrics to show
-       * format of one metric --
-       * {
-       *   name: "METRIC_NAME",
-       *   icon: {
-       *     source: "SVG_NAME.svg",
-       *     class: "TAILWIND_CLASSES",
-       *   },
-       *   value: VALUE_TO_SHOW,
-       * },
-       */
       required: true,
-      type: Array,
+      type: Array as PropType<ScorecardMetric[]>,
     },
     /** number of questions that the user has answered */
     numQuestionsAnswered: {
