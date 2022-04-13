@@ -36,3 +36,14 @@ export type DraftResponse = number[] | string | null;
 export interface SubmittedResponse {
   answer: number[] | string | null;
 }
+
+interface ScorecardMetricIcon {
+  source: string;
+  class: string;
+}
+
+export interface ScorecardMetric {
+  name: string;
+  icon: ScorecardMetricIcon;
+  value: number;
+}

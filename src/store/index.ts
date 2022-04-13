@@ -4,7 +4,6 @@ export default createStore({
   state: {
     isSpinnerShown: false,
   },
-  getters: {},
   mutations: {
     showSpinner(state) {
       state.isSpinnerShown = true;
@@ -20,9 +19,5 @@ export default createStore({
     hideSpinner({ commit }) {
       commit("hideSpinner");
     },
-    setWindowInnerHeight({ commit }, windowInnerHeight) {
-      commit("setWindowInnerHeight", windowInnerHeight);
-    },
   },
-  modules: {},
 });
