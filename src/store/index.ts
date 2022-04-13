@@ -4,7 +4,6 @@ export default createStore({
   state: {
     isSpinnerShown: false,
   },
-  getters: {},
   mutations: {
     showSpinner(state) {
       state.isSpinnerShown = true;
@@ -21,5 +20,4 @@ export default createStore({
       commit("hideSpinner");
     },
   },
-  modules: {},
 });
