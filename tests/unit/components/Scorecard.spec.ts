@@ -72,16 +72,16 @@ describe("Scorecard.vue", () => {
 
     wrapper.vm.innerWidth = 700;
     expect(wrapper.vm.circularProgressRadius).toBe(90);
-    expect(wrapper.vm.circularProgressStroke).toBe(14);
+    expect(wrapper.vm.circularProgressStroke).toBe(16);
 
     wrapper.vm.innerWidth = 500;
-    expect(wrapper.vm.circularProgressRadius).toBe(80);
-    expect(wrapper.vm.circularProgressStroke).toBe(12);
+    expect(wrapper.vm.circularProgressRadius).toBe(85);
+    expect(wrapper.vm.circularProgressStroke).toBe(15);
   });
 
   it("should emit a signal when watch again is clicked", async () => {
-    await wrapper.find('[data-test="watchAgainButton"]').trigger("click");
-    expect(wrapper.emitted()).toHaveProperty("restart-quiz");
+    await wrapper.find('[data-test="backButton"]').trigger("click");
+    expect(wrapper.emitted()).toHaveProperty("last-question");
   });
 
   it("triggers sharing text on whatsapp upon clicking share button", async () => {
