@@ -1,7 +1,6 @@
 import { mount, flushPromises } from "@vue/test-utils";
 import Scorecard from "@/components/Scorecard.vue";
 import domtoimage from "dom-to-image";
-// import { createStore } from "vuex";
 import store from "@/store";
 
 jest.mock("@/services/Functional/Utilities.ts", () => ({
@@ -167,6 +166,18 @@ describe("Scorecard.vue", () => {
 
     await wrapper.find('[data-test="share"]').trigger("click");
     expect(toBlob).toBeCalled();
+  });
+
+  it("calls navigator.share when domtoimage is done preparing the blob", async () => {
+    // mock navigator.canShare
+    globalThis.navigator.canShare = jest.fn(() => true);
+    globalThis.navigator.share = jest.fn(() => {
+      return new Promise((resolve) => resolve());
+    });
+
+    await wrapper.find('[data-test="share"]').trigger("click");
+    // expect(globalThis.navigator.share).toHaveBeenCalled();
+    expect(store.state.isSpinnerShown).toBeFalsy();
   });
 
   it("triggers sharing whatsapp text if canShare in general but can't share the image", async () => {

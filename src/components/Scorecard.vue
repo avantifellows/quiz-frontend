@@ -340,7 +340,7 @@ export default defineComponent({
      * is supported and falls back to sharing a text-based scorecard otherwise
      */
     function shareScorecard() {
-      if (!navigator.canShare) {
+      if (!globalThis.navigator.canShare) {
         // if the web share API is not supported, share a text-based scorecard on WhatsApp
         shareOnWhatsApp();
         return;
@@ -382,14 +382,14 @@ export default defineComponent({
            * but does not support sharing the file that we have created; if it does
            * not, fall back to sharing the text-based scorecard on WhatsApp
            */
-          if (navigator.canShare({ files: filesArray })) {
+          if (globalThis.navigator.canShare({ files: filesArray })) {
             let message = `Hooray!`;
             if (props.numQuestionsAnswered != 0) {
               message += resultTextToShare.value;
             }
             message += " 🏆";
 
-            navigator
+            globalThis.navigator
               .share({
                 files: filesArray,
                 title: "Quiz Scorecard",
