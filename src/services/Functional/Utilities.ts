@@ -19,7 +19,7 @@ export let animationFrameRequest: number = 0;
  * @param {Array} colors - Colors for the confetti
  */
 export function throwConfetti(
-  confettiHandler: any,
+  confettiHandler: typeof Object,
   duration = 3,
   colors: string[] = ["#ff718d", "#fdff6a"]
 ) {

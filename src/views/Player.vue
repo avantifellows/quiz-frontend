@@ -31,7 +31,7 @@
       :title="title"
       greeting="Hooray! Congrats on completing the quiz! 🎉"
       :numQuestionsAnswered="numQuestionsAnswered"
-      @restart-quiz="restartQuiz"
+      @last-question="toLastQuestion"
       ref="scorecard"
     ></Scorecard>
   </div>
@@ -120,9 +120,11 @@ export default defineComponent({
       () => state.currentQuestionIndex,
       (newValue) => {
         if (newValue == state.questions.length) {
-          state.isScorecardShown = true;
-          calculateScorecardMetrics();
           if (areAllQuestionsSurvey.value) state.isScorecardShown = false;
+          else {
+            state.isScorecardShown = true;
+            calculateScorecardMetrics();
+          }
         }
       }
     );
@@ -147,7 +149,7 @@ export default defineComponent({
           icon: {
             source: "correct",
             class:
-              "text-green-500 h-7 bp-360:h-8 bp-500:h-10 lg:h-10 w-8 bp-360:w-8 bp-500:w-10 md:w-10 my-1 lg:w-10 place-self-center",
+              "text-green-500 h-7 bp-360:h-8 bp-500:h-10 lg:h-10 w-8 bp-360:w-8 bp-500:w-10 md:w-10 mt-4 my-1 lg:w-10 place-self-center",
           },
           value: state.numCorrect,
         },
@@ -156,7 +158,7 @@ export default defineComponent({
           icon: {
             source: "wrong",
             class:
-              "text-red-500 h-8 bp-360:h-8 bp-500:h-10 lg:h-11 w-6 bp-360:w-6 bp-500:w-6 md:w-7 lg:w-8 mx-1 place-self-center",
+              "text-red-500 h-8 bp-360:h-8 bp-500:h-10 lg:h-11 w-6 bp-360:w-6 bp-500:w-6 md:w-7 lg:w-8 mt-4 mx-1 place-self-center",
           },
           value: state.numWrong,
         },
@@ -204,22 +206,11 @@ export default defineComponent({
         return;
       }
       if (
-        itemDetail.type == "mcq" &&
+        (itemDetail.type == "mcq" || itemDetail.type == "checkbox") &&
         userAnswer != null &&
         userAnswer.length > 0
       ) {
         const correctAnswer = itemDetail.correct_answer;
-        isEqual(userAnswer, correctAnswer)
-          ? (state.numCorrect += 1)
-          : (state.numWrong += 1);
-      } else if (
-        itemDetail.type == "checkbox" &&
-        userAnswer != null &&
-        userAnswer.length > 0
-      ) {
-        // for checkbox questions, check if the answers match exactly
-        const correctAnswer = itemDetail.correct_answer;
-
         isEqual(userAnswer, correctAnswer)
           ? (state.numCorrect += 1)
           : (state.numWrong += 1);
@@ -237,7 +228,7 @@ export default defineComponent({
     /**
      * remove the scorecard, display last question and remove the confetti
      */
-    function restartQuiz() {
+    function toLastQuestion() {
       state.isScorecardShown = false;
       state.currentQuestionIndex -= 1;
       state.numCorrect = 0;
@@ -253,7 +244,7 @@ export default defineComponent({
       scorecardMetrics,
       scorecardProgress,
       numQuestionsAnswered,
-      restartQuiz,
+      toLastQuestion,
     };
   },
 });

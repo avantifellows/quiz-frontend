@@ -50,7 +50,7 @@
             :key="metric"
           >
             <div
-              class="w-full h-full flex flex-row justify-center space-x-3 mt-2"
+              class="w-full h-full flex flex-row justify-center space-x-3 mt-1"
             >
               <!-- metric icon -->
               <BaseIcon
@@ -58,15 +58,13 @@
                 :iconClass="metric.icon.class"
               ></BaseIcon>
               <!-- numeric value of the metric -->
-              <p
-                class="text-xl bp-360:text-2xl md:text-3xl lg:text-4xl font-bold my-auto"
-              >
+              <p class="text-4xl md:text-5xl font-bold my-auto">
                 {{ metric.value }}
               </p>
             </div>
             <!-- name of the metric -->
             <div
-              class="text-center text-sm bp-320:text-sm md:text-base font-medium my-auto bp-500:whitespace-nowrap px-1 h-full flex place-self-center items-center"
+              class="text-center text-sm bp-320:text-sm md:text-base font-medium mt-2 bp-500:whitespace-nowrap px-1 h-full flex place-self-center items-center"
             >
               <p>
                 {{ metric.name }}
@@ -95,10 +93,10 @@
 
           <!-- back button -->
           <icon-button
-            :titleConfig="watchAgainButtonTitleConfig"
-            :buttonClass="watchAgainButtonClass"
-            @click="restartQuiz"
-            data-test="watchAgainButton"
+            :titleConfig="backButtonTitleConfig"
+            :buttonClass="backButtonClass"
+            @click="toLastQuestion"
+            data-test="backButton"
           ></icon-button>
         </div>
       </div>
@@ -189,7 +187,7 @@ export default defineComponent({
       innerWidth: window.innerWidth, // variable to hold the width of window
       reRenderKey: false, // a key to re-render a component
       // classes for watch again button
-      watchAgainButtonClass:
+      backButtonClass:
         "bg-[#F78000] hover:bg-primary-hover bp-500:w-40 px-6 py-3 bp-500:p-4 bp-500:px-10 sm:p-6 rounded-xl shadow-xl disabled:opacity-50 disabled:pointer-events-none",
       shareButtonClass:
         "bg-green-500 hover:bg-green-600 bp-500:w-40 px-6 py-3 bp-500:p-4 bp-500:px-10 sm:p-6 rounded-xl shadow-xl disabled:opacity-50 disabled:pointer-events-none",
@@ -284,8 +282,8 @@ export default defineComponent({
       else if (state.innerWidth < 1200 && state.innerWidth >= 1024) return 120;
       else if (state.innerWidth < 1024 && state.innerWidth >= 768) return 110;
       else if (state.innerWidth < 768 && state.innerWidth >= 640) return 90;
-      else if (state.innerWidth < 640 && state.innerWidth >= 380) return 80;
-      else if (state.innerWidth < 380 && state.innerWidth >= 300) return 70;
+      else if (state.innerWidth < 640 && state.innerWidth >= 380) return 85;
+      else if (state.innerWidth < 380 && state.innerWidth >= 300) return 80;
       return 60;
     });
     /**
@@ -296,13 +294,13 @@ export default defineComponent({
       if (state.innerWidth >= 1200) return 20;
       else if (state.innerWidth < 1200 && state.innerWidth >= 1024) return 18;
       else if (state.innerWidth < 1024 && state.innerWidth >= 768) return 18;
-      else if (state.innerWidth < 768 && state.innerWidth >= 640) return 14;
-      else if (state.innerWidth < 640 && state.innerWidth >= 380) return 12;
-      else if (state.innerWidth < 380 && state.innerWidth >= 300) return 10;
+      else if (state.innerWidth < 768 && state.innerWidth >= 640) return 16;
+      else if (state.innerWidth < 640 && state.innerWidth >= 380) return 15;
+      else if (state.innerWidth < 380 && state.innerWidth >= 300) return 14;
       return 8;
     });
     /** config for the text of the watch again button */
-    const watchAgainButtonTitleConfig = computed(() => {
+    const backButtonTitleConfig = computed(() => {
       return {
         value: "Go Back",
         class: "text-white text-md sm:text-lg lg:text-xl font-bold",
@@ -385,7 +383,7 @@ export default defineComponent({
             return true;
           },
         })
-        .then((blob: any) => {
+        .then((blob: Blob) => {
           // navigator.share requires an array of File objects
           const file = new File([blob], "scorecard.png", { type: blob.type });
           const filesArray = [file];
@@ -416,8 +414,8 @@ export default defineComponent({
     /**
      * Emits an event to restart the quiz
      */
-    function restartQuiz() {
-      context.emit("restart-quiz");
+    function toLastQuestion() {
+      context.emit("last-question");
     }
 
     // determine the screen orientation when the item modal is created
@@ -429,15 +427,15 @@ export default defineComponent({
       ...toRefs(state),
       container,
       shareScorecard,
-      restartQuiz,
+      toLastQuestion,
       isCircularProgressShown,
-      watchAgainButtonTitleConfig,
+      backButtonTitleConfig,
       shareButtonTitleConfig,
       circularProgressRadius,
       circularProgressStroke,
       progressBarResult,
     };
   },
-  emits: ["restart-quiz"],
+  emits: ["last-question"],
 });
 </script>

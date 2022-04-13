@@ -20,9 +20,6 @@ export default createStore({
     hideSpinner({ commit }) {
       commit("hideSpinner");
     },
-    setWindowInnerHeight({ commit }, windowInnerHeight) {
-      commit("setWindowInnerHeight", windowInnerHeight);
-    },
   },
   modules: {},
 });

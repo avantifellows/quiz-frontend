@@ -31,15 +31,13 @@
       data-test="result"
     >
       <div class="w-full flex justify-center">
-        <p
-          class="text-lg bp-360:text-xl sm:text-3xl lg:text-5xl font-bold text-center"
-        >
+        <p class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-center">
           {{ progressBarPercent }}%
         </p>
       </div>
       <div class="w-full flex justify-center">
         <p
-          class="text-sm bp-360:text-base sm:text-sm md:text-base lg:text-xl font-bold text-center"
+          class="text-sm sm:text-sm md:text-base lg:text-xl font-bold text-center"
         >
           {{ result.title }}
         </p>

@@ -13,7 +13,6 @@
     "canvas-confetti": "^1.5.1",
     "core-js": "^3.21.1",
     "deep-eql": "^4.0.1",
-    "dom-to-image": "^2.6.0",
     "vue": "^3.2.31",
     "vue-router": "^4.0.12",
     "vuex": "^4.0.2"
