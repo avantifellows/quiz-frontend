@@ -191,9 +191,9 @@ export default defineComponent({
      *
      * handles the 4 different cases:
      * - the given option has not been selected
-     * - question is non-graded and given option is the right answer
-     * - question is non-graded and given option is the wrong answer
-     * - question is graded and the given option has been selected
+     * - question is graded and given option is the right answer
+     * - question is graded and given option is the wrong answer
+     * - question is non-graded and the given option has been selected
      * @param {Number} optionIndex - index of the option
      */
     function optionBackgroundClass(optionIndex: Number) {

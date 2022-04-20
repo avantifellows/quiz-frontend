@@ -14,7 +14,7 @@ A generic player for playing different types of questions (mcq, subjective, imag
     - [Pre-commit](#pre-commit)
   - [Installation](#installation)
   - [Compile and setup hot-reloading for development](#compile-and-setup-hot-reloading-for-development)
-  - [Compile and minify for deployment](#compile-and-minify-for-deployment)
+  - [Build for deployment](#build-for-deployment)
     - [Staging](#staging)
     - [Production](#production)
   - [Run the unit tests](#run-the-unit-tests)
@@ -70,11 +70,11 @@ pre-commit install
 npm run serve
 ```
 
-### Compile and minify for deployment
+### Build for deployment
 
 #### Staging
 
-- Copy `.env.example` to `.env.staging.local` and set the appropriate values of the environment variables.
+- Copy `.env.example` to `.env.staging` and set the appropriate values of the environment variables.
 
 - Run the following command
 
@@ -84,7 +84,7 @@ npm run build --mode staging
 
 #### Production
 
-- Copy `.env.example` to `.env.production.local` and set the appropriate values of the environment variables.
+- Copy `.env.example` to `.env.production` and set the appropriate values of the environment variables.
 
 - Run the following command
 

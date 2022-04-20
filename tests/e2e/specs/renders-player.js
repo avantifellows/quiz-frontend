@@ -43,19 +43,6 @@ describe("Player", () => {
         .trigger("click");
 
       // question 2
-      // cy.get('[data-test="modal"]')
-      //   .get('[data-test="subjectiveAnswer"]')
-      //   .get('[data-test="input"]')
-      //   .type("abcd");
-      // cy.get('[data-test="modal"]')
-      //   .get('[data-test="submitButton"]')
-      //   .trigger("click");
-      // // continue button
-      // cy.get('[data-test="modal"]')
-      //   .get('[data-test="submitButton"]')
-      //   .trigger("click");
-
-      // question 3
       cy.get('[data-test="modal"]')
         .get('[data-test="optionSelector-0"]')
         .trigger("click");
@@ -67,7 +54,7 @@ describe("Player", () => {
         .get('[data-test="submitButton"]')
         .trigger("click");
 
-      // question 4
+      // question 3
       cy.get('[data-test="modal"]')
         .get('[data-test="optionSelector-0"]')
         .trigger("click");
