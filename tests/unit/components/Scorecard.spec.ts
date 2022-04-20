@@ -97,7 +97,12 @@ describe("Scorecard.vue", () => {
       isShown: true,
     });
     await flushPromises();
-    throwConfetti(wrapper.vm.confettiHandler);
+    const confetti = require("canvas-confetti");
+    const confettiCanvas = document.getElementById("confetticanvas");
+    const confettiHandler = confetti.create(confettiCanvas, {
+      resize: true,
+    });
+    throwConfetti(confettiHandler);
     expect(throwConfetti).toHaveBeenCalled();
     await jest.advanceTimersByTime(1000);
 
