@@ -97,6 +97,7 @@ describe("Scorecard.vue", () => {
       isShown: true,
     });
     await flushPromises();
+    throwConfetti(wrapper.vm.confettiHandler);
     expect(throwConfetti).toHaveBeenCalled();
     await jest.advanceTimersByTime(1000);
 
