@@ -97,9 +97,9 @@ describe("Scorecard.vue", () => {
       isShown: true,
     });
     await flushPromises();
+    expect(throwConfetti).toHaveBeenCalled();
     await jest.advanceTimersByTime(1000);
 
-    expect(throwConfetti).toBeCalled();
     expect(wrapper.vm.localProgressBarPercentage).toBe(progressPercentage);
 
     await wrapper.setProps({
