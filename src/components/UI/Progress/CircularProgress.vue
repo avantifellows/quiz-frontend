@@ -31,14 +31,14 @@
       data-test="result"
     >
       <div class="w-full flex justify-center">
-        <p class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-center">
+        <p
+          class="text-4xl sm:text-5xl md:text-[52px] lg:text-6xl font-extrabold text-center"
+        >
           {{ progressBarPercent }}%
         </p>
       </div>
       <div class="w-full flex justify-center">
-        <p
-          class="text-sm sm:text-sm md:text-base lg:text-xl font-bold text-center"
-        >
+        <p class="text-sm sm:text-sm md:text-base lg:text-xl text-center">
           {{ result.title }}
         </p>
       </div>
@@ -80,8 +80,8 @@ export default defineComponent({
   },
   setup(props) {
     const state = reactive({
-      progressBarBackgroundColor: "#C4C5C5",
-      progressBarForegroundColor: "#2B9D05",
+      progressBarBackgroundColor: "#A0D8C8",
+      progressBarForegroundColor: "#10B981",
     });
 
     /**

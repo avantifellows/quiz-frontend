@@ -2,6 +2,7 @@ import { mount, flushPromises } from "@vue/test-utils";
 import Scorecard from "@/components/Scorecard.vue";
 import domtoimage from "dom-to-image";
 import store from "@/store";
+import { throwConfetti } from "@/services/Functional/Utilities";
 
 jest.mock("@/services/Functional/Utilities.ts", () => ({
   __esModule: true,
@@ -81,7 +82,7 @@ describe("Scorecard.vue", () => {
 
   it("should emit a signal when watch again is clicked", async () => {
     await wrapper.find('[data-test="backButton"]').trigger("click");
-    expect(wrapper.emitted()).toHaveProperty("last-question");
+    expect(wrapper.emitted()).toHaveProperty("go-back");
   });
 
   it("triggers sharing text on whatsapp upon clicking share button", async () => {
@@ -98,6 +99,7 @@ describe("Scorecard.vue", () => {
     await flushPromises();
     await jest.advanceTimersByTime(1000);
 
+    expect(throwConfetti).toBeCalled();
     expect(wrapper.vm.localProgressBarPercentage).toBe(progressPercentage);
 
     await wrapper.setProps({

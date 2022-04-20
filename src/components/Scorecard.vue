@@ -50,7 +50,7 @@
             :key="metric"
           >
             <div
-              class="w-full h-full flex flex-row justify-center space-x-3 mt-1"
+              class="w-full h-full flex flex-row justify-center space-x-1 bp-500:space-x-3 bp-500:mt-1"
             >
               <!-- metric icon -->
               <BaseIcon
@@ -58,13 +58,15 @@
                 :iconClass="metric.icon.class"
               ></BaseIcon>
               <!-- numeric value of the metric -->
-              <p class="text-4xl md:text-5xl font-bold my-auto">
+              <p
+                class="text-[32px] md:text-[42px] lg:text-5xl font-bold md:leading-none"
+              >
                 {{ metric.value }}
               </p>
             </div>
             <!-- name of the metric -->
             <div
-              class="text-center text-sm bp-320:text-sm md:text-base font-medium mt-2 bp-500:whitespace-nowrap px-1 h-full flex place-self-center items-center"
+              class="text-center text-sm bp-320:text-xs md:text-base font-medium mt-1 lg:mt-2 bp-500:whitespace-nowrap px-1 h-full flex place-self-center items-center"
             >
               <p>
                 {{ metric.name }}
@@ -75,11 +77,11 @@
 
         <!-- action buttons -->
         <div
-          class="place-self-center mt-12 flex h-14 w-100"
+          class="place-self-center flex h-14"
           :class="{
             'mt-5': isCircularProgressShown,
-            'flex-row space-x-8': !isPortrait,
-            'flex-col space-y-4': isPortrait,
+            'flex-row space-x-8 w-100 mt-12': !isPortrait,
+            'flex-col space-y-2 w-32 mt-13': isPortrait,
           }"
           ignore-share-scorecard
         >
@@ -95,7 +97,7 @@
           <icon-button
             :titleConfig="backButtonTitleConfig"
             :buttonClass="backButtonClass"
-            @click="toLastQuestion"
+            @click="goToLastQuestion"
             data-test="backButton"
           ></icon-button>
         </div>
@@ -182,9 +184,9 @@ export default defineComponent({
       reRenderKey: false, // a key to re-render a component
       // classes for watch again button
       backButtonClass:
-        "bg-[#F78000] hover:bg-primary-hover bp-500:w-40 px-6 py-3 bp-500:p-4 bp-500:px-10 sm:p-6 rounded-xl shadow-xl disabled:opacity-50 disabled:pointer-events-none",
+        "bg-[#F78000] hover:bg-primary-hover bp-500:w-40 px-6 py-3 bp-500:p-4 bp-500:px-10 sm:p-6 rounded-2xl md:rounded-xl shadow-xl disabled:opacity-50 disabled:pointer-events-none",
       shareButtonClass:
-        "bg-green-500 hover:bg-green-600 bp-500:w-40 px-6 py-3 bp-500:p-4 bp-500:px-10 sm:p-6 rounded-xl shadow-xl disabled:opacity-50 disabled:pointer-events-none",
+        "bg-[#10B981] hover:bg-green-600 bp-500:w-40 px-6 py-3 bp-500:p-4 bp-500:px-10 sm:p-6 rounded-2xl md:rounded-xl shadow-xl disabled:opacity-50 disabled:pointer-events-none",
       isPortrait: true,
       isMobileLandscape: false, // whether the screen corresponds to a mobile screen in landscape mode
       confettiHandler: confettiHandler,
@@ -401,8 +403,8 @@ export default defineComponent({
     /**
      * Emits an event to restart the quiz
      */
-    function toLastQuestion() {
-      context.emit("last-question");
+    function goToLastQuestion() {
+      context.emit("go-back");
     }
 
     // determine the screen orientation when the item modal is created
@@ -414,7 +416,7 @@ export default defineComponent({
       ...toRefs(state),
       container,
       shareScorecard,
-      toLastQuestion,
+      goToLastQuestion,
       isCircularProgressShown,
       backButtonTitleConfig,
       shareButtonTitleConfig,
@@ -423,6 +425,6 @@ export default defineComponent({
       progressBarResult,
     };
   },
-  emits: ["last-question"],
+  emits: ["go-back"],
 });
 </script>

@@ -31,7 +31,7 @@
       :title="title"
       greeting="Hooray! Congrats on completing the quiz! 🎉"
       :numQuestionsAnswered="numQuestionsAnswered"
-      @last-question="toLastQuestion"
+      @go-back="goToLastQuestion"
       ref="scorecard"
     ></Scorecard>
   </div>
@@ -120,11 +120,9 @@ export default defineComponent({
       () => state.currentQuestionIndex,
       (newValue) => {
         if (newValue == state.questions.length) {
-          if (areAllQuestionsSurvey.value) state.isScorecardShown = false;
-          else {
-            state.isScorecardShown = true;
-            calculateScorecardMetrics();
-          }
+          if (areAllQuestionsSurvey.value) return;
+          state.isScorecardShown = true;
+          calculateScorecardMetrics();
         }
       }
     );
@@ -149,7 +147,7 @@ export default defineComponent({
           icon: {
             source: "correct",
             class:
-              "text-green-500 h-7 bp-360:h-8 bp-500:h-10 lg:h-10 w-8 bp-360:w-8 bp-500:w-10 md:w-10 mt-4 my-1 lg:w-10 place-self-center",
+              "text-[#10B981] h-7 bp-360:h-8 bp-500:h-10 lg:h-11 w-8 bp-360:w-8 bp-500:w-10 md:w-10 mt-5 bp-360:mt-6 md:mt-4 lg:mt-5 my-1 lg:w-11 place-self-center",
           },
           value: state.numCorrect,
         },
@@ -158,7 +156,7 @@ export default defineComponent({
           icon: {
             source: "wrong",
             class:
-              "text-red-500 h-8 bp-360:h-8 bp-500:h-10 lg:h-11 w-6 bp-360:w-6 bp-500:w-6 md:w-7 lg:w-8 mt-4 mx-1 place-self-center",
+              "text-red-500 h-8 bp-360:h-8 bp-500:h-10 md:h-11 w-6 bp-360:w-6 bp-500:w-6 md:w-7 lg:w-8 mt-4 mx-1 place-self-center",
           },
           value: state.numWrong,
         },
@@ -228,7 +226,7 @@ export default defineComponent({
     /**
      * remove the scorecard, display last question and remove the confetti
      */
-    function toLastQuestion() {
+    function goToLastQuestion() {
       state.isScorecardShown = false;
       state.currentQuestionIndex -= 1;
       state.numCorrect = 0;
@@ -244,7 +242,7 @@ export default defineComponent({
       scorecardMetrics,
       scorecardProgress,
       numQuestionsAnswered,
-      toLastQuestion,
+      goToLastQuestion,
     };
   },
 });
