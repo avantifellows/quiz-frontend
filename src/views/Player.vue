@@ -31,6 +31,7 @@
       :title="title"
       greeting="Hooray! Congrats on completing the quiz! 🎉"
       :numQuestionsAnswered="numQuestionsAnswered"
+      :areAllQuestionsSurvey="areAllQuestionsSurvey"
       @go-back="goToLastQuestion"
       ref="scorecard"
     ></Scorecard>
@@ -120,8 +121,8 @@ export default defineComponent({
       () => state.currentQuestionIndex,
       (newValue) => {
         if (newValue == state.questions.length) {
-          if (areAllQuestionsSurvey.value) return;
           state.isScorecardShown = true;
+          if (areAllQuestionsSurvey.value) return;
           calculateScorecardMetrics();
         }
       }
@@ -242,6 +243,7 @@ export default defineComponent({
       scorecardMetrics,
       scorecardProgress,
       numQuestionsAnswered,
+      areAllQuestionsSurvey,
       goToLastQuestion,
     };
   },

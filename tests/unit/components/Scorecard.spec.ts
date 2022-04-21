@@ -72,8 +72,8 @@ describe("Scorecard.vue", () => {
     expect(wrapper.vm.circularProgressStroke).toBe(18);
 
     wrapper.vm.innerWidth = 700;
-    expect(wrapper.vm.circularProgressRadius).toBe(90);
-    expect(wrapper.vm.circularProgressStroke).toBe(16);
+    expect(wrapper.vm.circularProgressRadius).toBe(100);
+    expect(wrapper.vm.circularProgressStroke).toBe(17);
 
     wrapper.vm.innerWidth = 500;
     expect(wrapper.vm.circularProgressRadius).toBe(85);

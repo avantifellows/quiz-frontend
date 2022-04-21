@@ -42,6 +42,7 @@
 
         <!-- metric boxes -->
         <div
+          v-if="!areAllQuestionsSurvey"
           class="flex bp-500:flex-row justify-center space-x-6 px-4 bp-500:px-10 max-w-4xl place-self-center"
         >
           <div
@@ -162,6 +163,11 @@ export default defineComponent({
       default: false,
       type: Boolean,
     },
+    /** whether the metrics has to be shown */
+    areAllQuestionsSurvey: {
+      default: false,
+      type: Boolean,
+    },
     /** progress to show on the progress bar (in %) */
     progressPercentage: {
       required: true,
@@ -232,9 +238,6 @@ export default defineComponent({
       )}% accuracy on Avanti Fellows quiz today!`;
     });
 
-    // const metadataIconClass = computed(() => {
-    //   return `h-6 bp-360:h-10 bp-500:h-6 lg:h-10 w-6 bp-360:w-10 bp-500:w-4 md:w-6 lg:w-10 place-self-center `;
-    // });
     /**
      * When the scorecard is shared, this method handles whether to use the singular
      * or the plural version of "question" based on the number of questions answered
@@ -249,6 +252,9 @@ export default defineComponent({
      * will not be visible
      */
     const isCircularProgressShown = computed(() => {
+      if (props.areAllQuestionsSurvey) {
+        return false;
+      }
       if (props.progressPercentage == null || state.isMobileLandscape) {
         return false;
       }
@@ -270,7 +276,7 @@ export default defineComponent({
       if (state.innerWidth >= 1200) return 130;
       else if (state.innerWidth < 1200 && state.innerWidth >= 1024) return 120;
       else if (state.innerWidth < 1024 && state.innerWidth >= 768) return 110;
-      else if (state.innerWidth < 768 && state.innerWidth >= 640) return 90;
+      else if (state.innerWidth < 768 && state.innerWidth >= 640) return 100;
       else if (state.innerWidth < 640 && state.innerWidth >= 380) return 85;
       else if (state.innerWidth < 380 && state.innerWidth >= 300) return 80;
       return 60;
@@ -283,12 +289,12 @@ export default defineComponent({
       if (state.innerWidth >= 1200) return 20;
       else if (state.innerWidth < 1200 && state.innerWidth >= 1024) return 18;
       else if (state.innerWidth < 1024 && state.innerWidth >= 768) return 18;
-      else if (state.innerWidth < 768 && state.innerWidth >= 640) return 16;
+      else if (state.innerWidth < 768 && state.innerWidth >= 640) return 17;
       else if (state.innerWidth < 640 && state.innerWidth >= 380) return 15;
       else if (state.innerWidth < 380 && state.innerWidth >= 300) return 14;
       return 8;
     });
-    /** config for the text of the watch again button */
+    /** config for the text of the go back button */
     const backButtonTitleConfig = computed(() => {
       return {
         value: "Go Back",
