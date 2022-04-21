@@ -8,7 +8,7 @@
       :options="currentQuestion.options"
       :correctAnswer="questionCorrectAnswer"
       :questionType="questionType"
-      :isSurveyQuestion="isSurveyQuestion"
+      :isGradedQuestion="isGradedQuestion"
       :maxCharLimit="currentQuestion.max_char_limit"
       :isPortrait="isPortrait"
       :imageData="currentQuestion?.image"
@@ -104,13 +104,13 @@ export default defineComponent({
      * triggered upon selecting an option
      */
     function questionOptionSelected(optionIndex: number) {
-      if (isQuestionTypeMCQ.value) {
+      if (isQuestionTypeSingleChoice.value) {
         // for MCQ, simply set the option as the current response
         state.draftResponses[props.currentQuestionIndex] = [optionIndex];
         return;
       }
 
-      if (isQuestionTypeCheckbox.value) {
+      if (isQuestionTypeMultiChoice.value) {
         if (state.draftResponses[props.currentQuestionIndex] == null) {
           state.draftResponses[props.currentQuestionIndex] = [];
         }
@@ -171,12 +171,14 @@ export default defineComponent({
       () => currentQuestion.value?.correct_answer
     );
 
-    const isSurveyQuestion = computed(() => currentQuestion.value.survey);
+    const isGradedQuestion = computed(() => currentQuestion.value.graded);
 
-    const isQuestionTypeCheckbox = computed(
-      () => questionType.value == "checkbox"
+    const isQuestionTypeMultiChoice = computed(
+      () => questionType.value == "multi-choice"
     );
-    const isQuestionTypeMCQ = computed(() => questionType.value == "mcq");
+    const isQuestionTypeSingleChoice = computed(
+      () => questionType.value == "single-choice"
+    );
     const isQuestionTypeSubjective = computed(
       () => questionType.value == "subjective"
     );
@@ -191,7 +193,7 @@ export default defineComponent({
 
     const isAnswerSubmitted = computed(() => {
       if (currentQuestionResponseAnswer.value == null) return false;
-      if (isQuestionTypeMCQ.value || isQuestionTypeCheckbox.value) {
+      if (isQuestionTypeSingleChoice.value || isQuestionTypeMultiChoice.value) {
         return currentQuestionResponseAnswer.value.length > 0;
       }
       return true;
@@ -226,7 +228,7 @@ export default defineComponent({
       currentQuestion,
       questionType,
       questionCorrectAnswer,
-      isSurveyQuestion,
+      isGradedQuestion,
       currentQuestionResponseAnswer,
       isAnswerSubmitted,
       isAttemptValid,

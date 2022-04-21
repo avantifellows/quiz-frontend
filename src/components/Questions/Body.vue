@@ -60,7 +60,7 @@
                   :data-test="`optionSelector-${optionIndex}`"
                 />
                 <div
-                  v-html="option"
+                  v-html="option.text"
                   class="ml-2 h-full place-self-center text-base sm:text-lg"
                   :data-test="`option-${optionIndex}`"
                 ></div>
@@ -144,7 +144,7 @@ export default defineComponent({
       type: Boolean,
     },
     questionType: {
-      default: "mcq",
+      default: "single-choice",
       type: String,
     },
     /** the character limit to be used if present */
@@ -161,8 +161,8 @@ export default defineComponent({
       default: false,
       type: Boolean,
     },
-    isSurveyQuestion: {
-      default: false,
+    isGradedQuestion: {
+      default: true,
       type: Boolean,
     },
   },
@@ -170,8 +170,8 @@ export default defineComponent({
     const state = reactive({
       isImageLoading: false,
       // set containing the question types in which options are present
-      questionTypesWithOptions: new Set(["mcq", "checkbox"]),
-      surveyAnswerClass: "bg-gray-200",
+      questionTypesWithOptions: new Set(["single-choice", "multi-choice"]),
+      nonGradedAnswerClass: "bg-gray-200",
       correctOptionClass: "text-white bg-green-500",
       wrongOptionClass: "text-white bg-red-500",
       questionTextClass:
@@ -191,9 +191,9 @@ export default defineComponent({
      *
      * handles the 4 different cases:
      * - the given option has not been selected
-     * - question is non-survey and given option is the right answer
-     * - question is non-survey and given option is the wrong answer
-     * - question is survey and the given option has been selected
+     * - question is graded and given option is the right answer
+     * - question is graded and given option is the wrong answer
+     * - question is non-graded and the given option has been selected
      * @param {Number} optionIndex - index of the option
      */
     function optionBackgroundClass(optionIndex: Number) {
@@ -206,13 +206,13 @@ export default defineComponent({
       }
 
       if (
-        !props.isSurveyQuestion &&
+        props.isGradedQuestion &&
         props.correctAnswer.indexOf(optionIndex) != -1
       ) {
         return state.correctOptionClass;
       }
       if (props.submittedAnswer.indexOf(optionIndex) != -1) {
-        if (props.isSurveyQuestion) return state.surveyAnswerClass;
+        if (!props.isGradedQuestion) return state.nonGradedAnswerClass;
         return state.wrongOptionClass;
       }
     }
@@ -268,10 +268,12 @@ export default defineComponent({
     const isQuestionTypeSubjective = computed(
       () => props.questionType == "subjective"
     );
-    const isQuestionTypeCheckbox = computed(
-      () => props.questionType == "checkbox"
+    const isQuestionTypeMultiChoice = computed(
+      () => props.questionType == "multi-choice"
     );
-    const isQuestionTypeMCQ = computed(() => props.questionType == "mcq");
+    const isQuestionTypeSingleChoice = computed(
+      () => props.questionType == "single-choice"
+    );
 
     // styling class to decide orientation of image + options
     // depending on portrait/landscape orientation
@@ -287,8 +289,8 @@ export default defineComponent({
 
     const optionInputType = computed(() => {
       if (!areOptionsVisible.value) return null;
-      if (isQuestionTypeMCQ.value) return "radio";
-      if (isQuestionTypeCheckbox.value) return "checkbox";
+      if (isQuestionTypeSingleChoice.value) return "radio";
+      if (isQuestionTypeMultiChoice.value) return "checkbox";
       return null;
     });
 
@@ -376,8 +378,8 @@ export default defineComponent({
       isQuestionImagePresent,
       areOptionsVisible,
       isQuestionTypeSubjective,
-      isQuestionTypeCheckbox,
-      isQuestionTypeMCQ,
+      isQuestionTypeMultiChoice,
+      isQuestionTypeSingleChoice,
       orientationClass,
       optionInputType,
       answerContainerClass,
