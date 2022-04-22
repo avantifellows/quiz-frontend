@@ -32,7 +32,7 @@
         :title="title"
         greeting="Hooray! Congrats on completing the quiz! 🎉"
         :numQuestionsAnswered="numQuestionsAnswered"
-        :areAllQuestionsSurvey="areAllQuestionsSurvey"
+        :areAllQuestionsGraded="areAllQuestionsGraded"
         @go-back="goToLastQuestion"
         ref="scorecard"
       ></Scorecard>
@@ -88,7 +88,7 @@ export default defineComponent({
       (newValue) => {
         if (newValue == state.questions.length) {
           state.isScorecardShown = true;
-          if (areAllQuestionsSurvey.value) return;
+          if (areAllQuestionsGraded.value) return;
           calculateScorecardMetrics();
         }
       }
@@ -158,7 +158,7 @@ export default defineComponent({
       return state.numCorrect + state.numWrong;
     });
 
-    const numSurveyQuestions = computed(() => {
+    const numGradedQuestions = computed(() => {
       let count = 0;
       state.questions.forEach((itemDetail) => {
         if (!itemDetail.graded) count += 1;
@@ -166,8 +166,8 @@ export default defineComponent({
       return count;
     });
 
-    const areAllQuestionsSurvey = computed(() => {
-      return numSurveyQuestions.value == state.questions.length;
+    const areAllQuestionsGraded = computed(() => {
+      return numGradedQuestions.value == state.questions.length;
     });
 
     function calculateScorecardMetrics() {
@@ -222,7 +222,7 @@ export default defineComponent({
       scorecardMetrics,
       scorecardProgress,
       numQuestionsAnswered,
-      areAllQuestionsSurvey,
+      areAllQuestionsGraded,
       goToLastQuestion,
       isQuizLoaded,
     };
