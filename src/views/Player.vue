@@ -180,8 +180,6 @@ export default defineComponent({
 
     function updateNumCorrectWrongSkipped(itemDetail: any, userAnswer: any) {
       if (!itemDetail.graded) {
-        console.log("sur", state.numCorrect);
-        console.log("sur", state.numWrong);
         return;
       }
       if (
@@ -194,8 +192,6 @@ export default defineComponent({
         isEqual(userAnswer, correctAnswer)
           ? (state.numCorrect += 1)
           : (state.numWrong += 1);
-        console.log("mc", state.numCorrect);
-        console.log("mc", state.numWrong);
       } else if (
         itemDetail.type == "subjective" &&
         userAnswer != null &&
