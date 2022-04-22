@@ -42,7 +42,7 @@
 
         <!-- metric boxes -->
         <div
-          v-if="!areAllQuestionsGraded"
+          v-if="!areAllQuestionsNonGraded"
           class="flex bp-500:flex-row justify-center space-x-6 px-4 bp-500:px-10 max-w-4xl place-self-center"
         >
           <div
@@ -164,7 +164,7 @@ export default defineComponent({
       type: Boolean,
     },
     /** whether the metrics has to be shown */
-    areAllQuestionsGraded: {
+    areAllQuestionsNonGraded: {
       default: false,
       type: Boolean,
     },
@@ -252,7 +252,7 @@ export default defineComponent({
      * will not be visible
      */
     const isCircularProgressShown = computed(() => {
-      if (props.areAllQuestionsGraded) {
+      if (props.areAllQuestionsNonGraded) {
         return false;
       }
       if (props.progressPercentage == null || state.isMobileLandscape) {
