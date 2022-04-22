@@ -4,7 +4,7 @@ import QuestionModal from "@/components/Questions/QuestionModal.vue";
 
 let clonedeep = require("lodash.clonedeep");
 
-describe("ItemModal.vue", () => {
+describe("QuestionModal.vue", () => {
   const questions = [
     {
       _id: "1234",
@@ -108,6 +108,7 @@ describe("ItemModal.vue", () => {
   });
 
   describe("single-choice questions", () => {
+    const questionIndex = 0;
     it("selecting option makes answer valid", async () => {
       // initially answer should be invalid
       expect(wrapper.vm.isAttemptValid).toBeFalsy();
@@ -139,7 +140,9 @@ describe("ItemModal.vue", () => {
       });
 
       it("responses have been updated", () => {
-        expect(wrapper.vm.localResponses[0]).toEqual({
+        expect(wrapper.vm.localResponses[questionIndex]).toEqual({
+          _id: `${questionIndex}`,
+          question_id: questions[questionIndex]._id,
           answer: [0],
         });
         expect(wrapper.emitted()).toHaveProperty("submit-question");
@@ -209,6 +212,8 @@ describe("ItemModal.vue", () => {
 
       it("responses have been updated", () => {
         expect(wrapper.vm.localResponses[questionIndex]).toEqual({
+          _id: `${questionIndex}`,
+          question_id: questions[questionIndex]._id,
           answer: [0, 1],
         });
         expect(wrapper.emitted()).toHaveProperty("submit-question");
@@ -258,6 +263,8 @@ describe("ItemModal.vue", () => {
 
       it("responses have been updated", () => {
         expect(wrapper.vm.localResponses[questionIndex]).toEqual({
+          _id: `${questionIndex}`,
+          question_id: questions[questionIndex]._id,
           answer: answer,
         });
         expect(wrapper.emitted()).toHaveProperty("submit-question");
