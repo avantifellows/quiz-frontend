@@ -2,9 +2,10 @@ import { mount, flushPromises } from "@vue/test-utils";
 import Scorecard from "@/components/Scorecard.vue";
 import domtoimage from "dom-to-image";
 import store from "@/store";
-import * as Utilities from "@/services/Functional/Utilities";
+import { throwConfetti } from "@/services/Functional/Utilities";
 
 jest.mock("@/services/Functional/Utilities.ts", () => ({
+  ...jest.requireActual("@/services/Functional/Utilities.ts"),
   __esModule: true,
   throwConfetti: jest.fn(),
   isScreenPortrait: jest.fn(),
@@ -91,13 +92,20 @@ describe("Scorecard.vue", () => {
   });
 
   it("should show/hide the scorecard popup using isShown prop", async () => {
+    const confetti = require("canvas-confetti");
+    const confettiCanvas = document.getElementById("confetticanvas");
+    const confettiHandler = confetti.create(confettiCanvas, {
+      resize: true,
+    });
     const progressPercentage = 50;
     await wrapper.setProps({
       progressPercentage: progressPercentage,
       isShown: true,
     });
     await flushPromises();
-    await jest.advanceTimersByTime(1000);
+
+    throwConfetti(confettiHandler);
+    jest.advanceTimersByTime(1000);
 
     expect(wrapper.vm.localProgressBarPercentage).toBe(progressPercentage);
 
@@ -197,21 +205,5 @@ describe("Scorecard.vue", () => {
 
     await wrapper.find('[data-test="share"]').trigger("click");
     expect(globalThis.navigator.share).not.toHaveBeenCalled();
-  });
-
-  it("throwConfetti is working", async () => {
-    const confetti = require("canvas-confetti");
-    const confettiCanvas = document.getElementById("confetticanvas");
-    const confettiHandler = confetti.create(confettiCanvas, {
-      resize: true,
-    });
-    const throwConfettieMock = jest.fn();
-    jest
-      .spyOn(Utilities, "throwConfetti")
-      .mockImplementation(throwConfettieMock);
-    await throwConfettieMock(confettiHandler);
-    jest.advanceTimersByTime(1000);
-
-    expect(throwConfettieMock).toHaveBeenCalled();
   });
 });
