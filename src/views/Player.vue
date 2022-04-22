@@ -161,7 +161,7 @@ export default defineComponent({
     const numSurveyQuestions = computed(() => {
       let count = 0;
       state.questions.forEach((itemDetail) => {
-        if (itemDetail.survey) count += 1;
+        if (!itemDetail.graded) count += 1;
       });
       return count;
     });
@@ -179,11 +179,14 @@ export default defineComponent({
     }
 
     function updateNumCorrectWrongSkipped(itemDetail: any, userAnswer: any) {
-      if (itemDetail.survey) {
+      if (!itemDetail.graded) {
+        console.log("sur", state.numCorrect);
+        console.log("sur", state.numWrong);
         return;
       }
       if (
-        (itemDetail.type == "mcq" || itemDetail.type == "checkbox") &&
+        (itemDetail.type == "single-choice" ||
+          itemDetail.type == "multi-choice") &&
         userAnswer != null &&
         userAnswer.length > 0
       ) {
@@ -191,6 +194,8 @@ export default defineComponent({
         isEqual(userAnswer, correctAnswer)
           ? (state.numCorrect += 1)
           : (state.numWrong += 1);
+        console.log("mc", state.numCorrect);
+        console.log("mc", state.numWrong);
       } else if (
         itemDetail.type == "subjective" &&
         userAnswer != null &&
