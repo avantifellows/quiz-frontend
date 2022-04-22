@@ -34,7 +34,7 @@
         :numQuestionsAnswered="numQuestionsAnswered"
         :areAllQuestionsNonGraded="areAllQuestionsNonGraded"
         @go-back="goToLastQuestion"
-        ref="scorecard"
+        data-test="scorecard"
       ></Scorecard>
     </div>
   </div>
