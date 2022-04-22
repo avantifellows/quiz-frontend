@@ -2,6 +2,7 @@ import { mount, flushPromises } from "@vue/test-utils";
 import Scorecard from "@/components/Scorecard.vue";
 import domtoimage from "dom-to-image";
 import store from "@/store";
+import { throwConfetti } from "@/services/Functional/Utilities";
 
 jest.mock("@/services/Functional/Utilities.ts", () => ({
   __esModule: true,
@@ -101,14 +102,9 @@ describe("Scorecard.vue", () => {
       isShown: true,
     });
     await flushPromises();
-
-    const Utilities = require("@/services/Functional/Utilities");
-
-    const spy = jest.spyOn(Utilities, "throwConfetti");
-    await Utilities.throwConfetti(confettiHandler);
+    throwConfetti(confettiHandler);
     jest.advanceTimersByTime(1000);
 
-    expect(spy).toHaveBeenCalled();
     expect(wrapper.vm.localProgressBarPercentage).toBe(progressPercentage);
 
     await wrapper.setProps({
