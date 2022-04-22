@@ -38,7 +38,7 @@ describe("Player", () => {
         cy.get('[data-test="splash"]').should("exist");
         cy.get('[data-test="modal"]').should("not.exist");
         cy.get("@startQuizButton").should("exist");
-        cy.get("@startQuizButton").should("have.text", "Let's Start");
+        cy.get("@startQuizButton").should("contain", "Let's Start");
       });
 
       it("shows modal upon clicking start button on splash screen", () => {
@@ -104,7 +104,7 @@ describe("Player", () => {
         cy.get('[data-test="startQuiz"]').as("startQuizButton");
       });
       it("changes the text of the start quiz button", () => {
-        cy.get("@startQuizButton").should("have.text", "Resume");
+        cy.get("@startQuizButton").should("contain", "Resume");
       });
 
       describe("restores answers of questions", () => {
