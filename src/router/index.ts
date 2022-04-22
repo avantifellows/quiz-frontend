@@ -48,7 +48,7 @@ router.beforeEach((to) => {
     return {
       name: "403",
     };
-  } else return;
+  }
 });
 
 export default router;

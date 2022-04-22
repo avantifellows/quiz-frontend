@@ -5,6 +5,8 @@ type questionType = questionWithOptions | "subjective";
 type language = "en" | "hi";
 type quizType = "assessment" | "JEE";
 type quizNavigationMode = "linear" | "non-linear";
+export type submittedAnswer = number[] | string | null;
+type correctAnswer = number[] | null;
 
 export interface IconButtonTitleConfig {
   value: string;
@@ -27,7 +29,9 @@ export interface InputTextValidationConfig {
 export type DraftResponse = number[] | string | null;
 
 export interface SubmittedResponse {
-  answer: number[] | string | null;
+  _id: string;
+  question_id: string;
+  answer: submittedAnswer;
 }
 
 export interface QuizMetadata {
@@ -72,7 +76,7 @@ export interface Question {
   type: questionType;
   text: string;
   options: Option[] | null;
-  correct_answer: number[] | null;
+  correct_answer: correctAnswer;
   image: Image | null;
   max_char_limit: number | null;
   graded: boolean;
@@ -88,7 +92,7 @@ interface QuestionSet {
   questions: Question[];
 }
 
-export interface QuizResponse {
+export interface QuizAPIResponse {
   instructions: string;
   _id: string;
   language: language;
@@ -100,4 +104,19 @@ export interface QuizResponse {
   shuffle: boolean;
   timeLimit: TimeLimit | null;
   question_sets: QuestionSet[];
+}
+
+export interface SessionAPIResponse {
+  _id: string;
+  user_id: string;
+  quiz_id: string;
+  is_first: boolean;
+  session_answers: SubmittedResponse[];
+}
+
+export interface SessionAnswerAPIResponse {
+  _id: string;
+  session_id: string;
+  question_id: string;
+  answer: submittedAnswer;
 }
