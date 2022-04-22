@@ -2,7 +2,7 @@ import { mount, flushPromises } from "@vue/test-utils";
 import Scorecard from "@/components/Scorecard.vue";
 import domtoimage from "dom-to-image";
 import store from "@/store";
-import { throwConfetti } from "@/services/Functional/Utilities";
+import * as Utilities from "@/services/Functional/Utilities";
 
 jest.mock("@/services/Functional/Utilities.ts", () => ({
   __esModule: true,
@@ -96,16 +96,19 @@ describe("Scorecard.vue", () => {
       progressPercentage: progressPercentage,
       isShown: true,
     });
-    await flushPromises();
     const confetti = require("canvas-confetti");
     const confettiCanvas = document.getElementById("confetticanvas");
     const confettiHandler = confetti.create(confettiCanvas, {
       resize: true,
     });
-    throwConfetti(confettiHandler);
-    expect(throwConfetti).toHaveBeenCalled();
+    await flushPromises();
+    const throwConfetti = (
+      Utilities.throwConfetti as jest.Mock
+    ).mockReturnValue("Mocked throwConfetti");
+    await throwConfetti(confettiHandler);
     await jest.advanceTimersByTime(1000);
 
+    expect(throwConfetti).toHaveBeenCalled();
     expect(wrapper.vm.localProgressBarPercentage).toBe(progressPercentage);
 
     await wrapper.setProps({
