@@ -102,9 +102,14 @@ describe("Scorecard.vue", () => {
       isShown: true,
     });
     await flushPromises();
-    throwConfetti(confettiHandler);
+
+    const Utilities = require("@/services/Functional/Utilities");
+
+    const spy = jest.spyOn(Utilities, "throwConfetti");
+    await throwConfetti(confettiHandler);
     jest.advanceTimersByTime(1000);
 
+    expect(spy).toHaveBeenCalled();
     expect(wrapper.vm.localProgressBarPercentage).toBe(progressPercentage);
 
     await wrapper.setProps({
