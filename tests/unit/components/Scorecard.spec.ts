@@ -102,10 +102,7 @@ describe("Scorecard.vue", () => {
       resize: true,
     });
     await flushPromises();
-    const throwConfetti = (
-      Utilities.throwConfetti as jest.Mock
-    ).mockReturnValue("Mocked throwConfetti");
-    await throwConfetti(confettiHandler);
+    const throwConfetti = jest.spyOn(Utilities, "throwConfetti");
     await jest.advanceTimersByTime(1000);
 
     expect(throwConfetti).toHaveBeenCalled();
