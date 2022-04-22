@@ -1,0 +1,23 @@
+{
+  "_id": "62625e0f773b5fb92fde890b",
+  "user_id": "1",
+  "quiz_id": "abcd",
+  "is_first": true,
+  "session_answers": [
+    {
+      "_id": "62625e0f773b5fb92fde890c",
+      "question_id": "62540adb0f748c8e206c1614",
+      "answer": null
+    },
+    {
+      "_id": "62625e0f773b5fb92fde890d",
+      "question_id": "62540adb0f748c8e206c1615",
+      "answer": null
+    },
+    {
+      "_id": "62625e0f773b5fb92fde890e",
+      "question_id": "62540adb0f748c8e206c1616",
+      "answer": null
+    }
+  ]
+}
