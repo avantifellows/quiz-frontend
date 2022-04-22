@@ -26,6 +26,8 @@ describe("Player", () => {
           fixture: "new_session.json",
         });
 
+        cy.intercept("PATCH", "/session_answers/*", {});
+
         cy.visit("/abcd?userId=1");
 
         // define aliasas
