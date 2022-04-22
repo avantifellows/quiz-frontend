@@ -87,6 +87,7 @@ export interface Question {
   image: Image | null;
   max_char_limit: number | null;
   graded: boolean;
+  survey: boolean;
   instructions: string | null;
   markingScheme: MarkingScheme | null;
   solution: string[] | null;
