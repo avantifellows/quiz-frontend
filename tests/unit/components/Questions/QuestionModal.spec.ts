@@ -7,30 +7,50 @@ let clonedeep = require("lodash.clonedeep");
 describe("ItemModal.vue", () => {
   const questions = [
     {
-      type: "mcq",
+      type: "single-choice",
       text: "abcd",
-      options: ["option 1", "option 2"],
+      options: [
+        {
+          text: "option 1",
+        },
+        {
+          text: "option 2",
+        },
+      ],
       correct_answer: [0],
       image: null,
-      survey: false,
+      graded: false,
       max_char_limit: null,
     },
     {
-      type: "checkbox",
+      type: "multi-choice",
       text: "efgh",
-      options: ["option 1", "option 2", "op3", "option 4"],
+      options: [
+        {
+          text: "option 1",
+        },
+        {
+          text: "option 2",
+        },
+        {
+          text: "op3",
+        },
+        {
+          text: "option 4",
+        },
+      ],
       correct_answer: [2, 3],
       image: null,
-      survey: false,
+      graded: false,
       max_char_limit: null,
     },
     {
       type: "subjective",
       text: "yolo",
-      options: ["", ""],
+      options: null,
       correct_answer: null,
       image: null,
-      survey: false,
+      graded: false,
       max_char_limit: 100,
     },
   ] as Question[];
@@ -82,7 +102,7 @@ describe("ItemModal.vue", () => {
     });
   });
 
-  describe("mcq questions", () => {
+  describe("single-choice questions", () => {
     it("selecting option makes answer valid", async () => {
       // initially answer should be invalid
       expect(wrapper.vm.isAttemptValid).toBeFalsy();
@@ -131,7 +151,7 @@ describe("ItemModal.vue", () => {
     });
   });
 
-  describe("checkbox questions", () => {
+  describe("multi-choice questions", () => {
     const questionIndex = 1;
 
     beforeEach(() => mountWrapper({ currentQuestionIndex: questionIndex }));

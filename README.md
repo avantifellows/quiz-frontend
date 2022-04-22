@@ -13,8 +13,11 @@ A generic player for playing different types of questions (mcq, subjective, imag
   - [Pre-requisites](#pre-requisites)
     - [Pre-commit](#pre-commit)
   - [Installation](#installation)
-  - [Compiles and hot-reloads for development](#compiles-and-hot-reloads-for-development)
-  - [Compiles and minifies for production](#compiles-and-minifies-for-production)
+  - [Compile and setup hot-reloading for development](#compile-and-setup-hot-reloading-for-development)
+  - [Build for deployment](#build-for-deployment)
+    - [Staging](#staging)
+    - [Production](#production)
+  - [Deployment](#deployment)
   - [Run the unit tests](#run-the-unit-tests)
   - [Run the end-to-end tests](#run-the-end-to-end-tests)
 
@@ -48,22 +51,51 @@ The project uses `pre-commit` for identifying and fixing simple issues before yo
 
 ### Installation
 
+- Install the packages
+
 ```
 npm install
+```
+
+- Install `pre-commit`
+
+```
 pre-commit install
 ```
 
-### Compiles and hot-reloads for development
+- Copy `.env.example` to `.env.local` and set the appropriate values of the environment variables. The list of all environment variables along with their meanings can be found in [ENV.md](./docs/ENV.md)
+
+### Compile and setup hot-reloading for development
 
 ```
 npm run serve
 ```
 
-### Compiles and minifies for production
+### Build for deployment
+
+#### Staging
+
+- Copy `.env.example` to `.env.staging` and set the appropriate values of the environment variables.
+
+- Run the following command
+
+```
+npm run build --mode staging
+```
+
+#### Production
+
+- Copy `.env.example` to `.env.production` and set the appropriate values of the environment variables.
+
+- Run the following command
 
 ```
 npm run build
 ```
+
+### Deployment
+
+The actual deployment happens through Github Actions. Look at `.github/workflows/deploy_to_s3_staging.yml` for understanding the deployment to `Staging` and `.github/workflows/deploy_to_s3_prod.yml` for `Production`. Make sure to set all the environment variables mentioned in `docs/ENV.md` in the `Production` and `Staging` environments in your Github repository.
 
 ### Run the unit tests
 

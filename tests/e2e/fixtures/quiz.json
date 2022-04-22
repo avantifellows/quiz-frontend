@@ -1,0 +1,88 @@
+{
+  "_id": "62540adb0f748c8e206c1612",
+  "question_sets": [
+    {
+      "_id": "62540adb0f748c8e206c1613",
+      "questions": [
+        {
+          "_id": "62540adb0f748c8e206c1614",
+          "text": "Which grade are you in?",
+          "type": "single-choice",
+          "instructions": null,
+          "image": null,
+          "options": [
+            { "text": "Option 1", "image": null },
+            { "text": "Option 2", "image": null },
+            { "text": "Option 3", "image": null }
+          ],
+          "max_char_limit": null,
+          "correct_answer": null,
+          "graded": false,
+          "marking_scheme": null,
+          "solution": [],
+          "metadata": null
+        },
+        {
+          "_id": "62540adb0f748c8e206c1615",
+          "text": "Which grade are you in?",
+          "type": "multi-choice",
+          "instructions": null,
+          "image": {
+            "url": "https://plio-prod-assets.s3.ap-south-1.amazonaws.com/images/afbxudrmbl.png",
+            "alt_text": "Image"
+          },
+          "options": [
+            { "text": "Option 1", "image": null },
+            {
+              "text": "Option 2",
+              "image": {
+                "url": "https://plio-prod-assets.s3.ap-south-1.amazonaws.com/images/afbxudrmbl.png",
+                "alt_text": null
+              }
+            },
+            { "text": "Option 3", "image": null }
+          ],
+          "max_char_limit": null,
+          "correct_answer": [0, 2],
+          "graded": true,
+          "marking_scheme": null,
+          "solution": [],
+          "metadata": null
+        },
+        {
+          "_id": "62540adb0f748c8e206c1616",
+          "text": "Which subject are you studying?",
+          "type": "multi-choice",
+          "instructions": null,
+          "image": null,
+          "options": [
+            { "text": "Option 1", "image": null },
+            { "text": "Option 2", "image": null },
+            { "text": "Option 3", "image": null }
+          ],
+          "max_char_limit": null,
+          "correct_answer": null,
+          "graded": false,
+          "marking_scheme": null,
+          "solution": [],
+          "metadata": null
+        }
+      ]
+    }
+  ],
+  "max_marks": 10,
+  "num_graded_questions": 1,
+  "shuffle": false,
+  "num_attempts_allowed": 1,
+  "time_limit": null,
+  "navigation_mode": "linear",
+  "instructions": null,
+  "language": "en",
+  "metadata": {
+    "quiz_type": "JEE",
+    "grade": "8",
+    "subject": "Maths",
+    "chapter": null,
+    "topic": null
+  }
+}
