@@ -102,10 +102,14 @@ describe("Scorecard.vue", () => {
       resize: true,
     });
     await flushPromises();
-    const throwConfetti = jest.spyOn(Utilities, "throwConfetti");
+    const throwConfettieMock = jest.fn();
+    jest
+      .spyOn(Utilities, "throwConfetti")
+      .mockImplementation(throwConfettieMock);
+    throwConfettieMock(confettiHandler);
     await jest.advanceTimersByTime(1000);
 
-    expect(throwConfetti).toHaveBeenCalled();
+    expect(throwConfettieMock).toHaveBeenCalled();
     expect(wrapper.vm.localProgressBarPercentage).toBe(progressPercentage);
 
     await wrapper.setProps({
