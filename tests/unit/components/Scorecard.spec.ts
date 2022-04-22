@@ -96,20 +96,9 @@ describe("Scorecard.vue", () => {
       progressPercentage: progressPercentage,
       isShown: true,
     });
-    const confetti = require("canvas-confetti");
-    const confettiCanvas = document.getElementById("confetticanvas");
-    const confettiHandler = confetti.create(confettiCanvas, {
-      resize: true,
-    });
     await flushPromises();
-    const throwConfettieMock = jest.fn();
-    jest
-      .spyOn(Utilities, "throwConfetti")
-      .mockImplementation(throwConfettieMock);
-    throwConfettieMock(confettiHandler);
     await jest.advanceTimersByTime(1000);
 
-    expect(throwConfettieMock).toHaveBeenCalled();
     expect(wrapper.vm.localProgressBarPercentage).toBe(progressPercentage);
 
     await wrapper.setProps({
@@ -208,5 +197,21 @@ describe("Scorecard.vue", () => {
 
     await wrapper.find('[data-test="share"]').trigger("click");
     expect(globalThis.navigator.share).not.toHaveBeenCalled();
+  });
+
+  it("throwConfetti is working", async () => {
+    const confetti = require("canvas-confetti");
+    const confettiCanvas = document.getElementById("confetticanvas");
+    const confettiHandler = confetti.create(confettiCanvas, {
+      resize: true,
+    });
+    const throwConfettieMock = jest.fn();
+    jest
+      .spyOn(Utilities, "throwConfetti")
+      .mockImplementation(throwConfettieMock);
+    await throwConfettieMock(confettiHandler);
+    jest.advanceTimersByTime(1000);
+
+    expect(throwConfettieMock).toHaveBeenCalled();
   });
 });
