@@ -252,10 +252,11 @@ export default defineComponent({
      * will not be visible
      */
     const isCircularProgressShown = computed(() => {
-      if (props.areAllQuestionsNonGraded) {
-        return false;
-      }
-      if (props.progressPercentage == null || state.isMobileLandscape) {
+      if (
+        props.areAllQuestionsNonGraded ||
+        props.progressPercentage == null ||
+        state.isMobileLandscape
+      ) {
         return false;
       }
       return true;
