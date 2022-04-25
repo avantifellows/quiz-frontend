@@ -47,8 +47,8 @@ describe("Player", () => {
         cy.get('[data-test="modal"]').should("exist");
       });
 
-      it("neither splash screen nor modal shown when all questions are answered", () => {
-        cy.get("@startQuizButton").trigger("click");
+      it("scorecard shown when all questions are answered", () => {
+        cy.get('[data-test="startQuiz"]').trigger("click");
 
         // question 1
         cy.get('[data-test="modal"]')
@@ -88,6 +88,7 @@ describe("Player", () => {
 
         cy.get('[data-test="splash"]').should("not.exist");
         cy.get('[data-test="modal"]').should("not.exist");
+        cy.get('[data-test="scorecard"]').should("exist");
       });
     });
 

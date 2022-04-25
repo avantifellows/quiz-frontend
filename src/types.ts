@@ -34,6 +34,17 @@ export interface SubmittedResponse {
   answer: submittedAnswer;
 }
 
+interface ScorecardMetricIcon {
+  source: string;
+  class: string;
+}
+
+export interface ScorecardMetric {
+  name: string;
+  icon: ScorecardMetricIcon;
+  value: number;
+}
+
 export interface QuizMetadata {
   quiz_type: quizType;
   grade: string;

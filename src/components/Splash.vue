@@ -96,7 +96,7 @@ export default defineComponent({
       type: String,
       required: true,
     },
-    isNewSession: {
+    isFirstSession: {
       type: Boolean,
       default: false,
     },
@@ -118,7 +118,7 @@ export default defineComponent({
     });
 
     const startButtonTextConfig = computed(() => ({
-      value: props.isNewSession ? "Let's Start" : "Resume",
+      value: props.isFirstSession ? "Let's Start" : "Resume",
       class: "text-lg md:text-xl text-primary font-poppins-bold",
     }));
 

@@ -17,6 +17,7 @@ A generic player for playing different types of questions (mcq, subjective, imag
   - [Build for deployment](#build-for-deployment)
     - [Staging](#staging)
     - [Production](#production)
+  - [Deployment](#deployment)
   - [Run the unit tests](#run-the-unit-tests)
   - [Run the end-to-end tests](#run-the-end-to-end-tests)
 
@@ -91,6 +92,10 @@ npm run build --mode staging
 ```
 npm run build
 ```
+
+### Deployment
+
+The actual deployment happens through Github Actions. Look at `.github/workflows/deploy_to_s3_staging.yml` for understanding the deployment to `Staging` and `.github/workflows/deploy_to_s3_prod.yml` for `Production`. Make sure to set all the environment variables mentioned in `docs/ENV.md` in the `Production` and `Staging` environments in your Github repository.
 
 ### Run the unit tests
 
