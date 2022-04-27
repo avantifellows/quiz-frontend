@@ -25,9 +25,9 @@ export default {
   },
 
   /**
-   * @param {string} sessionAnswerId ID of the sessionAnswer document to update
-   * @param {submittedAnswer} answer the answer that needs to be updated
-   * @returns {Promise<SessionAnswerAPIResponse>} the updated sessionAnswer document
+   * @param {string} sessionAnswerId - id of the sessionAnswer instance to update
+   * @param {submittedAnswer} answer - the answer that needs to be updated
+   * @returns {Promise<SessionAnswerAPIResponse>} - the updated sessionAnswer instance
    */
   async updateSessionAnswer(
     sessionAnswerId: string,

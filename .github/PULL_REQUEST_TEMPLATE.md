@@ -6,7 +6,7 @@
 
   1. Fork [the repository](https://github.com/avantifellows/question-set-player) and create your branch from `master`.
   2. Run the installation steps from the project's [README.md](https://github.com/avantifellows/question-set-player#readme).
-  3. Please ensure coding standard and conventions are followed. You can find the details at https://vuejs.org/v2/style-guide/#Priority-A-Rules-Essential-Error-Prevention.
+  3. Please ensure coding standard and conventions are followed. You can find the details at https://vuejs.org/style-guide/.
   4. Ensure that an issue has been created for the problem this PR attempts to solve and your Pull Request is linked to the issue. Read more how to link PR to an issue at https://docs.github.com/en/github/managing-your-work-on-github/linking-a-pull-request-to-an-issue.
 
 -->
