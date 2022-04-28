@@ -98,7 +98,7 @@
           <icon-button
             :titleConfig="backButtonTitleConfig"
             :buttonClass="backButtonClass"
-            @click="goToLastQuestion"
+            @click="goBack"
             data-test="backButton"
           ></icon-button>
         </div>
@@ -410,7 +410,7 @@ export default defineComponent({
     /**
      * Emits an event to restart the quiz
      */
-    function goToLastQuestion() {
+    function goBack() {
       context.emit("go-back");
     }
 
@@ -423,7 +423,7 @@ export default defineComponent({
       ...toRefs(state),
       container,
       shareScorecard,
-      goToLastQuestion,
+      goBack,
       isCircularProgressShown,
       backButtonTitleConfig,
       shareButtonTitleConfig,
