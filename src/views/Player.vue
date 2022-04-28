@@ -35,7 +35,7 @@
         greeting="Hooray! Congrats on completing the quiz! 🎉"
         :numQuestionsAnswered="numQuestionsAnswered"
         :hasGradedQuestions="hasGradedQuestions"
-        @go-back="goToLastQuestion"
+        @go-back="goToPreviousQuestion"
         data-test="scorecard"
       ></Scorecard>
     </div>
@@ -81,18 +81,19 @@ export default defineComponent({
     });
     const isEqual = require("deep-eql");
     const isSplashShown = computed(() => state.currentQuestionIndex == -1);
+    const numQuestions = computed(() => state.questions.length);
     const isQuestionShown = computed(() => {
       return (
         state.currentQuestionIndex >= 0 &&
-        state.currentQuestionIndex < state.questions.length
+        state.currentQuestionIndex < numQuestions.value
       );
     });
-    const isQuizLoaded = computed(() => state.questions.length > 0);
+    const isQuizLoaded = computed(() => numQuestions.value > 0);
 
     watch(
       () => state.currentQuestionIndex,
       (newValue) => {
-        if (newValue == state.questions.length) {
+        if (newValue == numQuestions.value) {
           state.isScorecardShown = true;
           if (!hasGradedQuestions.value) return;
           calculateScorecardMetrics();
@@ -169,9 +170,8 @@ export default defineComponent({
      * progress value (0-100) to be passed to the Scorecard component
      */
     const scorecardProgress = computed(() => {
-      const totalAttempted = state.numCorrect + state.numWrong;
-      if (totalAttempted == 0) return 0;
-      return (state.numCorrect / totalAttempted) * 100;
+      if (!numQuestionsAnswered.value) return 0;
+      return (state.numCorrect / numQuestionsAnswered.value) * 100;
     });
 
     /**
@@ -190,7 +190,7 @@ export default defineComponent({
     });
 
     const hasGradedQuestions = computed(() => {
-      return numNonGradedQuestions.value != state.questions.length;
+      return numNonGradedQuestions.value != numQuestions.value;
     });
 
     function calculateScorecardMetrics() {
@@ -227,9 +227,9 @@ export default defineComponent({
     }
 
     /**
-     * remove the scorecard, display last question and remove the confetti
+     * remove the scorecard, display previous question and remove the confetti
      */
-    function goToLastQuestion() {
+    function goToPreviousQuestion() {
       state.isScorecardShown = false;
       state.currentQuestionIndex -= 1;
       state.numCorrect = 0;
@@ -248,7 +248,7 @@ export default defineComponent({
       isQuizLoaded,
       startQuiz,
       submitQuestion,
-      goToLastQuestion,
+      goToPreviousQuestion,
     };
   },
 });
