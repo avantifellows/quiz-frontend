@@ -4,9 +4,10 @@ import QuestionModal from "@/components/Questions/QuestionModal.vue";
 
 let clonedeep = require("lodash.clonedeep");
 
-describe("ItemModal.vue", () => {
+describe("QuestionModal.vue", () => {
   const questions = [
     {
+      _id: "1234",
       type: "single-choice",
       text: "abcd",
       options: [
@@ -23,6 +24,7 @@ describe("ItemModal.vue", () => {
       max_char_limit: null,
     },
     {
+      _id: "1235",
       type: "multi-choice",
       text: "efgh",
       options: [
@@ -45,6 +47,7 @@ describe("ItemModal.vue", () => {
       max_char_limit: null,
     },
     {
+      _id: "1236",
       type: "subjective",
       text: "yolo",
       options: null,
@@ -56,8 +59,10 @@ describe("ItemModal.vue", () => {
   ] as Question[];
 
   let responses: SubmittedResponse[] = [];
-  questions.forEach(() =>
+  questions.forEach((question, index) =>
     responses.push({
+      _id: index.toString(),
+      question_id: question._id,
       answer: null,
     })
   );
@@ -103,6 +108,7 @@ describe("ItemModal.vue", () => {
   });
 
   describe("single-choice questions", () => {
+    const questionIndex = 0;
     it("selecting option makes answer valid", async () => {
       // initially answer should be invalid
       expect(wrapper.vm.isAttemptValid).toBeFalsy();
@@ -134,7 +140,9 @@ describe("ItemModal.vue", () => {
       });
 
       it("responses have been updated", () => {
-        expect(wrapper.vm.localResponses[0]).toEqual({
+        expect(wrapper.vm.localResponses[questionIndex]).toEqual({
+          _id: `${questionIndex}`,
+          question_id: questions[questionIndex]._id,
           answer: [0],
         });
         expect(wrapper.emitted()).toHaveProperty("submit-question");
@@ -204,6 +212,8 @@ describe("ItemModal.vue", () => {
 
       it("responses have been updated", () => {
         expect(wrapper.vm.localResponses[questionIndex]).toEqual({
+          _id: `${questionIndex}`,
+          question_id: questions[questionIndex]._id,
           answer: [0, 1],
         });
         expect(wrapper.emitted()).toHaveProperty("submit-question");
@@ -253,6 +263,8 @@ describe("ItemModal.vue", () => {
 
       it("responses have been updated", () => {
         expect(wrapper.vm.localResponses[questionIndex]).toEqual({
+          _id: `${questionIndex}`,
+          question_id: questions[questionIndex]._id,
           answer: answer,
         });
         expect(wrapper.emitted()).toHaveProperty("submit-question");

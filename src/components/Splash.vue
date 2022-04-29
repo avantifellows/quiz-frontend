@@ -96,13 +96,13 @@ export default defineComponent({
       type: String,
       required: true,
     },
+    isFirstSession: {
+      type: Boolean,
+      default: false,
+    },
   },
   setup(props, context) {
     const state = reactive({
-      startButtonTextConfig: {
-        value: "Let's Start",
-        class: "text-lg md:text-xl text-primary font-poppins-bold",
-      },
       metadataContainerClass:
         "grid grid-cols-2 space-x-6 bg-yellow-400 p-4 rounded-2xl w-11/12 bp-360:w-10/12 sm:w-2/3 md:w-1/2 xl:w-1/3",
       metadataCellClass:
@@ -117,6 +117,11 @@ export default defineComponent({
       return "Untitled";
     });
 
+    const startButtonTextConfig = computed(() => ({
+      value: props.isFirstSession ? "Let's Start" : "Resume",
+      class: "text-lg md:text-xl text-primary font-poppins-bold",
+    }));
+
     function preventScrolling(event: Event) {
       event.preventDefault();
     }
@@ -128,6 +133,7 @@ export default defineComponent({
     return {
       ...toRefs(state),
       displayTitle,
+      startButtonTextConfig,
       preventScrolling,
       start,
     };

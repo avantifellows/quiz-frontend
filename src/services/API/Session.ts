@@ -1,0 +1,44 @@
+import { apiClient } from "./RootClient";
+import { sessionsEndpoint, sessionAnswersEndpoint } from "./Endpoints";
+import {
+  SessionAPIResponse,
+  SessionAnswerAPIResponse,
+  submittedAnswer,
+} from "../../types";
+
+export default {
+  /**
+   * returns the details for a quiz
+   * @param {string} quizId - id of the quiz for which the session is to be created
+   * @param {string} userId - id of the user for which the session is to be created
+   * @returns {Promise<SessionAPIResponse>} data corresponding to the session
+   */
+  async createSession(
+    quizId: string,
+    userId: string
+  ): Promise<SessionAPIResponse> {
+    const response = await apiClient().post(sessionsEndpoint, {
+      user_id: userId,
+      quiz_id: quizId,
+    });
+    return response.data;
+  },
+
+  /**
+   * @param {string} sessionAnswerId - id of the sessionAnswer instance to update
+   * @param {submittedAnswer} answer - the answer that needs to be updated
+   * @returns {Promise<SessionAnswerAPIResponse>} - the updated sessionAnswer instance
+   */
+  async updateSessionAnswer(
+    sessionAnswerId: string,
+    answer: submittedAnswer
+  ): Promise<SessionAnswerAPIResponse> {
+    const response = await apiClient().patch(
+      sessionAnswersEndpoint + sessionAnswerId,
+      {
+        answer: answer,
+      }
+    );
+    return response.data;
+  },
+};

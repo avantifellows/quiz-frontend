@@ -14,6 +14,20 @@
         We are unable to find what you are looking for
       </p>
     </div>
+    <!-- 403 -->
+    <div
+      v-if="isError403"
+      class="w-full mt-16 flex flex-col space-y-4 items-center"
+    >
+      <BaseIcon
+        name="lock"
+        iconClass="w-12 h-12 text-yellow-600 fill-current"
+      />
+      <p class="text-2xl text-center">Access Denied</p>
+      <p class="text-lg text-gray-500 text-center w-10/12 sm:w-1/2">
+        You do not have the permission to access this page
+      </p>
+    </div>
   </div>
 </template>
 
@@ -36,8 +50,12 @@ export default defineComponent({
     const isError404 = computed(() => {
       return props.type === "404";
     });
+    const isError403 = computed(() => {
+      return props.type === "403";
+    });
     return {
       isError404,
+      isError403,
     };
   },
 });

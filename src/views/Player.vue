@@ -6,6 +6,7 @@
         :title="title"
         :subject="metadata.subject"
         :grade="metadata.grade"
+        :isFirstSession="isFirstSession"
         :numQuestions="questions.length"
         :quizType="metadata.quiz_type"
         @start="startQuiz"
@@ -16,6 +17,7 @@
         :questions="questions"
         v-model:currentQuestionIndex="currentQuestionIndex"
         v-model:responses="responses"
+        @submit-question="submitQuestion"
         v-if="isQuestionShown"
         data-test="modal"
       ></QuestionModal>
@@ -44,9 +46,11 @@
 import QuestionModal from "../components/Questions/QuestionModal.vue";
 import Splash from "../components/Splash.vue";
 import Scorecard from "../components/Scorecard.vue";
-import { resetConfetti } from "@/services/Functional/Utilities";
+import { resetConfetti } from "../services/Functional/Utilities";
 import QuizAPIService from "../services/API/Quiz";
+import SessionAPIService from "../services/API/Session";
 import { defineComponent, reactive, toRefs, computed, watch } from "vue";
+import { useRoute } from "vue-router";
 import { Question, SubmittedResponse, QuizMetadata } from "../types";
 
 export default defineComponent({
@@ -63,12 +67,14 @@ export default defineComponent({
     },
   },
   setup(props) {
+    const route = useRoute();
     const state = reactive({
       currentQuestionIndex: -1 as number,
       title: "Geometry Quiz" as string,
       metadata: {} as QuizMetadata,
       questions: [] as Question[],
       responses: [] as SubmittedResponse[], // holds the responses to each item submitted by the viewer
+      isFirstSession: true, // whether the current session is the first for the given user-quiz pair
       numCorrect: 0, // number of correctly answered questions
       numWrong: 0, // number of wrongly answered questions
       isScorecardShown: false, // to show the scorecard or not
@@ -106,16 +112,33 @@ export default defineComponent({
       const questionSet = quizDetails.question_sets[0];
       state.questions = questionSet.questions;
       state.metadata = quizDetails.metadata;
-
-      // prepare responses
-      state.questions.forEach((_) => {
-        state.responses.push({
-          answer: null,
-        });
-      });
     }
 
-    getQuiz();
+    async function createSession() {
+      const sessionDetails = await SessionAPIService.createSession(
+        props.quizId,
+        route.query.userId as string
+      );
+      state.responses = sessionDetails.session_answers;
+      state.isFirstSession = sessionDetails.is_first;
+    }
+
+    async function getQuizCreateSession() {
+      await getQuiz();
+      await createSession();
+    }
+
+    /** updates the session answer once a response is submitted */
+    function submitQuestion() {
+      const itemResponse = state.responses[state.currentQuestionIndex];
+
+      SessionAPIService.updateSessionAnswer(
+        itemResponse._id,
+        itemResponse.answer
+      );
+    }
+
+    getQuizCreateSession();
 
     /**
      * defines all the metrics to show in the scorecard here
@@ -218,13 +241,14 @@ export default defineComponent({
       ...toRefs(state),
       isQuestionShown,
       isSplashShown,
-      startQuiz,
       scorecardMetrics,
       scorecardProgress,
       numQuestionsAnswered,
       hasGradedQuestions,
-      goToPreviousQuestion,
       isQuizLoaded,
+      startQuiz,
+      submitQuestion,
+      goToPreviousQuestion,
     };
   },
 });
