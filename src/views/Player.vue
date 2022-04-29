@@ -19,6 +19,23 @@
         v-if="isQuestionShown"
         data-test="modal"
       ></QuestionModal>
+
+      <Scorecard
+        id="scorecardmodal"
+        class="absolute z-10"
+        :class="{
+          hidden: !isScorecardShown,
+        }"
+        :metrics="scorecardMetrics"
+        :progressPercentage="scorecardProgress"
+        :isShown="isScorecardShown"
+        :title="title"
+        greeting="Hooray! Congrats on completing the quiz! 🎉"
+        :numQuestionsAnswered="numQuestionsAnswered"
+        :hasGradedQuestions="hasGradedQuestions"
+        @go-back="goToPreviousQuestion"
+        data-test="scorecard"
+      ></Scorecard>
     </div>
   </div>
 </template>
@@ -26,8 +43,10 @@
 <script lang="ts">
 import QuestionModal from "../components/Questions/QuestionModal.vue";
 import Splash from "../components/Splash.vue";
+import Scorecard from "../components/Scorecard.vue";
+import { resetConfetti } from "@/services/Functional/Utilities";
 import QuizAPIService from "../services/API/Quiz";
-import { defineComponent, reactive, toRefs, computed } from "vue";
+import { defineComponent, reactive, toRefs, computed, watch } from "vue";
 import { Question, SubmittedResponse, QuizMetadata } from "../types";
 
 export default defineComponent({
@@ -35,6 +54,7 @@ export default defineComponent({
   components: {
     Splash,
     QuestionModal,
+    Scorecard,
   },
   props: {
     quizId: {
@@ -49,15 +69,31 @@ export default defineComponent({
       metadata: {} as QuizMetadata,
       questions: [] as Question[],
       responses: [] as SubmittedResponse[], // holds the responses to each item submitted by the viewer
+      numCorrect: 0, // number of correctly answered questions
+      numWrong: 0, // number of wrongly answered questions
+      isScorecardShown: false, // to show the scorecard or not
     });
+    const isEqual = require("deep-eql");
     const isSplashShown = computed(() => state.currentQuestionIndex == -1);
+    const numQuestions = computed(() => state.questions.length);
     const isQuestionShown = computed(() => {
       return (
         state.currentQuestionIndex >= 0 &&
-        state.currentQuestionIndex < state.questions.length
+        state.currentQuestionIndex < numQuestions.value
       );
     });
-    const isQuizLoaded = computed(() => state.questions.length > 0);
+    const isQuizLoaded = computed(() => numQuestions.value > 0);
+
+    watch(
+      () => state.currentQuestionIndex,
+      (newValue) => {
+        if (newValue == numQuestions.value) {
+          state.isScorecardShown = true;
+          if (!hasGradedQuestions.value) return;
+          calculateScorecardMetrics();
+        }
+      }
+    );
 
     function startQuiz() {
       state.currentQuestionIndex = 0;
@@ -81,11 +117,113 @@ export default defineComponent({
 
     getQuiz();
 
+    /**
+     * defines all the metrics to show in the scorecard here
+     */
+    const scorecardMetrics = computed(() => {
+      return [
+        {
+          name: "Correct",
+          icon: {
+            source: "correct",
+            class:
+              "text-[#10B981] h-7 bp-360:h-8 bp-500:h-10 lg:h-11 w-8 bp-360:w-8 bp-500:w-10 md:w-10 mt-5 bp-360:mt-6 md:mt-4 lg:mt-5 my-1 lg:w-11 place-self-center",
+          },
+          value: state.numCorrect,
+        },
+        {
+          name: "Wrong",
+          icon: {
+            source: "wrong",
+            class:
+              "text-red-500 h-8 bp-360:h-8 bp-500:h-10 md:h-11 w-6 bp-360:w-6 bp-500:w-6 md:w-7 lg:w-8 mt-4 mx-1 place-self-center",
+          },
+          value: state.numWrong,
+        },
+      ];
+    });
+
+    /**
+     * progress value (0-100) to be passed to the Scorecard component
+     */
+    const scorecardProgress = computed(() => {
+      if (!numQuestionsAnswered.value) return 0;
+      return (state.numCorrect / numQuestionsAnswered.value) * 100;
+    });
+
+    /**
+     * number of questions that have been answered
+     */
+    const numQuestionsAnswered = computed(() => {
+      return state.numCorrect + state.numWrong;
+    });
+
+    const numNonGradedQuestions = computed(() => {
+      let count = 0;
+      state.questions.forEach((itemDetail) => {
+        if (!itemDetail.graded) count += 1;
+      });
+      return count;
+    });
+
+    const hasGradedQuestions = computed(() => {
+      return numNonGradedQuestions.value != numQuestions.value;
+    });
+
+    function calculateScorecardMetrics() {
+      let index = 0;
+      state.questions.forEach((itemDetail) => {
+        updateNumCorrectWrongSkipped(itemDetail, state.responses[index].answer);
+        index += 1;
+      });
+    }
+
+    function updateNumCorrectWrongSkipped(itemDetail: any, userAnswer: any) {
+      if (!itemDetail.graded) {
+        return;
+      }
+      if (
+        (itemDetail.type == "single-choice" ||
+          itemDetail.type == "multi-choice") &&
+        userAnswer != null &&
+        userAnswer.length > 0
+      ) {
+        const correctAnswer = itemDetail.correct_answer;
+        isEqual(userAnswer, correctAnswer)
+          ? (state.numCorrect += 1)
+          : (state.numWrong += 1);
+      } else if (
+        itemDetail.type == "subjective" &&
+        userAnswer != null &&
+        userAnswer.trim() != ""
+      ) {
+        // for subjective questions, as long as the viewer has given any answer
+        // their response is considered correct
+        state.numCorrect += 1;
+      }
+    }
+
+    /**
+     * remove the scorecard, display previous question and remove the confetti
+     */
+    function goToPreviousQuestion() {
+      state.isScorecardShown = false;
+      state.currentQuestionIndex -= 1;
+      state.numCorrect = 0;
+      state.numWrong = 0;
+      resetConfetti();
+    }
+
     return {
       ...toRefs(state),
       isQuestionShown,
       isSplashShown,
       startQuiz,
+      scorecardMetrics,
+      scorecardProgress,
+      numQuestionsAnswered,
+      hasGradedQuestions,
+      goToPreviousQuestion,
       isQuizLoaded,
     };
   },
