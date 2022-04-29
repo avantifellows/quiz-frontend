@@ -3,7 +3,7 @@
 type questionWithOptions = "single-choice" | "multi-choice";
 type questionType = questionWithOptions | "subjective";
 type language = "en" | "hi";
-type quizType = "assessment" | "JEE";
+type quizType = "assessment" | "homework";
 type quizNavigationMode = "linear" | "non-linear";
 export type submittedAnswer = number[] | string | null;
 type correctAnswer = number[] | null;
