@@ -78,8 +78,12 @@ export default defineComponent({
       isFirstSession: true, // whether the current session is the first for the given user-quiz pair
       numCorrect: 0, // number of correctly answered questions
       numWrong: 0, // number of wrongly answered questions
+      numSkipped: 0, // number of skipped questions
       isScorecardShown: false, // to show the scorecard or not
     });
+    const isQuizAssessment = computed(
+      () => state.metadata.quiz_type == "assessment"
+    );
     const isEqual = require("deep-eql");
     const isSplashShown = computed(() => state.currentQuestionIndex == -1);
     const numQuestions = computed(() => state.questions.length);
@@ -145,13 +149,13 @@ export default defineComponent({
      * defines all the metrics to show in the scorecard here
      */
     const scorecardMetrics = computed(() => {
-      return [
+      const metrics = [
         {
           name: "Correct",
           icon: {
             source: "correct",
             class:
-              "text-[#10B981] h-7 bp-360:h-8 bp-500:h-10 lg:h-11 w-8 bp-360:w-8 bp-500:w-10 md:w-10 mt-5 bp-360:mt-6 md:mt-4 lg:mt-5 my-1 lg:w-11 place-self-center",
+              "text-[#10B981] h-8 bp-500:h-10 lg:h-12 w-8 bp-500:w-10 lg:w-12 place-self-center flex justify-center",
           },
           value: state.numCorrect,
         },
@@ -160,11 +164,25 @@ export default defineComponent({
           icon: {
             source: "wrong",
             class:
-              "text-red-500 h-8 bp-360:h-8 bp-500:h-10 md:h-11 w-6 bp-360:w-6 bp-500:w-6 md:w-7 lg:w-8 mt-4 mx-1 place-self-center",
+              "text-red-500 h-8 bp-500:h-10 lg:h-12 w-6 bp-500:w-8 lg:w-10 place-self-center flex justify-center",
           },
           value: state.numWrong,
         },
       ];
+
+      if (isQuizAssessment.value) {
+        metrics.push({
+          name: "Skipped",
+          icon: {
+            source: "skip",
+            class:
+              "h-10 bp-500:h-12 lg:h-14 w-8 bp-500:w-10 lg:w-12 place-self-center flex justify-center",
+          },
+          value: state.numSkipped,
+        });
+      }
+
+      return metrics;
     });
 
     /**
@@ -190,12 +208,22 @@ export default defineComponent({
       return count;
     });
 
+    const numGradedQuestions = computed(
+      () => numQuestions.value - numNonGradedQuestions.value
+    );
+
     const hasGradedQuestions = computed(() => {
       return numNonGradedQuestions.value != numQuestions.value;
     });
 
     function calculateScorecardMetrics() {
       let index = 0;
+
+      // set initial values
+      state.numSkipped = numGradedQuestions.value;
+      state.numCorrect = 0;
+      state.numWrong = 0;
+
       state.questions.forEach((itemDetail) => {
         updateNumCorrectWrongSkipped(itemDetail, state.responses[index].answer);
         index += 1;
@@ -206,24 +234,23 @@ export default defineComponent({
       if (!itemDetail.graded) {
         return;
       }
-      if (
-        (itemDetail.type == "single-choice" ||
-          itemDetail.type == "multi-choice") &&
-        userAnswer != null &&
-        userAnswer.length > 0
-      ) {
-        const correctAnswer = itemDetail.correct_answer;
-        isEqual(userAnswer, correctAnswer)
-          ? (state.numCorrect += 1)
-          : (state.numWrong += 1);
-      } else if (
-        itemDetail.type == "subjective" &&
-        userAnswer != null &&
-        userAnswer.trim() != ""
-      ) {
-        // for subjective questions, as long as the viewer has given any answer
-        // their response is considered correct
-        state.numCorrect += 1;
+      if (userAnswer != null) {
+        state.numSkipped -= 1;
+
+        if (
+          (itemDetail.type == "single-choice" ||
+            itemDetail.type == "multi-choice") &&
+          userAnswer.length > 0
+        ) {
+          const correctAnswer = itemDetail.correct_answer;
+          isEqual(userAnswer, correctAnswer)
+            ? (state.numCorrect += 1)
+            : (state.numWrong += 1);
+        } else if (itemDetail.type == "subjective" && userAnswer.trim() != "") {
+          // for subjective questions, as long as the viewer has given any answer
+          // their response is considered correct
+          state.numCorrect += 1;
+        }
       }
     }
 
@@ -233,8 +260,6 @@ export default defineComponent({
     function goToPreviousQuestion() {
       state.isScorecardShown = false;
       state.currentQuestionIndex -= 1;
-      state.numCorrect = 0;
-      state.numWrong = 0;
       resetConfetti();
     }
 

@@ -43,15 +43,15 @@
         <!-- metric boxes -->
         <div
           v-if="hasGradedQuestions"
-          class="flex bp-500:flex-row justify-center space-x-6 px-4 bp-500:px-10 max-w-4xl place-self-center"
+          class="flex flex-col bp-500:flex-row justify-center space-y-1 bp-500:space-x-1 bp-500:space-y-0 px-4 bp-500:px-10 max-w-4xl place-self-center"
         >
           <div
             v-for="metric in metrics"
-            class="rounded-2xl bg-[#FFB830] grid grid-rows-2 grid-cols-none border-2 px-4 lg:px-6 h-16 bp-500:h-20 min-w-max"
+            class="rounded-md bp-500:rounded-2xl bg-amber-400 grid grid-cols-2 bp-500:grid-rows-2 bp-500:grid-cols-none lg:grid-cols-2 lg:grid-rows-none border-2 px-4 lg:px-6 w-full h-14 bp-500:h-20 min-w-max"
             :key="metric"
           >
             <div
-              class="w-full h-full flex flex-row justify-center space-x-1 bp-500:space-x-3 bp-500:mt-1"
+              class="w-full h-full flex flex-row justify-center space-x-2 bp-500:mt-2 lg:mt-0"
             >
               <!-- metric icon -->
               <BaseIcon
@@ -60,14 +60,14 @@
               ></BaseIcon>
               <!-- numeric value of the metric -->
               <p
-                class="text-[32px] md:text-[42px] lg:text-5xl font-bold md:leading-none"
+                class="text-xl bp-360:text-2xl md:text-3xl lg:text-4xl font-bold my-auto"
               >
                 {{ metric.value }}
               </p>
             </div>
             <!-- name of the metric -->
             <div
-              class="text-center text-sm bp-320:text-xs md:text-base font-medium mt-1 lg:mt-2 bp-500:whitespace-nowrap px-1 h-full flex place-self-center items-center"
+              class="text-center text-xs bp-500:text-sm md:text-base mt-1 lg:mt-2 bp-500:whitespace-nowrap px-1 h-full flex place-self-center items-center"
             >
               <p>
                 {{ metric.name }}
