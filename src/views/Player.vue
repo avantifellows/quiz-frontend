@@ -15,6 +15,7 @@
 
       <QuestionModal
         :questions="questions"
+        :quizType="metadata.quiz_type"
         v-model:currentQuestionIndex="currentQuestionIndex"
         v-model:responses="responses"
         @submit-question="submitQuestion"

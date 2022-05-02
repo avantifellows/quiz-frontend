@@ -23,6 +23,7 @@
       :isAnswerSubmitted="isAnswerSubmitted"
       :isPreviousButtonShown="currentQuestionIndex > 0"
       :isSubmitEnabled="isAttemptValid"
+      :quizType="quizType"
       @submit="submitQuestion"
       @continue="showNextQuestion"
       @previous="showPreviousQuestion"
@@ -44,7 +45,12 @@ import {
   watch,
 } from "vue";
 import { isScreenPortrait } from "../../services/Functional/Utilities";
-import { Question, SubmittedResponse, DraftResponse } from "../../types";
+import {
+  Question,
+  SubmittedResponse,
+  DraftResponse,
+  quizType,
+} from "../../types";
 
 export default defineComponent({
   name: "QuestionModal",
@@ -64,6 +70,10 @@ export default defineComponent({
     responses: {
       required: true,
       type: Array as PropType<SubmittedResponse[]>,
+    },
+    quizType: {
+      type: String as PropType<quizType>,
+      default: "homework",
     },
   },
   setup(props, context) {

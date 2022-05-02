@@ -3,7 +3,7 @@
 type questionWithOptions = "single-choice" | "multi-choice";
 type questionType = questionWithOptions | "subjective";
 type language = "en" | "hi";
-type quizType = "assessment" | "homework";
+export type quizType = "assessment" | "homework";
 type quizNavigationMode = "linear" | "non-linear";
 export type submittedAnswer = number[] | string | null;
 type correctAnswer = number[] | null;
@@ -16,7 +16,7 @@ export interface IconButtonTitleConfig {
 export interface IconButtonIconConfig {
   enabled: boolean;
   iconName: string;
-  iconClass?: string;
+  iconClass?: string | string[];
 }
 
 export interface InputTextValidationConfig {

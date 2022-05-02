@@ -47,7 +47,9 @@
           <div :class="metadataCellClass">
             <BaseIcon name="notepad" :iconClass="metadataIconClass"></BaseIcon>
             <div class="flex items-center" data-test="quizType">
-              <p :class="metadataTitleClass">{{ quizType }}</p>
+              <p class="capitalize" :class="metadataTitleClass">
+                {{ quizType }}
+              </p>
             </div>
           </div>
         </div>
@@ -68,7 +70,8 @@
 <script lang="ts">
 import IconButton from "./UI/Buttons/IconButton.vue";
 import BaseIcon from "./UI/Icons/BaseIcon.vue";
-import { defineComponent, computed, reactive, toRefs } from "vue";
+import { quizType } from "../types";
+import { defineComponent, computed, reactive, toRefs, PropType } from "vue";
 export default defineComponent({
   name: "Splash",
   components: {
@@ -85,7 +88,7 @@ export default defineComponent({
       required: true,
     },
     quizType: {
-      type: String,
+      type: String as PropType<quizType>,
       required: true,
     },
     numQuestions: {

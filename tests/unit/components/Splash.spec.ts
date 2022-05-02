@@ -4,7 +4,7 @@ import Splash from "@/components/Splash.vue";
 describe("Splash.vue", () => {
   const title = "Geometry Quiz";
   const subject = "Maths";
-  const quizType = "CBSE";
+  const quizType = "assessment";
   const numQuestions = 3;
   const grade = "8";
   const wrapper = mount(Splash, {
