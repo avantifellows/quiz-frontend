@@ -1,9 +1,9 @@
 <template>
   <div
-    class="flex w-full p-4 lg:p-6 justify-between"
+    class="flex w-full lg:p-6 justify-between"
     :class="{
-      'bg-white': !isQuizAssessment,
-      'bg-gray-200': isQuizAssessment,
+      'bg-white p-4': !isQuizAssessment,
+      'bg-gray-200 py-4 px-2': isQuizAssessment,
     }"
   >
     <div class="place-self-start flex h-full">
@@ -21,7 +21,7 @@
       ></icon-button>
     </div>
 
-    <div v-if="isQuizAssessment" class="flex space-x-4">
+    <div v-if="isQuizAssessment" class="flex space-x-1 sm:space-x-4">
       <!-- clear button -->
       <icon-button
         :titleConfig="clearButtonTitleConfig"
@@ -105,31 +105,25 @@ export default defineComponent({
     const state = reactive({
       assessmentNavigationButtonIconClass: [
         {
-          "text-yellow-800": !isQuizAssessment.value,
-          "text-gray-600": isQuizAssessment.value,
+          "text-yellow-800 h-6 w-4": !isQuizAssessment.value,
+          "text-gray-600 h-3 w-2 sm:h-5 sm:w-3 lg:h-6 lg:w-4":
+            isQuizAssessment.value,
         },
-        "fill-current h-6 w-4",
+        "fill-current",
       ],
+      assessmentTextButtonTitleClass:
+        "text-sm bp-500:text-md lg:text-lg xl:text-xl font-bold",
       assessmentNavigationButtonClass: [
         {
-          "bg-yellow-500 hover:bg-yellow-600 ring-yellow-500":
+          "bg-yellow-500 hover:bg-yellow-600 ring-yellow-500 px-6 bp-500:px-8 rounded-2xl":
             !isQuizAssessment.value,
-          "bg-white hover:bg-gray-100": isQuizAssessment.value,
+          "bg-white hover:bg-gray-100 px-4 bp-500:px-6 rounded-lg sm:rounded-xl lg:rounded-2xl":
+            isQuizAssessment.value,
         },
-        "p-2 px-6 bp-500:p-4 bp-500:px-8 rounded-2xl shadow-xl",
+        "p-2 bp-500:p-4 shadow-xl",
       ],
-      clearButtonTitleConfig: {
-        value: "Clear",
-        class:
-          "text-gray-600 text-md bp-500:text-lg lg:text-xl xl:text-2xl font-bold",
-      } as IconButtonTitleConfig,
-      saveNextButtonTitleConfig: {
-        value: "Save & Next",
-        class:
-          "text-emerald-500 text-md bp-500:text-lg lg:text-xl xl:text-2xl font-bold",
-      } as IconButtonTitleConfig,
-      textButtonClass:
-        "p-4 px-8 bp-500:p-6 bp-500:px-12 rounded-2xl shadow-xl disabled:opacity-50 disabled:pointer-events-none",
+      assessmentTextButtonClass:
+        "p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl disabled:opacity-50 disabled:pointer-events-none",
     });
 
     const previousQuestionButtonIconConfig = ref({
@@ -148,14 +142,24 @@ export default defineComponent({
     } as IconButtonIconConfig);
 
     const clearButtonClass = ref([
-      state.textButtonClass,
+      state.assessmentTextButtonClass,
       "bg-white hover:bg-gray-50",
     ]);
 
     const saveNextButtonClass = ref([
-      state.textButtonClass,
+      state.assessmentTextButtonClass,
       "bg-white hover:bg-gray-50",
     ]);
+
+    const clearButtonTitleConfig = ref({
+      value: "Clear",
+      class: [state.assessmentTextButtonTitleClass, "text-gray-600"],
+    } as IconButtonTitleConfig);
+
+    const saveNextButtonTitleConfig = ref({
+      value: "Save & Next",
+      class: [state.assessmentTextButtonTitleClass, "text-emerald-500"],
+    } as IconButtonTitleConfig);
 
     function submitQuestion() {
       if (props.isAnswerSubmitted) context.emit("continue");
@@ -189,7 +193,7 @@ export default defineComponent({
         "bg-primary hover:bg-primary-hover ring-primary":
           props.isAnswerSubmitted,
       },
-      state.textButtonClass,
+      "p-4 px-8 bp-500:p-6 bp-500:px-12 rounded-2xl shadow-xl disabled:opacity-50 disabled:pointer-events-none",
     ]);
 
     return {
@@ -198,6 +202,8 @@ export default defineComponent({
       nextQuestionButtonIconConfig,
       clearButtonClass,
       saveNextButtonClass,
+      clearButtonTitleConfig,
+      saveNextButtonTitleConfig,
       submitQuestion,
       goToPreviousQuestion,
       goToNextQuestion,

@@ -10,7 +10,7 @@ type correctAnswer = number[] | null;
 
 export interface IconButtonTitleConfig {
   value: string;
-  class?: string;
+  class?: string | string[];
 }
 
 export interface IconButtonIconConfig {

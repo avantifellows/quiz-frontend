@@ -89,6 +89,7 @@ export default defineComponent({
       const localCopy = props.titleConfig;
       Object.entries(state.defaultTitleConfig).forEach(([key, val]) => {
         if (!(key in localCopy)) {
+          // @ts-ignore
           localCopy[key as keyof IconButtonTitleConfig] = val;
         }
       });
