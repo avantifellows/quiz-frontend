@@ -178,6 +178,11 @@ export default defineComponent({
       context.emit("continue");
     }
 
+    function saveQuestionAndProceed() {
+      context.emit("submit")
+      context.emit("continue");
+    }
+
     const submitButtonTitleConfig = computed(() => {
       return {
         value: props.isAnswerSubmitted ? "Continue" : "Submit",
@@ -208,6 +213,7 @@ export default defineComponent({
       goToPreviousQuestion,
       goToNextQuestion,
       clearAnswer,
+      saveQuestionAndProceed,
       submitButtonTitleConfig,
       submitButtonClass,
       isQuizAssessment,

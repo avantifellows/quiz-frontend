@@ -15,6 +15,7 @@
       :draftAnswer="draftResponses[currentQuestionIndex]"
       :submittedAnswer="currentQuestionResponseAnswer"
       :isAnswerSubmitted="isAnswerSubmitted"
+      :quizType="quizType"
       @option-selected="questionOptionSelected"
       @answer-entered="subjectiveAnswerUpdated"
       data-test="body"
@@ -27,6 +28,7 @@
       @submit="submitQuestion"
       @continue="showNextQuestion"
       @previous="showPreviousQuestion"
+      @clear="clearAnswer"
       data-test="footer"
     ></Footer>
   </div>
@@ -153,6 +155,10 @@ export default defineComponent({
       context.emit("submit-question");
     }
 
+    function clearAnswer() {
+      state.draftResponses[props.currentQuestionIndex] = null;
+    }
+
     function showNextQuestion() {
       state.localCurrentQuestionIndex = state.localCurrentQuestionIndex + 1;
     }
@@ -235,6 +241,7 @@ export default defineComponent({
       showNextQuestion,
       showPreviousQuestion,
       subjectiveAnswerUpdated,
+      clearAnswer,
       currentQuestion,
       questionType,
       questionCorrectAnswer,

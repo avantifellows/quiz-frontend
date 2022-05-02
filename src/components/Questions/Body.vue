@@ -56,7 +56,7 @@
                   style="box-shadow: none"
                   @click="selectOption(optionIndex)"
                   :checked="isOptionMarked(optionIndex)"
-                  :disabled="isAnswerSubmitted"
+                  :disabled="isAnswerSubmitted && !isQuizAssessment"
                   :data-test="`optionSelector-${optionIndex}`"
                 />
                 <div
@@ -108,7 +108,15 @@
 
 <script lang="ts">
 import Textarea from "../UI/Text/Textarea.vue";
-import { defineComponent, reactive, toRefs, computed, watch } from "vue";
+import {
+  defineComponent,
+  reactive,
+  toRefs,
+  computed,
+  watch,
+  PropType,
+} from "vue";
+import { quizType } from "../../types";
 import BaseIcon from "../UI/Icons/BaseIcon.vue";
 
 export default defineComponent({
@@ -165,8 +173,13 @@ export default defineComponent({
       default: true,
       type: Boolean,
     },
+    quizType: {
+      type: String as PropType<quizType>,
+      default: "homework",
+    },
   },
   setup(props, context) {
+    const isQuizAssessment = computed(() => props.quizType == "assessment");
     const state = reactive({
       isImageLoading: false,
       // set containing the question types in which options are present
@@ -203,6 +216,13 @@ export default defineComponent({
         typeof props.submittedAnswer == "string" // check for typescript
       ) {
         return {};
+      }
+
+      if (isQuizAssessment.value) {
+        if (props.submittedAnswer.indexOf(optionIndex) != -1) {
+          return state.nonGradedAnswerClass;
+        }
+        return;
       }
 
       if (
@@ -386,6 +406,7 @@ export default defineComponent({
       hasCharLimit,
       charactersLeft,
       maxCharLimitClass,
+      isQuizAssessment,
     };
   },
   emits: ["option-selected", "answer-entered"],
