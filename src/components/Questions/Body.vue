@@ -373,14 +373,12 @@ export default defineComponent({
 
     onMounted(() => {
       // Force render any math on the page when component is mounted
-      // eslint-disable-next-line
-      (MathJax as any).typeset();
+      if ('MathJax' in window) (window.MathJax as any).typeset();
     });
 
     onUpdated(() => {
       // Force render any math on the page when component is updated
-      // eslint-disable-next-line
-      (MathJax as any).typeset();
+      if ('MathJax' in window) (window.MathJax as any).typeset();
     });
 
     return {
