@@ -225,8 +225,8 @@ export default defineComponent({
     });
 
     // instantiating draftResponses here
-    props.questions.forEach(() => {
-      state.draftResponses.push(null);
+    props.responses.forEach((response) => {
+      state.draftResponses.push(response.answer);
     });
 
     // determine the screen orientation when the item modal is created

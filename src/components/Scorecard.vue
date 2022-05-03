@@ -46,7 +46,7 @@
           class="flex flex-col bp-500:flex-row justify-center space-y-1 bp-500:space-x-1 bp-500:space-y-0 px-4 bp-500:px-10 max-w-4xl place-self-center"
         >
           <div
-            v-for="metric in metrics"
+            v-for="(metric, metricIndex) in metrics"
             class="rounded-md bp-500:rounded-2xl bg-amber-400 grid grid-cols-2 bp-500:grid-rows-2 bp-500:grid-cols-none lg:grid-cols-2 lg:grid-rows-none border-2 px-4 lg:px-6 w-full h-14 bp-500:h-20 min-w-max"
             :key="metric"
           >
@@ -61,6 +61,7 @@
               <!-- numeric value of the metric -->
               <p
                 class="text-xl bp-360:text-2xl md:text-3xl lg:text-4xl font-bold my-auto"
+                :data-test="`metricValue-${metricIndex}`"
               >
                 {{ metric.value }}
               </p>
