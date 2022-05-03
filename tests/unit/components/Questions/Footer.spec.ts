@@ -102,6 +102,11 @@ describe("Footer.vue", () => {
       ).toBeDefined();
     });
 
+    it("clicking on next question button emits continue event", () => {
+      wrapper.find('[data-test="nextQuestionButton"]').trigger("click");
+      expect(wrapper.emitted()).toHaveProperty("continue");
+    });
+
     describe("answer selected", () => {
       beforeEach(async () => {
         await wrapper.setProps({
