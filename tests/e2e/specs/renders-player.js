@@ -15,7 +15,7 @@ describe("Player", () => {
     beforeEach(() => {
       // stub the response to /quiz/{quizId}
       cy.intercept("GET", "/quiz/*", {
-        fixture: "quiz.json",
+        fixture: "homework_quiz.json",
       });
     });
 
