@@ -78,7 +78,7 @@ describe("Body.vue", () => {
       expect(wrapper.emitted()).toHaveProperty("option-selected");
     });
 
-    it("highlights options based on correct/wrong answers", async () => {
+    it("highlights options based on correct/wrong answers for homework", async () => {
       const submittedAnswer = [0];
       const correctAnswer = [1];
       await wrapper.setProps({
@@ -103,6 +103,27 @@ describe("Body.vue", () => {
         isGradedQuestion: false,
       });
 
+      expect(
+        wrapper.find(`[data-test="optionContainer-0"]`).classes()
+      ).toContain("bg-gray-200");
+    });
+
+    it("highlights options as gray if they are selected for assessment quizzes", async () => {
+      const submittedAnswer = [0];
+      const correctAnswer = [1];
+      await wrapper.setProps({
+        submittedAnswer: submittedAnswer,
+        correctAnswer: correctAnswer,
+        isAnswerSubmitted: true,
+        quizType: "assessment",
+      });
+
+      expect(
+        wrapper.find(`[data-test="optionContainer-1"]`).classes()
+      ).not.toContain("bg-green-500");
+      expect(
+        wrapper.find(`[data-test="optionContainer-0"]`).classes()
+      ).not.toContain("bg-red-500");
       expect(
         wrapper.find(`[data-test="optionContainer-0"]`).classes()
       ).toContain("bg-gray-200");
@@ -160,7 +181,7 @@ describe("Body.vue", () => {
       expect(wrapper.emitted()).toHaveProperty("option-selected");
     });
 
-    it("highlights options based on correct/wrong answers", async () => {
+    it("highlights options based on correct/wrong answers for homework quizzes", async () => {
       const submittedAnswer = [1, 2];
       const correctAnswer = [0, 1];
       await wrapper.setProps({
@@ -188,6 +209,33 @@ describe("Body.vue", () => {
         isGradedQuestion: false,
       });
 
+      expect(
+        wrapper.find('[data-test="optionContainer-1"]').classes()
+      ).toContain("bg-gray-200");
+      expect(
+        wrapper.find('[data-test="optionContainer-2"]').classes()
+      ).toContain("bg-gray-200");
+    });
+
+    it("highlights options as gray if they are selected for assessment quizzes", async () => {
+      const submittedAnswer = [1, 2];
+      const correctAnswer = [0, 1];
+      await wrapper.setProps({
+        submittedAnswer: submittedAnswer,
+        correctAnswer: correctAnswer,
+        isAnswerSubmitted: true,
+        quizType: "assessment",
+      });
+
+      expect(
+        wrapper.find('[data-test="optionContainer-0"]').classes()
+      ).not.toContain("bg-green-500");
+      expect(
+        wrapper.find('[data-test="optionContainer-1"]').classes()
+      ).not.toContain("bg-green-500");
+      expect(
+        wrapper.find('[data-test="optionContainer-2"]').classes()
+      ).not.toContain("bg-red-500");
       expect(
         wrapper.find('[data-test="optionContainer-1"]').classes()
       ).toContain("bg-gray-200");
