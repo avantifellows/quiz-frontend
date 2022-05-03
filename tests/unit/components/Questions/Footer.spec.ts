@@ -5,8 +5,8 @@ describe("Footer.vue", () => {
   it("shows disabled submit button only by default", () => {
     const wrapper = mount(Footer);
     expect(
-      wrapper.find('[data-test="previousQuestionButton"]').exists()
-    ).toBeFalsy();
+      wrapper.get('[data-test="previousQuestionButton"]').classes()
+    ).toContain("hidden");
     const submitButton = wrapper.find('[data-test="submitButton"]');
     expect(submitButton.exists()).toBeTruthy();
     expect(submitButton.text()).toBe("Submit");
