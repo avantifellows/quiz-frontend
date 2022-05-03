@@ -28,7 +28,7 @@
         :buttonClass="clearButtonClass"
         :isDisabled="!isSubmitEnabled"
         @click="clearAnswer"
-        data-test="ClearButton"
+        data-test="clearButton"
       ></icon-button>
 
       <!-- save & next button -->
@@ -179,7 +179,7 @@ export default defineComponent({
     }
 
     function saveQuestionAndProceed() {
-      context.emit("submit")
+      context.emit("submit");
       context.emit("continue");
     }
 
