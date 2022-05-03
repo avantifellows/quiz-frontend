@@ -167,6 +167,8 @@ describe("Player for Assessment quizzes", () => {
         fixture: "resume_session.json",
       });
 
+      cy.intercept("PATCH", "/session_answers/*", {});
+
       cy.visit("/abcd?userId=1");
 
       // define aliasas
