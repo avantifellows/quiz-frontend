@@ -150,6 +150,7 @@ export default defineComponent({
     }
 
     function submitQuestion() {
+      if (!state.localResponses.length) return;
       state.localResponses[props.currentQuestionIndex].answer =
         state.draftResponses[props.currentQuestionIndex];
       context.emit("submit-question");

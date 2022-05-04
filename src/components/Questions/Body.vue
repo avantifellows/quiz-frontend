@@ -387,12 +387,14 @@ export default defineComponent({
 
     onMounted(() => {
       // Force render any math on the page when component is mounted
-      if ('MathJax' in window) (window.MathJax as any).typeset();
+      // @ts-ignore
+      if ("MathJax" in window) (window.MathJax as any).typeset();
     });
 
     onUpdated(() => {
       // Force render any math on the page when component is updated
-      if ('MathJax' in window) (window.MathJax as any).typeset();
+      // @ts-ignore
+      if ("MathJax" in window) (window.MathJax as any).typeset();
     });
 
     return {
