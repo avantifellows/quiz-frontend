@@ -204,7 +204,7 @@ export default defineComponent({
     );
 
     const currentQuestionResponseAnswer = computed(
-      () => currentQuestionResponse.value.answer
+      () => currentQuestionResponse.value?.answer
     );
 
     const isAnswerSubmitted = computed(() => {
