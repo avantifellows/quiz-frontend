@@ -2,9 +2,7 @@
   <div class="overflow-y-auto flex flex-col">
     <!-- question text -->
     <div class="mx-6 md:mx-10">
-      <p :class="questionTextClass" data-test="text">
-        {{ text }}
-      </p>
+      <p :class="questionTextClass" data-test="text" v-html="text"></p>
     </div>
     <div :class="orientationClass">
       <!-- loading spinner when question image is loading -->
@@ -115,9 +113,11 @@ import {
   computed,
   watch,
   PropType,
+  onMounted,
+  onUpdated,
 } from "vue";
-import { quizType } from "../../types";
 import BaseIcon from "../UI/Icons/BaseIcon.vue";
+import { quizType } from "../../types";
 
 export default defineComponent({
   components: {
@@ -384,6 +384,16 @@ export default defineComponent({
     );
 
     if (isQuestionImagePresent.value) startImageLoading();
+
+    onMounted(() => {
+      // Force render any math on the page when component is mounted
+      if ('MathJax' in window) (window.MathJax as any).typeset();
+    });
+
+    onUpdated(() => {
+      // Force render any math on the page when component is updated
+      if ('MathJax' in window) (window.MathJax as any).typeset();
+    });
 
     return {
       ...toRefs(state),
