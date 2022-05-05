@@ -150,8 +150,10 @@ export default defineComponent({
     }
 
     function endTest() {
-      SessionAPIService.updateSession(state.sessionId, true);
-      state.hasQuizEnded = true;
+      if (!state.hasQuizEnded) {
+        SessionAPIService.updateSession(state.sessionId, true);
+        state.hasQuizEnded = true;
+      }
     }
 
     getQuizCreateSession();

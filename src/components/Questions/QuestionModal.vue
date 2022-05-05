@@ -1,6 +1,10 @@
 <template>
   <div class="h-full flex flex-col">
-    <Header v-if="isQuizAssessment" @end-test="endTest"></Header>
+    <Header
+      v-if="isQuizAssessment"
+      @end-test="endTest"
+      :hasQuizEnded="hasQuizEnded"
+    ></Header>
     <div
       class="flex flex-col grow bg-white w-full justify-between overflow-hidden"
     >
@@ -59,6 +63,7 @@ import {
   DraftResponse,
   quizType,
 } from "../../types";
+import { useToast } from "vue-toastification";
 
 export default defineComponent({
   name: "QuestionModal",
@@ -95,6 +100,7 @@ export default defineComponent({
       localResponses: props.responses as SubmittedResponse[], // local copy of responses
       isPortrait: true,
       draftResponses: [] as DraftResponse[], // stores the options selected by the user but not yet submitted
+      toast: useToast(),
     });
 
     function checkScreenOrientation() {
@@ -172,7 +178,14 @@ export default defineComponent({
     }
 
     function showNextQuestion() {
-      state.localCurrentQuestionIndex = state.localCurrentQuestionIndex + 1;
+      if (
+        state.localCurrentQuestionIndex < props.questions.length - 1 ||
+        props.hasQuizEnded
+      ) {
+        state.localCurrentQuestionIndex = state.localCurrentQuestionIndex + 1;
+      } else {
+        state.toast.success('Click on "End Test" to submit your answers');
+      }
     }
 
     function showPreviousQuestion() {

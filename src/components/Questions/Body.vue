@@ -224,7 +224,7 @@ export default defineComponent({
         return {};
       }
 
-      if (isQuizAssessment.value) {
+      if (isQuizAssessment.value && !props.hasQuizEnded) {
         if (props.submittedAnswer.indexOf(optionIndex) != -1) {
           return state.nonGradedAnswerClass;
         }
