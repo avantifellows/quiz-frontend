@@ -84,7 +84,6 @@ export default defineComponent({
       }
     }
     function keyPress(event: KeyboardEvent) {
-      console.log("oh yeah");
       // invoked by pressing a key
       context.emit("keypress", event);
     }

@@ -197,7 +197,7 @@ export default defineComponent({
         "text-lg md:text-xl lg:text-2xl mx-4 m-2 font-bold leading-tight whitespace-pre-wrap",
       optionTextClass:
         "p-2 text-lg md:text-xl lg:text-2xl border rounded-md mx-2 whitespace-pre-wrap",
-      subjectiveAnswer: "", // holds the answer to the subjective question
+      subjectiveAnswer: "" as string | null, // holds the answer to the subjective question
     });
 
     /** stop the loading spinner when the image has been loaded **/
@@ -372,6 +372,15 @@ export default defineComponent({
         if (newValue != null) startImageLoading();
       },
       { deep: true }
+    );
+
+    watch(
+      () => props.draftAnswer,
+      (newValue) => {
+        if (typeof newValue == "string" || newValue == null) {
+          state.subjectiveAnswer = newValue;
+        }
+      }
     );
 
     watch(

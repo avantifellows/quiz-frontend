@@ -184,7 +184,9 @@ export default defineComponent({
       ) {
         state.localCurrentQuestionIndex = state.localCurrentQuestionIndex + 1;
       } else {
-        state.toast.success('Click on "End Test" to submit your answers');
+        state.toast.success(
+          'No more questions, please press "End Test" if you are done'
+        );
       }
     }
 
