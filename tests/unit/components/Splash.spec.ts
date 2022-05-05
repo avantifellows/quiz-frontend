@@ -7,7 +7,6 @@ describe("Splash.vue", () => {
   const quizType = "CBSE";
   const numQuestions = 3;
   const grade = "8";
-  // const isFirstSession = true;
   const wrapper = mount(Splash, {
     props: {
       title,
@@ -15,7 +14,6 @@ describe("Splash.vue", () => {
       quizType,
       numQuestions,
       grade,
-      // isFirstSession,
     },
   });
 
