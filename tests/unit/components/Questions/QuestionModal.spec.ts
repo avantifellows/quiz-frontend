@@ -105,6 +105,18 @@ describe("QuestionModal.vue", () => {
 
       expect(wrapper.vm.localCurrentQuestionIndex).toBe(0);
     });
+
+    describe("Assessments", () => {
+      beforeEach(async () => {
+        await wrapper.setProps({
+          quizType: "assessment",
+        });
+      });
+      it("sets question index to number of questions upon end test", async () => {
+        wrapper.find('[data-test="endTestButton"]').trigger("click");
+        expect(wrapper.vm.localCurrentQuestionIndex).toBe(questions.length);
+      });
+    });
   });
 
   describe("single-choice questions", () => {
@@ -155,6 +167,29 @@ describe("QuestionModal.vue", () => {
           .trigger("click");
 
         expect(wrapper.vm.localCurrentQuestionIndex).toBe(1);
+      });
+    });
+
+    describe("assessments", () => {
+      beforeEach(async () => {
+        await wrapper.setProps({
+          quizType: "assessment",
+        });
+      });
+      it("clears selected answer on clicking Clear", async () => {
+        // select an option
+        wrapper
+          .find('[data-test="body"]')
+          .find('[data-test="option-0"]')
+          .trigger("click");
+
+        wrapper.find('[data-test="clearButton"]').trigger("click");
+
+        expect(
+          wrapper
+            .find('[data-test="body"]')
+            .find('[data-test="optionSelector-0"]').checked
+        ).toBeFalsy();
       });
     });
   });
@@ -226,6 +261,33 @@ describe("QuestionModal.vue", () => {
           .trigger("click");
 
         expect(wrapper.vm.localCurrentQuestionIndex).toBe(2);
+      });
+    });
+
+    describe("assessments", () => {
+      beforeEach(async () => {
+        await wrapper.setProps({
+          quizType: "assessment",
+        });
+      });
+      it("clears selected answer on clicking Clear", async () => {
+        // select an option
+        await wrapper.find('[data-test="option-0"]').trigger("click");
+        // select another option
+        await wrapper.find('[data-test="option-1"]').trigger("click");
+
+        wrapper.find('[data-test="clearButton"]').trigger("click");
+
+        expect(
+          wrapper
+            .find('[data-test="body"]')
+            .find('[data-test="optionSelector-0"]').checked
+        ).toBeFalsy();
+        expect(
+          wrapper
+            .find('[data-test="body"]')
+            .find('[data-test="optionSelector-1"]').checked
+        ).toBeFalsy();
       });
     });
   });
