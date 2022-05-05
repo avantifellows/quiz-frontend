@@ -1,42 +1,46 @@
 <template>
-  <div
-    class="flex flex-col bg-white w-full h-full justify-between overflow-hidden"
-  >
-    <Body
-      class="mt-10"
-      :text="currentQuestion.text"
-      :options="currentQuestion.options"
-      :correctAnswer="questionCorrectAnswer"
-      :questionType="questionType"
-      :isGradedQuestion="isGradedQuestion"
-      :maxCharLimit="currentQuestion.max_char_limit"
-      :isPortrait="isPortrait"
-      :imageData="currentQuestion?.image"
-      :draftAnswer="draftResponses[currentQuestionIndex]"
-      :submittedAnswer="currentQuestionResponseAnswer"
-      :isAnswerSubmitted="isAnswerSubmitted"
-      :quizType="quizType"
-      @option-selected="questionOptionSelected"
-      @answer-entered="subjectiveAnswerUpdated"
-      data-test="body"
-    ></Body>
-    <Footer
-      :isAnswerSubmitted="isAnswerSubmitted"
-      :isPreviousButtonShown="currentQuestionIndex > 0"
-      :isSubmitEnabled="isAttemptValid"
-      :quizType="quizType"
-      @submit="submitQuestion"
-      @continue="showNextQuestion"
-      @previous="showPreviousQuestion"
-      @clear="clearAnswer"
-      data-test="footer"
-    ></Footer>
+  <div class="h-full flex flex-col">
+    <Header v-if="isQuizAssessment" @end-test="endTest"></Header>
+    <div
+      class="flex flex-col grow bg-white w-full justify-between overflow-hidden"
+    >
+      <Body
+        class="mt-10"
+        :text="currentQuestion.text"
+        :options="currentQuestion.options"
+        :correctAnswer="questionCorrectAnswer"
+        :questionType="questionType"
+        :isGradedQuestion="isGradedQuestion"
+        :maxCharLimit="currentQuestion.max_char_limit"
+        :isPortrait="isPortrait"
+        :imageData="currentQuestion?.image"
+        :draftAnswer="draftResponses[currentQuestionIndex]"
+        :submittedAnswer="currentQuestionResponseAnswer"
+        :isAnswerSubmitted="isAnswerSubmitted"
+        :quizType="quizType"
+        @option-selected="questionOptionSelected"
+        @answer-entered="subjectiveAnswerUpdated"
+        data-test="body"
+      ></Body>
+      <Footer
+        :isAnswerSubmitted="isAnswerSubmitted"
+        :isPreviousButtonShown="currentQuestionIndex > 0"
+        :isSubmitEnabled="isAttemptValid"
+        :quizType="quizType"
+        @submit="submitQuestion"
+        @continue="showNextQuestion"
+        @previous="showPreviousQuestion"
+        @clear="clearAnswer"
+        data-test="footer"
+      ></Footer>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import Body from "./Body.vue";
 import Footer from "./Footer.vue";
+import Header from "./Header.vue";
 import {
   defineComponent,
   PropType,
@@ -59,6 +63,7 @@ export default defineComponent({
   components: {
     Body,
     Footer,
+    Header,
   },
   props: {
     questions: {
@@ -173,6 +178,10 @@ export default defineComponent({
       state.draftResponses[props.currentQuestionIndex] = answer;
     }
 
+    function endTest() {
+      state.localCurrentQuestionIndex = props.questions.length;
+    }
+
     onUnmounted(() => {
       // remove listeners
       window.removeEventListener("resize", checkScreenOrientation);
@@ -225,6 +234,8 @@ export default defineComponent({
       return currentDraftResponse.length > 0;
     });
 
+    const isQuizAssessment = computed(() => props.quizType == "assessment");
+
     // instantiating draftResponses here
     props.responses.forEach((response) => {
       state.draftResponses.push(response.answer);
@@ -243,6 +254,7 @@ export default defineComponent({
       showPreviousQuestion,
       subjectiveAnswerUpdated,
       clearAnswer,
+      endTest,
       currentQuestion,
       questionType,
       questionCorrectAnswer,
@@ -250,6 +262,7 @@ export default defineComponent({
       currentQuestionResponseAnswer,
       isAnswerSubmitted,
       isAttemptValid,
+      isQuizAssessment,
     };
   },
   emits: ["update:currentQuestionIndex", "update:responses", "submit-question"],
