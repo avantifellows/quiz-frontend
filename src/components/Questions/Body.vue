@@ -54,7 +54,9 @@
                   style="box-shadow: none"
                   @click="selectOption(optionIndex)"
                   :checked="isOptionMarked(optionIndex)"
-                  :disabled="isAnswerSubmitted && !isQuizAssessment"
+                  :disabled="
+                    (isAnswerSubmitted && !isQuizAssessment) || hasQuizEnded
+                  "
                   :data-test="`optionSelector-${optionIndex}`"
                 />
                 <div
@@ -176,6 +178,10 @@ export default defineComponent({
     quizType: {
       type: String as PropType<quizType>,
       default: "homework",
+    },
+    hasQuizEnded: {
+      type: Boolean,
+      default: false,
     },
   },
   setup(props, context) {

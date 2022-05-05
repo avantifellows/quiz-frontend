@@ -21,7 +21,10 @@
       ></icon-button>
     </div>
 
-    <div v-if="isQuizAssessment" class="flex space-x-1 sm:space-x-4">
+    <div
+      v-if="isQuizAssessment && !hasQuizEnded"
+      class="flex space-x-1 sm:space-x-4"
+    >
       <!-- clear button -->
       <icon-button
         :titleConfig="clearButtonTitleConfig"
@@ -94,6 +97,10 @@ export default defineComponent({
     isPreviousButtonShown: {
       default: false,
       type: Boolean,
+    },
+    hasQuizEnded: {
+      type: Boolean,
+      default: false,
     },
     quizType: {
       type: String as PropType<quizType>,

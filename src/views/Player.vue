@@ -16,9 +16,11 @@
       <QuestionModal
         :questions="questions"
         :quizType="metadata.quiz_type"
+        :hasQuizEnded="hasQuizEnded"
         v-model:currentQuestionIndex="currentQuestionIndex"
         v-model:responses="responses"
         @submit-question="submitQuestion"
+        @end-test="endTest"
         v-if="isQuestionShown"
         data-test="modal"
       ></QuestionModal>
@@ -80,6 +82,8 @@ export default defineComponent({
       numWrong: 0, // number of wrongly answered questions
       numSkipped: 0, // number of skipped questions
       isScorecardShown: false, // to show the scorecard or not
+      hasQuizEnded: false, // whether the quiz has ended - only valid for quizType = assessment
+      sessionId: "", // id of the session created for a user-quiz combination
     });
     const isQuizAssessment = computed(
       () => state.metadata.quiz_type == "assessment"
@@ -124,8 +128,10 @@ export default defineComponent({
         props.quizId,
         route.query.userId as string
       );
+      state.sessionId = sessionDetails._id;
       state.responses = sessionDetails.session_answers;
       state.isFirstSession = sessionDetails.is_first;
+      state.hasQuizEnded = sessionDetails.has_quiz_ended || false;
     }
 
     async function getQuizCreateSession() {
@@ -141,6 +147,11 @@ export default defineComponent({
         itemResponse._id,
         itemResponse.answer
       );
+    }
+
+    function endTest() {
+      SessionAPIService.updateSession(state.sessionId, true);
+      state.hasQuizEnded = true;
     }
 
     getQuizCreateSession();
@@ -275,6 +286,7 @@ export default defineComponent({
       startQuiz,
       submitQuestion,
       goToPreviousQuestion,
+      endTest,
     };
   },
 });

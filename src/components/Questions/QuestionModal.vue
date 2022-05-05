@@ -18,6 +18,7 @@
         :submittedAnswer="currentQuestionResponseAnswer"
         :isAnswerSubmitted="isAnswerSubmitted"
         :quizType="quizType"
+        :hasQuizEnded="hasQuizEnded"
         @option-selected="questionOptionSelected"
         @answer-entered="subjectiveAnswerUpdated"
         data-test="body"
@@ -27,6 +28,7 @@
         :isPreviousButtonShown="currentQuestionIndex > 0"
         :isSubmitEnabled="isAttemptValid"
         :quizType="quizType"
+        :hasQuizEnded="hasQuizEnded"
         @submit="submitQuestion"
         @continue="showNextQuestion"
         @previous="showPreviousQuestion"
@@ -73,6 +75,10 @@ export default defineComponent({
     currentQuestionIndex: {
       type: Number,
       default: 0,
+    },
+    hasQuizEnded: {
+      type: Boolean,
+      default: false,
     },
     responses: {
       required: true,
@@ -180,6 +186,7 @@ export default defineComponent({
 
     function endTest() {
       state.localCurrentQuestionIndex = props.questions.length;
+      context.emit("end-test");
     }
 
     onUnmounted(() => {
@@ -265,6 +272,11 @@ export default defineComponent({
       isQuizAssessment,
     };
   },
-  emits: ["update:currentQuestionIndex", "update:responses", "submit-question"],
+  emits: [
+    "update:currentQuestionIndex",
+    "update:responses",
+    "submit-question",
+    "end-test",
+  ],
 });
 </script>
