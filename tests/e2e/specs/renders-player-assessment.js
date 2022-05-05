@@ -128,6 +128,7 @@ describe("Player for Assessment quizzes", () => {
             .should("not.have.class", "bg-gray-200");
         });
       });
+
       it("shows number of skipped questions in the scorecard too", () => {
         // question 1
         cy.get('[data-test="modal"]')
@@ -156,6 +157,15 @@ describe("Player for Assessment quizzes", () => {
         cy.get('[data-test="scorecard"]')
           .get('[data-test="metricValue-2"]')
           .should("have.text", 1);
+      });
+
+      it("shows scorecard upon selecting End Test", () => {
+        cy.get('[data-test="modal"]')
+          .get('[data-test="endTestButton"]')
+          .trigger("click");
+
+        cy.get('[data-test="modal"]').should("not.exist");
+        cy.get('[data-test="scorecard"]').should("exist");
       });
     });
   });
