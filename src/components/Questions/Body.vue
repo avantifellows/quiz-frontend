@@ -54,9 +54,7 @@
                   style="box-shadow: none"
                   @click="selectOption(optionIndex)"
                   :checked="isOptionMarked(optionIndex)"
-                  :disabled="
-                    (isAnswerSubmitted && !isQuizAssessment) || hasQuizEnded
-                  "
+                  :disabled="isAnswerDisabled"
                   :data-test="`optionSelector-${optionIndex}`"
                 />
                 <div
@@ -80,9 +78,14 @@
         <Textarea
           v-model:value="subjectiveAnswer"
           class="px-2 w-full"
-          boxStyling="bp-420:h-20 sm:h-28 md:h-36 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary"
+          :boxStyling="[
+            {
+              'bg-gray-100': isAnswerSubmitted
+            },
+            'bp-420:h-20 sm:h-28 md:h-36 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary',
+          ]"
           placeholder="Enter your answer here"
-          :isDisabled="isAnswerSubmitted"
+          :isDisabled="isAnswerDisabled"
           :maxHeightLimit="250"
           @keypress="preventKeypressIfApplicable"
           data-test="subjectiveAnswer"
@@ -183,6 +186,11 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    /** whether the draft answer has been cleared but not yet submitted */
+    isDraftAnswerCleared: {
+      default: false,
+      type: Boolean,
+    },
   },
   setup(props, context) {
     const isQuizAssessment = computed(() => props.quizType == "assessment");
@@ -218,6 +226,7 @@ export default defineComponent({
     function optionBackgroundClass(optionIndex: Number) {
       if (
         !props.isAnswerSubmitted ||
+        props.isDraftAnswerCleared ||
         typeof props.correctAnswer == "string" || // check for typescript
         typeof props.submittedAnswer == "string" // check for typescript
       ) {
@@ -362,6 +371,11 @@ export default defineComponent({
 
       return "";
     });
+    const isAnswerDisabled = computed(
+      () =>
+        (props.isAnswerSubmitted && !isQuizAssessment.value) ||
+        props.hasQuizEnded
+    );
 
     state.subjectiveAnswer = defaultAnswer.value;
 
@@ -434,6 +448,7 @@ export default defineComponent({
       charactersLeft,
       maxCharLimitClass,
       isQuizAssessment,
+      isAnswerDisabled,
     };
   },
   emits: ["option-selected", "answer-entered"],

@@ -21,6 +21,7 @@
         :draftAnswer="draftResponses[currentQuestionIndex]"
         :submittedAnswer="currentQuestionResponseAnswer"
         :isAnswerSubmitted="isAnswerSubmitted"
+        :isDraftAnswerCleared="isDraftAnswerCleared"
         :quizType="quizType"
         :hasQuizEnded="hasQuizEnded"
         @option-selected="questionOptionSelected"
@@ -101,6 +102,7 @@ export default defineComponent({
       isPortrait: true,
       draftResponses: [] as DraftResponse[], // stores the options selected by the user but not yet submitted
       toast: useToast(),
+      isDraftAnswerCleared: false, // whether the draft answer has been cleared but not yet submitted
     });
 
     function checkScreenOrientation() {
@@ -175,9 +177,11 @@ export default defineComponent({
 
     function clearAnswer() {
       state.draftResponses[props.currentQuestionIndex] = null;
+      state.isDraftAnswerCleared = true;
     }
 
     function showNextQuestion() {
+      resetState();
       if (
         state.localCurrentQuestionIndex < props.questions.length - 1 ||
         props.hasQuizEnded
@@ -191,7 +195,21 @@ export default defineComponent({
     }
 
     function showPreviousQuestion() {
+      resetState();
       state.localCurrentQuestionIndex -= 1;
+    }
+
+    function resetState() {
+      if (
+        state.isDraftAnswerCleared &&
+        isQuestionTypeSubjective.value &&
+        state.draftResponses[props.currentQuestionIndex] !=
+          currentQuestionResponseAnswer.value
+      ) {
+        state.draftResponses[props.currentQuestionIndex] =
+          currentQuestionResponseAnswer.value;
+      }
+      state.isDraftAnswerCleared = false;
     }
 
     /** update the attempt to the current question - valid for subjective questions */
