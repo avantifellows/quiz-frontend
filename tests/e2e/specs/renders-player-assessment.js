@@ -130,6 +130,8 @@ describe("Player for Assessment quizzes", () => {
       });
 
       it("shows number of skipped questions in the scorecard too", () => {
+        cy.intercept("PATCH", "/sessions/*", {});
+
         // question 1
         cy.get('[data-test="modal"]')
           .get('[data-test="optionSelector-0"]')
