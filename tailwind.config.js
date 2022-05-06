@@ -8,6 +8,9 @@ module.exports = {
         primary: "#F78000",
         "primary-hover": "#db7506",
       },
+      borderWidth: {
+        1: "1px",
+      },
     },
     screens: {
       "bp-320": "320px",

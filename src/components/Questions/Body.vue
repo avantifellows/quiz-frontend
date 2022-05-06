@@ -1,108 +1,150 @@
 <template>
-  <div class="overflow-y-auto flex flex-col">
-    <!-- question text -->
-    <div class="mx-6 md:mx-10">
-      <p :class="questionTextClass" data-test="text" v-html="text"></p>
-    </div>
-    <div :class="orientationClass">
-      <!-- loading spinner when question image is loading -->
+  <div class="flex relative h-full" :class="{ 'bg-gray-50': isPaletteVisible }">
+    <div
+      v-if="isPaletteVisible"
+      class="absolute w-full h-full sm:w-1/2 lg:w-1/3 xl:w-1/4 bg-white p-4 sm:p-6 lg:p-8"
+    >
       <div
-        :class="questionImageAreaClass"
-        class="flex justify-center"
-        v-if="isImageLoading"
+        class="bg-gray-200 border-gray-500 border-1 rounded-md p-4 grid grid-rows-2 space-y-2"
       >
-        <BaseIcon
-          name="spinner-solid"
-          iconClass="animate-spin h-4 w-4 object-scale-down"
-        />
-      </div>
-      <!-- question image container -->
-      <div :class="questionImageContainerClass" v-if="isQuestionImagePresent">
-        <img
-          :src="imageData.url"
-          class="object-contain h-full w-full"
-          :alt="imageData.alt_text"
-          @load="stopImageLoading"
-          ref="questionImage"
-          :class="{ invisible: isImageLoading }"
-        />
-      </div>
-      <!-- option container -->
-      <div
-        v-if="areOptionsVisible"
-        class="flex"
-        :class="answerContainerClass"
-        data-test="optionContainer"
-      >
-        <ul class="w-full">
-          <li class="list-none space-y-1 flex flex-col">
+        <div class="grid grid-cols-2">
+          <div :class="legendKeyContainerClass">
             <div
-              v-for="(option, optionIndex) in options"
-              :key="optionIndex"
-              :class="[optionBackgroundClass(optionIndex), optionTextClass]"
-              :data-test="`optionContainer-${optionIndex}`"
-            >
-              <!-- each option is defined here -->
-              <!-- adding <label> so that touch input is just not limited to the radio/checkbox button -->
-              <label :class="labelClass(option)">
-                <!-- understand the meaning of the attributes here:
-                    https://www.w3schools.com/tags/att_input_type_radio.asp -->
-                <input
-                  :type="optionInputType"
-                  name="option"
-                  class="place-self-center text-primary focus:ring-0"
-                  style="box-shadow: none"
-                  @click="selectOption(optionIndex)"
-                  :checked="isOptionMarked(optionIndex)"
-                  :disabled="isAnswerDisabled"
-                  :data-test="`optionSelector-${optionIndex}`"
-                />
-                <div
-                  v-html="option.text"
-                  class="ml-2 h-full place-self-center text-base sm:text-lg"
-                  :data-test="`option-${optionIndex}`"
-                ></div>
-              </label>
-            </div>
-          </li>
-        </ul>
-      </div>
-      <!-- subjective question answer -->
-      <div
-        v-if="isQuestionTypeSubjective"
-        class="flex flex-col"
-        :class="answerContainerClass"
-        data-test="subjectiveAnswerContainer"
-      >
-        <!-- input area for the answer -->
-        <Textarea
-          v-model:value="subjectiveAnswer"
-          class="px-2 w-full"
-          :boxStyling="[
-            {
-              'bg-gray-100': isAnswerSubmitted
-            },
-            'bp-420:h-20 sm:h-28 md:h-36 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary',
-          ]"
-          placeholder="Enter your answer here"
-          :isDisabled="isAnswerDisabled"
-          :maxHeightLimit="250"
-          @keypress="preventKeypressIfApplicable"
-          data-test="subjectiveAnswer"
-        ></Textarea>
-        <!-- character limit -->
-        <div
-          class="flex items-end px-6 mt-2"
-          v-if="hasCharLimit && !isAnswerSubmitted"
-          data-test="charLimitContainer"
-        >
-          <p
-            class="text-sm sm:text-base lg:text-lg font-bold"
-            :class="maxCharLimitClass"
-            data-test="charLimit"
-          >
-            {{ charactersLeft }}
+              class="bg-emerald-300 border-emerald-500"
+              :class="legendKeyIconClass"
+            ></div>
+            <p :class="legendKeyTextClass">
+              {{ legendSuccessText }}
+            </p>
+          </div>
+
+          <div :class="legendKeyContainerClass">
+            <div
+              :class="legendKeyIconClass"
+              class="bg-red-300 border-red-500"
+            ></div>
+            <p :class="legendKeyTextClass">
+              {{ legendErrorText }}
+            </p>
+          </div>
+        </div>
+
+        <div :class="legendKeyContainerClass">
+          <div
+            :class="legendKeyIconClass"
+            class="bg-gray-100 border-gray-600"
+          ></div>
+          <p :class="legendKeyTextClass">
+            {{ legendNeutralText }}
           </p>
+        </div>
+      </div>
+    </div>
+    <div class="overflow-y-auto flex flex-col w-full mt-10">
+      <!-- question text -->
+      <div class="mx-6 md:mx-10">
+        <p :class="questionTextClass" data-test="text" v-html="text"></p>
+      </div>
+      <div :class="orientationClass">
+        <!-- loading spinner when question image is loading -->
+        <div
+          :class="questionImageAreaClass"
+          class="flex justify-center"
+          v-if="isImageLoading"
+        >
+          <BaseIcon
+            name="spinner-solid"
+            iconClass="animate-spin h-4 w-4 object-scale-down"
+          />
+        </div>
+        <!-- question image container -->
+        <div :class="questionImageContainerClass" v-if="isQuestionImagePresent">
+          <img
+            :src="imageData.url"
+            class="object-contain h-full w-full"
+            :alt="imageData.alt_text"
+            @load="stopImageLoading"
+            ref="questionImage"
+            :class="{ invisible: isImageLoading }"
+          />
+        </div>
+        <!-- option container -->
+        <div
+          v-if="areOptionsVisible"
+          class="flex"
+          :class="answerContainerClass"
+          data-test="optionContainer"
+        >
+          <ul class="w-full">
+            <li class="list-none space-y-1 flex flex-col">
+              <div
+                v-for="(option, optionIndex) in options"
+                :key="optionIndex"
+                :class="[optionBackgroundClass(optionIndex), optionTextClass]"
+                :data-test="`optionContainer-${optionIndex}`"
+              >
+                <!-- each option is defined here -->
+                <!-- adding <label> so that touch input is just not limited to the radio/checkbox button -->
+                <label :class="labelClass(option)">
+                  <!-- understand the meaning of the attributes here:
+                    https://www.w3schools.com/tags/att_input_type_radio.asp -->
+                  <input
+                    :type="optionInputType"
+                    name="option"
+                    class="place-self-center text-primary focus:ring-0"
+                    style="box-shadow: none"
+                    @click="selectOption(optionIndex)"
+                    :checked="isOptionMarked(optionIndex)"
+                    :disabled="isAnswerDisabled"
+                    :data-test="`optionSelector-${optionIndex}`"
+                  />
+                  <div
+                    v-html="option.text"
+                    class="ml-2 h-full place-self-center text-base sm:text-lg"
+                    :data-test="`option-${optionIndex}`"
+                  ></div>
+                </label>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <!-- subjective question answer -->
+        <div
+          v-if="isQuestionTypeSubjective"
+          class="flex flex-col"
+          :class="answerContainerClass"
+          data-test="subjectiveAnswerContainer"
+        >
+          <!-- input area for the answer -->
+          <Textarea
+            v-model:value="subjectiveAnswer"
+            class="px-2 w-full"
+            :boxStyling="[
+              {
+                'bg-gray-100': isAnswerSubmitted,
+              },
+              'bp-420:h-20 sm:h-28 md:h-36 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary',
+            ]"
+            placeholder="Enter your answer here"
+            :isDisabled="isAnswerDisabled"
+            :maxHeightLimit="250"
+            @keypress="preventKeypressIfApplicable"
+            data-test="subjectiveAnswer"
+          ></Textarea>
+          <!-- character limit -->
+          <div
+            class="flex items-end px-6 mt-2"
+            v-if="hasCharLimit && !isAnswerSubmitted"
+            data-test="charLimitContainer"
+          >
+            <p
+              class="text-sm sm:text-base lg:text-lg font-bold"
+              :class="maxCharLimitClass"
+              data-test="charLimit"
+            >
+              {{ charactersLeft }}
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -191,6 +233,11 @@ export default defineComponent({
       default: false,
       type: Boolean,
     },
+    /** whether the question palette is visible */
+    isPaletteVisible: {
+      type: Boolean,
+      default: false,
+    },
   },
   setup(props, context) {
     const isQuizAssessment = computed(() => props.quizType == "assessment");
@@ -206,6 +253,9 @@ export default defineComponent({
       optionTextClass:
         "p-2 text-lg md:text-xl lg:text-2xl border rounded-md mx-2 whitespace-pre-wrap",
       subjectiveAnswer: "" as string | null, // holds the answer to the subjective question
+      legendKeyTextClass: "place-self-center font-bold", // classes for the text of each key in the legend of the question palette
+      legendKeyContainerClass: "flex space-x-2 lg:space-x-4", // classes for the container of each key in the legend of the question palette
+      legendKeyIconClass: "w-10 h-10 border-1 rounded-md place-self-center", // classes for the icon of each key in the legend of the question palette
     });
 
     /** stop the loading spinner when the image has been loaded **/
@@ -376,6 +426,15 @@ export default defineComponent({
         (props.isAnswerSubmitted && !isQuizAssessment.value) ||
         props.hasQuizEnded
     );
+    const legendSuccessText = computed(() =>
+      props.hasQuizEnded ? "Correct" : "Answered"
+    );
+    const legendErrorText = computed(() =>
+      props.hasQuizEnded ? "Wrong" : "Not Answered"
+    );
+    const legendNeutralText = computed(() =>
+      props.hasQuizEnded ? "Skipped" : "Not Visited"
+    );
 
     state.subjectiveAnswer = defaultAnswer.value;
 
@@ -445,6 +504,9 @@ export default defineComponent({
       optionInputType,
       answerContainerClass,
       hasCharLimit,
+      legendSuccessText,
+      legendErrorText,
+      legendNeutralText,
       charactersLeft,
       maxCharLimitClass,
       isQuizAssessment,

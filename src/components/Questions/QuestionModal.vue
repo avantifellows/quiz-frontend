@@ -2,14 +2,14 @@
   <div class="h-full flex flex-col">
     <Header
       v-if="isQuizAssessment"
-      @end-test="endTest"
       :hasQuizEnded="hasQuizEnded"
+      v-model:isPaletteVisible="isPaletteVisible"
+      @end-test="endTest"
     ></Header>
     <div
       class="flex flex-col grow bg-white w-full justify-between overflow-hidden"
     >
       <Body
-        class="mt-10"
         :text="currentQuestion.text"
         :options="currentQuestion.options"
         :correctAnswer="questionCorrectAnswer"
@@ -21,6 +21,7 @@
         :draftAnswer="draftResponses[currentQuestionIndex]"
         :submittedAnswer="currentQuestionResponseAnswer"
         :isAnswerSubmitted="isAnswerSubmitted"
+        :isPaletteVisible="isPaletteVisible"
         :isDraftAnswerCleared="isDraftAnswerCleared"
         :quizType="quizType"
         :hasQuizEnded="hasQuizEnded"
@@ -103,6 +104,7 @@ export default defineComponent({
       draftResponses: [] as DraftResponse[], // stores the options selected by the user but not yet submitted
       toast: useToast(),
       isDraftAnswerCleared: false, // whether the draft answer has been cleared but not yet submitted
+      isPaletteVisible: false, // whether the question palette is visible
     });
 
     function checkScreenOrientation() {

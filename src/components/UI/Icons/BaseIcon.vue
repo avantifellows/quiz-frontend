@@ -12,6 +12,7 @@
     <Warning v-if="name == 'warning'"></Warning>
     <Lock v-if="name == 'lock'"></Lock>
     <Skip v-if="name == 'skip'"></Skip>
+    <Hamburger v-if="name == 'hamburger'"></Hamburger>
   </div>
 </template>
 
@@ -28,6 +29,7 @@ import RightArrow from "./RightArrow.vue";
 import Warning from "./Warning.vue";
 import Lock from "./Lock.vue";
 import Skip from "./Skip.vue";
+import Hamburger from "./Hamburger.vue";
 
 export default {
   name: "BaseIcon",
@@ -44,6 +46,7 @@ export default {
     Warning,
     Lock,
     Skip,
+    Hamburger,
   },
   props: {
     name: {
