@@ -16,6 +16,7 @@ describe("Player for Assessment quizzes", () => {
       });
 
       cy.intercept("PATCH", "/session_answers/*", {});
+      cy.intercept("PATCH", "/sessions/*", {});
 
       cy.visit("/abcd?userId=1");
 
@@ -130,8 +131,6 @@ describe("Player for Assessment quizzes", () => {
       });
 
       it("shows number of skipped questions in the scorecard too", () => {
-        cy.intercept("PATCH", "/sessions/*", {});
-
         // question 1
         cy.get('[data-test="modal"]')
           .get('[data-test="optionSelector-0"]')
