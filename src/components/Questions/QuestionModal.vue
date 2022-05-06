@@ -184,7 +184,8 @@ export default defineComponent({
       resetState();
       if (
         state.localCurrentQuestionIndex < props.questions.length - 1 ||
-        props.hasQuizEnded
+        props.hasQuizEnded ||
+        !isQuizAssessment.value
       ) {
         state.localCurrentQuestionIndex = state.localCurrentQuestionIndex + 1;
       } else {
