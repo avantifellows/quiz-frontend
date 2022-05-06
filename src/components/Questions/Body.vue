@@ -1,45 +1,12 @@
 <template>
   <div class="flex relative h-full" :class="{ 'bg-gray-50': isPaletteVisible }">
-    <div
+    <QuestionPalette
       v-if="isPaletteVisible"
-      class="absolute w-full h-full sm:w-1/2 lg:w-1/3 xl:w-1/4 bg-white p-4 sm:p-6 lg:p-8"
+      :hasQuizEnded="hasQuizEnded"
+      class="absolute w-full h-full sm:w-1/2 lg:w-1/3 xl:w-1/4"
     >
-      <div
-        class="bg-gray-200 border-gray-500 border-1 rounded-md p-4 grid grid-rows-2 space-y-2"
-      >
-        <div class="grid grid-cols-2">
-          <div :class="legendKeyContainerClass">
-            <div
-              class="bg-emerald-300 border-emerald-500"
-              :class="legendKeyIconClass"
-            ></div>
-            <p :class="legendKeyTextClass">
-              {{ legendSuccessText }}
-            </p>
-          </div>
+    </QuestionPalette>
 
-          <div :class="legendKeyContainerClass">
-            <div
-              :class="legendKeyIconClass"
-              class="bg-red-300 border-red-500"
-            ></div>
-            <p :class="legendKeyTextClass">
-              {{ legendErrorText }}
-            </p>
-          </div>
-        </div>
-
-        <div :class="legendKeyContainerClass">
-          <div
-            :class="legendKeyIconClass"
-            class="bg-gray-100 border-gray-600"
-          ></div>
-          <p :class="legendKeyTextClass">
-            {{ legendNeutralText }}
-          </p>
-        </div>
-      </div>
-    </div>
     <div class="overflow-y-auto flex flex-col w-full mt-10">
       <!-- question text -->
       <div class="mx-6 md:mx-10">
@@ -165,11 +132,13 @@ import {
 } from "vue";
 import BaseIcon from "../UI/Icons/BaseIcon.vue";
 import { quizType } from "../../types";
+import QuestionPalette from "./Palette/QuestionPalette.vue";
 
 export default defineComponent({
   components: {
     BaseIcon,
     Textarea,
+    QuestionPalette,
   },
   props: {
     text: {
@@ -253,9 +222,6 @@ export default defineComponent({
       optionTextClass:
         "p-2 text-lg md:text-xl lg:text-2xl border rounded-md mx-2 whitespace-pre-wrap",
       subjectiveAnswer: "" as string | null, // holds the answer to the subjective question
-      legendKeyTextClass: "place-self-center font-bold", // classes for the text of each key in the legend of the question palette
-      legendKeyContainerClass: "flex space-x-2 lg:space-x-4", // classes for the container of each key in the legend of the question palette
-      legendKeyIconClass: "w-10 h-10 border-1 rounded-md place-self-center", // classes for the icon of each key in the legend of the question palette
     });
 
     /** stop the loading spinner when the image has been loaded **/
