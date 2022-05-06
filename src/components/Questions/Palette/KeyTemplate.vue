@@ -1,6 +1,7 @@
 <template>
   <div :class="legendKeyContainerClass">
-    <div :class="keyIconClass"></div>
+    <div v-if="!hasQuizEnded" :class="keyIconClass"></div>
+    <BaseIcon v-if="hasQuizEnded" :name="iconName"></BaseIcon>
     <p :class="legendKeyTextClass">
       {{ title }}
     </p>
@@ -13,6 +14,7 @@ import {
   legendKeyTextClass,
   legendKeyContainerClass,
 } from "./Utils";
+import BaseIcon from "../../../components/UI/Icons/BaseIcon.vue";
 import { defineComponent, computed } from "vue";
 
 export default defineComponent({
@@ -25,6 +27,17 @@ export default defineComponent({
       type: String,
       default: "",
     },
+    iconName: {
+      type: String,
+      default: "",
+    },
+    hasQuizEnded: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  components: {
+    BaseIcon,
   },
   setup(props) {
     const keyIconClass = computed(() => [legendKeyIconClass, props.iconClass]);

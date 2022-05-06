@@ -1,6 +1,8 @@
 <template>
   <KeyTemplate
     :title="title"
+    :hasQuizEnded="hasQuizEnded"
+    iconName="skip-rounded"
     iconClass="bg-gray-100 border-gray-600"
   ></KeyTemplate>
 </template>
@@ -14,6 +16,10 @@ export default defineComponent({
     title: {
       type: String,
       required: true,
+    },
+    hasQuizEnded: {
+      type: Boolean,
+      default: false,
     },
   },
   components: {

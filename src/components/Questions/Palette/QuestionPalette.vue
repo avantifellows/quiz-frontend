@@ -4,11 +4,17 @@
       class="bg-gray-200 border-gray-500 border-1 rounded-md p-4 grid grid-rows-2 space-y-2"
     >
       <div class="grid grid-cols-2">
-        <Success :title="legendSuccessText"></Success>
-        <Error :title="legendErrorText"></Error>
+        <Success
+          :title="legendSuccessText"
+          :hasQuizEnded="hasQuizEnded"
+        ></Success>
+        <Error :title="legendErrorText" :hasQuizEnded="hasQuizEnded"></Error>
       </div>
 
-      <Neutral :title="legendNeutralText"></Neutral>
+      <Neutral
+        :title="legendNeutralText"
+        :hasQuizEnded="hasQuizEnded"
+      ></Neutral>
     </div>
   </div>
 </template>
