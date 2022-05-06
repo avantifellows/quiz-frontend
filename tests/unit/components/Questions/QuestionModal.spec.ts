@@ -116,6 +116,21 @@ describe("QuestionModal.vue", () => {
         wrapper.find('[data-test="endTestButton"]').trigger("click");
         expect(wrapper.vm.localCurrentQuestionIndex).toBe(questions.length);
       });
+      it("does not increment question index when next question or save & next button is clicked for last question", () => {
+        for (let index = 0; index < questions.length - 1; index++) {
+          wrapper.find('[data-test="nextQuestionButton"]').trigger("click");
+        }
+        // ensure that the last question has been reached
+        expect(wrapper.vm.localCurrentQuestionIndex).toBe(questions.length - 1);
+
+        wrapper.find('[data-test="nextQuestionButton"]').trigger("click");
+        // the question index should not have been updated
+        expect(wrapper.vm.localCurrentQuestionIndex).toBe(questions.length - 1);
+
+        wrapper.find('[data-test="saveAndNextButton"]').trigger("click");
+        // the question index should not have been updated
+        expect(wrapper.vm.localCurrentQuestionIndex).toBe(questions.length - 1);
+      });
     });
   });
 
@@ -308,37 +323,83 @@ describe("QuestionModal.vue", () => {
       expect(wrapper.vm.isAttemptValid).toBeTruthy();
     });
 
-    describe("submits question", () => {
-      const answer = "abcd";
-      beforeEach(async () => {
-        await mountWrapper({ currentQuestionIndex: questionIndex });
+    describe("Homework", () => {
+      describe("submits question", () => {
+        const answer = "abcd";
+        beforeEach(async () => {
+          // enter answer
+          await wrapper.find('[data-test="input"]').setValue(answer);
 
+          // submit the answer
+          wrapper
+            .find('[data-test="footer"]')
+            .find('[data-test="submitButton"]')
+            .trigger("click");
+        });
+
+        it("responses have been updated", () => {
+          expect(wrapper.vm.localResponses[questionIndex]).toEqual({
+            _id: `${questionIndex}`,
+            question_id: questions[questionIndex]._id,
+            answer: answer,
+          });
+          expect(wrapper.emitted()).toHaveProperty("submit-question");
+        });
+
+        it("proceeds with question on answering", () => {
+          wrapper
+            .find('[data-test="footer"]')
+            .find('[data-test="submitButton"]')
+            .trigger("click");
+
+          expect(wrapper.vm.localCurrentQuestionIndex).toBe(3);
+        });
+      });
+    });
+
+    describe("Assessments", () => {
+      beforeEach(async () => {
+        await wrapper.setProps({
+          quizType: "assessment",
+        });
+      });
+      it("removes gray background from selected answer upon clicking on Clear", async () => {
         // enter answer
+        const answer = "abcd";
         await wrapper.find('[data-test="input"]').setValue(answer);
 
         // submit the answer
         wrapper
           .find('[data-test="footer"]')
-          .find('[data-test="submitButton"]')
+          .find('[data-test="saveAndNextButton"]')
           .trigger("click");
-      });
 
-      it("responses have been updated", () => {
-        expect(wrapper.vm.localResponses[questionIndex]).toEqual({
-          _id: `${questionIndex}`,
-          question_id: questions[questionIndex]._id,
-          answer: answer,
-        });
-        expect(wrapper.emitted()).toHaveProperty("submit-question");
-      });
-
-      it("proceeds with question on answering", () => {
+        // go back to the previous question
         wrapper
           .find('[data-test="footer"]')
-          .find('[data-test="submitButton"]')
+          .find('[data-test="previousQuestionButton"]')
           .trigger("click");
 
-        expect(wrapper.vm.localCurrentQuestionIndex).toBe(3);
+        // clear the answer
+        wrapper
+          .find('[data-test="footer"]')
+          .find('[data-test="clearButton"]')
+          .trigger("click");
+
+        // move to next question
+        wrapper
+          .find('[data-test="footer"]')
+          .find('[data-test="nextQuestionButton"]')
+          .trigger("click");
+
+        // go back to the previous question
+        wrapper
+          .find('[data-test="footer"]')
+          .find('[data-test="previousQuestionButton"]')
+          .trigger("click");
+
+        // the answer should still be there since we didn't save after clearing
+        expect(wrapper.find('[data-test="input"]').element.value).toBe(answer);
       });
     });
   });
