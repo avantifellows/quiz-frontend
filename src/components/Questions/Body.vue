@@ -5,6 +5,7 @@
       :hasQuizEnded="hasQuizEnded"
       :questionStates="questionStates"
       class="absolute w-full h-full sm:w-2/3 lg:w-1/2 xl:w-1/3"
+      @navigate="navigateToQuestion"
     >
     </QuestionPalette>
 
@@ -300,6 +301,10 @@ export default defineComponent({
       if (!charactersLeft.value) event.preventDefault();
     }
 
+    function navigateToQuestion(questionIndex: number) {
+      context.emit("navigate", questionIndex);
+    }
+
     // styling class for the question image and loading spinner containers
     const questionImageAreaClass = computed(() => ({
       "h-56 mb-4": props.isPortrait,
@@ -464,6 +469,7 @@ export default defineComponent({
       selectOption,
       labelClass,
       preventKeypressIfApplicable,
+      navigateToQuestion,
       questionImageAreaClass,
       questionImageContainerClass,
       isQuestionImagePresent,
@@ -484,7 +490,7 @@ export default defineComponent({
       isAnswerDisabled,
     };
   },
-  emits: ["option-selected", "answer-entered"],
+  emits: ["option-selected", "answer-entered", "navigate"],
 });
 </script>
 

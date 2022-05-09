@@ -28,6 +28,7 @@
         :questionStates="questionStates"
         @option-selected="questionOptionSelected"
         @answer-entered="subjectiveAnswerUpdated"
+        @navigate="navigateToQuestion"
         data-test="body"
       ></Body>
       <Footer
@@ -114,6 +115,10 @@ export default defineComponent({
 
     function checkScreenOrientation() {
       state.isPortrait = isScreenPortrait();
+    }
+
+    function navigateToQuestion(questionIndex: number) {
+      state.localCurrentQuestionIndex = questionIndex;
     }
 
     watch(
@@ -333,6 +338,7 @@ export default defineComponent({
       subjectiveAnswerUpdated,
       clearAnswer,
       endTest,
+      navigateToQuestion,
       currentQuestion,
       questionType,
       questionCorrectAnswer,

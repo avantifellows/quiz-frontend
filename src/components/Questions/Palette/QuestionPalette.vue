@@ -21,12 +21,14 @@
       class="grid grid-cols-5 bp-500:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 mt-4 space-y-4"
     >
       <PaletteItem
-        v-for="(state, stateIndex) in questionStates"
-        :class="{ 'mt-4': stateIndex == 0 }"
-        :key="stateIndex"
-        :index="stateIndex"
+        v-for="(state, index) in questionStates"
+        class="hover:cursor-pointer"
+        :class="{ 'mt-4': index == 0 }"
+        :key="index"
+        :index="index"
         :hasQuizEnded="hasQuizEnded"
         :state="state"
+        @click="navigateToQuestion(index)"
       ></PaletteItem>
     </div>
   </div>
@@ -57,7 +59,11 @@ export default defineComponent({
       default: () => [],
     },
   },
-  setup(props) {
+  setup(props, context) {
+    function navigateToQuestion(questionIndex: number) {
+      context.emit("navigate", questionIndex);
+    }
+
     const legendSuccessText = computed(() =>
       props.hasQuizEnded ? "Correct" : "Answered"
     );
@@ -67,11 +73,14 @@ export default defineComponent({
     const legendNeutralText = computed(() =>
       props.hasQuizEnded ? "Skipped" : "Not Visited"
     );
+
     return {
+      navigateToQuestion,
       legendSuccessText,
       legendErrorText,
       legendNeutralText,
     };
   },
+  emits: ["navigate"],
 });
 </script>
