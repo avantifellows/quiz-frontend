@@ -16,6 +16,8 @@
         :hasQuizEnded="hasQuizEnded"
       ></Neutral>
     </div>
+
+    <div class="grid grid-col-3"></div>
   </div>
 </template>
 
@@ -23,7 +25,8 @@
 import Success from "./Success.vue";
 import Error from "./Error.vue";
 import Neutral from "./Neutral.vue";
-import { defineComponent, computed } from "vue";
+import { questionState } from "../../../types";
+import { defineComponent, computed, PropType } from "vue";
 
 export default defineComponent({
   components: {
@@ -35,6 +38,10 @@ export default defineComponent({
     hasQuizEnded: {
       type: Boolean,
       default: false,
+    },
+    questionStates: {
+      type: Array as PropType<questionState[]>,
+      default: () => [],
     },
   },
   setup(props) {

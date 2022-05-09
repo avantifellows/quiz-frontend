@@ -132,3 +132,11 @@ export interface SessionAnswerAPIResponse {
   question_id: string;
   answer: submittedAnswer;
 }
+
+export interface answerEvaluation {
+  valid: boolean;
+  answered: boolean;
+  isCorrect?: boolean;
+}
+
+export type questionState = "success" | "error" | "neutral";

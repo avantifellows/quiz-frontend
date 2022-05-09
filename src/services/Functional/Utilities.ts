@@ -1,3 +1,6 @@
+import { Question, submittedAnswer, answerEvaluation } from "../../types";
+const isEqual = require("deep-eql");
+
 /**
  * custom logic for deciding when the screen is considered to be in portrait mode
  */
@@ -62,4 +65,40 @@ export function resetConfetti() {
   if (animationFrameRequest != undefined) {
     cancelAnimationFrame(animationFrameRequest);
   }
+}
+
+export function isQuestionAnswerCorrect(
+  questionDetail: Question,
+  userAnswer: submittedAnswer
+): answerEvaluation {
+  const answerEvaluation = {
+    valid: false,
+    answered: false,
+  } as answerEvaluation;
+  if (questionDetail.graded) {
+    answerEvaluation.valid = true;
+    if (userAnswer != null) {
+      answerEvaluation.answered = true;
+
+      if (
+        (questionDetail.type == "single-choice" ||
+          questionDetail.type == "multi-choice") &&
+        userAnswer.length > 0
+      ) {
+        const correctAnswer = questionDetail.correct_answer;
+        if (isEqual(userAnswer, correctAnswer)) {
+          answerEvaluation.isCorrect = true;
+        } else answerEvaluation.isCorrect = false;
+      } else if (
+        questionDetail.type == "subjective" &&
+        typeof userAnswer == "string" &&
+        userAnswer.trim() != ""
+      ) {
+        // for subjective questions, as long as the viewer has given any answer
+        // their response is considered correct
+        answerEvaluation.isCorrect = true;
+      }
+    }
+  }
+  return answerEvaluation;
 }

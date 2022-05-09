@@ -3,6 +3,7 @@
     <QuestionPalette
       v-if="isPaletteVisible"
       :hasQuizEnded="hasQuizEnded"
+      :questionStates="questionStates"
       class="absolute w-full h-full sm:w-2/3 lg:w-1/2 xl:w-1/3"
     >
     </QuestionPalette>
@@ -131,7 +132,7 @@ import {
   onUpdated,
 } from "vue";
 import BaseIcon from "../UI/Icons/BaseIcon.vue";
-import { quizType } from "../../types";
+import { quizType, questionState } from "../../types";
 import QuestionPalette from "./Palette/QuestionPalette.vue";
 
 export default defineComponent({
@@ -206,6 +207,10 @@ export default defineComponent({
     isPaletteVisible: {
       type: Boolean,
       default: false,
+    },
+    questionStates: {
+      type: Array as PropType<questionState[]>,
+      default: () => [],
     },
   },
   setup(props, context) {

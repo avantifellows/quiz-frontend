@@ -25,6 +25,7 @@
         :isDraftAnswerCleared="isDraftAnswerCleared"
         :quizType="quizType"
         :hasQuizEnded="hasQuizEnded"
+        :questionStates="questionStates"
         @option-selected="questionOptionSelected"
         @answer-entered="subjectiveAnswerUpdated"
         data-test="body"
@@ -58,12 +59,16 @@ import {
   computed,
   watch,
 } from "vue";
-import { isScreenPortrait } from "../../services/Functional/Utilities";
+import {
+  isScreenPortrait,
+  isQuestionAnswerCorrect,
+} from "../../services/Functional/Utilities";
 import {
   Question,
   SubmittedResponse,
   DraftResponse,
   quizType,
+  questionState,
 } from "../../types";
 import { useToast } from "vue-toastification";
 
@@ -279,6 +284,30 @@ export default defineComponent({
 
     const isQuizAssessment = computed(() => props.quizType == "assessment");
 
+    const questionStates = computed(() => {
+      const states = [] as questionState[];
+      for (let index = 0; index < props.questions.length; index++) {
+        const questionAnswerEvaluation = isQuestionAnswerCorrect(
+          props.questions[index],
+          props.responses[index].answer
+        );
+        // we are not adding ungraded questions to the palette
+        if (!questionAnswerEvaluation.valid) continue;
+        if (
+          !questionAnswerEvaluation.answered ||
+          questionAnswerEvaluation.isCorrect == null
+        ) {
+          states.push("neutral");
+        } else {
+          questionAnswerEvaluation.isCorrect
+            ? states.push("success")
+            : states.push("error");
+        }
+      }
+
+      return states;
+    });
+
     // instantiating draftResponses here
     props.responses.forEach((response) => {
       state.draftResponses.push(response.answer);
@@ -306,6 +335,7 @@ export default defineComponent({
       isAnswerSubmitted,
       isAttemptValid,
       isQuizAssessment,
+      questionStates,
     };
   },
   emits: [
