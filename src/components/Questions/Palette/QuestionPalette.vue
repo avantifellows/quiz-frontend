@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white p-4 sm:p-6 lg:p-8">
+  <div class="bg-white p-4 sm:p-6 lg:p-8 overflow-auto">
     <div
       class="bg-gray-200 border-gray-500 border-1 rounded-md p-4 grid grid-rows-2 space-y-2"
     >
@@ -17,7 +17,18 @@
       ></Neutral>
     </div>
 
-    <div class="grid grid-col-3"></div>
+    <div
+      class="grid grid-cols-5 bp-500:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 mt-4 space-y-4"
+    >
+      <PaletteItem
+        v-for="(state, stateIndex) in questionStates"
+        :class="{ 'mt-4': stateIndex == 0 }"
+        :key="stateIndex"
+        :index="stateIndex"
+        :hasQuizEnded="hasQuizEnded"
+        :state="state"
+      ></PaletteItem>
+    </div>
   </div>
 </template>
 
@@ -25,6 +36,7 @@
 import Success from "./Success.vue";
 import Error from "./Error.vue";
 import Neutral from "./Neutral.vue";
+import PaletteItem from "./Item.vue";
 import { questionState } from "../../../types";
 import { defineComponent, computed, PropType } from "vue";
 
@@ -33,6 +45,7 @@ export default defineComponent({
     Success,
     Error,
     Neutral,
+    PaletteItem,
   },
   props: {
     hasQuizEnded: {

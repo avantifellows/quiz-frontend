@@ -2,7 +2,7 @@
   <div :class="legendKeyContainerClass">
     <div v-if="!hasQuizEnded" :class="keyIconClass"></div>
     <BaseIcon v-if="hasQuizEnded" :name="iconName"></BaseIcon>
-    <p :class="legendKeyTextClass">
+    <p :class="legendKeyTextClass" v-if="isTitlePresent">
       {{ title }}
     </p>
   </div>
@@ -21,7 +21,10 @@ export default defineComponent({
   props: {
     title: {
       type: String,
-      required: true,
+      default: "",
+    },
+    value: {
+      type: Number,
     },
     iconClass: {
       type: String,
@@ -41,10 +44,12 @@ export default defineComponent({
   },
   setup(props) {
     const keyIconClass = computed(() => [legendKeyIconClass, props.iconClass]);
+    const isTitlePresent = computed(() => props.title != "");
     return {
       keyIconClass,
       legendKeyTextClass,
       legendKeyContainerClass,
+      isTitlePresent,
     };
   },
 });

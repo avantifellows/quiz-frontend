@@ -305,6 +305,12 @@ export default defineComponent({
         }
       }
 
+      // for (let i = 0; i < 6; i++) {
+      //   for (let j = 0; j < 3; j++) {
+      //     states.push(states[j]);
+      //   }
+      // }
+
       return states;
     });
 
