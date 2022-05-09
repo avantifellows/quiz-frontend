@@ -28,7 +28,7 @@ describe("Splash.vue", () => {
   });
 
   it("disables the start button if session data has not been fetched", async () => {
-    await wrapper.setProps({ isFirstSession: undefined })
+    await wrapper.setProps({ isFirstSession: null })
     await wrapper.find('[data-test="startQuiz"]').trigger("click");
     expect(wrapper.emitted()).toEqual({});
   })

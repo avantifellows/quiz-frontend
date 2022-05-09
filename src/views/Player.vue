@@ -88,8 +88,8 @@ export default defineComponent({
       questions: [] as Question[],
       responses: [] as SubmittedResponse[], // holds the responses to each item submitted by the viewer
       // whether the current session is the first for the given user-quiz pair
-      // undefined means the data has not been fetched yet
-      isFirstSession: undefined as boolean | undefined,
+      // a value of null means the data has not been fetched yet
+      isFirstSession: null as boolean | null,
       numCorrect: 0, // number of correctly answered questions
       numWrong: 0, // number of wrongly answered questions
       isScorecardShown: false, // to show the scorecard or not

@@ -100,8 +100,8 @@ export default defineComponent({
       required: true,
     },
     isFirstSession: {
-      type: Boolean || undefined,
-      default: undefined,
+      type: Boolean || null,
+      default: null,
     },
   },
   setup(props, context) {
@@ -122,15 +122,14 @@ export default defineComponent({
 
     /** whether the session data has been fetched */
     const isSessionDataFetched = computed(() => {
-      return props.isFirstSession != undefined
+      return props.isFirstSession != null
     })
 
     const startButtonTextConfig = computed(() => {
       const config: IconButtonTitleConfig = {
         value: "",
-        class: "",
+        class: "text-lg md:text-xl text-primary font-poppins-bold",
       }
-      config.class = "text-lg md:text-xl text-primary font-poppins-bold"
       if (isSessionDataFetched.value) {
         config.value = props.isFirstSession ? "Let's Start" : "Resume";
       }
