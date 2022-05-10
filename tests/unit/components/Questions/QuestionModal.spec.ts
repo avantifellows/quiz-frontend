@@ -2,7 +2,7 @@ import { flushPromises, mount } from "@vue/test-utils";
 import { Question, SubmittedResponse } from "@/types";
 import QuestionModal from "@/components/Questions/QuestionModal.vue";
 
-let clonedeep = require("lodash.clonedeep");
+const clonedeep = require("lodash.clonedeep");
 
 describe("QuestionModal.vue", () => {
   const questions = [
@@ -58,7 +58,7 @@ describe("QuestionModal.vue", () => {
     },
   ] as Question[];
 
-  let responses: SubmittedResponse[] = [];
+  const responses: SubmittedResponse[] = [];
   questions.forEach((question, index) =>
     responses.push({
       _id: index.toString(),

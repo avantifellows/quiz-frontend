@@ -34,6 +34,7 @@
       <Footer
         :isAnswerSubmitted="isAnswerSubmitted"
         :isPreviousButtonShown="currentQuestionIndex > 0"
+        :isNextButtonShown="currentQuestionIndex != questions.length - 1"
         :isSubmitEnabled="isAttemptValid"
         :quizType="quizType"
         :hasQuizEnded="hasQuizEnded"
@@ -71,7 +72,7 @@ import {
   quizType,
   questionState,
 } from "../../types";
-import { useToast } from "vue-toastification";
+import { useToast, POSITION } from "vue-toastification";
 
 export default defineComponent({
   name: "QuestionModal",
@@ -202,7 +203,10 @@ export default defineComponent({
         state.localCurrentQuestionIndex = state.localCurrentQuestionIndex + 1;
       } else {
         state.toast.success(
-          'No more questions, please press "End Test" if you are done'
+          'No more questions, please press "End Test" if you are done',
+          {
+            position: POSITION.TOP_LEFT,
+          }
         );
       }
     }

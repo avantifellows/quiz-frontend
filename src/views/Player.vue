@@ -1,6 +1,14 @@
 <template>
   <div class="h-screen">
-    <div v-if="isQuizLoaded" class="h-full">
+    <!-- loading spinner -->
+    <div v-if="!isQuizLoaded" class="flex justify-center h-full">
+      <BaseIcon
+        name="spinner-solid"
+        iconClass="animate-spin h-10 w-10 object-scale-down my-auto"
+      />
+    </div>
+
+    <div v-else class="h-full">
       <Splash
         v-if="isSplashShown"
         :title="title"
@@ -63,6 +71,7 @@ import {
   QuizMetadata,
   submittedAnswer,
 } from "../types";
+import BaseIcon from "../components/UI/Icons/BaseIcon.vue";
 
 export default defineComponent({
   name: "Player",
@@ -70,6 +79,7 @@ export default defineComponent({
     Splash,
     QuestionModal,
     Scorecard,
+    BaseIcon,
   },
   props: {
     quizId: {
@@ -85,7 +95,9 @@ export default defineComponent({
       metadata: {} as QuizMetadata,
       questions: [] as Question[],
       responses: [] as SubmittedResponse[], // holds the responses to each item submitted by the viewer
-      isFirstSession: true, // whether the current session is the first for the given user-quiz pair
+      // whether the current session is the first for the given user-quiz pair
+      // a value of null means the data has not been fetched yet
+      isFirstSession: null as boolean | null,
       numCorrect: 0, // number of correctly answered questions
       numWrong: 0, // number of wrongly answered questions
       numSkipped: 0, // number of skipped questions
