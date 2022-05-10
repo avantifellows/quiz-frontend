@@ -56,9 +56,11 @@
       <!-- start button -->
       <icon-button
         :titleConfig="startButtonTextConfig"
+        :iconConfig="startButtonIconConfig"
         buttonClass="bg-white hover:bg-gray-200 rounded-lg h-14 w-40  ring-primary px-2 border-b-outset border-primary"
         class="rounded-2xl shadow-lg mt-4 place-self-center"
         data-test="startQuiz"
+        :isDisabled="!isSessionDataFetched"
         @click="start"
       ></icon-button>
     </div>
@@ -69,6 +71,7 @@
 import IconButton from "./UI/Buttons/IconButton.vue";
 import BaseIcon from "./UI/Icons/BaseIcon.vue";
 import { defineComponent, computed, reactive, toRefs } from "vue";
+import { IconButtonTitleConfig } from "../types";
 export default defineComponent({
   name: "Splash",
   components: {
@@ -97,8 +100,8 @@ export default defineComponent({
       required: true,
     },
     isFirstSession: {
-      type: Boolean,
-      default: false,
+      type: Boolean || null,
+      default: null,
     },
   },
   setup(props, context) {
@@ -117,10 +120,29 @@ export default defineComponent({
       return "Untitled";
     });
 
-    const startButtonTextConfig = computed(() => ({
-      value: props.isFirstSession ? "Let's Start" : "Resume",
-      class: "text-lg md:text-xl text-primary font-poppins-bold",
-    }));
+    /** whether the session data has been fetched */
+    const isSessionDataFetched = computed(() => {
+      return props.isFirstSession != null
+    })
+
+    const startButtonTextConfig = computed(() => {
+      const config: IconButtonTitleConfig = {
+        value: "",
+        class: "text-lg md:text-xl text-primary font-poppins-bold",
+      }
+      if (isSessionDataFetched.value) {
+        config.value = props.isFirstSession ? "Let's Start" : "Resume";
+      }
+      return config;
+    });
+
+    const startButtonIconConfig = computed(() => {
+      return {
+        enabled: !isSessionDataFetched.value,
+        iconName: "spinner-solid",
+        iconClass: "animate-spin h-4 w-4 text-primary",
+      }
+    });
 
     function preventScrolling(event: Event) {
       event.preventDefault();
@@ -134,6 +156,8 @@ export default defineComponent({
       ...toRefs(state),
       displayTitle,
       startButtonTextConfig,
+      isSessionDataFetched,
+      startButtonIconConfig,
       preventScrolling,
       start,
     };

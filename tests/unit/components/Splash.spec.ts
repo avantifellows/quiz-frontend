@@ -9,11 +9,11 @@ describe("Splash.vue", () => {
   const grade = "8";
   const wrapper = mount(Splash, {
     props: {
-      title: title,
-      subject: subject,
-      quizType: quizType,
-      numQuestions: numQuestions,
-      grade: grade,
+      title,
+      subject,
+      quizType,
+      numQuestions,
+      grade,
     },
   });
 
@@ -26,7 +26,15 @@ describe("Splash.vue", () => {
     );
     expect(wrapper.find('[data-test="grade"]').text()).toContain(grade + "");
   });
-  it("emits start when start button is clicked", async () => {
+
+  it("disables the start button if session data has not been fetched", async () => {
+    await wrapper.setProps({ isFirstSession: null })
+    await wrapper.find('[data-test="startQuiz"]').trigger("click");
+    expect(wrapper.emitted()).toEqual({});
+  })
+
+  it("emits start when start button is active and clicked", async () => {
+    await wrapper.setProps({ isFirstSession: true })
     await wrapper.find('[data-test="startQuiz"]').trigger("click");
     expect(wrapper.emitted()).toHaveProperty("start");
   });
