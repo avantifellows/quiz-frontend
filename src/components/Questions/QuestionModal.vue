@@ -71,6 +71,7 @@ import {
   SubmittedResponse,
   DraftResponse,
   quizType,
+  paletteItemState,
   questionState,
 } from "../../types";
 import { useToast, POSITION } from "vue-toastification";
@@ -295,7 +296,7 @@ export default defineComponent({
     const isQuizAssessment = computed(() => props.quizType == "assessment");
 
     const questionStates = computed(() => {
-      const states = [] as questionState[];
+      const states = [] as paletteItemState[];
 
       if (props.hasQuizEnded) {
         for (let index = 0; index < props.questions.length; index++) {
@@ -305,26 +306,36 @@ export default defineComponent({
           );
           // we are not adding ungraded questions to the palette
           if (!questionAnswerEvaluation.valid) continue;
+          let state: questionState;
           if (
             !questionAnswerEvaluation.answered ||
             questionAnswerEvaluation.isCorrect == null
           ) {
-            states.push("neutral");
+            state = "neutral";
           } else {
             questionAnswerEvaluation.isCorrect
-              ? states.push("success")
-              : states.push("error");
+              ? (state = "success")
+              : (state = "error");
           }
+          states.push({
+            index: index,
+            value: state,
+          });
         }
       } else {
         for (let index = 0; index < props.questions.length; index++) {
           if (!props.questions[index].graded) continue;
+          let state: questionState;
           if (!props.responses[index].visited) {
-            states.push("neutral");
-            continue;
+            state = "neutral";
+          } else {
+            if (props.responses[index].answer != null) state = "success";
+            else state = "error";
           }
-          if (props.responses[index].answer != null) states.push("success");
-          else states.push("error");
+          states.push({
+            index: index,
+            value: state,
+          });
         }
       }
 

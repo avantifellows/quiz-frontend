@@ -21,14 +21,14 @@
       class="grid grid-cols-5 bp-500:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 mt-4 space-y-4"
     >
       <PaletteItem
-        v-for="(state, index) in questionStates"
+        v-for="(itemState, index) in questionStates"
         class="hover:cursor-pointer"
         :class="{ 'mt-4': index == 0 }"
         :key="index"
         :index="index"
         :hasQuizEnded="hasQuizEnded"
-        :state="state"
-        :isHighlighted="currentQuestionIndex == index"
+        :state="itemState.value"
+        :isHighlighted="currentQuestionIndex == itemState.index"
         @click="navigateToQuestion(index)"
       ></PaletteItem>
     </div>
@@ -40,7 +40,7 @@ import Success from "./Success.vue";
 import Error from "./Error.vue";
 import Neutral from "./Neutral.vue";
 import PaletteItem from "./Item.vue";
-import { questionState } from "../../../types";
+import { paletteItemState } from "../../../types";
 import { defineComponent, computed, PropType } from "vue";
 
 export default defineComponent({
@@ -56,7 +56,7 @@ export default defineComponent({
       default: false,
     },
     questionStates: {
-      type: Array as PropType<questionState[]>,
+      type: Array as PropType<paletteItemState[]>,
       default: () => [],
     },
     currentQuestionIndex: {

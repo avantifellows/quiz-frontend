@@ -147,3 +147,7 @@ export interface answerEvaluation {
 }
 
 export type questionState = "success" | "error" | "neutral";
+export interface paletteItemState {
+  index: number; // index of the corresponding question in the list of questions
+  value: questionState;
+}

@@ -134,7 +134,7 @@ import {
   onUpdated,
 } from "vue";
 import BaseIcon from "../UI/Icons/BaseIcon.vue";
-import { quizType, questionState } from "../../types";
+import { quizType, paletteItemState } from "../../types";
 import QuestionPalette from "./Palette/QuestionPalette.vue";
 
 export default defineComponent({
@@ -211,7 +211,7 @@ export default defineComponent({
       default: false,
     },
     questionStates: {
-      type: Array as PropType<questionState[]>,
+      type: Array as PropType<paletteItemState[]>,
       default: () => [],
     },
     currentQuestionIndex: {
