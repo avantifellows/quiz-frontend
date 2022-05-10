@@ -29,7 +29,7 @@
         :hasQuizEnded="hasQuizEnded"
         :state="itemState.value"
         :isHighlighted="currentQuestionIndex == itemState.index"
-        @click="navigateToQuestion(index)"
+        @click="navigateToQuestion(itemState.index)"
       ></PaletteItem>
     </div>
   </div>
