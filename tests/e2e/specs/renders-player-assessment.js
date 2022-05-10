@@ -151,9 +151,6 @@ describe("Player for Assessment quizzes", () => {
         cy.get('[data-test="modal"]')
           .get('[data-test="optionSelector-0"]')
           .trigger("click");
-        cy.get('[data-test="modal"]')
-          .get('[data-test="nextQuestionButton"]')
-          .trigger("click");
 
         // end test
         cy.get('[data-test="modal"]')

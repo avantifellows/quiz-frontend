@@ -56,6 +56,16 @@ describe("QuestionModal.vue", () => {
       graded: false,
       max_char_limit: 100,
     },
+    {
+      _id: "1239",
+      type: "subjective",
+      text: "yolo",
+      options: null,
+      correct_answer: null,
+      image: null,
+      graded: false,
+      max_char_limit: 100,
+    },
   ] as Question[];
 
   const responses: SubmittedResponse[] = [];
@@ -117,15 +127,11 @@ describe("QuestionModal.vue", () => {
         wrapper.find('[data-test="endTestButton"]').trigger("click");
         expect(wrapper.vm.localCurrentQuestionIndex).toBe(questions.length);
       });
-      it("does not increment question index when next question or save & next button is clicked for last question", () => {
+      it("does not increment question index when save & next button is clicked for last question", () => {
         for (let index = 0; index < questions.length - 1; index++) {
           wrapper.find('[data-test="nextQuestionButton"]').trigger("click");
         }
         // ensure that the last question has been reached
-        expect(wrapper.vm.localCurrentQuestionIndex).toBe(questions.length - 1);
-
-        wrapper.find('[data-test="nextQuestionButton"]').trigger("click");
-        // the question index should not have been updated
         expect(wrapper.vm.localCurrentQuestionIndex).toBe(questions.length - 1);
 
         wrapper.find('[data-test="saveAndNextButton"]').trigger("click");
