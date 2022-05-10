@@ -71,7 +71,7 @@
 import IconButton from "./UI/Buttons/IconButton.vue";
 import BaseIcon from "./UI/Icons/BaseIcon.vue";
 import { defineComponent, computed, reactive, toRefs } from "vue";
-import { IconButtonTitleConfig } from "@/types";
+import { IconButtonTitleConfig } from "../types";
 export default defineComponent({
   name: "Splash",
   components: {
