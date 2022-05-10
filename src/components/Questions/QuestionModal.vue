@@ -191,7 +191,7 @@ export default defineComponent({
         state.localCurrentQuestionIndex = state.localCurrentQuestionIndex + 1;
       } else {
         state.toast.success(
-          'No more questions, please press "End Test" if you are done',
+          'No more questions, please press "End Test" if you are done 👉',
           {
             position: POSITION.TOP_LEFT,
           }

@@ -3,7 +3,6 @@ import App from "./App.vue";
 import router from "./router";
 import store from "./store";
 import Toast, { ToastInterface } from "vue-toastification";
-// import { ToastComponent } from "vue-toastification";
 
 import "./index.css";
 import "vue-toastification/dist/index.css";
