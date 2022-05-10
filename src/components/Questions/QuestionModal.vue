@@ -317,8 +317,8 @@ export default defineComponent({
           }
         }
       } else {
-        console.log(props.responses);
         for (let index = 0; index < props.questions.length; index++) {
+          if (!props.questions[index].graded) continue;
           if (!props.responses[index].visited) {
             states.push("neutral");
             continue;
@@ -327,12 +327,6 @@ export default defineComponent({
           else states.push("error");
         }
       }
-
-      // for (let i = 0; i < 6; i++) {
-      //   for (let j = 0; j < 3; j++) {
-      //     states.push(states[j]);
-      //   }
-      // }
 
       return states;
     });
