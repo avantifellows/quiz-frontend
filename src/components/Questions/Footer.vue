@@ -36,8 +36,8 @@
 
       <!-- save & next button -->
       <icon-button
-        :titleConfig="saveNextButtonTitleConfig"
-        :buttonClass="saveNextButtonClass"
+        :titleConfig="saveAndNextButtonTitleConfig"
+        :buttonClass="saveAndNextButtonClass"
         :isDisabled="!isAnswerSubmitted && !isSubmitEnabled"
         @click="saveQuestionAndProceed"
         data-test="saveAndNextButton"
@@ -56,7 +56,7 @@
       ></icon-button>
       <!-- forward button -->
       <icon-button
-        v-if="isQuizAssessment"
+        v-if="isQuizAssessment && isNextButtonShown"
         :iconConfig="nextQuestionButtonIconConfig"
         :buttonClass="assessmentNavigationButtonClass"
         ariaLabel="Next Question"
@@ -98,6 +98,10 @@ export default defineComponent({
       default: false,
       type: Boolean,
     },
+    isNextButtonShown: {
+      default: false,
+      type: Boolean,
+    },
     hasQuizEnded: {
       type: Boolean,
       default: false,
@@ -130,7 +134,7 @@ export default defineComponent({
         "p-2 bp-500:p-4 shadow-xl",
       ],
       assessmentTextButtonClass:
-        "p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl disabled:opacity-50 disabled:pointer-events-none",
+        "p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl disabled:opacity-50 disabled:cursor-not-allowed",
     });
 
     const previousQuestionButtonIconConfig = ref({
@@ -153,7 +157,7 @@ export default defineComponent({
       "bg-white hover:bg-gray-50",
     ]);
 
-    const saveNextButtonClass = ref([
+    const saveAndNextButtonClass = ref([
       state.assessmentTextButtonClass,
       "bg-white hover:bg-gray-50",
     ]);
@@ -163,7 +167,7 @@ export default defineComponent({
       class: [state.assessmentTextButtonTitleClass, "text-gray-600"],
     } as IconButtonTitleConfig);
 
-    const saveNextButtonTitleConfig = ref({
+    const saveAndNextButtonTitleConfig = ref({
       value: "Save & Next",
       class: [state.assessmentTextButtonTitleClass, "text-emerald-500"],
     } as IconButtonTitleConfig);
@@ -205,7 +209,7 @@ export default defineComponent({
         "bg-primary hover:bg-primary-hover ring-primary":
           props.isAnswerSubmitted,
       },
-      "p-4 px-8 bp-500:p-6 bp-500:px-12 rounded-2xl shadow-xl disabled:opacity-50 disabled:pointer-events-none",
+      "p-4 px-8 bp-500:p-6 bp-500:px-12 rounded-2xl shadow-xl disabled:opacity-50 disabled:cursor-not-allowed",
     ]);
 
     return {
@@ -213,9 +217,9 @@ export default defineComponent({
       previousQuestionButtonIconConfig,
       nextQuestionButtonIconConfig,
       clearButtonClass,
-      saveNextButtonClass,
+      saveAndNextButtonClass,
       clearButtonTitleConfig,
-      saveNextButtonTitleConfig,
+      saveAndNextButtonTitleConfig,
       submitQuestion,
       goToPreviousQuestion,
       goToNextQuestion,

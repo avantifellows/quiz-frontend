@@ -31,6 +31,7 @@
       <Footer
         :isAnswerSubmitted="isAnswerSubmitted"
         :isPreviousButtonShown="currentQuestionIndex > 0"
+        :isNextButtonShown="currentQuestionIndex != questions.length - 1"
         :isSubmitEnabled="isAttemptValid"
         :quizType="quizType"
         :hasQuizEnded="hasQuizEnded"
