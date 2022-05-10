@@ -25,6 +25,7 @@
         :isDraftAnswerCleared="isDraftAnswerCleared"
         :quizType="quizType"
         :hasQuizEnded="hasQuizEnded"
+        :currentQuestionIndex="currentQuestionIndex"
         :questionStates="questionStates"
         @option-selected="questionOptionSelected"
         @answer-entered="subjectiveAnswerUpdated"

@@ -8,8 +8,12 @@
     ></Neutral>
     <p
       class="mt-2 bg-gray-200 border-gray-500 border-1 rounded-md px-2 text-xs"
+      :class="{
+        'bg-gray-200 border-gray-500': !isHighlighted,
+        'bg-yellow-200 border-yellow-500': isHighlighted,
+      }"
     >
-      {{ index }}
+      {{ index + 1 }}
     </p>
   </div>
 </template>
@@ -38,6 +42,10 @@ export default defineComponent({
       required: true,
     },
     hasQuizEnded: {
+      type: Boolean,
+      default: false,
+    },
+    isHighlighted: {
       type: Boolean,
       default: false,
     },

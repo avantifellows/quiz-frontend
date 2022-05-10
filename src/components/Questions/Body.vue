@@ -4,6 +4,7 @@
       v-if="isPaletteVisible"
       :hasQuizEnded="hasQuizEnded"
       :questionStates="questionStates"
+      :currentQuestionIndex="currentQuestionIndex"
       class="absolute w-full h-full sm:w-2/3 lg:w-1/2 xl:w-1/3"
       @navigate="navigateToQuestion"
     >
@@ -212,6 +213,10 @@ export default defineComponent({
     questionStates: {
       type: Array as PropType<questionState[]>,
       default: () => [],
+    },
+    currentQuestionIndex: {
+      type: Number,
+      default: 0,
     },
   },
   setup(props, context) {

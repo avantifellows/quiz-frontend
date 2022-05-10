@@ -28,6 +28,7 @@
         :index="index"
         :hasQuizEnded="hasQuizEnded"
         :state="state"
+        :isHighlighted="currentQuestionIndex == index"
         @click="navigateToQuestion(index)"
       ></PaletteItem>
     </div>
@@ -57,6 +58,10 @@ export default defineComponent({
     questionStates: {
       type: Array as PropType<questionState[]>,
       default: () => [],
+    },
+    currentQuestionIndex: {
+      type: Number,
+      default: 0,
     },
   },
   setup(props, context) {
