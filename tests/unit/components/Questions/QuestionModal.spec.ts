@@ -64,6 +64,7 @@ describe("QuestionModal.vue", () => {
       _id: index.toString(),
       question_id: question._id,
       answer: null,
+      visited: false,
     })
   );
 

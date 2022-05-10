@@ -32,6 +32,7 @@ export interface SubmittedResponse {
   _id: string;
   question_id: string;
   answer: submittedAnswer;
+  visited: boolean;
 }
 
 interface ScorecardMetricIcon {
@@ -131,6 +132,12 @@ export interface SessionAnswerAPIResponse {
   session_id: string;
   question_id: string;
   answer: submittedAnswer;
+  visited: boolean;
+}
+
+export interface UpdateSessionAnswerAPIPayload {
+  answer?: submittedAnswer;
+  visited?: boolean;
 }
 
 export interface answerEvaluation {

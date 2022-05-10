@@ -3,7 +3,7 @@ import { sessionsEndpoint, sessionAnswersEndpoint } from "./Endpoints";
 import {
   SessionAPIResponse,
   SessionAnswerAPIResponse,
-  submittedAnswer,
+  UpdateSessionAnswerAPIPayload,
 } from "../../types";
 
 export default {
@@ -46,13 +46,11 @@ export default {
    */
   async updateSessionAnswer(
     sessionAnswerId: string,
-    answer: submittedAnswer
+    payload: UpdateSessionAnswerAPIPayload
   ): Promise<SessionAnswerAPIResponse> {
     const response = await apiClient().patch(
       sessionAnswersEndpoint + sessionAnswerId,
-      {
-        answer: answer,
-      }
+      payload
     );
     return response.data;
   },

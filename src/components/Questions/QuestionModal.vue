@@ -291,22 +291,35 @@ export default defineComponent({
 
     const questionStates = computed(() => {
       const states = [] as questionState[];
-      for (let index = 0; index < props.questions.length; index++) {
-        const questionAnswerEvaluation = isQuestionAnswerCorrect(
-          props.questions[index],
-          props.responses[index].answer
-        );
-        // we are not adding ungraded questions to the palette
-        if (!questionAnswerEvaluation.valid) continue;
-        if (
-          !questionAnswerEvaluation.answered ||
-          questionAnswerEvaluation.isCorrect == null
-        ) {
-          states.push("neutral");
-        } else {
-          questionAnswerEvaluation.isCorrect
-            ? states.push("success")
-            : states.push("error");
+
+      if (props.hasQuizEnded) {
+        for (let index = 0; index < props.questions.length; index++) {
+          const questionAnswerEvaluation = isQuestionAnswerCorrect(
+            props.questions[index],
+            props.responses[index].answer
+          );
+          // we are not adding ungraded questions to the palette
+          if (!questionAnswerEvaluation.valid) continue;
+          if (
+            !questionAnswerEvaluation.answered ||
+            questionAnswerEvaluation.isCorrect == null
+          ) {
+            states.push("neutral");
+          } else {
+            questionAnswerEvaluation.isCorrect
+              ? states.push("success")
+              : states.push("error");
+          }
+        }
+      } else {
+        console.log(props.responses);
+        for (let index = 0; index < props.questions.length; index++) {
+          if (!props.responses[index].visited) {
+            states.push("neutral");
+            continue;
+          }
+          if (props.responses[index].answer != null) states.push("success");
+          else states.push("error");
         }
       }
 
