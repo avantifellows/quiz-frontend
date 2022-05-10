@@ -99,7 +99,7 @@ export default defineComponent({
       type: Boolean,
     },
     isNextButtonShown: {
-      default: false,
+      default: true,
       type: Boolean,
     },
     hasQuizEnded: {
