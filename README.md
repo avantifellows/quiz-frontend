@@ -1,16 +1,17 @@
-# Question Set Player
+# Quiz Frontend
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![codecov](https://codecov.io/gh/avantifellows/question-set-player/branch/main/graph/badge.svg)](https://codecov.io/gh/avantifellows/question-set-player)
+[![codecov](https://codecov.io/gh/avantifellows/quiz-frontend/branch/main/graph/badge.svg)](https://codecov.io/gh/avantifellows/quiz-frontend)
 [![Cypress](https://img.shields.io/endpoint?url=https://dashboard.cypress.io/badge/simple/ux33ap/main&style=flat&logo=cypress)](https://dashboard.cypress.io/projects/ux33ap/runs)
 [![Discord](https://img.shields.io/discord/717975833226248303.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2&style=flat-square)](https://discord.gg/29qYD7fZtZ)
 
-A generic player for playing different types of questions (mcq, subjective, images, audio etc.) in a mobile-friendly webapp.
+A generic quiz engine for serving different types of questions (mcq, subjective, images, audio etc.) in a mobile-friendly webapp. The backend can be found [here](https://github.com/avantifellows/quiz-backend).
 
 **Table of Contents**
 
 - [Project Setup](#project-setup)
   - [Pre-requisites](#pre-requisites)
+    - [Backend](#backend)
     - [Pre-commit](#pre-commit)
   - [Installation](#installation)
   - [Compile and setup hot-reloading for development](#compile-and-setup-hot-reloading-for-development)
@@ -24,6 +25,10 @@ A generic player for playing different types of questions (mcq, subjective, imag
 ## Project Setup
 
 ### Pre-requisites
+
+#### Backend
+
+Ensure that the backend is up and running by following the setup instructions [here](https://github.com/avantifellows/quiz-backend#installation).
 
 #### Pre-commit
 
@@ -70,6 +75,8 @@ pre-commit install
 ```
 npm run serve
 ```
+
+You can access the web app at `http://localhost:8080/{quizId}?userId={userId}`. Here, `{quizId}` should be replaced by a valid ID corresponding to an actual quiz created using the backend and `{userId}` can be any valid user identifier. For now, there are no explicit checks in place for `userId`. So, you can use any valid string.
 
 ### Build for deployment
 
