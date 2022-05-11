@@ -1,6 +1,6 @@
 // https://docs.cypress.io/api/introduction/api.html
 
-describe("Player", () => {
+describe("Player for homework quizzes", () => {
   it("shows 404 error page when quiz ID not provided", () => {
     cy.visit("/");
     cy.url().should("include", "/404-not-found");
@@ -15,7 +15,7 @@ describe("Player", () => {
     beforeEach(() => {
       // stub the response to /quiz/{quizId}
       cy.intercept("GET", "/quiz/*", {
-        fixture: "quiz.json",
+        fixture: "homework_quiz.json",
       });
     });
 

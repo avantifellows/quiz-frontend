@@ -25,6 +25,21 @@ export default {
   },
 
   /**
+   * @param sessionId - id of the session to be updated
+   * @param hasQuizEnded - whether the quiz has ended
+   * @returns {Promise<SessionAPIResponse>} data corresponding to the updated session
+   */
+  async updateSession(
+    sessionId: string,
+    hasQuizEnded: boolean
+  ): Promise<SessionAPIResponse> {
+    const response = await apiClient().patch(sessionsEndpoint + sessionId, {
+      has_quiz_ended: hasQuizEnded,
+    });
+    return response.data;
+  },
+
+  /**
    * @param {string} sessionAnswerId - id of the sessionAnswer instance to update
    * @param {submittedAnswer} answer - the answer that needs to be updated
    * @returns {Promise<SessionAnswerAPIResponse>} - the updated sessionAnswer instance

@@ -50,11 +50,11 @@
                 <input
                   :type="optionInputType"
                   name="option"
-                  class="place-self-center text-primary focus:ring-0"
+                  class="place-self-center text-primary focus:ring-0 disabled:cursor-not-allowed"
                   style="box-shadow: none"
                   @click="selectOption(optionIndex)"
                   :checked="isOptionMarked(optionIndex)"
-                  :disabled="isAnswerSubmitted"
+                  :disabled="isAnswerDisabled"
                   :data-test="`optionSelector-${optionIndex}`"
                 />
                 <div
@@ -78,9 +78,9 @@
         <Textarea
           v-model:value="subjectiveAnswer"
           class="px-2 w-full"
-          boxStyling="bp-420:h-20 sm:h-28 md:h-36 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary"
+          :boxStyling="subjectiveAnswerBoxStyling"
           placeholder="Enter your answer here"
-          :isDisabled="isAnswerSubmitted"
+          :isDisabled="isAnswerDisabled"
           :maxHeightLimit="250"
           @keypress="preventKeypressIfApplicable"
           data-test="subjectiveAnswer"
@@ -112,10 +112,12 @@ import {
   toRefs,
   computed,
   watch,
+  PropType,
   onMounted,
   onUpdated,
 } from "vue";
 import BaseIcon from "../UI/Icons/BaseIcon.vue";
+import { quizType } from "../../types";
 
 export default defineComponent({
   components: {
@@ -171,8 +173,22 @@ export default defineComponent({
       default: true,
       type: Boolean,
     },
+    quizType: {
+      type: String as PropType<quizType>,
+      default: "homework",
+    },
+    hasQuizEnded: {
+      type: Boolean,
+      default: false,
+    },
+    /** whether the draft answer has been cleared but not yet submitted */
+    isDraftAnswerCleared: {
+      default: false,
+      type: Boolean,
+    },
   },
   setup(props, context) {
+    const isQuizAssessment = computed(() => props.quizType == "assessment");
     const state = reactive({
       isImageLoading: false,
       // set containing the question types in which options are present
@@ -184,7 +200,7 @@ export default defineComponent({
         "text-lg md:text-xl lg:text-2xl mx-4 m-2 font-bold leading-tight whitespace-pre-wrap",
       optionTextClass:
         "p-2 text-lg md:text-xl lg:text-2xl border rounded-md mx-2 whitespace-pre-wrap",
-      subjectiveAnswer: "", // holds the answer to the subjective question
+      subjectiveAnswer: null as string | null, // holds the answer to the subjective question
     });
 
     /** stop the loading spinner when the image has been loaded **/
@@ -205,10 +221,18 @@ export default defineComponent({
     function optionBackgroundClass(optionIndex: Number) {
       if (
         !props.isAnswerSubmitted ||
+        props.isDraftAnswerCleared ||
         typeof props.correctAnswer == "string" || // check for typescript
         typeof props.submittedAnswer == "string" // check for typescript
       ) {
-        return {};
+        return;
+      }
+
+      if (isQuizAssessment.value && !props.hasQuizEnded) {
+        if (props.submittedAnswer.indexOf(optionIndex) != -1) {
+          return state.nonGradedAnswerClass;
+        }
+        return;
       }
 
       if (
@@ -342,6 +366,18 @@ export default defineComponent({
 
       return "";
     });
+    const isAnswerDisabled = computed(
+      () =>
+        (props.isAnswerSubmitted && !isQuizAssessment.value) ||
+        props.hasQuizEnded
+    );
+
+    const subjectiveAnswerBoxStyling = computed(() => [
+      {
+        "bg-gray-100": props.isAnswerSubmitted,
+      },
+      "bp-420:h-20 sm:h-28 md:h-36 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed",
+    ]);
 
     state.subjectiveAnswer = defaultAnswer.value;
 
@@ -352,6 +388,17 @@ export default defineComponent({
         if (newValue != null) startImageLoading();
       },
       { deep: true }
+    );
+
+    watch(
+      () => props.draftAnswer,
+      (newValue) => {
+        // specific to subjective questions - when the draft answer
+        // is updated, update the subjective answer too
+        if (typeof newValue == "string" || newValue == null) {
+          state.subjectiveAnswer = newValue;
+        }
+      }
     );
 
     watch(
@@ -373,12 +420,14 @@ export default defineComponent({
 
     onMounted(() => {
       // Force render any math on the page when component is mounted
-      if ('MathJax' in window) (window.MathJax as any).typeset();
+      // @ts-ignore
+      if ("MathJax" in window) (window.MathJax as any).typeset();
     });
 
     onUpdated(() => {
       // Force render any math on the page when component is updated
-      if ('MathJax' in window) (window.MathJax as any).typeset();
+      // @ts-ignore
+      if ("MathJax" in window) (window.MathJax as any).typeset();
     });
 
     return {
@@ -402,6 +451,9 @@ export default defineComponent({
       hasCharLimit,
       charactersLeft,
       maxCharLimitClass,
+      isQuizAssessment,
+      isAnswerDisabled,
+      subjectiveAnswerBoxStyling,
     };
   },
   emits: ["option-selected", "answer-entered"],

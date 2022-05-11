@@ -4,7 +4,7 @@ import Splash from "@/components/Splash.vue";
 describe("Splash.vue", () => {
   const title = "Geometry Quiz";
   const subject = "Maths";
-  const quizType = "CBSE";
+  const quizType = "assessment";
   const numQuestions = 3;
   const grade = "8";
   const wrapper = mount(Splash, {
@@ -17,7 +17,7 @@ describe("Splash.vue", () => {
     },
   });
 
-  it("renders title correctly", () => {
+  it("renders props correctly", () => {
     expect(wrapper.find('[data-test="title"]').text()).toBe(title);
     expect(wrapper.find('[data-test="subject"]').text()).toBe(subject);
     expect(wrapper.find('[data-test="quizType"]').text()).toBe(quizType);

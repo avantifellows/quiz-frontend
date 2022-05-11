@@ -47,7 +47,9 @@
           <div :class="metadataCellClass">
             <BaseIcon name="notepad" :iconClass="metadataIconClass"></BaseIcon>
             <div class="flex items-center" data-test="quizType">
-              <p :class="metadataTitleClass">{{ quizType }}</p>
+              <p class="capitalize" :class="metadataTitleClass">
+                {{ quizType }}
+              </p>
             </div>
           </div>
         </div>
@@ -70,8 +72,8 @@
 <script lang="ts">
 import IconButton from "./UI/Buttons/IconButton.vue";
 import BaseIcon from "./UI/Icons/BaseIcon.vue";
-import { defineComponent, computed, reactive, toRefs } from "vue";
-import { IconButtonTitleConfig } from "../types";
+import { defineComponent, computed, reactive, toRefs, PropType } from "vue";
+import { IconButtonTitleConfig, quizType } from "../types";
 export default defineComponent({
   name: "Splash",
   components: {
@@ -88,7 +90,7 @@ export default defineComponent({
       required: true,
     },
     quizType: {
-      type: String,
+      type: String as PropType<quizType>,
       required: true,
     },
     numQuestions: {
@@ -122,14 +124,14 @@ export default defineComponent({
 
     /** whether the session data has been fetched */
     const isSessionDataFetched = computed(() => {
-      return props.isFirstSession != null
-    })
+      return props.isFirstSession != null;
+    });
 
     const startButtonTextConfig = computed(() => {
       const config: IconButtonTitleConfig = {
         value: "",
         class: "text-lg md:text-xl text-primary font-poppins-bold",
-      }
+      };
       if (isSessionDataFetched.value) {
         config.value = props.isFirstSession ? "Let's Start" : "Resume";
       }
@@ -141,7 +143,7 @@ export default defineComponent({
         enabled: !isSessionDataFetched.value,
         iconName: "spinner-solid",
         iconClass: "animate-spin h-4 w-4 text-primary",
-      }
+      };
     });
 
     function preventScrolling(event: Event) {

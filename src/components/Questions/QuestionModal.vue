@@ -1,39 +1,54 @@
 <template>
-  <div
-    class="flex flex-col bg-white w-full h-full justify-between overflow-hidden"
-  >
-    <Body
-      class="mt-10"
-      :text="currentQuestion.text"
-      :options="currentQuestion.options"
-      :correctAnswer="questionCorrectAnswer"
-      :questionType="questionType"
-      :isGradedQuestion="isGradedQuestion"
-      :maxCharLimit="currentQuestion.max_char_limit"
-      :isPortrait="isPortrait"
-      :imageData="currentQuestion?.image"
-      :draftAnswer="draftResponses[currentQuestionIndex]"
-      :submittedAnswer="currentQuestionResponseAnswer"
-      :isAnswerSubmitted="isAnswerSubmitted"
-      @option-selected="questionOptionSelected"
-      @answer-entered="subjectiveAnswerUpdated"
-      data-test="body"
-    ></Body>
-    <Footer
-      :isAnswerSubmitted="isAnswerSubmitted"
-      :isPreviousButtonShown="currentQuestionIndex > 0"
-      :isSubmitEnabled="isAttemptValid"
-      @submit="submitQuestion"
-      @continue="showNextQuestion"
-      @previous="showPreviousQuestion"
-      data-test="footer"
-    ></Footer>
+  <div class="h-full flex flex-col">
+    <Header
+      v-if="isQuizAssessment"
+      @end-test="endTest"
+      :hasQuizEnded="hasQuizEnded"
+    ></Header>
+    <div
+      class="flex flex-col grow bg-white w-full justify-between overflow-hidden"
+    >
+      <Body
+        class="mt-10"
+        :text="currentQuestion.text"
+        :options="currentQuestion.options"
+        :correctAnswer="questionCorrectAnswer"
+        :questionType="questionType"
+        :isGradedQuestion="isGradedQuestion"
+        :maxCharLimit="currentQuestion.max_char_limit"
+        :isPortrait="isPortrait"
+        :imageData="currentQuestion?.image"
+        :draftAnswer="draftResponses[currentQuestionIndex]"
+        :submittedAnswer="currentQuestionResponseAnswer"
+        :isAnswerSubmitted="isAnswerSubmitted"
+        :isDraftAnswerCleared="isDraftAnswerCleared"
+        :quizType="quizType"
+        :hasQuizEnded="hasQuizEnded"
+        @option-selected="questionOptionSelected"
+        @answer-entered="subjectiveAnswerUpdated"
+        data-test="body"
+      ></Body>
+      <Footer
+        :isAnswerSubmitted="isAnswerSubmitted"
+        :isPreviousButtonShown="currentQuestionIndex > 0"
+        :isNextButtonShown="currentQuestionIndex != questions.length - 1"
+        :isSubmitEnabled="isAttemptValid"
+        :quizType="quizType"
+        :hasQuizEnded="hasQuizEnded"
+        @submit="submitQuestion"
+        @continue="showNextQuestion"
+        @previous="showPreviousQuestion"
+        @clear="clearAnswer"
+        data-test="footer"
+      ></Footer>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import Body from "./Body.vue";
 import Footer from "./Footer.vue";
+import Header from "./Header.vue";
 import {
   defineComponent,
   PropType,
@@ -44,13 +59,20 @@ import {
   watch,
 } from "vue";
 import { isScreenPortrait } from "../../services/Functional/Utilities";
-import { Question, SubmittedResponse, DraftResponse } from "../../types";
+import {
+  Question,
+  SubmittedResponse,
+  DraftResponse,
+  quizType,
+} from "../../types";
+import { useToast, POSITION } from "vue-toastification";
 
 export default defineComponent({
   name: "QuestionModal",
   components: {
     Body,
     Footer,
+    Header,
   },
   props: {
     questions: {
@@ -61,9 +83,17 @@ export default defineComponent({
       type: Number,
       default: 0,
     },
+    hasQuizEnded: {
+      type: Boolean,
+      default: false,
+    },
     responses: {
       required: true,
       type: Array as PropType<SubmittedResponse[]>,
+    },
+    quizType: {
+      type: String as PropType<quizType>,
+      default: "homework",
     },
   },
   setup(props, context) {
@@ -72,6 +102,8 @@ export default defineComponent({
       localResponses: props.responses as SubmittedResponse[], // local copy of responses
       isPortrait: true,
       draftResponses: [] as DraftResponse[], // stores the options selected by the user but not yet submitted
+      toast: useToast(),
+      isDraftAnswerCleared: false, // whether the draft answer has been cleared but not yet submitted
     });
 
     function checkScreenOrientation() {
@@ -138,22 +170,61 @@ export default defineComponent({
     }
 
     function submitQuestion() {
+      if (!state.localResponses.length) return;
       state.localResponses[props.currentQuestionIndex].answer =
         state.draftResponses[props.currentQuestionIndex];
       context.emit("submit-question");
     }
 
+    function clearAnswer() {
+      state.draftResponses[props.currentQuestionIndex] = null;
+      state.isDraftAnswerCleared = true;
+    }
+
     function showNextQuestion() {
-      state.localCurrentQuestionIndex = state.localCurrentQuestionIndex + 1;
+      resetState();
+      if (
+        state.localCurrentQuestionIndex < props.questions.length - 1 ||
+        props.hasQuizEnded ||
+        !isQuizAssessment.value
+      ) {
+        state.localCurrentQuestionIndex = state.localCurrentQuestionIndex + 1;
+      } else {
+        state.toast.success(
+          'No more questions, please press "End Test" if you are done 👉',
+          {
+            position: POSITION.TOP_LEFT,
+          }
+        );
+      }
     }
 
     function showPreviousQuestion() {
+      resetState();
       state.localCurrentQuestionIndex -= 1;
+    }
+
+    function resetState() {
+      if (
+        state.isDraftAnswerCleared &&
+        isQuestionTypeSubjective.value &&
+        state.draftResponses[props.currentQuestionIndex] !=
+          currentQuestionResponseAnswer.value
+      ) {
+        state.draftResponses[props.currentQuestionIndex] =
+          currentQuestionResponseAnswer.value;
+      }
+      state.isDraftAnswerCleared = false;
     }
 
     /** update the attempt to the current question - valid for subjective questions */
     function subjectiveAnswerUpdated(answer: string) {
       state.draftResponses[props.currentQuestionIndex] = answer;
+    }
+
+    function endTest() {
+      state.localCurrentQuestionIndex = props.questions.length;
+      context.emit("end-test");
     }
 
     onUnmounted(() => {
@@ -188,7 +259,7 @@ export default defineComponent({
     );
 
     const currentQuestionResponseAnswer = computed(
-      () => currentQuestionResponse.value.answer
+      () => currentQuestionResponse.value?.answer
     );
 
     const isAnswerSubmitted = computed(() => {
@@ -208,9 +279,11 @@ export default defineComponent({
       return currentDraftResponse.length > 0;
     });
 
+    const isQuizAssessment = computed(() => props.quizType == "assessment");
+
     // instantiating draftResponses here
-    props.questions.forEach(() => {
-      state.draftResponses.push(null);
+    props.responses.forEach((response) => {
+      state.draftResponses.push(response.answer);
     });
 
     // determine the screen orientation when the item modal is created
@@ -225,6 +298,8 @@ export default defineComponent({
       showNextQuestion,
       showPreviousQuestion,
       subjectiveAnswerUpdated,
+      clearAnswer,
+      endTest,
       currentQuestion,
       questionType,
       questionCorrectAnswer,
@@ -232,8 +307,14 @@ export default defineComponent({
       currentQuestionResponseAnswer,
       isAnswerSubmitted,
       isAttemptValid,
+      isQuizAssessment,
     };
   },
-  emits: ["update:currentQuestionIndex", "update:responses", "submit-question"],
+  emits: [
+    "update:currentQuestionIndex",
+    "update:responses",
+    "submit-question",
+    "end-test",
+  ],
 });
 </script>

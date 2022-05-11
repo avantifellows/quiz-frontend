@@ -67,13 +67,6 @@ export default defineComponent({
      * - whether it is enabled and its title
      */
     result: {
-      default: () => {
-        return {
-          enabled: false,
-          title: "",
-          value: Number,
-        };
-      },
       type: Object,
       required: true,
     },

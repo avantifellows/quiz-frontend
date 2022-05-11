@@ -2,11 +2,6 @@ import { mount } from "@vue/test-utils";
 import CircularProgress from "@/components/UI/Progress/CircularProgress.vue";
 
 describe("CircularProgress.vue", () => {
-  it("renders properly with default values", () => {
-    const wrapper = mount(CircularProgress);
-    expect(wrapper).toBeTruthy();
-  });
-
   it("computed properties are created properly", () => {
     const radius = 100;
     const progress = 75;

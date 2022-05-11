@@ -11,6 +11,7 @@
     <RightArrow v-if="name == 'right-arrow'"></RightArrow>
     <Warning v-if="name == 'warning'"></Warning>
     <Lock v-if="name == 'lock'"></Lock>
+    <Skip v-if="name == 'skip'"></Skip>
   </div>
 </template>
 
@@ -26,6 +27,7 @@ import SpinnerSolid from "./SpinnerSolid.vue";
 import RightArrow from "./RightArrow.vue";
 import Warning from "./Warning.vue";
 import Lock from "./Lock.vue";
+import Skip from "./Skip.vue";
 
 export default {
   name: "BaseIcon",
@@ -41,6 +43,7 @@ export default {
     RightArrow,
     Warning,
     Lock,
+    Skip,
   },
   props: {
     name: {
