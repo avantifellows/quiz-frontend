@@ -58,10 +58,11 @@
                 <label :class="labelClass(option)">
                   <!-- understand the meaning of the attributes here:
                     https://www.w3schools.com/tags/att_input_type_radio.asp -->
+
                   <input
                     :type="optionInputType"
                     name="option"
-                    class="place-self-center text-primary focus:ring-0"
+                    class="place-self-center text-primary focus:ring-0 disabled:cursor-not-allowed"
                     style="box-shadow: none"
                     @click="selectOption(optionIndex)"
                     :checked="isOptionMarked(optionIndex)"
@@ -89,12 +90,7 @@
           <Textarea
             v-model:value="subjectiveAnswer"
             class="px-2 w-full"
-            :boxStyling="[
-              {
-                'bg-gray-100': isAnswerSubmitted,
-              },
-              'bp-420:h-20 sm:h-28 md:h-36 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary',
-            ]"
+            :boxStyling="subjectiveAnswerBoxStyling"
             placeholder="Enter your answer here"
             :isDisabled="isAnswerDisabled"
             :maxHeightLimit="250"
@@ -232,7 +228,7 @@ export default defineComponent({
         "text-lg md:text-xl lg:text-2xl mx-4 m-2 font-bold leading-tight whitespace-pre-wrap",
       optionTextClass:
         "p-2 text-lg md:text-xl lg:text-2xl border rounded-md mx-2 whitespace-pre-wrap",
-      subjectiveAnswer: "" as string | null, // holds the answer to the subjective question
+      subjectiveAnswer: null as string | null, // holds the answer to the subjective question
     });
 
     /** stop the loading spinner when the image has been loaded **/
@@ -257,7 +253,7 @@ export default defineComponent({
         typeof props.correctAnswer == "string" || // check for typescript
         typeof props.submittedAnswer == "string" // check for typescript
       ) {
-        return {};
+        return;
       }
 
       if (isQuizAssessment.value && !props.hasQuizEnded) {
@@ -407,15 +403,13 @@ export default defineComponent({
         (props.isAnswerSubmitted && !isQuizAssessment.value) ||
         props.hasQuizEnded
     );
-    const legendSuccessText = computed(() =>
-      props.hasQuizEnded ? "Correct" : "Answered"
-    );
-    const legendErrorText = computed(() =>
-      props.hasQuizEnded ? "Wrong" : "Not Answered"
-    );
-    const legendNeutralText = computed(() =>
-      props.hasQuizEnded ? "Skipped" : "Not Visited"
-    );
+
+    const subjectiveAnswerBoxStyling = computed(() => [
+      {
+        "bg-gray-100": props.isAnswerSubmitted,
+      },
+      "bp-420:h-20 sm:h-28 md:h-36 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed",
+    ]);
 
     state.subjectiveAnswer = defaultAnswer.value;
 
@@ -431,6 +425,8 @@ export default defineComponent({
     watch(
       () => props.draftAnswer,
       (newValue) => {
+        // specific to subjective questions - when the draft answer
+        // is updated, update the subjective answer too
         if (typeof newValue == "string" || newValue == null) {
           state.subjectiveAnswer = newValue;
         }
@@ -486,13 +482,11 @@ export default defineComponent({
       optionInputType,
       answerContainerClass,
       hasCharLimit,
-      legendSuccessText,
-      legendErrorText,
-      legendNeutralText,
       charactersLeft,
       maxCharLimitClass,
       isQuizAssessment,
       isAnswerDisabled,
+      subjectiveAnswerBoxStyling,
     };
   },
   emits: ["option-selected", "answer-entered", "navigate"],

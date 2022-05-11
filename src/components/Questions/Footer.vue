@@ -7,7 +7,7 @@
     }"
   >
     <div class="place-self-start flex h-full">
-      <!-- back button -->
+      <!-- back button - assessment and homework -->
       <icon-button
         :iconConfig="previousQuestionButtonIconConfig"
         :buttonClass="assessmentNavigationButtonClass"
@@ -25,7 +25,7 @@
       v-if="isQuizAssessment && !hasQuizEnded"
       class="flex space-x-1 sm:space-x-4"
     >
-      <!-- clear button -->
+      <!-- clear button - assessment -->
       <icon-button
         :titleConfig="clearButtonTitleConfig"
         :buttonClass="clearButtonClass"
@@ -34,7 +34,7 @@
         data-test="clearButton"
       ></icon-button>
 
-      <!-- save & next button -->
+      <!-- save & next button - assessment -->
       <icon-button
         :titleConfig="saveAndNextButtonTitleConfig"
         :buttonClass="saveAndNextButtonClass"
@@ -45,7 +45,7 @@
     </div>
 
     <div class="place-self-end flex h-full">
-      <!-- submit/continue button -->
+      <!-- submit/continue button - homework-->
       <icon-button
         v-if="!isQuizAssessment"
         :titleConfig="submitButtonTitleConfig"
@@ -54,7 +54,7 @@
         @click="submitQuestion"
         data-test="submitButton"
       ></icon-button>
-      <!-- forward button -->
+      <!-- forward button - assessment -->
       <icon-button
         v-if="isQuizAssessment && isNextButtonShown"
         :iconConfig="nextQuestionButtonIconConfig"

@@ -141,8 +141,8 @@ export interface UpdateSessionAnswerAPIPayload {
 }
 
 export interface answerEvaluation {
-  valid: boolean;
-  answered: boolean;
+  valid: boolean; // whether the evaluation of the question is valid in the first place (invalid for ungraded questions)
+  answered: boolean; // whether the question has been answered
   isCorrect?: boolean;
 }
 
