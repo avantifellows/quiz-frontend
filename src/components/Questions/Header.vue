@@ -6,6 +6,7 @@
       :buttonClass="togglePaletteButtonClass"
       @click="togglePalette"
       v-click-away="closePalette"
+      data-test="togglePaletteButton"
     ></icon-button>
 
     <!-- end-test button -->
