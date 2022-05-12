@@ -30,6 +30,7 @@
         :state="itemState.value"
         :isHighlighted="currentQuestionIndex == itemState.index"
         @click="navigateToQuestion(itemState.index)"
+        :data-test="`paletteItem-${itemState.index}`"
       ></PaletteItem>
     </div>
   </div>

@@ -1,7 +1,15 @@
 <template>
   <div :class="legendKeyContainerClass">
-    <div v-if="!hasQuizEnded" :class="keyIconClass"></div>
-    <BaseIcon v-if="hasQuizEnded" :name="iconName"></BaseIcon>
+    <div
+      v-if="!hasQuizEnded"
+      :class="keyIconClass"
+      data-test="quizInProgressIcon"
+    ></div>
+    <BaseIcon
+      v-if="hasQuizEnded"
+      :name="iconName"
+      data-test="quizEndedIcon"
+    ></BaseIcon>
     <p :class="legendKeyTextClass" v-if="isTitlePresent">
       {{ title }}
     </p>

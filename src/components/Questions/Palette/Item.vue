@@ -1,10 +1,19 @@
 <template>
   <div class="flex flex-col items-center">
-    <Success v-if="state == 'success'" :hasQuizEnded="hasQuizEnded"></Success>
-    <Error v-else-if="state == 'error'" :hasQuizEnded="hasQuizEnded"></Error>
+    <Success
+      v-if="state == 'success'"
+      :hasQuizEnded="hasQuizEnded"
+      data-test="success"
+    ></Success>
+    <Error
+      v-else-if="state == 'error'"
+      :hasQuizEnded="hasQuizEnded"
+      data-test="error"
+    ></Error>
     <Neutral
       v-else-if="state == 'neutral'"
       :hasQuizEnded="hasQuizEnded"
+      data-test="neutral"
     ></Neutral>
     <p
       class="mt-2 bg-gray-200 border-gray-500 border-1 rounded-md px-2 text-xs"
@@ -12,6 +21,7 @@
         'bg-gray-200 border-gray-500': !isHighlighted,
         'bg-yellow-200 border-yellow-500': isHighlighted,
       }"
+      data-test="index"
     >
       {{ index + 1 }}
     </p>
