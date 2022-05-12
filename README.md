@@ -76,7 +76,7 @@ pre-commit install
 npm run serve
 ```
 
-You can access the web app at `http://localhost:8080/{quizId}?userId={userId}`. Here, `{quizId}` should be replaced by a valid ID corresponding to an actual quiz created using the backend and `{userId}` can be any valid user identifier. For now, there are no explicit checks in place for `userId`. So, you can use any valid string.
+You can access the web app at `http://localhost:8080/quiz/{quizId}?userId={userId}`. Here, `{quizId}` should be replaced by a valid ID corresponding to an actual quiz created using the backend and `{userId}` can be any valid user identifier. For now, there are no explicit checks in place for `userId`. So, you can use any valid string.
 
 ### Build for deployment
 

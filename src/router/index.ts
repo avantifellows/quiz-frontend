@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 
 const routes = [
   {
-    path: "/:quizId",
+    path: "/quiz/:quizId",
     name: "Player",
     props: true,
     // lazy-loading: https://router.vuejs.org/guide/advanced/lazy-loading.html
@@ -31,6 +31,7 @@ const routes = [
     path: "/:pathMatch(.*)*",
     redirect: {
       name: "404",
+      query: {}
     },
   },
 ];
