@@ -178,6 +178,7 @@ describe("QuestionModal.vue", () => {
           _id: `${questionIndex}`,
           question_id: questions[questionIndex]._id,
           answer: [0],
+          visited: false,
         });
         expect(wrapper.emitted()).toHaveProperty("submit-question");
       });
@@ -272,6 +273,7 @@ describe("QuestionModal.vue", () => {
           _id: `${questionIndex}`,
           question_id: questions[questionIndex]._id,
           answer: [0, 1],
+          visited: false,
         });
         expect(wrapper.emitted()).toHaveProperty("submit-question");
       });
@@ -349,6 +351,7 @@ describe("QuestionModal.vue", () => {
             _id: `${questionIndex}`,
             question_id: questions[questionIndex]._id,
             answer: answer,
+            visited: false,
           });
           expect(wrapper.emitted()).toHaveProperty("submit-question");
         });
