@@ -57,8 +57,9 @@ jobs:
           record: true
           tag: chrome-desktop
           start: npm run serve
-          wait-on: 'http://localhost:8080'
+          wait-on: "http://localhost:8080"
         env:
+          VUE_APP_BACKEND: http://127.0.0.1:8000
           # pass the Dashboard record key as an environment variable
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           # pass GitHub token to allow accurately detecting a build vs a re-run build
@@ -91,13 +92,13 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
-          config: 'viewportWidth=375,viewportHeight=667'
+          config: "viewportWidth=375,viewportHeight=667"
           browser: chrome
           install: false
           record: true
           tag: chrome-mobile
           start: npm run serve
-          wait-on: 'http://localhost:8080'
+          wait-on: "http://localhost:8080"
         env:
           # pass the Dashboard record key as an environment variable
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
@@ -148,7 +149,7 @@ jobs:
           record: true
           tag: firefox-desktop
           start: npm run serve
-          wait-on: 'http://localhost:8080'
+          wait-on: "http://localhost:8080"
         env:
           # pass the Dashboard record key as an environment variable
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
