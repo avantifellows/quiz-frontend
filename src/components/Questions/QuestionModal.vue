@@ -31,6 +31,7 @@
         @answer-entered="subjectiveAnswerUpdated"
         @navigate="navigateToQuestion"
         data-test="body"
+        ref="body"
       ></Body>
       <Footer
         :isAnswerSubmitted="isAnswerSubmitted"
