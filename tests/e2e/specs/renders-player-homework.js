@@ -7,14 +7,14 @@ describe("Player for homework quizzes", () => {
   });
 
   it("shows 403 error page if quiz ID provided but user ID is not", () => {
-    cy.visit("/abcd");
+    cy.visit("/quiz/abcd");
     cy.url().should("include", "/403-access-denied");
   });
 
   describe("Quiz ID and User ID provided", () => {
     beforeEach(() => {
       // stub the response to /quiz/{quizId}
-      cy.intercept("GET", "/quiz/*", {
+      cy.intercept("GET", Cypress.env("backend") + "/quiz/*", {
         fixture: "homework_quiz.json",
       });
     });
@@ -28,7 +28,7 @@ describe("Player for homework quizzes", () => {
 
         cy.intercept("PATCH", "/session_answers/*", {});
 
-        cy.visit("/abcd?userId=1");
+        cy.visit("/quiz/abcd?userId=1");
 
         // define aliasas
         cy.get('[data-test="startQuiz"]').as("startQuizButton");
@@ -99,7 +99,7 @@ describe("Player for homework quizzes", () => {
           fixture: "resume_session.json",
         });
 
-        cy.visit("/abcd?userId=1");
+        cy.visit("/quiz/abcd?userId=1");
 
         // define aliasas
         cy.get('[data-test="startQuiz"]').as("startQuizButton");

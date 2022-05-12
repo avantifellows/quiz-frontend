@@ -3,7 +3,7 @@
 describe("Player for Assessment quizzes", () => {
   beforeEach(() => {
     // stub the response to /quiz/{quizId}
-    cy.intercept("GET", "/quiz/*", {
+    cy.intercept("GET", Cypress.env("backend") + "/quiz/*", {
       fixture: "assessment_quiz.json",
     });
   });
@@ -18,7 +18,7 @@ describe("Player for Assessment quizzes", () => {
       cy.intercept("PATCH", "/session_answers/*", {});
       cy.intercept("PATCH", "/sessions/*", {});
 
-      cy.visit("/abcd?userId=1");
+      cy.visit("/quiz/abcd?userId=1");
 
       // define aliasas
       cy.get('[data-test="startQuiz"]').as("startQuizButton");
@@ -182,7 +182,7 @@ describe("Player for Assessment quizzes", () => {
 
       cy.intercept("PATCH", "/session_answers/*", {});
 
-      cy.visit("/abcd?userId=1");
+      cy.visit("/quiz/abcd?userId=1");
 
       // define aliasas
       cy.get('[data-test="startQuiz"]').as("startQuizButton");
