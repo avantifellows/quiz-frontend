@@ -5,6 +5,7 @@
  */
 
 import { config } from "@vue/test-utils";
+import VueClickAway from "vue3-click-away";
 
 // inline-svg stub
 const InlineSvg = {
@@ -14,3 +15,4 @@ const InlineSvg = {
 config.global.stubs = {
   InlineSvg: InlineSvg,
 };
+config.global.plugins = [VueClickAway];
