@@ -213,7 +213,7 @@ describe("QuestionModal.vue", () => {
             });
           });
 
-          it("Correctly answered", async () => {
+          it("Correctly answered - single choice", async () => {
             const visitedResponses = clonedeep(responses);
             visitedResponses[0].answer = [0];
             await wrapper.setProps({
@@ -221,6 +221,34 @@ describe("QuestionModal.vue", () => {
             });
             expect(wrapper.vm.questionStates[0]).toEqual({
               index: 0,
+              value: "success",
+            });
+          });
+
+          it("Correctly answered - multi choice", async () => {
+            const newQuestions = clonedeep(questions);
+            newQuestions[1].graded = true;
+
+            const visitedResponses = clonedeep(responses);
+            visitedResponses[1].answer = [2, 3];
+            await wrapper.setProps({
+              questions: newQuestions,
+              responses: visitedResponses,
+            });
+            expect(wrapper.vm.questionStates[1]).toEqual({
+              index: 1,
+              value: "success",
+            });
+          });
+
+          it("Correctly answered - single choice", async () => {
+            const visitedResponses = clonedeep(responses);
+            visitedResponses[2].answer = "abcd";
+            await wrapper.setProps({
+              responses: visitedResponses,
+            });
+            expect(wrapper.vm.questionStates[1]).toEqual({
+              index: 2,
               value: "success",
             });
           });
