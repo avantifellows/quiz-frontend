@@ -7,6 +7,7 @@
       :currentQuestionIndex="currentQuestionIndex"
       class="absolute w-full h-full sm:w-2/3 lg:w-1/2 xl:w-1/3 z-10"
       @navigate="navigateToQuestion"
+      data-test="questionPalette"
     >
     </QuestionPalette>
 
