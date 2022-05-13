@@ -152,7 +152,7 @@ export interface paletteItemState {
   value: questionState;
 }
 
-export interface ScorecardResult {
+export interface CircularProgressResult {
   title: string;
   value: string;
 }

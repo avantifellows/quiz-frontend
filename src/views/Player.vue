@@ -237,13 +237,13 @@ export default defineComponent({
      * progress value (0-100) to be passed to the Scorecard component
      */
     const scorecardProgress = computed(() => {
-      if (!state.maxMarks) return 0;
+      if (!state.maxMarks) return null;
       return Math.max(state.marksScored / state.maxMarks, 0) * 100;
     });
 
     /** result to be shown in the center of the progress bar of Scorecard */
     const scorecardResultValue = computed(() => {
-      if (!state.maxMarks) return 0;
+      if (!state.maxMarks || scorecardProgress.value == null) return null;
       if (isQuizAssessment.value) {
         return `${state.marksScored} / ${state.maxMarks}`;
       }

@@ -129,7 +129,7 @@ import BaseIcon from "./UI/Icons/BaseIcon.vue";
 import IconButton from "./UI/Buttons/IconButton.vue";
 import domtoimage from "dom-to-image";
 import { useStore } from "vuex";
-import { ScorecardMetric, ScorecardResult } from "../types";
+import { ScorecardMetric, CircularProgressResult } from "../types";
 
 const confetti = require("canvas-confetti");
 const PROGRESS_BAR_ANIMATION_DELAY_TIME = 500; // a time delay to be used for animating the progress bar
@@ -173,14 +173,14 @@ export default defineComponent({
     /** progress to show on the progress bar (in %) */
     progressPercentage: {
       required: true,
-      type: Number,
+      type: Number || null,
     },
     title: {
       required: true,
       type: String,
     },
     result: {
-      type: Object as PropType<ScorecardResult>,
+      type: Object as PropType<CircularProgressResult>,
       default: () => {},
     },
   },
@@ -259,6 +259,7 @@ export default defineComponent({
       if (
         !props.hasGradedQuestions ||
         props.progressPercentage == null ||
+        props.result.value == null ||
         state.isMobileLandscape
       ) {
         return false;

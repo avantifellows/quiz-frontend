@@ -45,7 +45,7 @@
 
 <script lang="ts">
 import { defineComponent, reactive, toRefs, computed, PropType } from "vue";
-import { ScorecardResult } from "../../../types";
+import { CircularProgressResult } from "../../../types";
 
 export default defineComponent({
   name: "CircularProgress",
@@ -64,7 +64,7 @@ export default defineComponent({
      * the result to be shown in the centre of the progress bar
      */
     result: {
-      type: Object as PropType<ScorecardResult>,
+      type: Object as PropType<CircularProgressResult>,
       required: true,
     },
     progressBarPercent: {
