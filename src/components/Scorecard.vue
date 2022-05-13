@@ -35,7 +35,8 @@
           class="relative mx-auto w-full flex justify-center"
           :radius="circularProgressRadius"
           :stroke="circularProgressStroke"
-          :result="progressBarResult"
+          :result="result"
+          :progressBarPercent="localProgressBarPercentage"
           :key="reRenderKey"
         >
         </CircularProgress>
@@ -128,7 +129,7 @@ import BaseIcon from "./UI/Icons/BaseIcon.vue";
 import IconButton from "./UI/Buttons/IconButton.vue";
 import domtoimage from "dom-to-image";
 import { useStore } from "vuex";
-import { ScorecardMetric } from "../types";
+import { ScorecardMetric, ScorecardResult } from "../types";
 
 const confetti = require("canvas-confetti");
 const PROGRESS_BAR_ANIMATION_DELAY_TIME = 500; // a time delay to be used for animating the progress bar
@@ -177,6 +178,10 @@ export default defineComponent({
     title: {
       required: true,
       type: String,
+    },
+    result: {
+      type: Object as PropType<ScorecardResult>,
+      default: () => {},
     },
   },
   setup(props, context) {
@@ -236,7 +241,7 @@ export default defineComponent({
         numQuestionsAnsweredText.value
       } questions with ${Math.round(
         state.localProgressBarPercentage
-      )}% accuracy on Avanti Fellows quiz today!`;
+      )} accuracy on Avanti Fellows quiz today!`;
     });
 
     /**
@@ -261,14 +266,6 @@ export default defineComponent({
         return false;
       }
       return true;
-    });
-    /** the result to show in the centre of the progress bar */
-    const progressBarResult = computed(() => {
-      return {
-        enabled: true,
-        title: "Accuracy",
-        value: Math.round(state.localProgressBarPercentage),
-      };
     });
     /**
      * reactively control the radius of the circular progress bar
@@ -430,7 +427,6 @@ export default defineComponent({
       shareButtonTitleConfig,
       circularProgressRadius,
       circularProgressStroke,
-      progressBarResult,
     };
   },
   emits: ["go-back"],

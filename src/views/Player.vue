@@ -39,6 +39,7 @@
         :class="{
           hidden: !isScorecardShown,
         }"
+        :result="scorecardResult"
         :metrics="scorecardMetrics"
         :progressPercentage="scorecardProgress"
         :isShown="isScorecardShown"
@@ -101,6 +102,8 @@ export default defineComponent({
       numCorrect: 0, // number of correctly answered questions
       numWrong: 0, // number of wrongly answered questions
       numSkipped: 0, // number of skipped questions
+      marksScored: 0,
+      maxMarks: 0, // maximum marks that can be scored
       isScorecardShown: false, // to show the scorecard or not
       hasQuizEnded: false, // whether the quiz has ended - only valid for quizType = assessment
       sessionId: "", // id of the session created for a user-quiz combination
@@ -117,6 +120,10 @@ export default defineComponent({
       );
     });
     const isQuizLoaded = computed(() => numQuestions.value > 0);
+    const scorecardResult = computed(() => ({
+      title: isQuizAssessment.value ? "Score" : "Accuracy",
+      value: scorecardResultValue.value,
+    }));
 
     watch(
       () => state.currentQuestionIndex,
@@ -148,6 +155,8 @@ export default defineComponent({
       const questionSet = quizDetails.question_sets[0];
       state.questions = questionSet.questions;
       state.metadata = quizDetails.metadata;
+      state.maxMarks =
+        quizDetails.max_marks || quizDetails.num_graded_questions;
     }
 
     async function createSession() {
@@ -228,8 +237,17 @@ export default defineComponent({
      * progress value (0-100) to be passed to the Scorecard component
      */
     const scorecardProgress = computed(() => {
-      if (!numQuestionsAnswered.value) return 0;
-      return (state.numCorrect / numQuestionsAnswered.value) * 100;
+      if (!state.maxMarks) return 0;
+      return Math.max(state.marksScored / state.maxMarks, 0) * 100;
+    });
+
+    /** result to be shown in the center of the progress bar of Scorecard */
+    const scorecardResultValue = computed(() => {
+      if (!state.maxMarks) return 0;
+      if (isQuizAssessment.value) {
+        return `${state.marksScored} / ${state.maxMarks}`;
+      }
+      return `${scorecardProgress.value}%`;
     });
 
     /**
@@ -241,8 +259,8 @@ export default defineComponent({
 
     const numNonGradedQuestions = computed(() => {
       let count = 0;
-      state.questions.forEach((itemDetail) => {
-        if (!itemDetail.graded) count += 1;
+      state.questions.forEach((questionDetail) => {
+        if (!questionDetail.graded) count += 1;
       });
       return count;
     });
@@ -262,18 +280,36 @@ export default defineComponent({
       state.numSkipped = numGradedQuestions.value;
       state.numCorrect = 0;
       state.numWrong = 0;
+      state.marksScored = 0;
 
-      state.questions.forEach((itemDetail) => {
-        updateNumCorrectWrongSkipped(itemDetail, state.responses[index].answer);
+      state.questions.forEach((questionDetail) => {
+        updateQuestionMetrics(questionDetail, state.responses[index].answer);
         index += 1;
       });
     }
 
-    function updateNumCorrectWrongSkipped(
-      itemDetail: Question,
+    function updateQuestionMetrics(
+      questionDetail: Question,
       userAnswer: submittedAnswer
     ) {
-      const answerEvaluation = isQuestionAnswerCorrect(itemDetail, userAnswer);
+      const markingScheme = questionDetail.marking_scheme;
+
+      function updateMetricsForCorrectAnswer() {
+        state.numCorrect += 1;
+        // default marks for correctly answered questions = 1
+        state.marksScored += markingScheme?.correct || 1;
+      }
+
+      function updateMetricsForWrongAnswer() {
+        state.numWrong += 1;
+        // default marks for wrongly answered questions = 0
+        state.marksScored += markingScheme?.wrong || 0;
+      }
+
+      const answerEvaluation = isQuestionAnswerCorrect(
+        questionDetail,
+        userAnswer
+      );
       if (!answerEvaluation.valid) {
         return;
       }
@@ -282,9 +318,12 @@ export default defineComponent({
 
         if (answerEvaluation.isCorrect != null) {
           answerEvaluation.isCorrect
-            ? (state.numCorrect += 1)
-            : (state.numWrong += 1);
+            ? updateMetricsForCorrectAnswer()
+            : updateMetricsForWrongAnswer();
         }
+      } else {
+        // default marks for skipped questions = 0
+        state.marksScored += markingScheme?.skipped || 0;
       }
     }
 
@@ -306,6 +345,7 @@ export default defineComponent({
       numQuestionsAnswered,
       hasGradedQuestions,
       isQuizLoaded,
+      scorecardResult,
       startQuiz,
       submitQuestion,
       goToPreviousQuestion,
