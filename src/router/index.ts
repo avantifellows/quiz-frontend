@@ -50,13 +50,11 @@ const router = createRouter({
 router.beforeEach((to) => {
   if (to.meta.requiresAuth) {
     const queryParams = Object.keys(to.query);
-    console.log(queryParams)
     const isThirdPartyAuth =
       requiredAuthKeys.every((key) => queryParams.includes(key)) &&
       queryParams.every(
         (key) => to.query[key] != "" && to.query[key] != undefined
       );
-    console.log(isThirdPartyAuth)
     if (!isThirdPartyAuth) {
       return {
         name: "403",
