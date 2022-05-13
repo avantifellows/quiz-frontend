@@ -234,14 +234,12 @@ export default defineComponent({
     );
 
     /**
-     * returns the text to be shared for % accuracy and number of questions answered
+     * returns the text to be shared for showing result and number of questions answered
      */
     const resultTextToShare = computed(() => {
-      return `I answered ${
-        numQuestionsAnsweredText.value
-      } questions with ${Math.round(
-        state.localProgressBarPercentage
-      )} accuracy on Avanti Fellows quiz today!`;
+      return `I answered ${numQuestionsAnsweredText.value} questions with ${
+        props.result.value
+      } ${props.result.title.toLowerCase()} on Avanti Fellows quiz today!`;
     });
 
     /**

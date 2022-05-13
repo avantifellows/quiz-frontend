@@ -247,7 +247,7 @@ export default defineComponent({
       if (isQuizAssessment.value) {
         return `${state.marksScored} / ${state.maxMarks}`;
       }
-      return `${scorecardProgress.value}%`;
+      return `${Math.round(scorecardProgress.value)}%`;
     });
 
     /**
