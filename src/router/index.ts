@@ -1,10 +1,16 @@
 import { createRouter, createWebHistory } from "vue-router";
 
+const requiredAuthKeys = ["userId", "api_key"];
+
 const routes = [
   {
     path: "/quiz/:quizId",
     name: "Player",
-    props: true,
+    props: (route: any) => ({
+      quizId: route.params.quizId,
+      thirdPartyUserId: route.query.user_id,
+      thirdPartyApiKey: route.query.api_key,
+    }),
     // lazy-loading: https://router.vuejs.org/guide/advanced/lazy-loading.html
     component: () =>
       import(/* webpackChunkName: "about" */ "@/views/Player.vue"),
@@ -42,14 +48,22 @@ const router = createRouter({
 });
 
 router.beforeEach((to) => {
-  if (
-    to.meta.requiresAuth &&
-    (to.query.userId == undefined || to.query.userId == "")
-  ) {
-    return {
-      name: "403",
-    };
+  if (to.meta.requiresAuth) {
+    const queryParams = Object.keys(to.query);
+    console.log(queryParams)
+    const isThirdPartyAuth =
+      requiredAuthKeys.every((key) => queryParams.includes(key)) &&
+      queryParams.every(
+        (key) => to.query[key] != "" && to.query[key] != undefined
+      );
+    console.log(isThirdPartyAuth)
+    if (!isThirdPartyAuth) {
+      return {
+        name: "403",
+      };
+    }
   }
-});
+}
+);
 
 export default router;
