@@ -71,7 +71,7 @@ export function resetConfetti() {
  * Given a question and its corresponding answer, this method checks if the answer is correct.
  * If the question is ungraded, the method returns that the evaluation is invalid.
  * For graded questions, it returns whether the question has been answered and if it has been,
- * is the answer correct.
+ * it also returns whether the answer is correct.
  *
  * @param {Question} questionDetail - the data corresponding to the question which needs to be checked
  * @param {submittedAnswer} userAnswer - the answer which needs to be evaluated
