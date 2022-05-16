@@ -38,6 +38,7 @@
           :result="result"
           :progressBarPercent="localProgressBarPercentage"
           :key="reRenderKey"
+          data-test="progress"
         >
         </CircularProgress>
 
