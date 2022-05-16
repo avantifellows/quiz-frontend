@@ -7,9 +7,9 @@ const routes = [
     path: "/quiz/:quizId",
     name: "Player",
     props: (route: any) => ({
-      quizId: route.params.quizId,
-      thirdPartyUserId: route.query.userId,
-      thirdPartyApiKey: route.query.apiKey,
+      ...route.params,
+      userId: route.query.userId,
+      apiKey: route.query.apiKey,
     }),
     // lazy-loading: https://router.vuejs.org/guide/advanced/lazy-loading.html
     component: () =>
@@ -51,12 +51,12 @@ router.beforeEach((to) => {
   /** Before each router, check if the user is a third party and therefore, needs authentication. */
   if (to.meta.requiresAuth) {
     const queryParams = Object.keys(to.query);
-    const isThirdPartyAuth =
+    const isAuthNeeded =
       requiredAuthKeys.every((key) => queryParams.includes(key)) &&
       queryParams.every(
         (key) => to.query[key] != "" && to.query[key] != undefined
       );
-    if (!isThirdPartyAuth) {
+    if (!isAuthNeeded) {
       return {
         name: "403",
       };

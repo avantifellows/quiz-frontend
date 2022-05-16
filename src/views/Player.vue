@@ -79,11 +79,11 @@ export default defineComponent({
       type: String,
       required: true,
     },
-    thirdPartyUserId: {
+    userId: {
       default: null,
       type: String,
     },
-    thirdPartyApiKey: {
+    apiKey: {
       default: null,
       type: String,
     },
@@ -109,13 +109,13 @@ export default defineComponent({
       sessionId: "", // id of the session created for a user-quiz combination
     });
 
-    const isThirdPartyAuth = computed(() => {
-      return props.thirdPartyUserId != null && props.thirdPartyApiKey != null;
+    const requiresAuth = computed(() => {
+      return props.userId != null && props.apiKey != null;
     });
 
-    async function getThirdPartyAuth() {
-      if (isThirdPartyAuth.value) {
-        UserAPIService.checkAuthToken(props.thirdPartyApiKey).catch(() => {
+    async function getAuth() {
+      if (requiresAuth.value) {
+        UserAPIService.checkAuthToken(props.apiKey).catch(() => {
           router.replace({
             name: "403",
           });
@@ -123,7 +123,7 @@ export default defineComponent({
       }
     }
 
-    getThirdPartyAuth();
+    getAuth();
 
     const isQuizAssessment = computed(() => state.metadata.quiz_type == "assessment");
     const isEqual = require("deep-eql");
