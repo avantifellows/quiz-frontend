@@ -8,7 +8,7 @@ export default {
   /**
    * returns organization name
    * @param {string} apiKey - api key
-   * @returns {Promise<UserAPIResponse>} org details corresponding to the user
+   * @returns {Promise<UserAPIResponse>} org details corresponding to the user that is trying to log in
    */
   async checkAuthToken(apiKey: string): Promise<UserAPIResponse> {
     const response = await apiClient().get(externalAuthTokenEndpoint + apiKey);
