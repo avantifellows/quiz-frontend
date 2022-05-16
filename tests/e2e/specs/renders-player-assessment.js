@@ -170,6 +170,44 @@ describe("Player for Assessment quizzes", () => {
         cy.get('[data-test="modal"]').should("not.exist");
         cy.get('[data-test="scorecard"]').should("exist");
       });
+
+      describe("Question Palette", () => {
+        beforeEach(() => {
+          cy.get('[data-test="togglePaletteButton"]').trigger("click");
+        });
+        it("shows question palette upon clicking toggle palette button", () => {
+          cy.get('[data-test="questionPalette"]').should("exist");
+        });
+
+        it("moves to question when clicking on item on question palette", () => {
+          // index for the item corresponding to question 1 should be highlighted
+          cy.get('[data-test="questionPalette"]')
+            .get('[data-test="paletteItem-0"]')
+            .get('[data-test="index"]')
+            .should("have.class", "bg-yellow-200");
+
+          cy.get('[data-test="paletteItem-2"]')
+            .get('[data-test="index"]')
+            .should("have.class", "bg-gray-200");
+
+          cy.get('[data-test="paletteItem-2"]').trigger("click");
+
+          // question palette must be closed
+          cy.get('[data-test="questionPalette"]').should("not.exist");
+
+          // open the question palette
+          cy.get('[data-test="togglePaletteButton"]').trigger("click");
+
+          // index for the item corresponding to question 3 should be highlighted
+          cy.get('[data-test="paletteItem-0"]')
+            .get('[data-test="index"]')
+            .should("have.class", "bg-gray-200");
+
+          cy.get('[data-test="paletteItem-2"]')
+            .get('[data-test="index"]')
+            .should("have.class", "bg-yellow-200");
+        });
+      });
     });
   });
 

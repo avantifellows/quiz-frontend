@@ -1,103 +1,117 @@
 <template>
-  <div class="overflow-y-auto flex flex-col">
-    <!-- question text -->
-    <div class="mx-6 md:mx-10">
-      <p :class="questionTextClass" data-test="text" v-html="text"></p>
-    </div>
-    <div :class="orientationClass">
-      <!-- loading spinner when question image is loading -->
-      <div
-        :class="questionImageAreaClass"
-        class="flex justify-center"
-        v-if="isImageLoading"
-      >
-        <BaseIcon
-          name="spinner-solid"
-          iconClass="animate-spin h-4 w-4 object-scale-down"
-        />
+  <div class="flex relative h-full" :class="{ 'bg-gray-50': isPaletteVisible }">
+    <QuestionPalette
+      v-if="isPaletteVisible"
+      :hasQuizEnded="hasQuizEnded"
+      :questionStates="questionStates"
+      :currentQuestionIndex="currentQuestionIndex"
+      class="absolute w-full h-full sm:w-2/3 lg:w-1/2 xl:w-1/3 z-10"
+      @navigate="navigateToQuestion"
+      data-test="questionPalette"
+    >
+    </QuestionPalette>
+
+    <div class="overflow-y-auto flex flex-col w-full mt-10">
+      <!-- question text -->
+      <div class="mx-6 md:mx-10">
+        <p :class="questionTextClass" data-test="text" v-html="text"></p>
       </div>
-      <!-- question image container -->
-      <div :class="questionImageContainerClass" v-if="isQuestionImagePresent">
-        <img
-          :src="imageData.url"
-          class="object-contain h-full w-full"
-          :alt="imageData.alt_text"
-          @load="stopImageLoading"
-          ref="questionImage"
-          :class="{ invisible: isImageLoading }"
-        />
-      </div>
-      <!-- option container -->
-      <div
-        v-if="areOptionsVisible"
-        class="flex"
-        :class="answerContainerClass"
-        data-test="optionContainer"
-      >
-        <ul class="w-full">
-          <li class="list-none space-y-1 flex flex-col">
-            <div
-              v-for="(option, optionIndex) in options"
-              :key="optionIndex"
-              :class="[optionBackgroundClass(optionIndex), optionTextClass]"
-              :data-test="`optionContainer-${optionIndex}`"
-            >
-              <!-- each option is defined here -->
-              <!-- adding <label> so that touch input is just not limited to the radio/checkbox button -->
-              <label :class="labelClass(option)">
-                <!-- understand the meaning of the attributes here:
-                    https://www.w3schools.com/tags/att_input_type_radio.asp -->
-                <input
-                  :type="optionInputType"
-                  name="option"
-                  class="place-self-center text-primary focus:ring-0 disabled:cursor-not-allowed"
-                  style="box-shadow: none"
-                  @click="selectOption(optionIndex)"
-                  :checked="isOptionMarked(optionIndex)"
-                  :disabled="isAnswerDisabled"
-                  :data-test="`optionSelector-${optionIndex}`"
-                />
-                <div
-                  v-html="option.text"
-                  class="ml-2 h-full place-self-center text-base sm:text-lg"
-                  :data-test="`option-${optionIndex}`"
-                ></div>
-              </label>
-            </div>
-          </li>
-        </ul>
-      </div>
-      <!-- subjective question answer -->
-      <div
-        v-if="isQuestionTypeSubjective"
-        class="flex flex-col"
-        :class="answerContainerClass"
-        data-test="subjectiveAnswerContainer"
-      >
-        <!-- input area for the answer -->
-        <Textarea
-          v-model:value="subjectiveAnswer"
-          class="px-2 w-full"
-          :boxStyling="subjectiveAnswerBoxStyling"
-          placeholder="Enter your answer here"
-          :isDisabled="isAnswerDisabled"
-          :maxHeightLimit="250"
-          @keypress="preventKeypressIfApplicable"
-          data-test="subjectiveAnswer"
-        ></Textarea>
-        <!-- character limit -->
+      <div :class="orientationClass">
+        <!-- loading spinner when question image is loading -->
         <div
-          class="flex items-end px-6 mt-2"
-          v-if="hasCharLimit && !isAnswerSubmitted"
-          data-test="charLimitContainer"
+          :class="questionImageAreaClass"
+          class="flex justify-center"
+          v-if="isImageLoading"
         >
-          <p
-            class="text-sm sm:text-base lg:text-lg font-bold"
-            :class="maxCharLimitClass"
-            data-test="charLimit"
+          <BaseIcon
+            name="spinner-solid"
+            iconClass="animate-spin h-4 w-4 object-scale-down"
+          />
+        </div>
+        <!-- question image container -->
+        <div :class="questionImageContainerClass" v-if="isQuestionImagePresent">
+          <img
+            :src="imageData.url"
+            class="object-contain h-full w-full"
+            :alt="imageData.alt_text"
+            @load="stopImageLoading"
+            ref="questionImage"
+            :class="{ invisible: isImageLoading }"
+          />
+        </div>
+        <!-- option container -->
+        <div
+          v-if="areOptionsVisible"
+          class="flex"
+          :class="answerContainerClass"
+          data-test="optionContainer"
+        >
+          <ul class="w-full">
+            <li class="list-none space-y-1 flex flex-col">
+              <div
+                v-for="(option, optionIndex) in options"
+                :key="optionIndex"
+                :class="[optionBackgroundClass(optionIndex), optionTextClass]"
+                :data-test="`optionContainer-${optionIndex}`"
+              >
+                <!-- each option is defined here -->
+                <!-- adding <label> so that touch input is just not limited to the radio/checkbox button -->
+                <label :class="labelClass(option)">
+                  <!-- understand the meaning of the attributes here:
+                    https://www.w3schools.com/tags/att_input_type_radio.asp -->
+
+                  <input
+                    :type="optionInputType"
+                    name="option"
+                    class="place-self-center text-primary focus:ring-0 disabled:cursor-not-allowed"
+                    style="box-shadow: none"
+                    @click="selectOption(optionIndex)"
+                    :checked="isOptionMarked(optionIndex)"
+                    :disabled="isAnswerDisabled"
+                    :data-test="`optionSelector-${optionIndex}`"
+                  />
+                  <div
+                    v-html="option.text"
+                    class="ml-2 h-full place-self-center text-base sm:text-lg"
+                    :data-test="`option-${optionIndex}`"
+                  ></div>
+                </label>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <!-- subjective question answer -->
+        <div
+          v-if="isQuestionTypeSubjective"
+          class="flex flex-col"
+          :class="answerContainerClass"
+          data-test="subjectiveAnswerContainer"
+        >
+          <!-- input area for the answer -->
+          <Textarea
+            v-model:value="subjectiveAnswer"
+            class="px-2 w-full"
+            :boxStyling="subjectiveAnswerBoxStyling"
+            placeholder="Enter your answer here"
+            :isDisabled="isAnswerDisabled"
+            :maxHeightLimit="250"
+            @keypress="preventKeypressIfApplicable"
+            data-test="subjectiveAnswer"
+          ></Textarea>
+          <!-- character limit -->
+          <div
+            class="flex items-end px-6 mt-2"
+            v-if="hasCharLimit && !isAnswerSubmitted"
+            data-test="charLimitContainer"
           >
-            {{ charactersLeft }}
-          </p>
+            <p
+              class="text-sm sm:text-base lg:text-lg font-bold"
+              :class="maxCharLimitClass"
+              data-test="charLimit"
+            >
+              {{ charactersLeft }}
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -117,12 +131,14 @@ import {
   onUpdated,
 } from "vue";
 import BaseIcon from "../UI/Icons/BaseIcon.vue";
-import { quizType } from "../../types";
+import { quizType, paletteItemState } from "../../types";
+import QuestionPalette from "./Palette/QuestionPalette.vue";
 
 export default defineComponent({
   components: {
     BaseIcon,
     Textarea,
+    QuestionPalette,
   },
   props: {
     text: {
@@ -185,6 +201,19 @@ export default defineComponent({
     isDraftAnswerCleared: {
       default: false,
       type: Boolean,
+    },
+    /** whether the question palette is visible */
+    isPaletteVisible: {
+      type: Boolean,
+      default: false,
+    },
+    questionStates: {
+      type: Array as PropType<paletteItemState[]>,
+      default: () => [],
+    },
+    currentQuestionIndex: {
+      type: Number,
+      default: 0,
     },
   },
   setup(props, context) {
@@ -272,6 +301,10 @@ export default defineComponent({
       // checks if character limit is reached in case it is set
       if (!hasCharLimit.value) return;
       if (!charactersLeft.value) event.preventDefault();
+    }
+
+    function navigateToQuestion(questionIndex: number) {
+      context.emit("navigate", questionIndex);
     }
 
     // styling class for the question image and loading spinner containers
@@ -438,6 +471,7 @@ export default defineComponent({
       selectOption,
       labelClass,
       preventKeypressIfApplicable,
+      navigateToQuestion,
       questionImageAreaClass,
       questionImageContainerClass,
       isQuestionImagePresent,
@@ -456,7 +490,7 @@ export default defineComponent({
       subjectiveAnswerBoxStyling,
     };
   },
-  emits: ["option-selected", "answer-entered"],
+  emits: ["option-selected", "answer-entered", "navigate"],
 });
 </script>
 

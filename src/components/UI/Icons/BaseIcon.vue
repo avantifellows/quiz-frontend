@@ -7,11 +7,15 @@
     <Splash v-if="name == 'splash'"></Splash>
     <Correct v-if="name == 'correct'"></Correct>
     <Wrong v-if="name == 'wrong'"></Wrong>
+    <Skip v-if="name == 'skip'"></Skip>
     <SpinnerSolid v-if="name == 'spinner-solid'"></SpinnerSolid>
     <RightArrow v-if="name == 'right-arrow'"></RightArrow>
     <Warning v-if="name == 'warning'"></Warning>
     <Lock v-if="name == 'lock'"></Lock>
-    <Skip v-if="name == 'skip'"></Skip>
+    <Hamburger v-if="name == 'hamburger'"></Hamburger>
+    <CorrectRounded v-if="name == 'correct-rounded'"></CorrectRounded>
+    <WrongRounded v-if="name == 'wrong-rounded'"></WrongRounded>
+    <SkipRounded v-if="name == 'skip-rounded'"></SkipRounded>
   </div>
 </template>
 
@@ -28,6 +32,10 @@ import RightArrow from "./RightArrow.vue";
 import Warning from "./Warning.vue";
 import Lock from "./Lock.vue";
 import Skip from "./Skip.vue";
+import Hamburger from "./Hamburger.vue";
+import CorrectRounded from "./CorrectRounded.vue";
+import WrongRounded from "./WrongRounded.vue";
+import SkipRounded from "./SkipRounded.vue";
 
 export default {
   name: "BaseIcon",
@@ -44,6 +52,10 @@ export default {
     Warning,
     Lock,
     Skip,
+    Hamburger,
+    CorrectRounded,
+    WrongRounded,
+    SkipRounded,
   },
   props: {
     name: {

@@ -2,14 +2,14 @@
   <div class="h-full flex flex-col">
     <Header
       v-if="isQuizAssessment"
-      @end-test="endTest"
       :hasQuizEnded="hasQuizEnded"
+      v-model:isPaletteVisible="isPaletteVisible"
+      @end-test="endTest"
     ></Header>
     <div
       class="flex flex-col grow bg-white w-full justify-between overflow-hidden"
     >
       <Body
-        class="mt-10"
         :text="currentQuestion.text"
         :options="currentQuestion.options"
         :correctAnswer="questionCorrectAnswer"
@@ -21,12 +21,17 @@
         :draftAnswer="draftResponses[currentQuestionIndex]"
         :submittedAnswer="currentQuestionResponseAnswer"
         :isAnswerSubmitted="isAnswerSubmitted"
+        :isPaletteVisible="isPaletteVisible"
         :isDraftAnswerCleared="isDraftAnswerCleared"
         :quizType="quizType"
         :hasQuizEnded="hasQuizEnded"
+        :currentQuestionIndex="currentQuestionIndex"
+        :questionStates="questionStates"
         @option-selected="questionOptionSelected"
         @answer-entered="subjectiveAnswerUpdated"
+        @navigate="navigateToQuestion"
         data-test="body"
+        ref="body"
       ></Body>
       <Footer
         :isAnswerSubmitted="isAnswerSubmitted"
@@ -58,12 +63,17 @@ import {
   computed,
   watch,
 } from "vue";
-import { isScreenPortrait } from "../../services/Functional/Utilities";
+import {
+  isScreenPortrait,
+  isQuestionAnswerCorrect,
+} from "../../services/Functional/Utilities";
 import {
   Question,
   SubmittedResponse,
   DraftResponse,
   quizType,
+  paletteItemState,
+  questionState,
 } from "../../types";
 import { useToast, POSITION } from "vue-toastification";
 
@@ -104,10 +114,15 @@ export default defineComponent({
       draftResponses: [] as DraftResponse[], // stores the options selected by the user but not yet submitted
       toast: useToast(),
       isDraftAnswerCleared: false, // whether the draft answer has been cleared but not yet submitted
+      isPaletteVisible: false, // whether the question palette is visible
     });
 
     function checkScreenOrientation() {
       state.isPortrait = isScreenPortrait();
+    }
+
+    function navigateToQuestion(questionIndex: number) {
+      state.localCurrentQuestionIndex = questionIndex;
     }
 
     watch(
@@ -281,6 +296,53 @@ export default defineComponent({
 
     const isQuizAssessment = computed(() => props.quizType == "assessment");
 
+    const questionStates = computed(() => {
+      const states = [] as paletteItemState[];
+
+      if (props.hasQuizEnded) {
+        for (let index = 0; index < props.questions.length; index++) {
+          const questionAnswerEvaluation = isQuestionAnswerCorrect(
+            props.questions[index],
+            props.responses[index].answer
+          );
+          // we are not adding ungraded questions to the palette
+          if (!questionAnswerEvaluation.valid) continue;
+          let state: questionState;
+          if (
+            !questionAnswerEvaluation.answered ||
+            questionAnswerEvaluation.isCorrect == null
+          ) {
+            state = "neutral";
+          } else {
+            questionAnswerEvaluation.isCorrect
+              ? (state = "success")
+              : (state = "error");
+          }
+          states.push({
+            index: index,
+            value: state,
+          });
+        }
+      } else {
+        for (let index = 0; index < props.questions.length; index++) {
+          if (!props.questions[index].graded) continue;
+          let state: questionState;
+          if (!props.responses[index].visited) {
+            state = "neutral";
+          } else {
+            if (props.responses[index].answer != null) state = "success";
+            else state = "error";
+          }
+          states.push({
+            index: index,
+            value: state,
+          });
+        }
+      }
+
+      return states;
+    });
+
     // instantiating draftResponses here
     props.responses.forEach((response) => {
       state.draftResponses.push(response.answer);
@@ -300,6 +362,7 @@ export default defineComponent({
       subjectiveAnswerUpdated,
       clearAnswer,
       endTest,
+      navigateToQuestion,
       currentQuestion,
       questionType,
       questionCorrectAnswer,
@@ -308,6 +371,7 @@ export default defineComponent({
       isAnswerSubmitted,
       isAttemptValid,
       isQuizAssessment,
+      questionStates,
     };
   },
   emits: [
