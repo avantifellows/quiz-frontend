@@ -245,7 +245,7 @@ export default defineComponent({
     const scorecardResultValue = computed(() => {
       if (!state.maxMarks || scorecardProgress.value == null) return null;
       if (isQuizAssessment.value) {
-        return `${state.marksScored} / ${state.maxMarks}`;
+        return `${state.marksScored}/${state.maxMarks}`;
       }
       return `${Math.round(scorecardProgress.value)}%`;
     });

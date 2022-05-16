@@ -30,7 +30,7 @@
       data-test="result"
     >
       <div class="w-full flex justify-center">
-        <p class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-center">
+        <p class="text-xl sm:text-2xl md:text-3xl font-extrabold text-center">
           {{ result.value }}
         </p>
       </div>
