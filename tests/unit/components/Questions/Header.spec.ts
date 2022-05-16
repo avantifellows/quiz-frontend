@@ -11,4 +11,18 @@ describe("Header.vue", () => {
     wrapper.find('[data-test="endTestButton"]').trigger("click");
     expect(wrapper.emitted()).toHaveProperty("end-test");
   });
+
+  it("toggles palette visibility upon clicking hamburger", () => {
+    expect(wrapper.vm.localIsPaletteVisible).toBeFalsy();
+    wrapper.find('[data-test="togglePaletteButton"]').trigger("click");
+    expect(wrapper.vm.localIsPaletteVisible).toBeTruthy();
+  });
+
+  it("clicking away from hamburger menu when palette visible closes palette", () => {
+    wrapper.find('[data-test="togglePaletteButton"]').trigger("click");
+
+    // click away
+    wrapper.find('[data-test="endTestButton"]').trigger("click");
+    expect(wrapper.vm.localIsPaletteVisible).toBeFalsy();
+  });
 });

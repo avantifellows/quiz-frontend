@@ -1,10 +1,7 @@
 <template>
   <div class="h-screen">
     <!-- loading spinner -->
-    <div
-      v-if="!isQuizLoaded"
-      class="flex justify-center h-full"
-    >
+    <div v-if="!isQuizLoaded" class="flex justify-center h-full">
       <BaseIcon
         name="spinner-solid"
         iconClass="animate-spin h-10 w-10 object-scale-down my-auto"
@@ -60,13 +57,21 @@
 import QuestionModal from "../components/Questions/QuestionModal.vue";
 import Splash from "../components/Splash.vue";
 import Scorecard from "../components/Scorecard.vue";
-import { resetConfetti } from "../services/Functional/Utilities";
+import {
+  resetConfetti,
+  isQuestionAnswerCorrect,
+} from "../services/Functional/Utilities";
 import QuizAPIService from "../services/API/Quiz";
 import SessionAPIService from "../services/API/Session";
 import { defineComponent, reactive, toRefs, computed, watch } from "vue";
 import { useRoute } from "vue-router";
-import { Question, SubmittedResponse, QuizMetadata } from "../types";
-import BaseIcon from "../components/UI/Icons/BaseIcon.vue"
+import {
+  Question,
+  SubmittedResponse,
+  QuizMetadata,
+  submittedAnswer,
+} from "../types";
+import BaseIcon from "../components/UI/Icons/BaseIcon.vue";
 
 export default defineComponent({
   name: "Player",
@@ -103,7 +108,6 @@ export default defineComponent({
     const isQuizAssessment = computed(
       () => state.metadata.quiz_type == "assessment"
     );
-    const isEqual = require("deep-eql");
     const isSplashShown = computed(() => state.currentQuestionIndex == -1);
     const numQuestions = computed(() => state.questions.length);
     const isQuestionShown = computed(() => {
@@ -121,6 +125,14 @@ export default defineComponent({
           state.isScorecardShown = true;
           if (!hasGradedQuestions.value) return;
           calculateScorecardMetrics();
+        } else if (!state.responses[newValue].visited) {
+          state.responses[newValue].visited = true;
+          SessionAPIService.updateSessionAnswer(
+            state.responses[state.currentQuestionIndex]._id,
+            {
+              visited: true,
+            }
+          );
         }
       }
     );
@@ -158,10 +170,9 @@ export default defineComponent({
     function submitQuestion() {
       const itemResponse = state.responses[state.currentQuestionIndex];
 
-      SessionAPIService.updateSessionAnswer(
-        itemResponse._id,
-        itemResponse.answer
-      );
+      SessionAPIService.updateSessionAnswer(itemResponse._id, {
+        answer: itemResponse.answer,
+      });
     }
 
     function endTest() {
@@ -258,26 +269,21 @@ export default defineComponent({
       });
     }
 
-    function updateNumCorrectWrongSkipped(itemDetail: any, userAnswer: any) {
-      if (!itemDetail.graded) {
+    function updateNumCorrectWrongSkipped(
+      itemDetail: Question,
+      userAnswer: submittedAnswer
+    ) {
+      const answerEvaluation = isQuestionAnswerCorrect(itemDetail, userAnswer);
+      if (!answerEvaluation.valid) {
         return;
       }
-      if (userAnswer != null) {
+      if (answerEvaluation.answered) {
         state.numSkipped -= 1;
 
-        if (
-          (itemDetail.type == "single-choice" ||
-            itemDetail.type == "multi-choice") &&
-          userAnswer.length > 0
-        ) {
-          const correctAnswer = itemDetail.correct_answer;
-          isEqual(userAnswer, correctAnswer)
+        if (answerEvaluation.isCorrect != null) {
+          answerEvaluation.isCorrect
             ? (state.numCorrect += 1)
             : (state.numWrong += 1);
-        } else if (itemDetail.type == "subjective" && userAnswer.trim() != "") {
-          // for subjective questions, as long as the viewer has given any answer
-          // their response is considered correct
-          state.numCorrect += 1;
         }
       }
     }

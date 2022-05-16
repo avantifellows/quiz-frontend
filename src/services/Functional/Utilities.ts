@@ -1,3 +1,6 @@
+import { Question, submittedAnswer, answerEvaluation } from "../../types";
+const isEqual = require("deep-eql");
+
 /**
  * custom logic for deciding when the screen is considered to be in portrait mode
  */
@@ -62,4 +65,52 @@ export function resetConfetti() {
   if (animationFrameRequest != undefined) {
     cancelAnimationFrame(animationFrameRequest);
   }
+}
+
+/**
+ * Given a question and its corresponding answer, this method checks if the answer is correct.
+ * If the question is ungraded, the method returns that the evaluation is invalid.
+ * For graded questions, it returns whether the question has been answered and if it has been,
+ * it also returns whether the answer is correct.
+ *
+ * @param {Question} questionDetail - the data corresponding to the question which needs to be checked
+ * @param {submittedAnswer} userAnswer - the answer which needs to be evaluated
+ * @returns {answerEvaluation}
+ */
+export function isQuestionAnswerCorrect(
+  questionDetail: Question,
+  userAnswer: submittedAnswer
+): answerEvaluation {
+  const answerEvaluation = {
+    valid: false,
+    answered: false,
+  } as answerEvaluation;
+
+  if (questionDetail.graded) {
+    answerEvaluation.valid = true;
+
+    if (userAnswer != null) {
+      answerEvaluation.answered = true;
+
+      if (
+        (questionDetail.type == "single-choice" ||
+          questionDetail.type == "multi-choice") &&
+        userAnswer.length > 0
+      ) {
+        const correctAnswer = questionDetail.correct_answer;
+        if (isEqual(userAnswer, correctAnswer)) {
+          answerEvaluation.isCorrect = true;
+        } else answerEvaluation.isCorrect = false;
+      } else if (
+        questionDetail.type == "subjective" &&
+        typeof userAnswer == "string" &&
+        userAnswer.trim() != ""
+      ) {
+        // for subjective questions, as long as the viewer has given any answer
+        // their response is considered correct
+        answerEvaluation.isCorrect = true;
+      }
+    }
+  }
+  return answerEvaluation;
 }

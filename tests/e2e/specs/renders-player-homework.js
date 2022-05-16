@@ -99,6 +99,8 @@ describe("Player for homework quizzes", () => {
           fixture: "resume_session.json",
         });
 
+        cy.intercept("PATCH", "/session_answers/*", {});
+
         cy.visit("/quiz/abcd?userId=1");
 
         // define aliasas
