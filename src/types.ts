@@ -132,3 +132,8 @@ export interface SessionAnswerAPIResponse {
   question_id: string;
   answer: submittedAnswer;
 }
+
+export interface UserAPIResponse {
+  _id: string;
+  org_name: string;
+}

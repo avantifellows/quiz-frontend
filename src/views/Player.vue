@@ -1,10 +1,7 @@
 <template>
   <div class="h-screen">
     <!-- loading spinner -->
-    <div
-      v-if="!isQuizLoaded"
-      class="flex justify-center h-full"
-    >
+    <div v-if="!isQuizLoaded" class="flex justify-center h-full">
       <BaseIcon
         name="spinner-solid"
         iconClass="animate-spin h-10 w-10 object-scale-down my-auto"
@@ -64,9 +61,10 @@ import { resetConfetti } from "../services/Functional/Utilities";
 import QuizAPIService from "../services/API/Quiz";
 import SessionAPIService from "../services/API/Session";
 import { defineComponent, reactive, toRefs, computed, watch } from "vue";
-import { useRoute } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { Question, SubmittedResponse, QuizMetadata } from "../types";
-import BaseIcon from "../components/UI/Icons/BaseIcon.vue"
+import BaseIcon from "../components/UI/Icons/BaseIcon.vue";
+import UserAPIService from "../services/API/User";
 
 export default defineComponent({
   name: "Player",
@@ -81,9 +79,19 @@ export default defineComponent({
       type: String,
       required: true,
     },
+    thirdPartyUserId: {
+      default: null,
+      type: String,
+    },
+    thirdPartyApiKey: {
+      default: null,
+      type: String,
+    },
   },
   setup(props) {
+    const router = useRouter();
     const route = useRoute();
+
     const state = reactive({
       currentQuestionIndex: -1 as number,
       title: "Geometry Quiz" as string,
@@ -100,16 +108,30 @@ export default defineComponent({
       hasQuizEnded: false, // whether the quiz has ended - only valid for quizType = assessment
       sessionId: "", // id of the session created for a user-quiz combination
     });
-    const isQuizAssessment = computed(
-      () => state.metadata.quiz_type == "assessment"
-    );
+
+    const isThirdPartyAuth = computed(() => {
+      return props.thirdPartyUserId != null && props.thirdPartyApiKey != null;
+    });
+
+    async function getThirdPartyAuth() {
+      if (isThirdPartyAuth.value) {
+        UserAPIService.checkAuthToken(props.thirdPartyApiKey).catch(() => {
+          router.replace({
+            name: "403",
+          });
+        });
+      }
+    }
+
+    getThirdPartyAuth();
+
+    const isQuizAssessment = computed(() => state.metadata.quiz_type == "assessment");
     const isEqual = require("deep-eql");
     const isSplashShown = computed(() => state.currentQuestionIndex == -1);
     const numQuestions = computed(() => state.questions.length);
     const isQuestionShown = computed(() => {
       return (
-        state.currentQuestionIndex >= 0 &&
-        state.currentQuestionIndex < numQuestions.value
+        state.currentQuestionIndex >= 0 && state.currentQuestionIndex < numQuestions.value
       );
     });
     const isQuizLoaded = computed(() => numQuestions.value > 0);
@@ -158,10 +180,7 @@ export default defineComponent({
     function submitQuestion() {
       const itemResponse = state.responses[state.currentQuestionIndex];
 
-      SessionAPIService.updateSessionAnswer(
-        itemResponse._id,
-        itemResponse.answer
-      );
+      SessionAPIService.updateSessionAnswer(itemResponse._id, itemResponse.answer);
     }
 
     function endTest() {
@@ -266,8 +285,7 @@ export default defineComponent({
         state.numSkipped -= 1;
 
         if (
-          (itemDetail.type == "single-choice" ||
-            itemDetail.type == "multi-choice") &&
+          (itemDetail.type == "single-choice" || itemDetail.type == "multi-choice") &&
           userAnswer.length > 0
         ) {
           const correctAnswer = itemDetail.correct_answer;

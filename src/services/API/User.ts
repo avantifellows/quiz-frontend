@@ -1,16 +1,17 @@
 import { apiClient } from "./RootClient";
 import { externalAuthTokenEndpoint } from "./Endpoints";
+import {
+  UserAPIResponse
+} from "../../types";
 
 export default {
   /**
-   * returns authentication token
-   * @param {object} payload - user id + api key
-   * @returns {Promise<any>} token corresponding to a user
+   * returns organization name
+   * @param {string} apiKey - api key
+   * @returns {Promise<UserAPIResponse>} org details corresponding to the user
    */
-  async generateExternalAuthToken(payload: object): Promise<any> {
-    const response = await apiClient().post(externalAuthTokenEndpoint, payload, {
-      baseURL: process.env.VUE_APP_BACKEND_AUTH_URL,
-    });
+  async checkAuthToken(apiKey: string): Promise<UserAPIResponse> {
+    const response = await apiClient().get(externalAuthTokenEndpoint + apiKey);
     return response.data;
   }
 }

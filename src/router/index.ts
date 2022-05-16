@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-const requiredAuthKeys = ["userId", "api_key"];
+const requiredAuthKeys = ["userId", "apiKey"];
 
 const routes = [
   {
@@ -8,8 +8,8 @@ const routes = [
     name: "Player",
     props: (route: any) => ({
       quizId: route.params.quizId,
-      thirdPartyUserId: route.query.user_id,
-      thirdPartyApiKey: route.query.api_key,
+      thirdPartyUserId: route.query.userId,
+      thirdPartyApiKey: route.query.apiKey,
     }),
     // lazy-loading: https://router.vuejs.org/guide/advanced/lazy-loading.html
     component: () =>
@@ -48,6 +48,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to) => {
+  /** Before each router, check if the user is a third party and therefore, needs authentication. */
   if (to.meta.requiresAuth) {
     const queryParams = Object.keys(to.query);
     const isThirdPartyAuth =
