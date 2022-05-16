@@ -202,4 +202,13 @@ describe("Scorecard.vue", () => {
     await wrapper.find('[data-test="share"]').trigger("click");
     expect(globalThis.navigator.share).not.toHaveBeenCalled();
   });
+
+  it("does not show circular progress bar is result value is null", async () => {
+    await wrapper.setProps({
+      result: {
+        value: null,
+      },
+    });
+    expect(wrapper.vm.isCircularProgressShown).toBeFalsy();
+  });
 });
