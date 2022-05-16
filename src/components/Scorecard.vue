@@ -36,7 +36,7 @@
           :radius="circularProgressRadius"
           :stroke="circularProgressStroke"
           :result="result"
-          :progressBarPercent="localProgressBarPercentage"
+          :progressBarPercent="localProgressBarPercent"
           :key="reRenderKey"
           data-test="progress"
         >
@@ -192,7 +192,7 @@ export default defineComponent({
       resize: true,
     });
     const state = reactive({
-      localProgressBarPercentage: 0, // local value of progress
+      localProgressBarPercent: 0, // local value of progress
       innerWidth: window.innerWidth, // variable to hold the width of window
       reRenderKey: false, // a key to re-render a component
       // classes for watch again button
@@ -223,13 +223,13 @@ export default defineComponent({
       (newValue) => {
         if (newValue) {
           setTimeout(() => {
-            state.localProgressBarPercentage = props.progressPercentage;
+            state.localProgressBarPercent = props.progressPercentage;
           }, PROGRESS_BAR_ANIMATION_DELAY_TIME);
           // throw some confetti in there
           throwConfetti(state.confettiHandler);
         } else {
           // if scorecard is not visible anymore, reset things
-          state.localProgressBarPercentage = 0;
+          state.localProgressBarPercent = 0;
         }
       }
     );

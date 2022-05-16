@@ -103,7 +103,7 @@ describe("Scorecard.vue", () => {
 
     jest.advanceTimersByTime(1000);
 
-    expect(wrapper.vm.localProgressBarPercentage).toBe(progressPercentage);
+    expect(wrapper.vm.localProgressBarPercent).toBe(progressPercentage);
 
     await wrapper.setProps({
       isShown: false,
@@ -111,7 +111,7 @@ describe("Scorecard.vue", () => {
     await flushPromises();
     await jest.advanceTimersByTime(1000);
 
-    expect(wrapper.vm.localProgressBarPercentage).toBe(0);
+    expect(wrapper.vm.localProgressBarPercent).toBe(0);
   });
 
   it("share text on whatsapp when no questions answered", async () => {
