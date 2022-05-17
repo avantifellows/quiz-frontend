@@ -162,13 +162,25 @@ describe("Player for Assessment quizzes", () => {
           .should("have.text", 1);
       });
 
-      it("shows scorecard upon selecting End Test", () => {
-        cy.get('[data-test="modal"]')
-          .get('[data-test="endTestButton"]')
-          .trigger("click");
+      describe("End test", () => {
+        beforeEach(() => {
+          cy.get('[data-test="modal"]')
+            .get('[data-test="endTestButton"]')
+            .trigger("click");
+        });
 
-        cy.get('[data-test="modal"]').should("not.exist");
-        cy.get('[data-test="scorecard"]').should("exist");
+        it("shows scorecard upon selecting End Test", () => {
+          cy.get('[data-test="modal"]').should("not.exist");
+          cy.get('[data-test="scorecard"]').should("exist");
+        });
+
+        it("shows score instead of accuracy in scorecard", () => {
+          const progressBar = cy
+            .get('[data-test="scorecard"]')
+            .get('[data-test="progress"]');
+          progressBar.get('[data-test="value"]').should("contain", "/");
+          progressBar.get('[data-test="title"]').should("contain", "Score");
+        });
       });
 
       describe("Question Palette", () => {
