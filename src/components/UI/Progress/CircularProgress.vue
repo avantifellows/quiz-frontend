@@ -26,19 +26,22 @@
     </svg>
     <!-- progress indicator in the center of the circle  -->
     <div
-      v-if="isResultShown"
       class="absolute inset-1/3 flex flex-col justify-center"
       data-test="result"
     >
       <div class="w-full flex justify-center">
         <p
-          class="text-4xl sm:text-5xl md:text-[52px] lg:text-6xl font-extrabold text-center"
+          class="text-xl sm:text-2xl md:text-3xl font-extrabold text-center"
+          data-test="value"
         >
-          {{ progressBarPercent }}%
+          {{ result.value }}
         </p>
       </div>
       <div class="w-full flex justify-center">
-        <p class="text-sm sm:text-sm md:text-base lg:text-xl text-center">
+        <p
+          class="text-sm sm:text-sm md:text-base lg:text-xl text-center"
+          data-test="title"
+        >
           {{ result.title }}
         </p>
       </div>
@@ -47,7 +50,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs, computed } from "vue";
+import { defineComponent, reactive, toRefs, computed, PropType } from "vue";
+import { CircularProgressResult } from "../../../types";
 
 export default defineComponent({
   name: "CircularProgress",
@@ -64,10 +68,13 @@ export default defineComponent({
     },
     /**
      * the result to be shown in the centre of the progress bar
-     * - whether it is enabled and its title
      */
     result: {
-      type: Object,
+      type: Object as PropType<CircularProgressResult>,
+      required: true,
+    },
+    progressBarPercent: {
+      type: Number,
       required: true,
     },
   },
@@ -77,12 +84,6 @@ export default defineComponent({
       progressBarForegroundColor: "#10B981",
     });
 
-    /**
-     * percentage of progress to be shown in the progress bar
-     */
-    const progressBarPercent = computed(() => {
-      return props.result.value;
-    });
     /**
      * Calculating a reduced radius as we don't want the ring to overflow
      * the svg viewbox if the stroke is high
@@ -103,23 +104,15 @@ export default defineComponent({
     const strokeDashoffset = computed(() => {
       return (
         circumference.value -
-        (progressBarPercent.value / 100) * circumference.value
+        (props.progressBarPercent / 100) * circumference.value
       );
-    });
-    /**
-     * Whether a result will be shown in the center of the progress bar
-     */
-    const isResultShown = computed(() => {
-      return props.result.enabled;
     });
 
     return {
       ...toRefs(state),
-      progressBarPercent,
       normalizedRadius,
       circumference,
       strokeDashoffset,
-      isResultShown,
     };
   },
 });
