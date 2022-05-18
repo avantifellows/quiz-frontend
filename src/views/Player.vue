@@ -160,7 +160,7 @@ export default defineComponent({
       const questionSet = quizDetails.question_sets[0];
       state.questions = questionSet.questions;
       state.metadata = quizDetails.metadata;
-      
+
       state.maxMarks =
         quizDetails.max_marks || quizDetails.num_graded_questions;
 
