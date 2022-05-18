@@ -29,6 +29,7 @@
         v-model:responses="responses"
         @submit-question="submitQuestion"
         @end-test="endTest"
+        @fetch-question-bucket="fetchQuestionBucket"
         v-if="isQuestionShown"
         data-test="modal"
       ></QuestionModal>
@@ -63,12 +64,15 @@ import {
 } from "../services/Functional/Utilities";
 import QuizAPIService from "../services/API/Quiz";
 import SessionAPIService from "../services/API/Session";
+import QuestionAPIService from "../services/API/Question"
 import { defineComponent, reactive, toRefs, computed, watch } from "vue";
 import { useRoute } from "vue-router";
+import { useStore } from "vuex";
 import {
   Question,
   SubmittedResponse,
   QuizMetadata,
+  QuestionBucketingMap,
   submittedAnswer,
 } from "../types";
 import BaseIcon from "../components/UI/Icons/BaseIcon.vue";
@@ -89,6 +93,7 @@ export default defineComponent({
   },
   setup(props) {
     const route = useRoute();
+    const store = useStore();
     const state = reactive({
       currentQuestionIndex: -1 as number,
       title: "Geometry Quiz" as string,
@@ -148,6 +153,32 @@ export default defineComponent({
       const questionSet = quizDetails.question_sets[0];
       state.questions = questionSet.questions;
       state.metadata = quizDetails.metadata;
+
+      createQuestionBuckets(state.questions.length)
+    }
+
+    function createQuestionBuckets(totalQuestions: number) {
+      const questionsBucketingMap = {} as QuestionBucketingMap
+
+      // calculate total buckets possible
+      let totalBucketsPossible = Math.floor(totalQuestions / store.state.bucketSize)
+      if (totalQuestions % store.state.bucketSize != 0) totalBucketsPossible++;
+
+      // create the bucket map
+      for (let bucketIndex = 0; bucketIndex < totalBucketsPossible; bucketIndex++) {
+        questionsBucketingMap[bucketIndex] = {
+          bucketStartIndex: (bucketIndex * store.state.bucketSize),
+          bucketEndIndex: (
+            bucketIndex == totalBucketsPossible - 1 &&
+            totalQuestions % store.state.bucketSize != 0
+          )
+            ? (bucketIndex * store.state.bucketSize) + (totalQuestions % store.state.bucketSize - 1)
+            : (bucketIndex * store.state.bucketSize) + (store.state.bucketSize - 1),
+          hasBeenFetched: (!bucketIndex),
+        }
+      }
+
+      store.dispatch("setQuestionBucketMap", questionsBucketingMap)
     }
 
     async function createSession() {
@@ -297,6 +328,27 @@ export default defineComponent({
       resetConfetti();
     }
 
+    async function fetchQuestionBucket(requestedQuestionIndex: number) {
+      const bucketToFetch = Math.floor(requestedQuestionIndex / store.state.bucketSize)
+      const bucketStartIndex = store.state.questionsBucketingMap[bucketToFetch].bucketStartIndex
+      const bucketEndIndex = store.state.questionsBucketingMap[bucketToFetch].bucketEndIndex
+
+      const fetchedQuestions = await QuestionAPIService.getQuestionsByQuestionSet(
+        state.questions[requestedQuestionIndex].question_set_id,
+        bucketStartIndex,
+        store.state.bucketSize
+      )
+
+      for (let i = bucketStartIndex; i <= bucketEndIndex; i++) {
+        state.questions[i] = fetchedQuestions[i - bucketStartIndex]
+      }
+
+      store.dispatch("updateBucketFetchedStatus", {
+        key: bucketToFetch,
+        fetchedStatus: true,
+      })
+    }
+
     return {
       ...toRefs(state),
       isQuestionShown,
@@ -310,6 +362,7 @@ export default defineComponent({
       submitQuestion,
       goToPreviousQuestion,
       endTest,
+      fetchQuestionBucket,
     };
   },
 });

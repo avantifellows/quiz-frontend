@@ -66,6 +66,7 @@ import {
 import {
   isScreenPortrait,
   isQuestionAnswerCorrect,
+  isRequestedQuestionFetched,
 } from "../../services/Functional/Utilities";
 import {
   Question,
@@ -122,6 +123,9 @@ export default defineComponent({
     }
 
     function navigateToQuestion(questionIndex: number) {
+      if (!isRequestedQuestionFetched(questionIndex)) {
+        context.emit("fetch-question-bucket", questionIndex)
+      }
       state.localCurrentQuestionIndex = questionIndex;
     }
 
@@ -203,7 +207,12 @@ export default defineComponent({
         props.hasQuizEnded ||
         !isQuizAssessment.value
       ) {
-        state.localCurrentQuestionIndex = state.localCurrentQuestionIndex + 1;
+        // emit an event if the requested question needs to be fetched
+        if (!isRequestedQuestionFetched(state.localCurrentQuestionIndex + 1)) {
+          context.emit("fetch-question-bucket", state.localCurrentQuestionIndex + 1)
+        }
+
+        state.localCurrentQuestionIndex += 1;
       } else {
         state.toast.success(
           'No more questions, please press "End Test" if you are done 👉',
@@ -379,6 +388,7 @@ export default defineComponent({
     "update:responses",
     "submit-question",
     "end-test",
+    "fetch-question-bucket"
   ],
 });
 </script>

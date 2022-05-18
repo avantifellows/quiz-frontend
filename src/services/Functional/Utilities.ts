@@ -1,3 +1,4 @@
+import store from "../../store/index";
 import { Question, submittedAnswer, answerEvaluation } from "../../types";
 const isEqual = require("deep-eql");
 
@@ -113,4 +114,9 @@ export function isQuestionAnswerCorrect(
     }
   }
   return answerEvaluation;
+}
+
+export function isRequestedQuestionFetched(requestedQuestionIndex: number) {
+  const bucketToCheck = Math.floor(requestedQuestionIndex / store.getters.bucketSize)
+  return store.getters.questionBucketingMap[bucketToCheck].hasBeenFetched
 }

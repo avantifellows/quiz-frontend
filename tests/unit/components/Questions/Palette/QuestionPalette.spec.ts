@@ -78,7 +78,7 @@ describe("QuestionPalette.vue", () => {
         .find(`[data-test="paletteItem-${questionIndex}"]`)
         .trigger("click");
       expect(wrapper.emitted()).toHaveProperty("navigate");
-      expect(wrapper.emitted()["navigate"][0]).toEqual([questionIndex]);
+      expect(wrapper.emitted().navigate[0]).toEqual([questionIndex]);
     });
   });
 });
