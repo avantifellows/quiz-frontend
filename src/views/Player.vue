@@ -1,10 +1,7 @@
 <template>
   <div class="h-screen">
     <!-- loading spinner -->
-    <div
-      v-if="!isQuizLoaded"
-      class="flex justify-center h-full"
-    >
+    <div v-if="!isQuizLoaded" class="flex justify-center h-full">
       <BaseIcon
         name="spinner-solid"
         iconClass="animate-spin h-10 w-10 object-scale-down my-auto"
@@ -42,6 +39,7 @@
         :class="{
           hidden: !isScorecardShown,
         }"
+        :result="scorecardResult"
         :metrics="scorecardMetrics"
         :progressPercentage="scorecardProgress"
         :isShown="isScorecardShown"
@@ -60,13 +58,21 @@
 import QuestionModal from "../components/Questions/QuestionModal.vue";
 import Splash from "../components/Splash.vue";
 import Scorecard from "../components/Scorecard.vue";
-import { resetConfetti } from "../services/Functional/Utilities";
+import {
+  resetConfetti,
+  isQuestionAnswerCorrect,
+} from "../services/Functional/Utilities";
 import QuizAPIService from "../services/API/Quiz";
 import SessionAPIService from "../services/API/Session";
 import { defineComponent, reactive, toRefs, computed, watch } from "vue";
 import { useRoute } from "vue-router";
-import { Question, SubmittedResponse, QuizMetadata } from "../types";
-import BaseIcon from "../components/UI/Icons/BaseIcon.vue"
+import {
+  Question,
+  SubmittedResponse,
+  QuizMetadata,
+  submittedAnswer,
+} from "../types";
+import BaseIcon from "../components/UI/Icons/BaseIcon.vue";
 
 export default defineComponent({
   name: "Player",
@@ -96,6 +102,8 @@ export default defineComponent({
       numCorrect: 0, // number of correctly answered questions
       numWrong: 0, // number of wrongly answered questions
       numSkipped: 0, // number of skipped questions
+      marksScored: 0,
+      maxMarks: 0, // maximum marks that can be scored
       isScorecardShown: false, // to show the scorecard or not
       hasQuizEnded: false, // whether the quiz has ended - only valid for quizType = assessment
       sessionId: "", // id of the session created for a user-quiz combination
@@ -103,7 +111,6 @@ export default defineComponent({
     const isQuizAssessment = computed(
       () => state.metadata.quiz_type == "assessment"
     );
-    const isEqual = require("deep-eql");
     const isSplashShown = computed(() => state.currentQuestionIndex == -1);
     const numQuestions = computed(() => state.questions.length);
     const isQuestionShown = computed(() => {
@@ -113,6 +120,10 @@ export default defineComponent({
       );
     });
     const isQuizLoaded = computed(() => numQuestions.value > 0);
+    const scorecardResult = computed(() => ({
+      title: isQuizAssessment.value ? "Score" : "Accuracy",
+      value: scorecardResultValue.value,
+    }));
 
     watch(
       () => state.currentQuestionIndex,
@@ -121,6 +132,14 @@ export default defineComponent({
           state.isScorecardShown = true;
           if (!hasGradedQuestions.value) return;
           calculateScorecardMetrics();
+        } else if (!state.responses[newValue].visited) {
+          state.responses[newValue].visited = true;
+          SessionAPIService.updateSessionAnswer(
+            state.responses[state.currentQuestionIndex]._id,
+            {
+              visited: true,
+            }
+          );
         }
       }
     );
@@ -136,6 +155,8 @@ export default defineComponent({
       const questionSet = quizDetails.question_sets[0];
       state.questions = questionSet.questions;
       state.metadata = quizDetails.metadata;
+      state.maxMarks =
+        quizDetails.max_marks || quizDetails.num_graded_questions;
     }
 
     async function createSession() {
@@ -158,10 +179,9 @@ export default defineComponent({
     function submitQuestion() {
       const itemResponse = state.responses[state.currentQuestionIndex];
 
-      SessionAPIService.updateSessionAnswer(
-        itemResponse._id,
-        itemResponse.answer
-      );
+      SessionAPIService.updateSessionAnswer(itemResponse._id, {
+        answer: itemResponse.answer,
+      });
     }
 
     function endTest() {
@@ -217,8 +237,17 @@ export default defineComponent({
      * progress value (0-100) to be passed to the Scorecard component
      */
     const scorecardProgress = computed(() => {
-      if (!numQuestionsAnswered.value) return 0;
-      return (state.numCorrect / numQuestionsAnswered.value) * 100;
+      if (!state.maxMarks) return null;
+      return Math.max(state.marksScored / state.maxMarks, 0) * 100;
+    });
+
+    /** result to be shown in the center of the progress bar of Scorecard */
+    const scorecardResultValue = computed(() => {
+      if (!state.maxMarks || scorecardProgress.value == null) return null;
+      if (isQuizAssessment.value) {
+        return `${state.marksScored}/${state.maxMarks}`;
+      }
+      return `${Math.round(scorecardProgress.value)}%`;
     });
 
     /**
@@ -230,8 +259,8 @@ export default defineComponent({
 
     const numNonGradedQuestions = computed(() => {
       let count = 0;
-      state.questions.forEach((itemDetail) => {
-        if (!itemDetail.graded) count += 1;
+      state.questions.forEach((questionDetail) => {
+        if (!questionDetail.graded) count += 1;
       });
       return count;
     });
@@ -251,34 +280,50 @@ export default defineComponent({
       state.numSkipped = numGradedQuestions.value;
       state.numCorrect = 0;
       state.numWrong = 0;
+      state.marksScored = 0;
 
-      state.questions.forEach((itemDetail) => {
-        updateNumCorrectWrongSkipped(itemDetail, state.responses[index].answer);
+      state.questions.forEach((questionDetail) => {
+        updateQuestionMetrics(questionDetail, state.responses[index].answer);
         index += 1;
       });
     }
 
-    function updateNumCorrectWrongSkipped(itemDetail: any, userAnswer: any) {
-      if (!itemDetail.graded) {
+    function updateQuestionMetrics(
+      questionDetail: Question,
+      userAnswer: submittedAnswer
+    ) {
+      const markingScheme = questionDetail.marking_scheme;
+
+      function updateMetricsForCorrectAnswer() {
+        state.numCorrect += 1;
+        // default marks for correctly answered questions = 1
+        state.marksScored += markingScheme?.correct || 1;
+      }
+
+      function updateMetricsForWrongAnswer() {
+        state.numWrong += 1;
+        // default marks for wrongly answered questions = 0
+        state.marksScored += markingScheme?.wrong || 0;
+      }
+
+      const answerEvaluation = isQuestionAnswerCorrect(
+        questionDetail,
+        userAnswer
+      );
+      if (!answerEvaluation.valid) {
         return;
       }
-      if (userAnswer != null) {
+      if (answerEvaluation.answered) {
         state.numSkipped -= 1;
 
-        if (
-          (itemDetail.type == "single-choice" ||
-            itemDetail.type == "multi-choice") &&
-          userAnswer.length > 0
-        ) {
-          const correctAnswer = itemDetail.correct_answer;
-          isEqual(userAnswer, correctAnswer)
-            ? (state.numCorrect += 1)
-            : (state.numWrong += 1);
-        } else if (itemDetail.type == "subjective" && userAnswer.trim() != "") {
-          // for subjective questions, as long as the viewer has given any answer
-          // their response is considered correct
-          state.numCorrect += 1;
+        if (answerEvaluation.isCorrect != null) {
+          answerEvaluation.isCorrect
+            ? updateMetricsForCorrectAnswer()
+            : updateMetricsForWrongAnswer();
         }
+      } else {
+        // default marks for skipped questions = 0
+        state.marksScored += markingScheme?.skipped || 0;
       }
     }
 
@@ -300,6 +345,7 @@ export default defineComponent({
       numQuestionsAnswered,
       hasGradedQuestions,
       isQuizLoaded,
+      scorecardResult,
       startQuiz,
       submitQuestion,
       goToPreviousQuestion,

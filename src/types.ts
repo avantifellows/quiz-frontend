@@ -36,6 +36,7 @@ export interface SubmittedResponse {
   _id: string;
   question_id: string;
   answer: submittedAnswer;
+  visited: boolean;
 }
 
 interface ScorecardMetricIcon {
@@ -96,7 +97,7 @@ export interface Question {
   max_char_limit: number | null;
   graded: boolean;
   instructions: string | null;
-  markingScheme: MarkingScheme | null;
+  marking_scheme: MarkingScheme | null;
   solution: string[] | null;
   _id: string;
   metadata: QuestionMetadata | null;
@@ -111,13 +112,13 @@ export interface QuizAPIResponse {
   instructions: string;
   _id: string;
   language: language;
-  maxMarks: number;
+  max_marks: number;
   metadata: QuizMetadata;
   navigation_mode: quizNavigationMode;
-  numAttemptsAllowed: number;
-  numGradedQuestions: number;
+  num_attempts_allowed: number;
+  num_graded_questions: number;
   shuffle: boolean;
-  timeLimit: TimeLimit | null;
+  time_limit: TimeLimit | null;
   question_sets: QuestionSet[];
 }
 
@@ -135,4 +136,27 @@ export interface SessionAnswerAPIResponse {
   session_id: string;
   question_id: string;
   answer: submittedAnswer;
+  visited: boolean;
+}
+
+export interface UpdateSessionAnswerAPIPayload {
+  answer?: submittedAnswer;
+  visited?: boolean;
+}
+
+export interface answerEvaluation {
+  valid: boolean; // whether the evaluation of the question is valid in the first place (invalid for ungraded questions)
+  answered: boolean; // whether the question has been answered
+  isCorrect?: boolean;
+}
+
+export type questionState = "success" | "error" | "neutral";
+export interface paletteItemState {
+  index: number; // index of the corresponding question in the list of questions
+  value: questionState;
+}
+
+export interface CircularProgressResult {
+  title: string;
+  value: string;
 }

@@ -162,13 +162,63 @@ describe("Player for Assessment quizzes", () => {
           .should("have.text", 1);
       });
 
-      it("shows scorecard upon selecting End Test", () => {
-        cy.get('[data-test="modal"]')
-          .get('[data-test="endTestButton"]')
-          .trigger("click");
+      describe("End test", () => {
+        beforeEach(() => {
+          cy.get('[data-test="modal"]')
+            .get('[data-test="endTestButton"]')
+            .trigger("click");
+        });
 
-        cy.get('[data-test="modal"]').should("not.exist");
-        cy.get('[data-test="scorecard"]').should("exist");
+        it("shows scorecard upon selecting End Test", () => {
+          cy.get('[data-test="modal"]').should("not.exist");
+          cy.get('[data-test="scorecard"]').should("exist");
+        });
+
+        it("shows score instead of accuracy in scorecard", () => {
+          const progressBar = cy
+            .get('[data-test="scorecard"]')
+            .get('[data-test="progress"]');
+          progressBar.get('[data-test="value"]').should("contain", "/");
+          progressBar.get('[data-test="title"]').should("contain", "Score");
+        });
+      });
+
+      describe("Question Palette", () => {
+        beforeEach(() => {
+          cy.get('[data-test="togglePaletteButton"]').trigger("click");
+        });
+        it("shows question palette upon clicking toggle palette button", () => {
+          cy.get('[data-test="questionPalette"]').should("exist");
+        });
+
+        it("moves to question when clicking on item on question palette", () => {
+          // index for the item corresponding to question 1 should be highlighted
+          cy.get('[data-test="questionPalette"]')
+            .get('[data-test="paletteItem-0"]')
+            .get('[data-test="index"]')
+            .should("have.class", "bg-yellow-200");
+
+          cy.get('[data-test="paletteItem-2"]')
+            .get('[data-test="index"]')
+            .should("have.class", "bg-gray-200");
+
+          cy.get('[data-test="paletteItem-2"]').trigger("click");
+
+          // question palette must be closed
+          cy.get('[data-test="questionPalette"]').should("not.exist");
+
+          // open the question palette
+          cy.get('[data-test="togglePaletteButton"]').trigger("click");
+
+          // index for the item corresponding to question 3 should be highlighted
+          cy.get('[data-test="paletteItem-0"]')
+            .get('[data-test="index"]')
+            .should("have.class", "bg-gray-200");
+
+          cy.get('[data-test="paletteItem-2"]')
+            .get('[data-test="index"]')
+            .should("have.class", "bg-yellow-200");
+        });
       });
     });
   });

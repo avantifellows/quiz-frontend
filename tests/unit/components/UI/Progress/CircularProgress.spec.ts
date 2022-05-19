@@ -11,10 +11,10 @@ describe("CircularProgress.vue", () => {
         radius: radius,
         stroke: stroke,
         result: {
-          enabled: true,
           title: "temp text",
-          value: progress,
+          value: `${progress}%`,
         },
+        progressBarPercent: progress,
       },
     });
 
@@ -26,7 +26,6 @@ describe("CircularProgress.vue", () => {
     expect(wrapper.vm.normalizedRadius).toBe(expectedNormalizedRadius);
     expect(wrapper.vm.circumference).toBe(expectedCircumference);
     expect(wrapper.vm.strokeDashoffset).toBe(expectedStrokeDashoffset);
-    expect(wrapper.vm.isResultShown).toBeTruthy();
 
     expect(wrapper.find('[data-test="result"]').exists()).toBeTruthy();
   });
