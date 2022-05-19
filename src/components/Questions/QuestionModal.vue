@@ -26,6 +26,7 @@
         :hasQuizEnded="hasQuizEnded"
         @option-selected="questionOptionSelected"
         @answer-entered="subjectiveAnswerUpdated"
+        @numerical-answer-entered="NumericalAnswerUpdated"
         data-test="body"
       ></Body>
       <Footer
@@ -155,7 +156,11 @@ export default defineComponent({
         // TODO: this is ideally not needed but typescript is giving an error that
         // "currentResponse could be possibly null" without this line, which is
         // not correct as the null case has been handled above.
-        if (currentResponse == null || typeof currentResponse == "string") {
+        if (
+          currentResponse == null ||
+          typeof currentResponse == "string" ||
+          typeof currentResponse == "number"
+        ) {
           return;
         }
 
@@ -208,6 +213,8 @@ export default defineComponent({
       if (
         state.isDraftAnswerCleared &&
         isQuestionTypeSubjective.value &&
+        isQuestionTypeFloatNumerical.value &&
+        isQuestionTypeIntegerNumerical.value &&
         state.draftResponses[props.currentQuestionIndex] !=
           currentQuestionResponseAnswer.value
       ) {
@@ -215,6 +222,10 @@ export default defineComponent({
           currentQuestionResponseAnswer.value;
       }
       state.isDraftAnswerCleared = false;
+    }
+
+    function NumericalAnswerUpdated(answer: number) {
+      state.draftResponses[props.currentQuestionIndex] = answer;
     }
 
     /** update the attempt to the current question - valid for subjective questions */
@@ -253,6 +264,12 @@ export default defineComponent({
     const isQuestionTypeSubjective = computed(
       () => questionType.value == "subjective"
     );
+    const isQuestionTypeIntegerNumerical = computed(
+      () => questionType.value == "integer-numerical"
+    );
+    const isQuestionTypeFloatNumerical = computed(
+      () => questionType.value == "float-numerical"
+    );
 
     const currentQuestionResponse = computed(
       () => props.responses[props.currentQuestionIndex]
@@ -264,6 +281,9 @@ export default defineComponent({
 
     const isAnswerSubmitted = computed(() => {
       if (currentQuestionResponseAnswer.value == null) return false;
+      if (typeof currentQuestionResponseAnswer.value == "number") {
+        return currentQuestionResponseAnswer.value != 0;
+      }
       if (isQuestionTypeSingleChoice.value || isQuestionTypeMultiChoice.value) {
         return currentQuestionResponseAnswer.value.length > 0;
       }
@@ -274,8 +294,13 @@ export default defineComponent({
       const currentDraftResponse = state.draftResponses[
         props.currentQuestionIndex
       ] as DraftResponse;
-      if (currentDraftResponse == null) return false;
+      if (currentDraftResponse == null) {
+        return false;
+      }
       if (isQuestionTypeSubjective.value) return currentDraftResponse != "";
+      if (typeof currentDraftResponse == "number") {
+        return currentDraftResponse != 0;
+      }
       return currentDraftResponse.length > 0;
     });
 
@@ -308,6 +333,7 @@ export default defineComponent({
       isAnswerSubmitted,
       isAttemptValid,
       isQuizAssessment,
+      NumericalAnswerUpdated,
     };
   },
   emits: [

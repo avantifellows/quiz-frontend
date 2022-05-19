@@ -100,6 +100,25 @@
           </p>
         </div>
       </div>
+      <!-- Numerical question answer -->
+      <div
+        v-if="isQuestionTypeFloatNumerical || isQuestionTypeIntegerNumerical"
+        class="flex flex-col"
+        :class="answerContainerClass"
+        data-test="NumericalAnswerContainer"
+      >
+        <!-- input area for the answer -->
+        <Textarea
+          v-model:value="NumericalAnswer"
+          class="px-2 w-full"
+          :boxStyling="subjectiveAnswerBoxStyling"
+          placeholder="Enter your answer here"
+          :isDisabled="isAnswerDisabled"
+          :maxHeightLimit="250"
+          @keypress="preventKeypressIfApplicable"
+          data-test="NumericalAnswer"
+        ></Textarea>
+      </div>
     </div>
   </div>
 </template>
@@ -140,12 +159,12 @@ export default defineComponent({
     /** answer for the question which has been submitted */
     submittedAnswer: {
       default: null,
-      type: [String, Array],
+      type: [String, Number, Array],
     },
     /** answer for the question which has been entered but not submitted */
     draftAnswer: {
       default: null,
-      type: [String, Array],
+      type: [String, Number, Array],
     },
     isAnswerSubmitted: {
       default: false,
@@ -201,6 +220,7 @@ export default defineComponent({
       optionTextClass:
         "p-2 text-lg md:text-xl lg:text-2xl border rounded-md mx-2 whitespace-pre-wrap",
       subjectiveAnswer: null as string | null, // holds the answer to the subjective question
+      NumericalAnswer: 0 as number, // holds the answer to the numerical question
     });
 
     /** stop the loading spinner when the image has been loaded **/
@@ -223,7 +243,9 @@ export default defineComponent({
         !props.isAnswerSubmitted ||
         props.isDraftAnswerCleared ||
         typeof props.correctAnswer == "string" || // check for typescript
-        typeof props.submittedAnswer == "string" // check for typescript
+        typeof props.submittedAnswer == "string" || // check for typescript
+        typeof props.correctAnswer == "number" || // check for typescript
+        typeof props.submittedAnswer == "number" // check for typescript
       ) {
         return;
       }
@@ -252,6 +274,7 @@ export default defineComponent({
       return (
         props.draftAnswer != null &&
         typeof props.draftAnswer != "string" &&
+        typeof props.draftAnswer != "number" &&
         props.draftAnswer.indexOf(optionIndex) != -1
       );
     }
@@ -269,9 +292,25 @@ export default defineComponent({
     }
 
     function preventKeypressIfApplicable(event: KeyboardEvent) {
-      // checks if character limit is reached in case it is set
-      if (!hasCharLimit.value) return;
-      if (!charactersLeft.value) event.preventDefault();
+      if (isQuestionTypeSubjective.value) {
+        // checks if character limit is reached in case it is set
+        if (!hasCharLimit.value) return;
+        if (!charactersLeft.value) event.preventDefault();
+      }
+      if (isQuestionTypeFloatNumerical.value) {
+        // console.log($event.keyCode); //keyCodes value
+        const keyCode = event.keyCode ? event.keyCode : event.which;
+        if ((keyCode < 48 || keyCode > 57) && keyCode !== 46) {
+          // 46 is dot
+          event.preventDefault();
+        }
+      }
+      if (isQuestionTypeIntegerNumerical.value) {
+        const keyCode = event.keyCode ? event.keyCode : event.which;
+        if (keyCode < 48 || keyCode > 57) {
+          event.preventDefault();
+        }
+      }
     }
 
     // styling class for the question image and loading spinner containers
@@ -303,6 +342,12 @@ export default defineComponent({
     );
     const isQuestionTypeSingleChoice = computed(
       () => props.questionType == "single-choice"
+    );
+    const isQuestionTypeIntegerNumerical = computed(
+      () => props.questionType == "integer-numerical"
+    );
+    const isQuestionTypeFloatNumerical = computed(
+      () => props.questionType == "float-numerical"
     );
 
     // styling class to decide orientation of image + options
@@ -366,6 +411,17 @@ export default defineComponent({
 
       return "";
     });
+    const defaultNumericalAnswer = computed(() => {
+      if (
+        props.submittedAnswer != 0 &&
+        typeof props.submittedAnswer == "number"
+      ) {
+        return props.submittedAnswer;
+      }
+      if (typeof props.draftAnswer == "number") return props.draftAnswer;
+
+      return 0;
+    });
     const isAnswerDisabled = computed(
       () =>
         (props.isAnswerSubmitted && !isQuizAssessment.value) ||
@@ -380,6 +436,7 @@ export default defineComponent({
     ]);
 
     state.subjectiveAnswer = defaultAnswer.value;
+    state.NumericalAnswer = defaultNumericalAnswer.value;
 
     watch(
       () => props.imageData,
@@ -398,6 +455,16 @@ export default defineComponent({
         if (typeof newValue == "string" || newValue == null) {
           state.subjectiveAnswer = newValue;
         }
+        if (typeof newValue == "number") {
+          state.NumericalAnswer = newValue;
+        }
+      }
+    );
+
+    watch(
+      () => state.NumericalAnswer,
+      (newValue) => {
+        context.emit("numerical-answer-entered", Number(state.NumericalAnswer));
       }
     );
 
@@ -454,9 +521,11 @@ export default defineComponent({
       isQuizAssessment,
       isAnswerDisabled,
       subjectiveAnswerBoxStyling,
+      isQuestionTypeFloatNumerical,
+      isQuestionTypeIntegerNumerical,
     };
   },
-  emits: ["option-selected", "answer-entered"],
+  emits: ["option-selected", "answer-entered", "numerical-answer-entered"],
 });
 </script>
 
