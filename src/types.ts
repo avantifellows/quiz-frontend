@@ -93,7 +93,7 @@ export interface Question {
   max_char_limit: number | null;
   graded: boolean;
   instructions: string | null;
-  markingScheme: MarkingScheme | null;
+  marking_scheme: MarkingScheme | null;
   solution: string[] | null;
   _id: string;
   metadata: QuestionMetadata | null;
@@ -108,13 +108,13 @@ export interface QuizAPIResponse {
   instructions: string;
   _id: string;
   language: language;
-  maxMarks: number;
+  max_marks: number;
   metadata: QuizMetadata;
   navigation_mode: quizNavigationMode;
-  numAttemptsAllowed: number;
-  numGradedQuestions: number;
+  num_attempts_allowed: number;
+  num_graded_questions: number;
   shuffle: boolean;
-  timeLimit: TimeLimit | null;
+  time_limit: TimeLimit | null;
   question_sets: QuestionSet[];
 }
 
@@ -155,4 +155,9 @@ export interface paletteItemState {
 export interface OrgAPIResponse {
   _id: string;
   name: string;
+}
+
+export interface CircularProgressResult {
+  title: string;
+  value: string;
 }
