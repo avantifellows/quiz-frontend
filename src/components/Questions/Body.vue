@@ -125,7 +125,7 @@
         <Textarea
           v-model:value="NumericalAnswer"
           class="px-2 w-full"
-          :boxStyling="subjectiveAnswerBoxStyling"
+          :boxStyling="numericalAnswerBoxStyling"
           placeholder="Enter your answer here"
           :isDisabled="isAnswerDisabled"
           :maxHeightLimit="250"
@@ -170,7 +170,7 @@ export default defineComponent({
     },
     correctAnswer: {
       default: null,
-      type: [String, Array],
+      type: [String, Number, Array],
     },
     /** answer for the question which has been submitted */
     submittedAnswer: {
@@ -445,14 +445,17 @@ export default defineComponent({
       return "";
     });
     const defaultNumericalAnswer = computed(() => {
+      console.log(props.submittedAnswer);
+      console.log(typeof props.submittedAnswer);
       if (
         props.submittedAnswer != 0 &&
         typeof props.submittedAnswer == "number"
       ) {
         return props.submittedAnswer;
       }
-      if (typeof props.draftAnswer == "number") return props.draftAnswer;
-
+      if (typeof props.draftAnswer == "number") {
+        return props.draftAnswer;
+      }
       return 0;
     });
     const isAnswerDisabled = computed(
@@ -464,6 +467,33 @@ export default defineComponent({
     const subjectiveAnswerBoxStyling = computed(() => [
       {
         "bg-gray-100": props.isAnswerSubmitted,
+      },
+      "bp-420:h-20 sm:h-28 md:h-36 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed",
+    ]);
+
+    const numericalAnswerBoxStyling = computed(() => [
+      console.log(
+        "correct",
+        props.submittedAnswer == props.correctAnswer &&
+          props.isAnswerSubmitted &&
+          props.isGradedQuestion
+      ),
+      console.log(
+        "wrong",
+        props.submittedAnswer != props.correctAnswer &&
+          props.isAnswerSubmitted &&
+          props.isGradedQuestion
+      ),
+      {
+        "text-green-500 border-green-500":
+          props.submittedAnswer == props.correctAnswer &&
+          props.isAnswerSubmitted &&
+          props.isGradedQuestion,
+        "text-red-500 border-red-500":
+          props.submittedAnswer != props.correctAnswer &&
+          props.isAnswerSubmitted &&
+          props.isGradedQuestion,
+        "bg-gray-100": props.isAnswerSubmitted && !props.isGradedQuestion,
       },
       "bp-420:h-20 sm:h-28 md:h-36 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed",
     ]);
@@ -555,6 +585,7 @@ export default defineComponent({
       isQuizAssessment,
       isAnswerDisabled,
       subjectiveAnswerBoxStyling,
+      numericalAnswerBoxStyling,
       isQuestionTypeFloatNumerical,
       isQuestionTypeIntegerNumerical,
     };

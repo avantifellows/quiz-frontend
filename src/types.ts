@@ -10,7 +10,7 @@ type language = "en" | "hi";
 export type quizType = "assessment" | "homework";
 type quizNavigationMode = "linear" | "non-linear";
 export type submittedAnswer = number[] | string | number | null;
-type correctAnswer = number[] | null;
+type correctAnswer = number[] | number | null;
 
 export interface IconButtonTitleConfig {
   value: string;

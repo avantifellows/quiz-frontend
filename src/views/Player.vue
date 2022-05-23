@@ -295,12 +295,14 @@ export default defineComponent({
       const markingScheme = questionDetail.marking_scheme;
 
       function updateMetricsForCorrectAnswer() {
+        console.log("correct");
         state.numCorrect += 1;
         // default marks for correctly answered questions = 1
         state.marksScored += markingScheme?.correct || 1;
       }
 
       function updateMetricsForWrongAnswer() {
+        console.log("wrong");
         state.numWrong += 1;
         // default marks for wrongly answered questions = 0
         state.marksScored += markingScheme?.wrong || 0;
@@ -315,7 +317,6 @@ export default defineComponent({
       }
       if (answerEvaluation.answered) {
         state.numSkipped -= 1;
-
         if (answerEvaluation.isCorrect != null) {
           answerEvaluation.isCorrect
             ? updateMetricsForCorrectAnswer()

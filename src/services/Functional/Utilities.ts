@@ -81,6 +81,7 @@ export function isQuestionAnswerCorrect(
   questionDetail: Question,
   userAnswer: submittedAnswer
 ): answerEvaluation {
+  console.log("evalfun");
   const answerEvaluation = {
     valid: false,
     answered: false,
@@ -88,8 +89,9 @@ export function isQuestionAnswerCorrect(
 
   if (questionDetail.graded) {
     answerEvaluation.valid = true;
+    console.log("vaid");
 
-    if (userAnswer != null) {
+    if (userAnswer != null && typeof userAnswer != "number") {
       answerEvaluation.answered = true;
 
       if (
@@ -110,6 +112,17 @@ export function isQuestionAnswerCorrect(
         // their response is considered correct
         answerEvaluation.isCorrect = true;
       }
+    } else if (
+      (questionDetail.type == "integer-numerical" ||
+        questionDetail.type == "float-numerical") &&
+      typeof userAnswer == "number" &&
+      userAnswer != 0
+    ) {
+      answerEvaluation.answered = true;
+      const correctAnswer = questionDetail.correct_answer;
+      if (userAnswer == correctAnswer) {
+        answerEvaluation.isCorrect = true;
+      } else answerEvaluation.isCorrect = false;
     }
   }
   return answerEvaluation;
