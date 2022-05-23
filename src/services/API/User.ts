@@ -6,7 +6,7 @@ import {
 
 export default {
   /**
-   * authenticates the user using the provided API key
+   * authenticates the user using the API key
    * @param {string} apiKey - api key
    * @returns {Promise<UserAPIResponse>} org details corresponding to the user that is trying to log in
    */
