@@ -57,21 +57,14 @@
 import QuestionModal from "../components/Questions/QuestionModal.vue";
 import Splash from "../components/Splash.vue";
 import Scorecard from "../components/Scorecard.vue";
-import {
-  resetConfetti,
-  isQuestionAnswerCorrect,
-} from "../services/Functional/Utilities";
+import { resetConfetti, isQuestionAnswerCorrect } from "../services/Functional/Utilities";
 import QuizAPIService from "../services/API/Quiz";
 import SessionAPIService from "../services/API/Session";
 import { defineComponent, reactive, toRefs, computed, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import {
-  Question,
-  SubmittedResponse,
-  QuizMetadata,
-  submittedAnswer,
-} from "../types";
+import { Question, SubmittedResponse, QuizMetadata, submittedAnswer } from "../types";
 import BaseIcon from "../components/UI/Icons/BaseIcon.vue";
+import OrgAPIService from "../services/API/Organization";
 
 export default defineComponent({
   name: "Player",
@@ -116,25 +109,13 @@ export default defineComponent({
       sessionId: "", // id of the session created for a user-quiz combination
     });
 
-    const requiresAuth = computed(() => {
-      return props.userId != null && props.apiKey != null;
+    OrgAPIService.checkAuthToken(props.apiKey).catch(() => {
+      router.replace({
+        name: "403",
+      });
     });
 
-    async function getAuth() {
-      if (requiresAuth.value) {
-        UserAPIService.checkAuthToken(props.apiKey).catch(() => {
-          router.replace({
-            name: "403",
-          });
-        });
-      }
-    }
-
-    getAuth();
-
-    const isQuizAssessment = computed(
-      () => state.metadata.quiz_type == "assessment"
-    );
+    const isQuizAssessment = computed(() => state.metadata.quiz_type == "assessment");
 
     const isSplashShown = computed(() => state.currentQuestionIndex == -1);
     const numQuestions = computed(() => state.questions.length);
@@ -307,9 +288,7 @@ export default defineComponent({
         state.numSkipped -= 1;
 
         if (answerEvaluation.isCorrect != null) {
-          answerEvaluation.isCorrect
-            ? (state.numCorrect += 1)
-            : (state.numWrong += 1);
+          answerEvaluation.isCorrect ? (state.numCorrect += 1) : (state.numWrong += 1);
         }
       }
     }
