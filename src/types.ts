@@ -154,5 +154,5 @@ export interface paletteItemState {
 
 export interface UserAPIResponse {
   _id: string;
-  org_name: string;
+  name: string;
 }
