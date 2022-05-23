@@ -51,11 +51,8 @@ router.beforeEach((to) => {
   /** Before each router, check if the user is a third party and therefore, needs authentication. */
   if (to.meta.requiresAuth) {
     const queryParams = Object.keys(to.query);
-    const isAuthNeeded =
-      requiredAuthKeys.every((key) => queryParams.includes(key)) &&
-      queryParams.every(
-        (key) => to.query[key] != "" && to.query[key] != undefined
-      );
+    const isAuthenticated =
+      requiredAuthKeys.every((key) => queryParams.includes(key) &&  (queryParams[key] != "" && queryParams[key] != undefined))
     if (!isAuthNeeded) {
       return {
         name: "403",
