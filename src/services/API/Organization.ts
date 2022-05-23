@@ -1,5 +1,5 @@
 import { apiClient } from "./RootClient";
-import { externalAuthTokenEndpoint } from "./Endpoints";
+import { authenticationEndpoint } from "./Endpoints";
 import {
   OrgAPIResponse
 } from "../../types";
@@ -11,7 +11,7 @@ export default {
    * @returns {Promise<OrgAPIResponse>} organization details
    */
   async checkAuthToken(apiKey: string): Promise<OrgAPIResponse> {
-    const response = await apiClient().get(externalAuthTokenEndpoint + apiKey);
+    const response = await apiClient().get(authenticationEndpoint + apiKey);
     return response.data;
   }
 }
