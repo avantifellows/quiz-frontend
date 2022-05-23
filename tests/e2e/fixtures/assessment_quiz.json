@@ -18,7 +18,11 @@
           "max_char_limit": null,
           "correct_answer": [0],
           "graded": true,
-          "marking_scheme": null,
+          "marking_scheme": {
+            "correct": 4,
+            "wrong": -2,
+            "skipped": -1
+          },
           "solution": [],
           "metadata": null
         },
@@ -45,7 +49,11 @@
           "max_char_limit": null,
           "correct_answer": [0, 2],
           "graded": true,
-          "marking_scheme": null,
+          "marking_scheme": {
+            "correct": 3,
+            "wrong": -1,
+            "skipped": -1
+          },
           "solution": [],
           "metadata": null
         },
@@ -63,7 +71,11 @@
           "max_char_limit": null,
           "correct_answer": [1],
           "graded": true,
-          "marking_scheme": null,
+          "marking_scheme": {
+            "correct": 3,
+            "wrong": -1,
+            "skipped": 0
+          },
           "solution": [],
           "metadata": null
         }
@@ -75,7 +87,7 @@
   "shuffle": false,
   "num_attempts_allowed": 1,
   "time_limit": null,
-  "navigation_mode": "linear",
+  "navigation_mode": "non-linear",
   "instructions": null,
   "language": "en",
   "metadata": {

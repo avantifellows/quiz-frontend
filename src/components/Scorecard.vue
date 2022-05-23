@@ -35,8 +35,10 @@
           class="relative mx-auto w-full flex justify-center"
           :radius="circularProgressRadius"
           :stroke="circularProgressStroke"
-          :result="progressBarResult"
+          :result="result"
+          :progressBarPercent="localProgressBarPercent"
           :key="reRenderKey"
+          data-test="progress"
         >
         </CircularProgress>
 
@@ -128,7 +130,7 @@ import BaseIcon from "./UI/Icons/BaseIcon.vue";
 import IconButton from "./UI/Buttons/IconButton.vue";
 import domtoimage from "dom-to-image";
 import { useStore } from "vuex";
-import { ScorecardMetric } from "../types";
+import { ScorecardMetric, CircularProgressResult } from "../types";
 
 const confetti = require("canvas-confetti");
 const PROGRESS_BAR_ANIMATION_DELAY_TIME = 500; // a time delay to be used for animating the progress bar
@@ -172,11 +174,15 @@ export default defineComponent({
     /** progress to show on the progress bar (in %) */
     progressPercentage: {
       required: true,
-      type: Number,
+      type: Number || null,
     },
     title: {
       required: true,
       type: String,
+    },
+    result: {
+      type: Object as PropType<CircularProgressResult>,
+      default: () => {},
     },
   },
   setup(props, context) {
@@ -186,7 +192,7 @@ export default defineComponent({
       resize: true,
     });
     const state = reactive({
-      localProgressBarPercentage: 0, // local value of progress
+      localProgressBarPercent: 0, // local value of progress
       innerWidth: window.innerWidth, // variable to hold the width of window
       reRenderKey: false, // a key to re-render a component
       // classes for watch again button
@@ -217,26 +223,24 @@ export default defineComponent({
       (newValue) => {
         if (newValue) {
           setTimeout(() => {
-            state.localProgressBarPercentage = props.progressPercentage;
+            state.localProgressBarPercent = props.progressPercentage;
           }, PROGRESS_BAR_ANIMATION_DELAY_TIME);
           // throw some confetti in there
           throwConfetti(state.confettiHandler);
         } else {
           // if scorecard is not visible anymore, reset things
-          state.localProgressBarPercentage = 0;
+          state.localProgressBarPercent = 0;
         }
       }
     );
 
     /**
-     * returns the text to be shared for % accuracy and number of questions answered
+     * returns the text to be shared for showing result and number of questions answered
      */
     const resultTextToShare = computed(() => {
-      return `I answered ${
-        numQuestionsAnsweredText.value
-      } questions with ${Math.round(
-        state.localProgressBarPercentage
-      )}% accuracy on Avanti Fellows quiz today!`;
+      return `I answered ${numQuestionsAnsweredText.value} questions with ${
+        props.result.value
+      } ${props.result.title.toLowerCase()} on Avanti Fellows quiz today!`;
     });
 
     /**
@@ -256,19 +260,12 @@ export default defineComponent({
       if (
         !props.hasGradedQuestions ||
         props.progressPercentage == null ||
+        props.result.value == null ||
         state.isMobileLandscape
       ) {
         return false;
       }
       return true;
-    });
-    /** the result to show in the centre of the progress bar */
-    const progressBarResult = computed(() => {
-      return {
-        enabled: true,
-        title: "Accuracy",
-        value: Math.round(state.localProgressBarPercentage),
-      };
     });
     /**
      * reactively control the radius of the circular progress bar
@@ -430,7 +427,6 @@ export default defineComponent({
       shareButtonTitleConfig,
       circularProgressRadius,
       circularProgressStroke,
-      progressBarResult,
     };
   },
   emits: ["go-back"],
