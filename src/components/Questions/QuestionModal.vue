@@ -31,6 +31,7 @@
         @answer-entered="subjectiveAnswerUpdated"
         @numerical-answer-entered="NumericalAnswerUpdated"
         @navigate="navigateToQuestion"
+        :key="reRenderKey"
         data-test="body"
         ref="body"
       ></Body>
@@ -116,6 +117,7 @@ export default defineComponent({
       toast: useToast(),
       isDraftAnswerCleared: false, // whether the draft answer has been cleared but not yet submitted
       isPaletteVisible: false, // whether the question palette is visible
+      reRenderKey: false, // a key to re-render a component
     });
 
     function checkScreenOrientation() {
@@ -205,6 +207,7 @@ export default defineComponent({
     }
 
     function showNextQuestion() {
+      state.reRenderKey = !state.reRenderKey;
       resetState();
       if (
         state.localCurrentQuestionIndex < props.questions.length - 1 ||
@@ -223,6 +226,7 @@ export default defineComponent({
     }
 
     function showPreviousQuestion() {
+      state.reRenderKey = !state.reRenderKey;
       resetState();
       state.localCurrentQuestionIndex -= 1;
     }
