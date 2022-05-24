@@ -472,11 +472,11 @@ export default defineComponent({
 
     const numericalAnswerBoxStyling = computed(() => [
       {
-        "text-green-500 border-green-500 bg-none":
+        "text-green-500 border-green-500":
           props.submittedAnswer == props.correctAnswer &&
           props.isAnswerSubmitted &&
           props.isGradedQuestion,
-        "text-red-500 border-red-500":
+        "text-red-500 border-red-400":
           props.submittedAnswer != props.correctAnswer &&
           props.isAnswerSubmitted &&
           props.isGradedQuestion,

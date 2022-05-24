@@ -199,6 +199,7 @@ export default defineComponent({
     }
 
     function clearAnswer() {
+      state.reRenderKey = !state.reRenderKey;
       if (typeof state.draftResponses[props.currentQuestionIndex] == "number") {
         state.draftResponses[props.currentQuestionIndex] = 0;
       }
