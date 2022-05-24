@@ -197,6 +197,9 @@ export default defineComponent({
     }
 
     function clearAnswer() {
+      if (typeof state.draftResponses[props.currentQuestionIndex] == "number") {
+        state.draftResponses[props.currentQuestionIndex] = 0;
+      }
       state.draftResponses[props.currentQuestionIndex] = null;
       state.isDraftAnswerCleared = true;
     }

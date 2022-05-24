@@ -113,25 +113,25 @@
             </p>
           </div>
         </div>
-      </div>
-      <!-- Numerical question answer -->
-      <div
-        v-if="isQuestionTypeFloatNumerical || isQuestionTypeIntegerNumerical"
-        class="flex flex-col"
-        :class="answerContainerClass"
-        data-test="NumericalAnswerContainer"
-      >
-        <!-- input area for the answer -->
-        <Textarea
-          v-model:value="NumericalAnswer"
-          class="px-2 w-full"
-          :boxStyling="numericalAnswerBoxStyling"
-          placeholder="Enter your answer here"
-          :isDisabled="isAnswerDisabled"
-          :maxHeightLimit="250"
-          @keypress="preventKeypressIfApplicable"
-          data-test="NumericalAnswer"
-        ></Textarea>
+        <!-- Numerical question answer -->
+        <div
+          v-if="isQuestionTypeFloatNumerical || isQuestionTypeIntegerNumerical"
+          class="flex flex-col"
+          :class="answerContainerClass"
+          data-test="NumericalAnswerContainer"
+        >
+          <!-- input area for the answer -->
+          <Textarea
+            v-model:value="NumericalAnswer"
+            class="px-2 w-full"
+            :boxStyling="numericalAnswerBoxStyling"
+            placeholder="Enter your answer here"
+            :isDisabled="isAnswerDisabled"
+            :maxHeightLimit="250"
+            @keypress="preventKeypressIfApplicable"
+            data-test="NumericalAnswer"
+          ></Textarea>
+        </div>
       </div>
     </div>
   </div>
@@ -440,13 +440,12 @@ export default defineComponent({
       ) {
         return props.submittedAnswer;
       }
-      if (typeof props.draftAnswer == "string") return props.draftAnswer;
-
+      if (typeof props.draftAnswer == "string") {
+        return props.draftAnswer;
+      }
       return "";
     });
     const defaultNumericalAnswer = computed(() => {
-      console.log(props.submittedAnswer);
-      console.log(typeof props.submittedAnswer);
       if (
         props.submittedAnswer != 0 &&
         typeof props.submittedAnswer == "number"
@@ -472,20 +471,8 @@ export default defineComponent({
     ]);
 
     const numericalAnswerBoxStyling = computed(() => [
-      console.log(
-        "correct",
-        props.submittedAnswer == props.correctAnswer &&
-          props.isAnswerSubmitted &&
-          props.isGradedQuestion
-      ),
-      console.log(
-        "wrong",
-        props.submittedAnswer != props.correctAnswer &&
-          props.isAnswerSubmitted &&
-          props.isGradedQuestion
-      ),
       {
-        "text-green-500 border-green-500":
+        "text-green-500 border-green-500 bg-none":
           props.submittedAnswer == props.correctAnswer &&
           props.isAnswerSubmitted &&
           props.isGradedQuestion,

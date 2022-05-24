@@ -81,7 +81,6 @@ export function isQuestionAnswerCorrect(
   questionDetail: Question,
   userAnswer: submittedAnswer
 ): answerEvaluation {
-  console.log("evalfun");
   const answerEvaluation = {
     valid: false,
     answered: false,
@@ -89,7 +88,6 @@ export function isQuestionAnswerCorrect(
 
   if (questionDetail.graded) {
     answerEvaluation.valid = true;
-    console.log("vaid");
 
     if (userAnswer != null && typeof userAnswer != "number") {
       answerEvaluation.answered = true;
