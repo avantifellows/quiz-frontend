@@ -118,18 +118,18 @@
           v-if="isQuestionTypeFloatNumerical || isQuestionTypeIntegerNumerical"
           class="flex flex-col"
           :class="answerContainerClass"
-          data-test="NumericalAnswerContainer"
+          data-test="numericalAnswerContainer"
         >
           <!-- input area for the answer -->
           <Textarea
-            v-model:value="NumericalAnswer"
+            v-model:value="numericalAnswer"
             class="px-2 w-full"
             :boxStyling="numericalAnswerBoxStyling"
             placeholder="Enter your answer here"
             :isDisabled="isAnswerDisabled"
             :maxHeightLimit="250"
             @keypress="preventKeypressIfApplicable"
-            data-test="NumericalAnswer"
+            data-test="numericalAnswer"
           ></Textarea>
         </div>
       </div>
@@ -249,7 +249,7 @@ export default defineComponent({
       optionTextClass:
         "p-2 text-lg md:text-xl lg:text-2xl border rounded-md mx-2 whitespace-pre-wrap",
       subjectiveAnswer: null as string | null, // holds the answer to the subjective question
-      NumericalAnswer: 0 as number, // holds the answer to the numerical question
+      numericalAnswer: 0 as number, // holds the answer to the numerical question
     });
 
     /** stop the loading spinner when the image has been loaded **/
@@ -486,7 +486,7 @@ export default defineComponent({
     ]);
 
     state.subjectiveAnswer = defaultAnswer.value;
-    state.NumericalAnswer = defaultNumericalAnswer.value;
+    state.numericalAnswer = defaultNumericalAnswer.value;
 
     watch(
       () => props.imageData,
@@ -506,15 +506,15 @@ export default defineComponent({
           state.subjectiveAnswer = newValue;
         }
         if (typeof newValue == "number") {
-          state.NumericalAnswer = newValue;
+          state.numericalAnswer = newValue;
         }
       }
     );
 
     watch(
-      () => state.NumericalAnswer,
+      () => state.numericalAnswer,
       (newValue) => {
-        context.emit("numerical-answer-entered", Number(state.NumericalAnswer));
+        context.emit("numerical-answer-entered", Number(state.numericalAnswer));
       }
     );
 

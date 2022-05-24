@@ -29,7 +29,7 @@
         :questionStates="questionStates"
         @option-selected="questionOptionSelected"
         @answer-entered="subjectiveAnswerUpdated"
-        @numerical-answer-entered="NumericalAnswerUpdated"
+        @numerical-answer-entered="numericalAnswerUpdated"
         @navigate="navigateToQuestion"
         :key="reRenderKey"
         data-test="body"
@@ -247,7 +247,7 @@ export default defineComponent({
       state.isDraftAnswerCleared = false;
     }
 
-    function NumericalAnswerUpdated(answer: number) {
+    function numericalAnswerUpdated(answer: number) {
       state.draftResponses[props.currentQuestionIndex] = answer;
     }
 
@@ -404,7 +404,7 @@ export default defineComponent({
       isAnswerSubmitted,
       isAttemptValid,
       isQuizAssessment,
-      NumericalAnswerUpdated,
+      numericalAnswerUpdated,
       questionStates,
     };
   },
