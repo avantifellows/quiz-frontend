@@ -53,9 +53,9 @@
 </template>
 
 <script lang="ts">
-import Body from "./Body.vue";
-import Footer from "./Footer.vue";
-import Header from "./Header.vue";
+import Body from './Body.vue'
+import Footer from './Footer.vue'
+import Header from './Header.vue'
 import {
   defineComponent,
   PropType,
@@ -63,50 +63,50 @@ import {
   toRefs,
   onUnmounted,
   computed,
-  watch,
-} from "vue";
+  watch
+} from 'vue'
 import {
   isScreenPortrait,
-  isQuestionAnswerCorrect,
-} from "../../services/Functional/Utilities";
+  isQuestionAnswerCorrect
+} from '../../services/Functional/Utilities'
 import {
   Question,
   SubmittedResponse,
   DraftResponse,
   quizType,
   paletteItemState,
-  questionState,
-} from "../../types";
-import { useToast, POSITION } from "vue-toastification";
+  questionState
+} from '../../types'
+import { useToast, POSITION } from 'vue-toastification'
 
 export default defineComponent({
-  name: "QuestionModal",
+  name: 'QuestionModal',
   components: {
     Body,
     Footer,
-    Header,
+    Header
   },
   props: {
     questions: {
       required: true,
-      type: Array as PropType<Question[]>,
+      type: Array as PropType<Question[]>
     },
     currentQuestionIndex: {
       type: Number,
-      default: 0,
+      default: 0
     },
     hasQuizEnded: {
       type: Boolean,
-      default: false,
+      default: false
     },
     responses: {
       required: true,
-      type: Array as PropType<SubmittedResponse[]>,
+      type: Array as PropType<SubmittedResponse[]>
     },
     quizType: {
       type: String as PropType<quizType>,
-      default: "homework",
-    },
+      default: 'homework'
+    }
   },
   setup(props, context) {
     const state = reactive({
@@ -117,38 +117,38 @@ export default defineComponent({
       toast: useToast(),
       isDraftAnswerCleared: false, // whether the draft answer has been cleared but not yet submitted
       isPaletteVisible: false, // whether the question palette is visible
-      reRenderKey: false, // a key to re-render a component
-    });
+      reRenderKey: false // a key to re-render a component
+    })
 
     function checkScreenOrientation() {
-      state.isPortrait = isScreenPortrait();
+      state.isPortrait = isScreenPortrait()
     }
 
     function navigateToQuestion(questionIndex: number) {
-      state.localCurrentQuestionIndex = questionIndex;
+      state.localCurrentQuestionIndex = questionIndex
     }
 
     watch(
       () => state.localCurrentQuestionIndex,
       (newValue) => {
-        context.emit("update:currentQuestionIndex", newValue);
+        context.emit('update:currentQuestionIndex', newValue)
       }
-    );
+    )
 
     watch(
       () => props.currentQuestionIndex,
       (newValue: Number) => {
-        state.localCurrentQuestionIndex = newValue.valueOf();
+        state.localCurrentQuestionIndex = newValue.valueOf()
       }
-    );
+    )
 
     watch(
       () => state.localResponses,
       (newValue) => {
-        context.emit("update:responses", newValue);
+        context.emit('update:responses', newValue)
       },
       { deep: true }
-    );
+    )
 
     /**
      * triggered upon selecting an option
@@ -156,80 +156,80 @@ export default defineComponent({
     function questionOptionSelected(optionIndex: number) {
       if (isQuestionTypeSingleChoice.value) {
         // for MCQ, simply set the option as the current response
-        state.draftResponses[props.currentQuestionIndex] = [optionIndex];
-        return;
+        state.draftResponses[props.currentQuestionIndex] = [optionIndex]
+        return
       }
 
       if (isQuestionTypeMultiChoice.value) {
         if (state.draftResponses[props.currentQuestionIndex] == null) {
-          state.draftResponses[props.currentQuestionIndex] = [];
+          state.draftResponses[props.currentQuestionIndex] = []
         }
 
         // if the selection option was already in the response
         // remove it from the response (uncheck it); otherwise add it (check it)
-        const currentResponse =
-          state.draftResponses[props.currentQuestionIndex];
+        const currentResponse = state.draftResponses[props.currentQuestionIndex]
 
         // TODO: this is ideally not needed but typescript is giving an error that
         // "currentResponse could be possibly null" without this line, which is
         // not correct as the null case has been handled above.
         if (
           currentResponse == null ||
-          typeof currentResponse == "string" ||
-          typeof currentResponse == "number"
+          typeof currentResponse == 'string' ||
+          typeof currentResponse == 'number'
         ) {
-          return;
+          return
         }
 
-        const optionPositionInResponse = currentResponse.indexOf(optionIndex);
+        const optionPositionInResponse = currentResponse.indexOf(optionIndex)
         if (optionPositionInResponse != -1) {
-          currentResponse.splice(optionPositionInResponse, 1);
+          currentResponse.splice(optionPositionInResponse, 1)
         } else {
-          currentResponse.push(optionIndex);
-          currentResponse.sort();
+          currentResponse.push(optionIndex)
+          currentResponse.sort()
         }
       }
     }
 
     function submitQuestion() {
-      if (!state.localResponses.length) return;
+      if (!state.localResponses.length) return
       state.localResponses[props.currentQuestionIndex].answer =
-        state.draftResponses[props.currentQuestionIndex];
-      context.emit("submit-question");
+        state.draftResponses[props.currentQuestionIndex]
+      context.emit('submit-question')
     }
 
     function clearAnswer() {
-      state.reRenderKey = !state.reRenderKey;
-      if (typeof state.draftResponses[props.currentQuestionIndex] == "number") {
-        state.draftResponses[props.currentQuestionIndex] = 0;
+      state.reRenderKey = !state.reRenderKey
+      if (typeof state.draftResponses[props.currentQuestionIndex] == 'number') {
+        state.draftResponses[props.currentQuestionIndex] = 0
+      } else {
+        state.draftResponses[props.currentQuestionIndex] = null
       }
-      state.draftResponses[props.currentQuestionIndex] = null;
-      state.isDraftAnswerCleared = true;
+      state.isDraftAnswerCleared = true
     }
 
     function showNextQuestion() {
-      state.reRenderKey = !state.reRenderKey;
-      resetState();
+      state.reRenderKey = !state.reRenderKey
+      resetState()
       if (
         state.localCurrentQuestionIndex < props.questions.length - 1 ||
         props.hasQuizEnded ||
         !isQuizAssessment.value
       ) {
-        state.localCurrentQuestionIndex = state.localCurrentQuestionIndex + 1;
+        state.localCurrentQuestionIndex = state.localCurrentQuestionIndex + 1
       } else {
         state.toast.success(
           'No more questions, please press "End Test" if you are done 👉',
           {
-            position: POSITION.TOP_LEFT,
+            position: POSITION.TOP_LEFT
           }
-        );
+        )
       }
     }
 
     function showPreviousQuestion() {
-      state.reRenderKey = !state.reRenderKey;
-      resetState();
-      state.localCurrentQuestionIndex -= 1;
+      state.reRenderKey = !state.reRenderKey
+      resetState()
+      state.localCurrentQuestionIndex -= 1
     }
 
     function resetState() {
@@ -242,149 +242,153 @@ export default defineComponent({
           currentQuestionResponseAnswer.value
       ) {
         state.draftResponses[props.currentQuestionIndex] =
-          currentQuestionResponseAnswer.value;
+          currentQuestionResponseAnswer.value
+        console.log(
+          'draftresponse',
+          state.draftResponses[props.currentQuestionIndex]
+        )
       }
-      state.isDraftAnswerCleared = false;
+      state.isDraftAnswerCleared = false
     }
 
     function numericalAnswerUpdated(answer: number) {
-      state.draftResponses[props.currentQuestionIndex] = answer;
+      state.draftResponses[props.currentQuestionIndex] = answer
     }
 
     /** update the attempt to the current question - valid for subjective questions */
     function subjectiveAnswerUpdated(answer: string) {
-      state.draftResponses[props.currentQuestionIndex] = answer;
+      state.draftResponses[props.currentQuestionIndex] = answer
     }
 
     function endTest() {
-      state.localCurrentQuestionIndex = props.questions.length;
-      context.emit("end-test");
+      state.localCurrentQuestionIndex = props.questions.length
+      context.emit('end-test')
     }
 
     onUnmounted(() => {
       // remove listeners
-      window.removeEventListener("resize", checkScreenOrientation);
-    });
+      window.removeEventListener('resize', checkScreenOrientation)
+    })
 
     const currentQuestion = computed(
       () => props.questions[props.currentQuestionIndex]
-    );
+    )
 
-    const questionType = computed(() => currentQuestion.value.type);
+    const questionType = computed(() => currentQuestion.value.type)
 
     const questionCorrectAnswer = computed(
       () => currentQuestion.value?.correct_answer
-    );
+    )
 
-    const isGradedQuestion = computed(() => currentQuestion.value.graded);
+    const isGradedQuestion = computed(() => currentQuestion.value.graded)
 
     const isQuestionTypeMultiChoice = computed(
-      () => questionType.value == "multi-choice"
-    );
+      () => questionType.value == 'multi-choice'
+    )
     const isQuestionTypeSingleChoice = computed(
-      () => questionType.value == "single-choice"
-    );
+      () => questionType.value == 'single-choice'
+    )
     const isQuestionTypeSubjective = computed(
-      () => questionType.value == "subjective"
-    );
+      () => questionType.value == 'subjective'
+    )
     const isQuestionTypeIntegerNumerical = computed(
-      () => questionType.value == "integer-numerical"
-    );
+      () => questionType.value == 'integer-numerical'
+    )
     const isQuestionTypeFloatNumerical = computed(
-      () => questionType.value == "float-numerical"
-    );
+      () => questionType.value == 'float-numerical'
+    )
 
     const currentQuestionResponse = computed(
       () => props.responses[props.currentQuestionIndex]
-    );
+    )
 
     const currentQuestionResponseAnswer = computed(
       () => currentQuestionResponse.value?.answer
-    );
+    )
 
     const isAnswerSubmitted = computed(() => {
-      if (currentQuestionResponseAnswer.value == null) return false;
-      if (typeof currentQuestionResponseAnswer.value == "number") {
-        return currentQuestionResponseAnswer.value != 0;
+      if (currentQuestionResponseAnswer.value == null) return false
+      if (typeof currentQuestionResponseAnswer.value == 'number') {
+        return currentQuestionResponseAnswer.value != 0
       }
       if (isQuestionTypeSingleChoice.value || isQuestionTypeMultiChoice.value) {
-        return currentQuestionResponseAnswer.value.length > 0;
+        return currentQuestionResponseAnswer.value.length > 0
       }
-      return true;
-    });
+      return true
+    })
 
     const isAttemptValid = computed(() => {
       const currentDraftResponse = state.draftResponses[
         props.currentQuestionIndex
-      ] as DraftResponse;
+      ] as DraftResponse
       if (currentDraftResponse == null) {
-        return false;
+        return false
       }
-      if (isQuestionTypeSubjective.value) return currentDraftResponse != "";
-      if (typeof currentDraftResponse == "number") {
-        return currentDraftResponse != 0;
+      if (isQuestionTypeSubjective.value) return currentDraftResponse != ''
+      if (typeof currentDraftResponse == 'number') {
+        return currentDraftResponse != 0
       }
-      return currentDraftResponse.length > 0;
-    });
+      return currentDraftResponse.length > 0
+    })
 
-    const isQuizAssessment = computed(() => props.quizType == "assessment");
+    const isQuizAssessment = computed(() => props.quizType == 'assessment')
 
     const questionStates = computed(() => {
-      const states = [] as paletteItemState[];
+      const states = [] as paletteItemState[]
 
       if (props.hasQuizEnded) {
         for (let index = 0; index < props.questions.length; index++) {
           const questionAnswerEvaluation = isQuestionAnswerCorrect(
             props.questions[index],
             props.responses[index].answer
-          );
+          )
           // we are not adding ungraded questions to the palette
-          if (!questionAnswerEvaluation.valid) continue;
-          let state: questionState;
+          if (!questionAnswerEvaluation.valid) continue
+          let state: questionState
           if (
             !questionAnswerEvaluation.answered ||
             questionAnswerEvaluation.isCorrect == null
           ) {
-            state = "neutral";
+            state = 'neutral'
           } else {
             questionAnswerEvaluation.isCorrect
-              ? (state = "success")
-              : (state = "error");
+              ? (state = 'success')
+              : (state = 'error')
           }
           states.push({
             index: index,
-            value: state,
-          });
+            value: state
+          })
         }
       } else {
         for (let index = 0; index < props.questions.length; index++) {
-          if (!props.questions[index].graded) continue;
-          let state: questionState;
+          if (!props.questions[index].graded) continue
+          let state: questionState
           if (!props.responses[index].visited) {
-            state = "neutral";
+            state = 'neutral'
           } else {
-            if (props.responses[index].answer != null) state = "success";
-            else state = "error";
+            if (props.responses[index].answer != null) state = 'success'
+            else state = 'error'
           }
           states.push({
             index: index,
-            value: state,
-          });
+            value: state
+          })
         }
       }
 
-      return states;
-    });
+      return states
+    })
 
     // instantiating draftResponses here
     props.responses.forEach((response) => {
-      state.draftResponses.push(response.answer);
-    });
+      state.draftResponses.push(response.answer)
+    })
 
     // determine the screen orientation when the item modal is created
-    checkScreenOrientation();
+    checkScreenOrientation()
     // add listener for screen size being changed
-    window.addEventListener("resize", checkScreenOrientation);
+    window.addEventListener('resize', checkScreenOrientation)
 
     return {
       ...toRefs(state),
@@ -405,14 +409,14 @@ export default defineComponent({
       isAttemptValid,
       isQuizAssessment,
       numericalAnswerUpdated,
-      questionStates,
-    };
+      questionStates
+    }
   },
   emits: [
-    "update:currentQuestionIndex",
-    "update:responses",
-    "submit-question",
-    "end-test",
-  ],
-});
+    'update:currentQuestionIndex',
+    'update:responses',
+    'submit-question',
+    'end-test'
+  ]
+})
 </script>

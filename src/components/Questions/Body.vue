@@ -475,12 +475,18 @@ export default defineComponent({
         "text-green-500 border-green-500":
           props.submittedAnswer == props.correctAnswer &&
           props.isAnswerSubmitted &&
-          props.isGradedQuestion,
+          props.isGradedQuestion &&
+          (!isQuizAssessment.value ||
+            (isQuizAssessment.value && props.hasQuizEnded)),
         "text-red-500 border-red-400":
           props.submittedAnswer != props.correctAnswer &&
           props.isAnswerSubmitted &&
-          props.isGradedQuestion,
-        "bg-gray-100": props.isAnswerSubmitted && !props.isGradedQuestion,
+          props.isGradedQuestion &&
+          (!isQuizAssessment.value ||
+            (isQuizAssessment.value && props.hasQuizEnded)),
+        "bg-gray-100":
+          (props.isAnswerSubmitted && !props.isGradedQuestion) ||
+          (isQuizAssessment.value && !props.hasQuizEnded),
       },
       "bp-420:h-20 sm:h-28 md:h-36 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed",
     ]);
