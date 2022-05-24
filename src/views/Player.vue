@@ -65,7 +65,7 @@ import { defineComponent, reactive, toRefs, computed, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { Question, SubmittedResponse, QuizMetadata, submittedAnswer } from "../types";
 import BaseIcon from "../components/UI/Icons/BaseIcon.vue";
-import OrgAPIService from "../services/API/Organization";
+import OrganizationAPIService from "../services/API/Organization";
 
 export default defineComponent({
   name: "Player",
@@ -112,7 +112,7 @@ export default defineComponent({
       sessionId: "", // id of the session created for a user-quiz combination
     });
 
-    OrgAPIService.checkAuthToken(props.apiKey).catch(() => {
+    OrganizationAPIService.checkAuthToken(props.apiKey).catch(() => {
       router.replace({
         name: "403",
       });
@@ -163,8 +163,7 @@ export default defineComponent({
       const questionSet = quizDetails.question_sets[0];
       state.questions = questionSet.questions;
       state.metadata = quizDetails.metadata;
-      state.maxMarks =
-        quizDetails.max_marks || quizDetails.num_graded_questions;
+      state.maxMarks = quizDetails.max_marks || quizDetails.num_graded_questions;
     }
 
     async function createSession() {
@@ -313,10 +312,7 @@ export default defineComponent({
         state.marksScored += markingScheme?.wrong || 0;
       }
 
-      const answerEvaluation = isQuestionAnswerCorrect(
-        questionDetail,
-        userAnswer
-      );
+      const answerEvaluation = isQuestionAnswerCorrect(questionDetail, userAnswer);
       if (!answerEvaluation.valid) {
         return;
       }

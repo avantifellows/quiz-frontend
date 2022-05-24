@@ -152,7 +152,7 @@ export interface paletteItemState {
   value: questionState;
 }
 
-export interface OrgAPIResponse {
+export interface OrganizationAPIResponse {
   _id: string;
   name: string;
 }
