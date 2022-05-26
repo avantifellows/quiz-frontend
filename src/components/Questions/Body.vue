@@ -327,7 +327,6 @@ export default defineComponent({
         if (!charactersLeft.value) event.preventDefault()
       }
       if (isQuestionTypeFloatNumerical.value) {
-        // console.log($event.keyCode); //keyCodes value
         const keyCode = event.keyCode ? event.keyCode : event.which
         if ((keyCode < 48 || keyCode > 57) && keyCode !== 46) {
           // 46 is dot
