@@ -111,8 +111,8 @@ export function isQuestionAnswerCorrect(
         answerEvaluation.isCorrect = true;
       }
     } else if (
-      (questionDetail.type == "integer-numerical" ||
-        questionDetail.type == "float-numerical") &&
+      (questionDetail.type == "numerical-integer" ||
+        questionDetail.type == "numerical-float") &&
       typeof userAnswer == "number" &&
       userAnswer != 0
     ) {

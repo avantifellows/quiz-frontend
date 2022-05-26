@@ -4,8 +4,8 @@ type questionWithOptions = "single-choice" | "multi-choice";
 type questionType =
   | questionWithOptions
   | "subjective"
-  | "float-numerical"
-  | "integer-numerical";
+  | "numerical-float"
+  | "numerical-integer";
 type language = "en" | "hi";
 export type quizType = "assessment" | "homework";
 type quizNavigationMode = "linear" | "non-linear";
