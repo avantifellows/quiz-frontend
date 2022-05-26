@@ -292,10 +292,10 @@ export default defineComponent({
       () => questionType.value == 'subjective'
     )
     const isQuestionTypeIntegerNumerical = computed(
-      () => questionType.value == 'integer-numerical'
+      () => questionType.value == 'numerical-integer'
     )
     const isQuestionTypeFloatNumerical = computed(
-      () => questionType.value == 'float-numerical'
+      () => questionType.value == 'numerical-float'
     )
 
     const currentQuestionResponse = computed(
