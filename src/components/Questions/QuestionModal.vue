@@ -1,14 +1,14 @@
 <template>
-  <div class="h-full flex flex-col">
+  <div class="h-full flex flex-col bg-white w-full justify-between">
     <Header
       v-if="isQuizAssessment"
       :hasQuizEnded="hasQuizEnded"
       v-model:isPaletteVisible="isPaletteVisible"
       @end-test="endTest"
     ></Header>
-    <div
-      class="flex flex-col grow bg-white w-full justify-between overflow-hidden"
-    >
+    <!-- <div
+      class="flex flex-col"
+    > -->
       <Body
         :text="currentQuestion.text"
         :options="currentQuestion.options"
@@ -47,7 +47,7 @@
         data-test="footer"
       ></Footer>
     </div>
-  </div>
+  <!-- </div> -->
 </template>
 
 <script lang="ts">
