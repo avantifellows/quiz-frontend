@@ -87,7 +87,7 @@ describe("QuestionModal.vue", () => {
     if (wrapper != undefined) wrapper.unmount();
     wrapper = mount(QuestionModal, {
       props: {
-        questions: questions,
+        questions,
         responses: clonedeep(responses),
         currentQuestionIndex: params.currentQuestionIndex,
       },
@@ -466,7 +466,7 @@ describe("QuestionModal.vue", () => {
           expect(wrapper.vm.localResponses[questionIndex]).toEqual({
             _id: `${questionIndex}`,
             question_id: questions[questionIndex]._id,
-            answer: answer,
+            answer,
             visited: false,
           });
           expect(wrapper.emitted()).toHaveProperty("submit-question");

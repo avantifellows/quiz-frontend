@@ -44,7 +44,7 @@ describe("Body.vue", () => {
     ];
     const wrapper = mount(Body, {
       props: {
-        options: options,
+        options,
       },
     });
 
@@ -61,7 +61,7 @@ describe("Body.vue", () => {
     it("set options selected based on draft answer", async () => {
       const draftAnswer = [0];
       await wrapper.setProps({
-        draftAnswer: draftAnswer,
+        draftAnswer,
       });
 
       expect(wrapper.vm.isOptionMarked(0)).toBeTruthy();
@@ -82,8 +82,8 @@ describe("Body.vue", () => {
       const submittedAnswer = [0];
       const correctAnswer = [1];
       await wrapper.setProps({
-        submittedAnswer: submittedAnswer,
-        correctAnswer: correctAnswer,
+        submittedAnswer,
+        correctAnswer,
         isAnswerSubmitted: true,
       });
 
@@ -98,7 +98,7 @@ describe("Body.vue", () => {
     it("highlights options as gray for non-graded questions", async () => {
       const submittedAnswer = [0];
       await wrapper.setProps({
-        submittedAnswer: submittedAnswer,
+        submittedAnswer,
         isAnswerSubmitted: true,
         isGradedQuestion: false,
       });
@@ -112,8 +112,8 @@ describe("Body.vue", () => {
       const submittedAnswer = [0];
       const correctAnswer = [1];
       await wrapper.setProps({
-        submittedAnswer: submittedAnswer,
-        correctAnswer: correctAnswer,
+        submittedAnswer,
+        correctAnswer,
         isAnswerSubmitted: true,
         quizType: "assessment",
       });
@@ -144,7 +144,7 @@ describe("Body.vue", () => {
     ];
     const wrapper = mount(Body, {
       props: {
-        options: options,
+        options,
         questionType: "multi-choice",
       },
     });
@@ -163,7 +163,7 @@ describe("Body.vue", () => {
     it("set options selected based on draft answer", async () => {
       const draftAnswer = [1, 2];
       await wrapper.setProps({
-        draftAnswer: draftAnswer,
+        draftAnswer,
       });
 
       expect(wrapper.vm.isOptionMarked(0)).toBeFalsy();
@@ -185,8 +185,8 @@ describe("Body.vue", () => {
       const submittedAnswer = [1, 2];
       const correctAnswer = [0, 1];
       await wrapper.setProps({
-        submittedAnswer: submittedAnswer,
-        correctAnswer: correctAnswer,
+        submittedAnswer,
+        correctAnswer,
         isAnswerSubmitted: true,
       });
 
@@ -204,7 +204,7 @@ describe("Body.vue", () => {
     it("highlights options gray for non-graded questions", async () => {
       const submittedAnswer = [1, 2];
       await wrapper.setProps({
-        submittedAnswer: submittedAnswer,
+        submittedAnswer,
         isAnswerSubmitted: true,
         isGradedQuestion: false,
       });
@@ -221,8 +221,8 @@ describe("Body.vue", () => {
       const submittedAnswer = [1, 2];
       const correctAnswer = [0, 1];
       await wrapper.setProps({
-        submittedAnswer: submittedAnswer,
-        correctAnswer: correctAnswer,
+        submittedAnswer,
+        correctAnswer,
         isAnswerSubmitted: true,
         quizType: "assessment",
       });
@@ -270,7 +270,7 @@ describe("Body.vue", () => {
       // set char limit
       const maxCharLimit = 50;
       await wrapper.setProps({
-        maxCharLimit: maxCharLimit,
+        maxCharLimit,
       });
 
       expect(
@@ -327,7 +327,7 @@ describe("Body.vue", () => {
       const wrapper = mount(Body, {
         props: {
           questionType: "subjective",
-          draftAnswer: draftAnswer,
+          draftAnswer,
         },
       });
 
@@ -345,7 +345,7 @@ describe("Body.vue", () => {
       const wrapper = mount(Body, {
         props: {
           questionType: "subjective",
-          submittedAnswer: submittedAnswer,
+          submittedAnswer,
         },
       });
 
@@ -371,7 +371,7 @@ describe("Body.vue", () => {
     it("corrects the answer when it exceeds the max char limit", async () => {
       const maxCharLimit = 10;
       await wrapper.setProps({
-        maxCharLimit: maxCharLimit,
+        maxCharLimit,
       });
 
       const value = "thetestthetest";

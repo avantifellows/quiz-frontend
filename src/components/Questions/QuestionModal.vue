@@ -319,7 +319,7 @@ export default defineComponent({
               : (state = "error");
           }
           states.push({
-            index: index,
+            index,
             value: state,
           });
         }
@@ -334,7 +334,7 @@ export default defineComponent({
             else state = "error";
           }
           states.push({
-            index: index,
+            index,
             value: state,
           });
         }

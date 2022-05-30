@@ -32,5 +32,5 @@ module.exports = {
     },
   ],
 
-  extends: ["plugin:vue/vue3-essential", "@vue/typescript"],
+  extends: ["plugin:vue/vue3-essential", "@vue/standard", "@vue/typescript"],
 };
