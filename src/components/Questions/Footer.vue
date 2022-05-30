@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex w-full lg:p-6 justify-between z-50 place-self-end mb-6"
+    class="flex w-full lg:p-6 justify-between z-50 place-self-end"
     :class="{
       'bg-white p-4': !isQuizAssessment,
       'bg-gray-200 py-4 px-2': isQuizAssessment,

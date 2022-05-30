@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full flex flex-col bg-white w-full justify-between">
+  <div class="h-full flex flex-col bg-white w-full justify-between absolute">
     <Header
       v-if="isQuizAssessment"
       :hasQuizEnded="hasQuizEnded"
