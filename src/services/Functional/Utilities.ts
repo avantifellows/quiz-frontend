@@ -114,7 +114,7 @@ export function isQuestionAnswerCorrect(
       (questionDetail.type == "numerical-integer" ||
         questionDetail.type == "numerical-float") &&
       typeof userAnswer == "number" &&
-      userAnswer != 0
+      userAnswer != null
     ) {
       answerEvaluation.answered = true;
       const correctAnswer = questionDetail.correct_answer;

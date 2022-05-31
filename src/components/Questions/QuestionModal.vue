@@ -28,7 +28,7 @@
         :currentQuestionIndex="currentQuestionIndex"
         :questionStates="questionStates"
         @option-selected="questionOptionSelected"
-        @answer-entered="subjectiveAnswerUpdated"
+        @subjective-answer-entered="subjectiveAnswerUpdated"
         @numerical-answer-entered="numericalAnswerUpdated"
         @navigate="navigateToQuestion"
         :key="reRenderKey"
@@ -53,9 +53,9 @@
 </template>
 
 <script lang="ts">
-import Body from './Body.vue'
-import Footer from './Footer.vue'
-import Header from './Header.vue'
+import Body from "./Body.vue"
+import Footer from "./Footer.vue"
+import Header from "./Header.vue"
 import {
   defineComponent,
   PropType,
@@ -64,11 +64,11 @@ import {
   onUnmounted,
   computed,
   watch
-} from 'vue'
+} from "vue"
 import {
   isScreenPortrait,
   isQuestionAnswerCorrect
-} from '../../services/Functional/Utilities'
+} from "../../services/Functional/Utilities"
 import {
   Question,
   SubmittedResponse,
@@ -76,11 +76,11 @@ import {
   quizType,
   paletteItemState,
   questionState
-} from '../../types'
-import { useToast, POSITION } from 'vue-toastification'
+} from "../../types"
+import { useToast, POSITION } from "vue-toastification"
 
 export default defineComponent({
-  name: 'QuestionModal',
+  name: "QuestionModal",
   components: {
     Body,
     Footer,
@@ -105,7 +105,7 @@ export default defineComponent({
     },
     quizType: {
       type: String as PropType<quizType>,
-      default: 'homework'
+      default: "homework"
     }
   },
   setup(props, context) {
@@ -131,7 +131,7 @@ export default defineComponent({
     watch(
       () => state.localCurrentQuestionIndex,
       (newValue) => {
-        context.emit('update:currentQuestionIndex', newValue)
+        context.emit("update:currentQuestionIndex", newValue)
       }
     )
 
@@ -145,7 +145,7 @@ export default defineComponent({
     watch(
       () => state.localResponses,
       (newValue) => {
-        context.emit('update:responses', newValue)
+        context.emit("update:responses", newValue)
       },
       { deep: true }
     )
@@ -172,20 +172,14 @@ export default defineComponent({
         // TODO: this is ideally not needed but typescript is giving an error that
         // "currentResponse could be possibly null" without this line, which is
         // not correct as the null case has been handled above.
-        if (
-          currentResponse == null ||
-          typeof currentResponse == 'string' ||
-          typeof currentResponse == 'number'
-        ) {
-          return
-        }
-
-        const optionPositionInResponse = currentResponse.indexOf(optionIndex)
-        if (optionPositionInResponse != -1) {
-          currentResponse.splice(optionPositionInResponse, 1)
-        } else {
-          currentResponse.push(optionIndex)
-          currentResponse.sort()
+        if (Array.isArray(currentResponse)) {
+          const optionPositionInResponse = currentResponse.indexOf(optionIndex)
+          if (optionPositionInResponse != -1) {
+            currentResponse.splice(optionPositionInResponse, 1)
+          } else {
+            currentResponse.push(optionIndex)
+            currentResponse.sort()
+          }
         }
       }
     }
@@ -194,12 +188,12 @@ export default defineComponent({
       if (!state.localResponses.length) return
       state.localResponses[props.currentQuestionIndex].answer =
         state.draftResponses[props.currentQuestionIndex]
-      context.emit('submit-question')
+      context.emit("submit-question")
     }
 
     function clearAnswer() {
       state.reRenderKey = !state.reRenderKey
-      if (typeof state.draftResponses[props.currentQuestionIndex] == 'number') {
+      if (typeof state.draftResponses[props.currentQuestionIndex] == "number") {
         state.draftResponses[props.currentQuestionIndex] = 0
       } else {
         state.draftResponses[props.currentQuestionIndex] = null
@@ -208,6 +202,7 @@ export default defineComponent({
     }
 
     function showNextQuestion() {
+      // we reRender the whole component as textarea is holding the details which is not getting updated
       state.reRenderKey = !state.reRenderKey
       resetState()
       if (
@@ -236,17 +231,13 @@ export default defineComponent({
       if (
         state.isDraftAnswerCleared &&
         isQuestionTypeSubjective.value &&
-        isQuestionTypeFloatNumerical.value &&
-        isQuestionTypeIntegerNumerical.value &&
+        isQuestionTypeNumericalFloat.value &&
+        isQuestionTypeNumericalInteger.value &&
         state.draftResponses[props.currentQuestionIndex] !=
           currentQuestionResponseAnswer.value
       ) {
         state.draftResponses[props.currentQuestionIndex] =
           currentQuestionResponseAnswer.value
-        console.log(
-          'draftresponse',
-          state.draftResponses[props.currentQuestionIndex]
-        )
       }
       state.isDraftAnswerCleared = false
     }
@@ -262,12 +253,12 @@ export default defineComponent({
 
     function endTest() {
       state.localCurrentQuestionIndex = props.questions.length
-      context.emit('end-test')
+      context.emit("end-test")
     }
 
     onUnmounted(() => {
       // remove listeners
-      window.removeEventListener('resize', checkScreenOrientation)
+      window.removeEventListener("resize", checkScreenOrientation)
     })
 
     const currentQuestion = computed(
@@ -283,19 +274,19 @@ export default defineComponent({
     const isGradedQuestion = computed(() => currentQuestion.value.graded)
 
     const isQuestionTypeMultiChoice = computed(
-      () => questionType.value == 'multi-choice'
+      () => questionType.value == "multi-choice"
     )
     const isQuestionTypeSingleChoice = computed(
-      () => questionType.value == 'single-choice'
+      () => questionType.value == "single-choice"
     )
     const isQuestionTypeSubjective = computed(
-      () => questionType.value == 'subjective'
+      () => questionType.value == "subjective"
     )
-    const isQuestionTypeIntegerNumerical = computed(
-      () => questionType.value == 'numerical-integer'
+    const isQuestionTypeNumericalInteger = computed(
+      () => questionType.value == "numerical-integer"
     )
-    const isQuestionTypeFloatNumerical = computed(
-      () => questionType.value == 'numerical-float'
+    const isQuestionTypeNumericalFloat = computed(
+      () => questionType.value == "numerical-float"
     )
 
     const currentQuestionResponse = computed(
@@ -308,8 +299,8 @@ export default defineComponent({
 
     const isAnswerSubmitted = computed(() => {
       if (currentQuestionResponseAnswer.value == null) return false
-      if (typeof currentQuestionResponseAnswer.value == 'number') {
-        return currentQuestionResponseAnswer.value != 0
+      if (typeof currentQuestionResponseAnswer.value == "number") {
+        return currentQuestionResponseAnswer.value != null
       }
       if (isQuestionTypeSingleChoice.value || isQuestionTypeMultiChoice.value) {
         return currentQuestionResponseAnswer.value.length > 0
@@ -324,14 +315,14 @@ export default defineComponent({
       if (currentDraftResponse == null) {
         return false
       }
-      if (isQuestionTypeSubjective.value) return currentDraftResponse != ''
-      if (typeof currentDraftResponse == 'number') {
-        return currentDraftResponse != 0
+      if (isQuestionTypeSubjective.value) return currentDraftResponse != ""
+      if (typeof currentDraftResponse == "number") {
+        return currentDraftResponse != null
       }
       return currentDraftResponse.length > 0
     })
 
-    const isQuizAssessment = computed(() => props.quizType == 'assessment')
+    const isQuizAssessment = computed(() => props.quizType == "assessment")
 
     const questionStates = computed(() => {
       const states = [] as paletteItemState[]
@@ -349,11 +340,11 @@ export default defineComponent({
             !questionAnswerEvaluation.answered ||
             questionAnswerEvaluation.isCorrect == null
           ) {
-            state = 'neutral'
+            state = "neutral"
           } else {
             questionAnswerEvaluation.isCorrect
-              ? (state = 'success')
-              : (state = 'error')
+              ? (state = "success")
+              : (state = "error")
           }
           states.push({
             index: index,
@@ -365,10 +356,10 @@ export default defineComponent({
           if (!props.questions[index].graded) continue
           let state: questionState
           if (!props.responses[index].visited) {
-            state = 'neutral'
+            state = "neutral"
           } else {
-            if (props.responses[index].answer != null) state = 'success'
-            else state = 'error'
+            if (props.responses[index].answer != null) state = "success"
+            else state = "error"
           }
           states.push({
             index: index,
@@ -388,7 +379,7 @@ export default defineComponent({
     // determine the screen orientation when the item modal is created
     checkScreenOrientation()
     // add listener for screen size being changed
-    window.addEventListener('resize', checkScreenOrientation)
+    window.addEventListener("resize", checkScreenOrientation)
 
     return {
       ...toRefs(state),
@@ -413,10 +404,10 @@ export default defineComponent({
     }
   },
   emits: [
-    'update:currentQuestionIndex',
-    'update:responses',
-    'submit-question',
-    'end-test'
+    "update:currentQuestionIndex",
+    "update:responses",
+    "submit-question",
+    "end-test"
   ]
 })
 </script>
