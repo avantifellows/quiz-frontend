@@ -1,52 +1,48 @@
 <template>
-  <div class="h-full flex flex-col">
+  <div class="h-full flex flex-col bg-white w-full justify-between absolute">
     <Header
       v-if="isQuizAssessment"
       :hasQuizEnded="hasQuizEnded"
       v-model:isPaletteVisible="isPaletteVisible"
       @end-test="endTest"
     ></Header>
-    <div
-      class="flex flex-col grow bg-white w-full justify-between overflow-hidden"
-    >
-      <Body
-        :text="currentQuestion.text"
-        :options="currentQuestion.options"
-        :correctAnswer="questionCorrectAnswer"
-        :questionType="questionType"
-        :isGradedQuestion="isGradedQuestion"
-        :maxCharLimit="currentQuestion.max_char_limit"
-        :isPortrait="isPortrait"
-        :imageData="currentQuestion?.image"
-        :draftAnswer="draftResponses[currentQuestionIndex]"
-        :submittedAnswer="currentQuestionResponseAnswer"
-        :isAnswerSubmitted="isAnswerSubmitted"
-        :isPaletteVisible="isPaletteVisible"
-        :isDraftAnswerCleared="isDraftAnswerCleared"
-        :quizType="quizType"
-        :hasQuizEnded="hasQuizEnded"
-        :currentQuestionIndex="currentQuestionIndex"
-        :questionStates="questionStates"
-        @option-selected="questionOptionSelected"
-        @answer-entered="subjectiveAnswerUpdated"
-        @navigate="navigateToQuestion"
-        data-test="body"
-        ref="body"
-      ></Body>
-      <Footer
-        :isAnswerSubmitted="isAnswerSubmitted"
-        :isPreviousButtonShown="currentQuestionIndex > 0"
-        :isNextButtonShown="currentQuestionIndex != questions.length - 1"
-        :isSubmitEnabled="isAttemptValid"
-        :quizType="quizType"
-        :hasQuizEnded="hasQuizEnded"
-        @submit="submitQuestion"
-        @continue="showNextQuestion"
-        @previous="showPreviousQuestion"
-        @clear="clearAnswer"
-        data-test="footer"
-      ></Footer>
-    </div>
+    <Body
+      :text="currentQuestion.text"
+      :options="currentQuestion.options"
+      :correctAnswer="questionCorrectAnswer"
+      :questionType="questionType"
+      :isGradedQuestion="isGradedQuestion"
+      :maxCharLimit="currentQuestion.max_char_limit"
+      :isPortrait="isPortrait"
+      :imageData="currentQuestion?.image"
+      :draftAnswer="draftResponses[currentQuestionIndex]"
+      :submittedAnswer="currentQuestionResponseAnswer"
+      :isAnswerSubmitted="isAnswerSubmitted"
+      :isPaletteVisible="isPaletteVisible"
+      :isDraftAnswerCleared="isDraftAnswerCleared"
+      :quizType="quizType"
+      :hasQuizEnded="hasQuizEnded"
+      :currentQuestionIndex="currentQuestionIndex"
+      :questionStates="questionStates"
+      @option-selected="questionOptionSelected"
+      @answer-entered="subjectiveAnswerUpdated"
+      @navigate="navigateToQuestion"
+      data-test="body"
+      ref="body"
+    ></Body>
+    <Footer
+      :isAnswerSubmitted="isAnswerSubmitted"
+      :isPreviousButtonShown="currentQuestionIndex > 0"
+      :isNextButtonShown="currentQuestionIndex != questions.length - 1"
+      :isSubmitEnabled="isAttemptValid"
+      :quizType="quizType"
+      :hasQuizEnded="hasQuizEnded"
+      @submit="submitQuestion"
+      @continue="showNextQuestion"
+      @previous="showPreviousQuestion"
+      @clear="clearAnswer"
+      data-test="footer"
+    ></Footer>
   </div>
 </template>
 
@@ -319,7 +315,7 @@ export default defineComponent({
               : (state = "error");
           }
           states.push({
-            index: index,
+            index,
             value: state,
           });
         }
@@ -334,7 +330,7 @@ export default defineComponent({
             else state = "error";
           }
           states.push({
-            index: index,
+            index,
             value: state,
           });
         }

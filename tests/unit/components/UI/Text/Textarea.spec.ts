@@ -6,7 +6,7 @@ describe("Textarea.vue", () => {
   it("should render placeholder correctly", async () => {
     const placeholder = "test placeholder";
     await wrapper.setProps({
-      placeholder: placeholder,
+      placeholder,
     });
     expect(wrapper.find('[data-test="input"]').attributes("placeholder")).toBe(
       placeholder
@@ -25,7 +25,7 @@ describe("Textarea.vue", () => {
   it("renders value sent through prop", async () => {
     const value = 10;
     await wrapper.setProps({
-      value: value,
+      value,
     });
 
     expect(
