@@ -202,7 +202,9 @@ export default defineComponent({
     }
 
     function showNextQuestion() {
+      // It toggles the reRenderKey from 0 to 1 or 1 to 0. And changing the reRender key, re-renders the component.
       // we reRender the whole component as textarea is holding the details which is not getting updated
+      // https://michaelnthiessen.com/force-re-render/
       state.reRenderKey = !state.reRenderKey
       resetState()
       if (
