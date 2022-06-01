@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full flex flex-col">
+  <div class="h-full flex flex-col bg-white w-full justify-between absolute">
     <Header
       v-if="isQuizAssessment"
       :hasQuizEnded="hasQuizEnded"
@@ -349,7 +349,7 @@ export default defineComponent({
               : (state = "error")
           }
           states.push({
-            index: index,
+            index,
             value: state
           })
         }
@@ -364,7 +364,7 @@ export default defineComponent({
             else state = "error"
           }
           states.push({
-            index: index,
+            index,
             value: state
           })
         }

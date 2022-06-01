@@ -202,7 +202,7 @@ export default defineComponent({
         "bg-[#10B981] hover:bg-green-600 bp-500:w-40 px-6 py-3 bp-500:p-4 bp-500:px-10 sm:p-6 rounded-2xl md:rounded-xl shadow-xl disabled:opacity-50 disabled:pointer-events-none",
       isPortrait: true,
       isMobileLandscape: false, // whether the screen corresponds to a mobile screen in landscape mode
-      confettiHandler: confettiHandler,
+      confettiHandler,
     });
 
     function checkScreenOrientation() {

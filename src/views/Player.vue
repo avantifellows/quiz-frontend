@@ -8,7 +8,7 @@
       />
     </div>
 
-    <div v-else class="h-full">
+    <div v-else class="h-full flex flex-col">
       <Splash
         v-if="isSplashShown"
         :title="title"

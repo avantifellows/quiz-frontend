@@ -1,5 +1,5 @@
 <template>
-  <div class="flex relative h-full" :class="{ 'bg-gray-50': isPaletteVisible }">
+  <div class="flex relative h-full overflow-y-auto" :class="{ 'bg-gray-50': isPaletteVisible }">
     <QuestionPalette
       v-if="isPaletteVisible"
       :hasQuizEnded="hasQuizEnded"
