@@ -6,12 +6,17 @@ describe("Player for homework quizzes", () => {
     cy.url().should("include", "/404-not-found");
   });
 
-  it("shows 403 error page if quiz ID provided but user ID is not", () => {
+  it("shows 403 error page if quiz ID provided but user ID  and API key are not", () => {
     cy.visit("/quiz/abcd");
     cy.url().should("include", "/403-access-denied");
   });
 
-  describe("Quiz ID and User ID provided", () => {
+  it("shows 403 error page if quiz ID and user ID are provided but API key is not", () => {
+    cy.visit("/quiz/abcd?userId=1");
+    cy.url().should("include", "/403-access-denied");
+  });
+
+  describe("Quiz ID, User ID and API key provided", () => {
     beforeEach(() => {
       // stub the response to /quiz/{quizId}
       cy.intercept("GET", Cypress.env("backend") + "/quiz/*", {
@@ -28,7 +33,7 @@ describe("Player for homework quizzes", () => {
 
         cy.intercept("PATCH", "/session_answers/*", {});
 
-        cy.visit("/quiz/abcd?userId=1");
+        cy.visit("/quiz/abcd?userId=1&apiKey=pqr");
 
         // define aliasas
         cy.get('[data-test="startQuiz"]').as("startQuizButton");
