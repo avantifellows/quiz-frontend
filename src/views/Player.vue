@@ -315,7 +315,6 @@ export default defineComponent({
       }
       if (answerEvaluation.answered) {
         state.numSkipped -= 1;
-
         if (answerEvaluation.isCorrect != null) {
           answerEvaluation.isCorrect
             ? updateMetricsForCorrectAnswer()
