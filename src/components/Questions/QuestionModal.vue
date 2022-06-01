@@ -169,9 +169,6 @@ export default defineComponent({
         // remove it from the response (uncheck it); otherwise add it (check it)
         const currentResponse = state.draftResponses[props.currentQuestionIndex]
 
-        // TODO: this is ideally not needed but typescript is giving an error that
-        // "currentResponse could be possibly null" without this line, which is
-        // not correct as the null case has been handled above.
         if (Array.isArray(currentResponse)) {
           const optionPositionInResponse = currentResponse.indexOf(optionIndex)
           if (optionPositionInResponse != -1) {
