@@ -1,5 +1,8 @@
 <template>
-  <div class="flex relative h-full overflow-y-auto" :class="{ 'bg-gray-50': isPaletteVisible }">
+  <div
+    class="flex relative h-full overflow-y-auto"
+    :class="{ 'bg-gray-50': isPaletteVisible }"
+  >
     <QuestionPalette
       v-if="isPaletteVisible"
       :hasQuizEnded="hasQuizEnded"
@@ -125,7 +128,7 @@
             v-model:value="numericalAnswer"
             class="px-2 w-full"
             :boxStyling="numericalAnswerBoxStyling"
-            placeholder="Enter your answer here. Only numbers allowed"
+            placeholder="Only numbers are allowed"
             :isDisabled="isAnswerDisabled"
             :maxHeightLimit="250"
             @keypress="preventKeypressIfApplicable"
