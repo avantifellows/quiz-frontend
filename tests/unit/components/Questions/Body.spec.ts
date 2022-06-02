@@ -421,7 +421,7 @@ describe("Body.vue", () => {
       const wrapper = mount(Body, {
         props: {
           questionType: "numerical-integer",
-          draftAnswer: draftAnswer,
+          draftAnswer,
         },
       });
 
@@ -441,7 +441,7 @@ describe("Body.vue", () => {
       const wrapper = mount(Body, {
         props: {
           questionType: "numerical-integer",
-          submittedAnswer: submittedAnswer,
+          submittedAnswer,
         },
       });
 
@@ -470,8 +470,8 @@ describe("Body.vue", () => {
       let submittedAnswer = 7;
       let correctAnswer = 8;
       await wrapper.setProps({
-        submittedAnswer: submittedAnswer,
-        correctAnswer: correctAnswer,
+        submittedAnswer,
+        correctAnswer,
         isAnswerSubmitted: true,
         isGradedQuestion: true,
       });
@@ -487,8 +487,8 @@ describe("Body.vue", () => {
       submittedAnswer = 7;
       correctAnswer = 7;
       await wrapper.setProps({
-        submittedAnswer: submittedAnswer,
-        correctAnswer: correctAnswer,
+        submittedAnswer,
+        correctAnswer,
         isAnswerSubmitted: true,
         isGradedQuestion: true,
       });
@@ -503,7 +503,7 @@ describe("Body.vue", () => {
 
       submittedAnswer = 9;
       await wrapper.setProps({
-        submittedAnswer: submittedAnswer,
+        submittedAnswer,
         isAnswerSubmitted: true,
         isGradedQuestion: false,
       });
@@ -521,8 +521,8 @@ describe("Body.vue", () => {
       let submittedAnswer = 7;
       let correctAnswer = 8;
       await wrapper.setProps({
-        submittedAnswer: submittedAnswer,
-        correctAnswer: correctAnswer,
+        submittedAnswer,
+        correctAnswer,
         isAnswerSubmitted: true,
         isGradedQuestion: true,
         hasQuizEnded: true,
@@ -540,8 +540,8 @@ describe("Body.vue", () => {
       submittedAnswer = 7;
       correctAnswer = 7;
       await wrapper.setProps({
-        submittedAnswer: submittedAnswer,
-        correctAnswer: correctAnswer,
+        submittedAnswer,
+        correctAnswer,
         isAnswerSubmitted: true,
         isGradedQuestion: true,
         quizType: "assessment",
@@ -557,7 +557,7 @@ describe("Body.vue", () => {
 
       submittedAnswer = 9;
       await wrapper.setProps({
-        submittedAnswer: submittedAnswer,
+        submittedAnswer,
         isAnswerSubmitted: true,
         isGradedQuestion: false,
         quizType: "assessment",
@@ -629,7 +629,7 @@ describe("Body.vue", () => {
       const wrapper = mount(Body, {
         props: {
           questionType: "numerical-float",
-          draftAnswer: draftAnswer,
+          draftAnswer,
         },
       });
 
@@ -649,7 +649,7 @@ describe("Body.vue", () => {
       const wrapper = mount(Body, {
         props: {
           questionType: "numerical-float",
-          submittedAnswer: submittedAnswer,
+          submittedAnswer,
         },
       });
 
@@ -678,8 +678,8 @@ describe("Body.vue", () => {
       let submittedAnswer = 7.9;
       let correctAnswer = 8.9;
       await wrapper.setProps({
-        submittedAnswer: submittedAnswer,
-        correctAnswer: correctAnswer,
+        submittedAnswer,
+        correctAnswer,
         isAnswerSubmitted: true,
         isGradedQuestion: true,
       });
@@ -695,8 +695,8 @@ describe("Body.vue", () => {
       submittedAnswer = 7.9;
       correctAnswer = 7.9;
       await wrapper.setProps({
-        submittedAnswer: submittedAnswer,
-        correctAnswer: correctAnswer,
+        submittedAnswer,
+        correctAnswer,
         isAnswerSubmitted: true,
         isGradedQuestion: true,
       });
@@ -711,7 +711,7 @@ describe("Body.vue", () => {
 
       submittedAnswer = 9.8;
       await wrapper.setProps({
-        submittedAnswer: submittedAnswer,
+        submittedAnswer,
         isAnswerSubmitted: true,
         isGradedQuestion: false,
       });
@@ -729,8 +729,8 @@ describe("Body.vue", () => {
       let submittedAnswer = 7.9;
       let correctAnswer = 8.9;
       await wrapper.setProps({
-        submittedAnswer: submittedAnswer,
-        correctAnswer: correctAnswer,
+        submittedAnswer,
+        correctAnswer,
         isAnswerSubmitted: true,
         isGradedQuestion: true,
         hasQuizEnded: true,
@@ -748,8 +748,8 @@ describe("Body.vue", () => {
       submittedAnswer = 7.8;
       correctAnswer = 7.8;
       await wrapper.setProps({
-        submittedAnswer: submittedAnswer,
-        correctAnswer: correctAnswer,
+        submittedAnswer,
+        correctAnswer,
         isAnswerSubmitted: true,
         isGradedQuestion: true,
         quizType: "assessment",
@@ -765,7 +765,7 @@ describe("Body.vue", () => {
 
       submittedAnswer = 9.9;
       await wrapper.setProps({
-        submittedAnswer: submittedAnswer,
+        submittedAnswer,
         isAnswerSubmitted: true,
         isGradedQuestion: false,
         quizType: "assessment",

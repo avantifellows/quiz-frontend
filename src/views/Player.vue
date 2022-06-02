@@ -71,6 +71,7 @@ import {
   SubmittedResponse,
   QuizMetadata,
   submittedAnswer,
+  quizTitleType,
 } from "../types";
 import BaseIcon from "../components/UI/Icons/BaseIcon.vue";
 
@@ -92,7 +93,7 @@ export default defineComponent({
     const route = useRoute();
     const state = reactive({
       currentQuestionIndex: -1 as number,
-      title: "Geometry Quiz" as string,
+      title: null as quizTitleType,
       metadata: {} as QuizMetadata,
       questions: [] as Question[],
       responses: [] as SubmittedResponse[], // holds the responses to each item submitted by the viewer
@@ -157,6 +158,7 @@ export default defineComponent({
       state.metadata = quizDetails.metadata;
       state.maxMarks =
         quizDetails.max_marks || quizDetails.num_graded_questions;
+      state.title = quizDetails.title
     }
 
     async function createSession() {

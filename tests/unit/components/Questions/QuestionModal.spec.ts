@@ -584,7 +584,7 @@ describe("QuestionModal.vue", () => {
           expect(wrapper.vm.localResponses[questionIndex]).toEqual({
             _id: `${questionIndex}`,
             question_id: questions[questionIndex]._id,
-            answer: answer,
+            answer,
             visited: false,
           });
           expect(wrapper.emitted()).toHaveProperty("submit-question");

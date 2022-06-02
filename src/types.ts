@@ -8,6 +8,8 @@ type questionType =
   | "numerical-integer";
 type language = "en" | "hi";
 export type quizType = "assessment" | "homework";
+export type quizTitleType = string | null;
+export type isFirstSessionType = boolean | null;
 type quizNavigationMode = "linear" | "non-linear";
 export type submittedAnswer = number[] | string | number | null;
 type correctAnswer = number[] | number | null;
@@ -109,6 +111,7 @@ interface QuestionSet {
 }
 
 export interface QuizAPIResponse {
+  title: string;
   instructions: string;
   _id: string;
   language: language;
