@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen">
+  <div class="h-full">
     <!-- loading spinner -->
     <div v-if="!isQuizLoaded" class="flex justify-center h-full">
       <BaseIcon
