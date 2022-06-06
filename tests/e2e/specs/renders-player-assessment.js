@@ -18,7 +18,7 @@ describe("Player for Assessment quizzes", () => {
       cy.intercept("PATCH", "/session_answers/*", {});
       cy.intercept("PATCH", "/sessions/*", {});
 
-      cy.visit("/quiz/abcd?userId=1");
+      cy.visit("/quiz/abcd?userId=1&apiKey=" + Cypress.env("af-api-key"));
 
       // define aliasas
       cy.get('[data-test="startQuiz"]').as("startQuizButton");
