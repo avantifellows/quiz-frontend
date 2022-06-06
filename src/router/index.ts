@@ -52,8 +52,8 @@ router.beforeEach((to) => {
   if (to.meta.requiresAuth) {
     const queryParams = Object.keys(to.query);
     const isAuthenticated =
-      requiredAuthKeys.every((key) => queryParams.includes(key) &&  (queryParams[key] != "" && queryParams[key] != undefined))
-    if (!isAuthNeeded) {
+      requiredAuthKeys.every((key: any) => queryParams.includes(key) && (to.query[key] != "" && to.query[key] != undefined))
+    if (!isAuthenticated) {
       return {
         name: "403",
       };
