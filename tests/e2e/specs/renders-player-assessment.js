@@ -18,9 +18,15 @@ describe("Player for Assessment quizzes", () => {
       cy.intercept("PATCH", "/session_answers/*", {});
       cy.intercept("PATCH", "/sessions/*", {});
 
-      cy.intercept("GET", Cypress.env("backend") + "/organizations/authenticate/" + Cypress.env("af-api-key"), {
-        fixture: "org_authentication.json",
-      });
+      cy.intercept(
+        "GET",
+        Cypress.env("backend") +
+          "/organizations/authenticate/" +
+          Cypress.env("af-api-key"),
+        {
+          fixture: "org_authentication.json",
+        }
+      );
       cy.visit("/quiz/abcd?userId=1&apiKey=" + Cypress.env("af-api-key"));
 
       // define aliasas
@@ -235,9 +241,15 @@ describe("Player for Assessment quizzes", () => {
 
       cy.intercept("PATCH", "/session_answers/*", {});
 
-      cy.intercept("GET", Cypress.env("backend") + "/organizations/authenticate/" + Cypress.env("af-api-key"), {
-        fixture: "org_authentication.json",
-      });
+      cy.intercept(
+        "GET",
+        Cypress.env("backend") +
+          "/organizations/authenticate/" +
+          Cypress.env("af-api-key"),
+        {
+          fixture: "org_authentication.json",
+        }
+      );
       cy.visit("/quiz/abcd?userId=1&apiKey=" + Cypress.env("af-api-key"));
 
       // define aliasas
