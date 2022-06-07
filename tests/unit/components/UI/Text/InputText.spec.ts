@@ -10,7 +10,7 @@ describe("InputText.vue", () => {
   it("should render title correctly", async () => {
     const title = "test title";
     await wrapper.setProps({
-      title: title,
+      title,
     });
     expect(wrapper.find('[data-test="title"]').text()).toBe(title);
   });

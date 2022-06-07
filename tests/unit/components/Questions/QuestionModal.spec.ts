@@ -66,6 +66,26 @@ describe("QuestionModal.vue", () => {
       graded: false,
       max_char_limit: 100,
     },
+    {
+      _id: "1240",
+      type: "numerical-integer",
+      text: "yolo",
+      options: null,
+      correct_answer: 7,
+      image: null,
+      graded: true,
+      max_char_limit: null,
+    },
+    {
+      _id: "1241",
+      type: "numerical-float",
+      text: "yolo",
+      options: null,
+      correct_answer: 7.9,
+      image: null,
+      graded: false,
+      max_char_limit: null,
+    },
   ] as Question[];
 
   const responses: SubmittedResponse[] = [];
@@ -87,7 +107,7 @@ describe("QuestionModal.vue", () => {
     if (wrapper != undefined) wrapper.unmount();
     wrapper = mount(QuestionModal, {
       props: {
-        questions: questions,
+        questions,
         responses: clonedeep(responses),
         currentQuestionIndex: params.currentQuestionIndex,
       },
@@ -146,7 +166,7 @@ describe("QuestionModal.vue", () => {
       describe("Sets question states correctly", () => {
         describe("Quiz in-progress", () => {
           it("Without having visited", () => {
-            expect(wrapper.vm.questionStates.length).toBe(2);
+            expect(wrapper.vm.questionStates.length).toBe(3);
             expect(wrapper.vm.questionStates[0]).toEqual({
               index: 0,
               value: "neutral",
@@ -190,7 +210,7 @@ describe("QuestionModal.vue", () => {
             });
           });
           it("Skipped Questions", () => {
-            expect(wrapper.vm.questionStates.length).toBe(2);
+            expect(wrapper.vm.questionStates.length).toBe(3);
             expect(wrapper.vm.questionStates[0]).toEqual({
               index: 0,
               value: "neutral",
@@ -466,7 +486,7 @@ describe("QuestionModal.vue", () => {
           expect(wrapper.vm.localResponses[questionIndex]).toEqual({
             _id: `${questionIndex}`,
             question_id: questions[questionIndex]._id,
-            answer: answer,
+            answer,
             visited: false,
           });
           expect(wrapper.emitted()).toHaveProperty("submit-question");
@@ -526,6 +546,107 @@ describe("QuestionModal.vue", () => {
 
         // the answer should still be there since we didn't save after clearing
         expect(wrapper.find('[data-test="input"]').element.value).toBe(answer);
+      });
+    });
+  });
+
+  describe("numerical questions", () => {
+    const questionIndex = 4;
+
+    beforeEach(() => mountWrapper({ currentQuestionIndex: questionIndex }));
+
+    it("entering answer makes answer valid", async () => {
+      // initially answer should be invalid
+      expect(wrapper.vm.isAttemptValid).toBeFalsy();
+
+      // select an option
+      await wrapper.find('[data-test="input"]').setValue(9);
+
+      // the answer should now be valid
+      expect(wrapper.vm.isAttemptValid).toBeTruthy();
+    });
+
+    describe("Homework", () => {
+      describe("submits question", () => {
+        const answer = 9;
+        beforeEach(async () => {
+          // enter answer
+          await wrapper.find('[data-test="input"]').setValue(answer);
+
+          // submit the answer
+          wrapper
+            .find('[data-test="footer"]')
+            .find('[data-test="submitButton"]')
+            .trigger("click");
+        });
+
+        it("responses have been updated", () => {
+          expect(wrapper.vm.localResponses[questionIndex]).toEqual({
+            _id: `${questionIndex}`,
+            question_id: questions[questionIndex]._id,
+            answer: answer,
+            visited: false,
+          });
+          expect(wrapper.emitted()).toHaveProperty("submit-question");
+        });
+
+        it("proceeds with question on answering", () => {
+          wrapper
+            .find('[data-test="footer"]')
+            .find('[data-test="submitButton"]')
+            .trigger("click");
+
+          expect(wrapper.vm.localCurrentQuestionIndex).toBe(5);
+        });
+      });
+    });
+
+    describe("Assessments", () => {
+      beforeEach(async () => {
+        await wrapper.setProps({
+          quizType: "assessment",
+        });
+      });
+
+      it("removes gray background from selected answer upon clicking on Clear", async () => {
+        // enter answer
+        const answer = 7;
+        await wrapper.find('[data-test="input"]').setValue(answer);
+
+        // submit the answer
+        wrapper
+          .find('[data-test="footer"]')
+          .find('[data-test="saveAndNextButton"]')
+          .trigger("click");
+
+        // go back to the previous question
+        wrapper
+          .find('[data-test="footer"]')
+          .find('[data-test="previousQuestionButton"]')
+          .trigger("click");
+
+        // clear the answer
+        wrapper
+          .find('[data-test="footer"]')
+          .find('[data-test="clearButton"]')
+          .trigger("click");
+
+        // move to next question
+        wrapper
+          .find('[data-test="footer"]')
+          .find('[data-test="nextQuestionButton"]')
+          .trigger("click");
+
+        // go back to the previous question
+        wrapper
+          .find('[data-test="footer"]')
+          .find('[data-test="previousQuestionButton"]')
+          .trigger("click");
+
+        // the answer should still be there since we didn't save after clearing
+        expect(Number(wrapper.find('[data-test="input"]').element.value)).toBe(
+          answer
+        );
       });
     });
   });

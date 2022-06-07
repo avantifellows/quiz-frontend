@@ -54,7 +54,7 @@ describe("Scorecard.vue", () => {
     },
     global: {
       provide: {
-        store: store,
+        store,
       },
     },
   });
@@ -96,7 +96,7 @@ describe("Scorecard.vue", () => {
   it("animates the progress bar based on the isShown prop", async () => {
     const progressPercentage = 50;
     await wrapper.setProps({
-      progressPercentage: progressPercentage,
+      progressPercentage,
       isShown: true,
     });
     await flushPromises();
@@ -126,7 +126,7 @@ describe("Scorecard.vue", () => {
     const progressPercentage = 50;
     await wrapper.setProps({
       numQuestionsAnswered: 4,
-      progressPercentage: progressPercentage,
+      progressPercentage,
       isShown: true,
       title: "Geometry Quiz",
     });
@@ -144,7 +144,7 @@ describe("Scorecard.vue", () => {
     const progressPercentage = 50;
     await wrapper.setProps({
       numQuestionsAnswered: 4,
-      progressPercentage: progressPercentage,
+      progressPercentage,
       isShown: true,
       title: "Geometry Quiz",
     });
