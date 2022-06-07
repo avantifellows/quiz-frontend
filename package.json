@@ -49,6 +49,7 @@
     "cypress": "^9.5.2",
     "eslint": "^8.9.0",
     "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-n": "^15.2.1",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-vue": "^8.5.0",
