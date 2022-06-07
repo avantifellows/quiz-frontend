@@ -7,7 +7,8 @@
     "build": "vue-cli-service build",
     "build-staging": "vue-cli-service build --mode staging",
     "test:unit": "vue-cli-service test:unit --coverageProvider=v8",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "test:e2e": "vue-cli-service test:e2e"
   },
   "dependencies": {
     "@types/mathjax": "^0.0.37",
@@ -20,7 +21,8 @@
     "vue-router": "^4.0.12",
     "vue-toastification": "^2.0.0-rc.5",
     "vue3-click-away": "^1.2.4",
-    "vuex": "^4.0.2"
+    "vuex": "^4.0.2",
+    "eslint-plugin-node": "^11.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.17.5",
@@ -48,7 +50,6 @@
     "cypress": "^9.5.2",
     "eslint": "^8.9.0",
     "eslint-plugin-import": "^2.25.4",
-    "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-vue": "^8.5.0",
     "postcss": "^8.4.6",
