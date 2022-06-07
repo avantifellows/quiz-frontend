@@ -37,7 +37,6 @@ describe("Player for Assessment quizzes", () => {
 
     describe("Quiz Started", () => {
       beforeEach(() => {
-        cy.wait(3000);
         cy.get("@startQuizButton").trigger("click");
       });
 
