@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen">
+  <div class="h-full">
     <!-- loading spinner -->
     <div v-if="!isQuizLoaded" class="flex justify-center h-full">
       <BaseIcon
@@ -8,7 +8,7 @@
       />
     </div>
 
-    <div v-else class="h-full">
+    <div v-else class="h-full flex flex-col">
       <Splash
         v-if="isSplashShown"
         :title="title"
@@ -318,7 +318,6 @@ export default defineComponent({
       }
       if (answerEvaluation.answered) {
         state.numSkipped -= 1;
-
         if (answerEvaluation.isCorrect != null) {
           answerEvaluation.isCorrect
             ? updateMetricsForCorrectAnswer()

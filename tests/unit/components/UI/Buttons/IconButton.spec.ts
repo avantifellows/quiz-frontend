@@ -19,7 +19,7 @@ describe("IconButton.vue", () => {
       props: {
         iconConfig: {
           enabled: true,
-          iconName: iconName,
+          iconName,
         },
       },
     });

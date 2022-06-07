@@ -5,7 +5,6 @@
       :iconConfig="togglePaletteButtonIconConfig"
       :buttonClass="togglePaletteButtonClass"
       @click="togglePalette"
-      v-click-away="closePalette"
       data-test="togglePaletteButton"
     ></icon-button>
 
@@ -45,9 +44,6 @@ export default defineComponent({
     function endTest() {
       context.emit("end-test");
     }
-    function closePalette() {
-      if (state.localIsPaletteVisible) state.localIsPaletteVisible = false;
-    }
     function togglePalette() {
       state.localIsPaletteVisible = !state.localIsPaletteVisible;
     }
@@ -79,6 +75,13 @@ export default defineComponent({
     }));
 
     watch(
+      () => props.isPaletteVisible,
+      (newValue) => {
+        state.localIsPaletteVisible = newValue;
+      }
+    );
+
+    watch(
       () => state.localIsPaletteVisible,
       (newValue) => {
         context.emit("update:isPaletteVisible", newValue);
@@ -89,7 +92,6 @@ export default defineComponent({
       ...toRefs(state),
       endTest,
       togglePalette,
-      closePalette,
       endTestButtonTitleConfig,
       togglePaletteButtonIconConfig,
       togglePaletteButtonClass,

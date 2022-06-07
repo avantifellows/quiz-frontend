@@ -8,8 +8,8 @@ describe("CircularProgress.vue", () => {
     const stroke = 50;
     const wrapper = mount(CircularProgress, {
       props: {
-        radius: radius,
-        stroke: stroke,
+        radius,
+        stroke,
         result: {
           title: "temp text",
           value: `${progress}%`,

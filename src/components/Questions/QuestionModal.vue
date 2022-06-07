@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full flex flex-col">
+  <div class="h-full flex flex-col bg-white w-full justify-between absolute">
     <Header
       v-if="isQuizAssessment"
       :hasQuizEnded="hasQuizEnded"
@@ -28,8 +28,10 @@
         :currentQuestionIndex="currentQuestionIndex"
         :questionStates="questionStates"
         @option-selected="questionOptionSelected"
-        @answer-entered="subjectiveAnswerUpdated"
+        @subjective-answer-entered="subjectiveAnswerUpdated"
+        @numerical-answer-entered="numericalAnswerUpdated"
         @navigate="navigateToQuestion"
+        :key="reRenderKey"
         data-test="body"
         ref="body"
       ></Body>
@@ -115,6 +117,7 @@ export default defineComponent({
       toast: useToast(),
       isDraftAnswerCleared: false, // whether the draft answer has been cleared but not yet submitted
       isPaletteVisible: false, // whether the question palette is visible
+      reRenderKey: false, // a key to re-render a component
     });
 
     function checkScreenOrientation() {
@@ -123,6 +126,7 @@ export default defineComponent({
 
     function navigateToQuestion(questionIndex: number) {
       state.localCurrentQuestionIndex = questionIndex;
+      state.isPaletteVisible = false;
     }
 
     watch(
@@ -167,19 +171,14 @@ export default defineComponent({
         const currentResponse =
           state.draftResponses[props.currentQuestionIndex];
 
-        // TODO: this is ideally not needed but typescript is giving an error that
-        // "currentResponse could be possibly null" without this line, which is
-        // not correct as the null case has been handled above.
-        if (currentResponse == null || typeof currentResponse == "string") {
-          return;
-        }
-
-        const optionPositionInResponse = currentResponse.indexOf(optionIndex);
-        if (optionPositionInResponse != -1) {
-          currentResponse.splice(optionPositionInResponse, 1);
-        } else {
-          currentResponse.push(optionIndex);
-          currentResponse.sort();
+        if (Array.isArray(currentResponse)) {
+          const optionPositionInResponse = currentResponse.indexOf(optionIndex);
+          if (optionPositionInResponse != -1) {
+            currentResponse.splice(optionPositionInResponse, 1);
+          } else {
+            currentResponse.push(optionIndex);
+            currentResponse.sort();
+          }
         }
       }
     }
@@ -192,11 +191,20 @@ export default defineComponent({
     }
 
     function clearAnswer() {
-      state.draftResponses[props.currentQuestionIndex] = null;
+      state.reRenderKey = !state.reRenderKey;
+      if (typeof state.draftResponses[props.currentQuestionIndex] == "number") {
+        state.draftResponses[props.currentQuestionIndex] = 0;
+      } else {
+        state.draftResponses[props.currentQuestionIndex] = null;
+      }
       state.isDraftAnswerCleared = true;
     }
 
     function showNextQuestion() {
+      // It toggles the reRenderKey from 0 to 1 or 1 to 0. And changing the reRender key, re-renders the component.
+      // we reRender the whole component as textarea is holding the details which is not getting updated
+      // https://michaelnthiessen.com/force-re-render/
+      state.reRenderKey = !state.reRenderKey;
       resetState();
       if (
         state.localCurrentQuestionIndex < props.questions.length - 1 ||
@@ -215,6 +223,7 @@ export default defineComponent({
     }
 
     function showPreviousQuestion() {
+      state.reRenderKey = !state.reRenderKey;
       resetState();
       state.localCurrentQuestionIndex -= 1;
     }
@@ -223,6 +232,8 @@ export default defineComponent({
       if (
         state.isDraftAnswerCleared &&
         isQuestionTypeSubjective.value &&
+        isQuestionTypeNumericalFloat.value &&
+        isQuestionTypeNumericalInteger.value &&
         state.draftResponses[props.currentQuestionIndex] !=
           currentQuestionResponseAnswer.value
       ) {
@@ -230,6 +241,10 @@ export default defineComponent({
           currentQuestionResponseAnswer.value;
       }
       state.isDraftAnswerCleared = false;
+    }
+
+    function numericalAnswerUpdated(answer: number) {
+      state.draftResponses[props.currentQuestionIndex] = answer;
     }
 
     /** update the attempt to the current question - valid for subjective questions */
@@ -268,6 +283,12 @@ export default defineComponent({
     const isQuestionTypeSubjective = computed(
       () => questionType.value == "subjective"
     );
+    const isQuestionTypeNumericalInteger = computed(
+      () => questionType.value == "numerical-integer"
+    );
+    const isQuestionTypeNumericalFloat = computed(
+      () => questionType.value == "numerical-float"
+    );
 
     const currentQuestionResponse = computed(
       () => props.responses[props.currentQuestionIndex]
@@ -279,6 +300,9 @@ export default defineComponent({
 
     const isAnswerSubmitted = computed(() => {
       if (currentQuestionResponseAnswer.value == null) return false;
+      if (typeof currentQuestionResponseAnswer.value == "number") {
+        return currentQuestionResponseAnswer.value != null;
+      }
       if (isQuestionTypeSingleChoice.value || isQuestionTypeMultiChoice.value) {
         return currentQuestionResponseAnswer.value.length > 0;
       }
@@ -289,8 +313,13 @@ export default defineComponent({
       const currentDraftResponse = state.draftResponses[
         props.currentQuestionIndex
       ] as DraftResponse;
-      if (currentDraftResponse == null) return false;
+      if (currentDraftResponse == null) {
+        return false;
+      }
       if (isQuestionTypeSubjective.value) return currentDraftResponse != "";
+      if (typeof currentDraftResponse == "number") {
+        return currentDraftResponse != null;
+      }
       return currentDraftResponse.length > 0;
     });
 
@@ -319,7 +348,7 @@ export default defineComponent({
               : (state = "error");
           }
           states.push({
-            index: index,
+            index,
             value: state,
           });
         }
@@ -334,7 +363,7 @@ export default defineComponent({
             else state = "error";
           }
           states.push({
-            index: index,
+            index,
             value: state,
           });
         }
@@ -371,6 +400,7 @@ export default defineComponent({
       isAnswerSubmitted,
       isAttemptValid,
       isQuizAssessment,
+      numericalAnswerUpdated,
       questionStates,
     };
   },
