@@ -58,21 +58,14 @@
 import QuestionModal from "../components/Questions/QuestionModal.vue";
 import Splash from "../components/Splash.vue";
 import Scorecard from "../components/Scorecard.vue";
-import {
-  resetConfetti,
-  isQuestionAnswerCorrect,
-} from "../services/Functional/Utilities";
+import { resetConfetti, isQuestionAnswerCorrect } from "../services/Functional/Utilities";
 import QuizAPIService from "../services/API/Quiz";
 import SessionAPIService from "../services/API/Session";
 import { defineComponent, reactive, toRefs, computed, watch } from "vue";
-import { useRoute } from "vue-router";
-import {
-  Question,
-  SubmittedResponse,
-  QuizMetadata,
-  submittedAnswer,
-} from "../types";
+import { useRouter, useRoute } from "vue-router";
+import { Question, SubmittedResponse, QuizMetadata, submittedAnswer } from "../types";
 import BaseIcon from "../components/UI/Icons/BaseIcon.vue";
+import OrganizationAPIService from "../services/API/Organization";
 
 export default defineComponent({
   name: "Player",
@@ -87,9 +80,19 @@ export default defineComponent({
       type: String,
       required: true,
     },
+    userId: {
+      default: null,
+      type: String,
+    },
+    apiKey: {
+      default: null,
+      type: String,
+    },
   },
   setup(props) {
+    const router = useRouter();
     const route = useRoute();
+
     const state = reactive({
       currentQuestionIndex: -1 as number,
       title: "Geometry Quiz" as string,
@@ -108,15 +111,20 @@ export default defineComponent({
       hasQuizEnded: false, // whether the quiz has ended - only valid for quizType = assessment
       sessionId: "", // id of the session created for a user-quiz combination
     });
-    const isQuizAssessment = computed(
-      () => state.metadata.quiz_type == "assessment"
-    );
+
+    OrganizationAPIService.checkAuthToken(props.apiKey).catch(() => {
+      router.replace({
+        name: "403",
+      });
+    });
+
+    const isQuizAssessment = computed(() => state.metadata.quiz_type == "assessment");
+
     const isSplashShown = computed(() => state.currentQuestionIndex == -1);
     const numQuestions = computed(() => state.questions.length);
     const isQuestionShown = computed(() => {
       return (
-        state.currentQuestionIndex >= 0 &&
-        state.currentQuestionIndex < numQuestions.value
+        state.currentQuestionIndex >= 0 && state.currentQuestionIndex < numQuestions.value
       );
     });
     const isQuizLoaded = computed(() => numQuestions.value > 0);
@@ -155,8 +163,7 @@ export default defineComponent({
       const questionSet = quizDetails.question_sets[0];
       state.questions = questionSet.questions;
       state.metadata = quizDetails.metadata;
-      state.maxMarks =
-        quizDetails.max_marks || quizDetails.num_graded_questions;
+      state.maxMarks = quizDetails.max_marks || quizDetails.num_graded_questions;
     }
 
     async function createSession() {
@@ -178,7 +185,6 @@ export default defineComponent({
     /** updates the session answer once a response is submitted */
     function submitQuestion() {
       const itemResponse = state.responses[state.currentQuestionIndex];
-
       SessionAPIService.updateSessionAnswer(itemResponse._id, {
         answer: itemResponse.answer,
       });
@@ -306,10 +312,7 @@ export default defineComponent({
         state.marksScored += markingScheme?.wrong || 0;
       }
 
-      const answerEvaluation = isQuestionAnswerCorrect(
-        questionDetail,
-        userAnswer
-      );
+      const answerEvaluation = isQuestionAnswerCorrect(questionDetail, userAnswer);
       if (!answerEvaluation.valid) {
         return;
       }

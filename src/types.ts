@@ -156,6 +156,11 @@ export interface paletteItemState {
   value: questionState;
 }
 
+export interface OrganizationAPIResponse {
+  _id: string;
+  name: string;
+}
+
 export interface CircularProgressResult {
   title: string;
   value: string;
