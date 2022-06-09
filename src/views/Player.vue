@@ -59,7 +59,7 @@
 import QuestionModal from "../components/Questions/QuestionModal.vue";
 import Splash from "../components/Splash.vue";
 import Scorecard from "../components/Scorecard.vue";
-import { resetConfetti, isQuestionAnswerCorrect } from "../services/Functional/Utilities";
+import { resetConfetti, isQuestionAnswerCorrect, createQuestionBuckets } from "../services/Functional/Utilities";
 import QuizAPIService from "../services/API/Quiz";
 import SessionAPIService from "../services/API/Session";
 import QuestionAPIService from "../services/API/Question"
@@ -70,7 +70,6 @@ import {
   Question,
   SubmittedResponse,
   QuizMetadata,
-  QuestionBucketingMap,
   submittedAnswer,
 } from "../types";
 import BaseIcon from "../components/UI/Icons/BaseIcon.vue";
@@ -177,30 +176,6 @@ export default defineComponent({
         quizDetails.max_marks || quizDetails.num_graded_questions;
 
       createQuestionBuckets(state.questions.length)
-    }
-
-    function createQuestionBuckets(totalQuestions: number) {
-      const questionsBucketingMap = {} as QuestionBucketingMap
-
-      // calculate total buckets possible
-      let totalBucketsPossible = Math.floor(totalQuestions / store.state.bucketSize)
-      if (totalQuestions % store.state.bucketSize != 0) totalBucketsPossible++;
-
-      // create the bucket map
-      for (let bucketIndex = 0; bucketIndex < totalBucketsPossible; bucketIndex++) {
-        questionsBucketingMap[bucketIndex] = {
-          bucketStartIndex: (bucketIndex * store.state.bucketSize),
-          bucketEndIndex: (
-            bucketIndex == totalBucketsPossible - 1 &&
-            totalQuestions % store.state.bucketSize != 0
-          )
-            ? (bucketIndex * store.state.bucketSize) + (totalQuestions % store.state.bucketSize - 1)
-            : (bucketIndex * store.state.bucketSize) + (store.state.bucketSize - 1),
-          hasBeenFetched: (!bucketIndex),
-        }
-      }
-
-      store.dispatch("setQuestionBucketMap", questionsBucketingMap)
     }
 
     async function createSession() {

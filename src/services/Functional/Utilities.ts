@@ -1,5 +1,5 @@
 import store from "../../store/index";
-import { Question, submittedAnswer, answerEvaluation } from "../../types";
+import { Question, submittedAnswer, answerEvaluation, QuestionBucketingMap } from "../../types";
 const isEqual = require("deep-eql");
 
 /**
@@ -130,4 +130,28 @@ export function isQuestionAnswerCorrect(
 export function isRequestedQuestionFetched(requestedQuestionIndex: number) {
   const bucketToCheck = Math.floor(requestedQuestionIndex / store.getters.bucketSize)
   return store.getters.questionBucketingMap[bucketToCheck].hasBeenFetched
+}
+
+export function createQuestionBuckets(totalQuestions: number) {
+  const questionsBucketingMap = {} as QuestionBucketingMap
+
+  // calculate total buckets possible
+  let totalBucketsPossible = Math.floor(totalQuestions / store.state.bucketSize)
+  if (totalQuestions % store.state.bucketSize != 0) totalBucketsPossible++;
+
+  // create the bucket map
+  for (let bucketIndex = 0; bucketIndex < totalBucketsPossible; bucketIndex++) {
+    questionsBucketingMap[bucketIndex] = {
+      bucketStartIndex: (bucketIndex * store.state.bucketSize),
+      bucketEndIndex: (
+        bucketIndex == totalBucketsPossible - 1 &&
+        totalQuestions % store.state.bucketSize != 0
+      )
+        ? (bucketIndex * store.state.bucketSize) + (totalQuestions % store.state.bucketSize - 1)
+        : (bucketIndex * store.state.bucketSize) + (store.state.bucketSize - 1),
+      hasBeenFetched: (!bucketIndex),
+    }
+  }
+
+  store.dispatch("setQuestionBucketMap", questionsBucketingMap)
 }

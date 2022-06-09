@@ -1,6 +1,7 @@
 import { flushPromises, mount } from "@vue/test-utils";
 import { Question, SubmittedResponse } from "@/types";
 import QuestionModal from "@/components/Questions/QuestionModal.vue";
+import { createQuestionBuckets } from "@/services/Functional/Utilities";
 
 const clonedeep = require("lodash.clonedeep");
 
@@ -105,6 +106,9 @@ describe("QuestionModal.vue", () => {
     }
   ) => {
     if (wrapper != undefined) wrapper.unmount();
+
+    createQuestionBuckets(questions.length)
+
     wrapper = mount(QuestionModal, {
       props: {
         questions,
@@ -584,7 +588,7 @@ describe("QuestionModal.vue", () => {
           expect(wrapper.vm.localResponses[questionIndex]).toEqual({
             _id: `${questionIndex}`,
             question_id: questions[questionIndex]._id,
-            answer: answer,
+            answer,
             visited: false,
           });
           expect(wrapper.emitted()).toHaveProperty("submit-question");
