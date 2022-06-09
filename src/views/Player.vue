@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen">
+  <div class="h-full">
     <!-- loading spinner -->
     <div v-if="!isQuizLoaded" class="flex justify-center h-full">
       <BaseIcon
@@ -8,7 +8,7 @@
       />
     </div>
 
-    <div v-else class="h-full">
+    <div v-else class="h-full flex flex-col">
       <Splash
         v-if="isSplashShown"
         :title="title"
@@ -59,15 +59,12 @@
 import QuestionModal from "../components/Questions/QuestionModal.vue";
 import Splash from "../components/Splash.vue";
 import Scorecard from "../components/Scorecard.vue";
-import {
-  resetConfetti,
-  isQuestionAnswerCorrect,
-} from "../services/Functional/Utilities";
+import { resetConfetti, isQuestionAnswerCorrect } from "../services/Functional/Utilities";
 import QuizAPIService from "../services/API/Quiz";
 import SessionAPIService from "../services/API/Session";
 import QuestionAPIService from "../services/API/Question"
 import { defineComponent, reactive, toRefs, computed, watch } from "vue";
-import { useRoute } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import {
   Question,
@@ -77,6 +74,7 @@ import {
   submittedAnswer,
 } from "../types";
 import BaseIcon from "../components/UI/Icons/BaseIcon.vue";
+import OrganizationAPIService from "../services/API/Organization";
 
 export default defineComponent({
   name: "Player",
@@ -91,8 +89,17 @@ export default defineComponent({
       type: String,
       required: true,
     },
+    userId: {
+      default: null,
+      type: String,
+    },
+    apiKey: {
+      default: null,
+      type: String,
+    },
   },
   setup(props) {
+    const router = useRouter();
     const route = useRoute();
     const store = useStore();
     const state = reactive({
@@ -113,15 +120,20 @@ export default defineComponent({
       hasQuizEnded: false, // whether the quiz has ended - only valid for quizType = assessment
       sessionId: "", // id of the session created for a user-quiz combination
     });
-    const isQuizAssessment = computed(
-      () => state.metadata.quiz_type == "assessment"
-    );
+
+    OrganizationAPIService.checkAuthToken(props.apiKey).catch(() => {
+      router.replace({
+        name: "403",
+      });
+    });
+
+    const isQuizAssessment = computed(() => state.metadata.quiz_type == "assessment");
+
     const isSplashShown = computed(() => state.currentQuestionIndex == -1);
     const numQuestions = computed(() => state.questions.length);
     const isQuestionShown = computed(() => {
       return (
-        state.currentQuestionIndex >= 0 &&
-        state.currentQuestionIndex < numQuestions.value
+        state.currentQuestionIndex >= 0 && state.currentQuestionIndex < numQuestions.value
       );
     });
     const isQuizLoaded = computed(() => numQuestions.value > 0);
@@ -210,7 +222,6 @@ export default defineComponent({
     /** updates the session answer once a response is submitted */
     function submitQuestion() {
       const itemResponse = state.responses[state.currentQuestionIndex];
-
       SessionAPIService.updateSessionAnswer(itemResponse._id, {
         answer: itemResponse.answer,
       });
@@ -338,16 +349,12 @@ export default defineComponent({
         state.marksScored += markingScheme?.wrong || 0;
       }
 
-      const answerEvaluation = isQuestionAnswerCorrect(
-        questionDetail,
-        userAnswer
-      );
+      const answerEvaluation = isQuestionAnswerCorrect(questionDetail, userAnswer);
       if (!answerEvaluation.valid) {
         return;
       }
       if (answerEvaluation.answered) {
         state.numSkipped -= 1;
-
         if (answerEvaluation.isCorrect != null) {
           answerEvaluation.isCorrect
             ? updateMetricsForCorrectAnswer()

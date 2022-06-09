@@ -1,12 +1,16 @@
 // contains all the custom types that we want to use
 
 type questionWithOptions = "single-choice" | "multi-choice";
-type questionType = questionWithOptions | "subjective";
+type questionType =
+  | questionWithOptions
+  | "subjective"
+  | "numerical-float"
+  | "numerical-integer";
 type language = "en" | "hi";
 export type quizType = "assessment" | "homework";
 type quizNavigationMode = "linear" | "non-linear";
-export type submittedAnswer = number[] | string | null;
-type correctAnswer = number[] | null;
+export type submittedAnswer = number[] | string | number | null;
+type correctAnswer = number[] | number | null;
 
 export interface IconButtonTitleConfig {
   value: string;
@@ -26,7 +30,7 @@ export interface InputTextValidationConfig {
   invalidMessage: String;
 }
 
-export type DraftResponse = number[] | string | null;
+export type DraftResponse = number[] | number | string | null;
 
 export interface SubmittedResponse {
   _id: string;
@@ -161,6 +165,11 @@ export type questionState = "success" | "error" | "neutral";
 export interface paletteItemState {
   index: number; // index of the corresponding question in the list of questions
   value: questionState;
+}
+
+export interface OrganizationAPIResponse {
+  _id: string;
+  name: string;
 }
 
 export interface CircularProgressResult {

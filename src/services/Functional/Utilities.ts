@@ -40,14 +40,14 @@ export function throwConfetti(
       angle: 60,
       spread: 55,
       origin: { x: 0 },
-      colors: colors,
+      colors,
     });
     confettiHandler({
       particleCount: 2,
       angle: 120,
       spread: 55,
       origin: { x: 1 },
-      colors: colors,
+      colors,
     });
 
     if (Date.now() < animationEndTime) {
@@ -90,7 +90,7 @@ export function isQuestionAnswerCorrect(
   if (questionDetail.graded) {
     answerEvaluation.valid = true;
 
-    if (userAnswer != null) {
+    if (userAnswer != null && typeof userAnswer != "number") {
       answerEvaluation.answered = true;
 
       if (
@@ -111,6 +111,17 @@ export function isQuestionAnswerCorrect(
         // their response is considered correct
         answerEvaluation.isCorrect = true;
       }
+    } else if (
+      (questionDetail.type == "numerical-integer" ||
+        questionDetail.type == "numerical-float") &&
+      typeof userAnswer == "number" &&
+      userAnswer != null
+    ) {
+      answerEvaluation.answered = true;
+      const correctAnswer = questionDetail.correct_answer;
+      if (userAnswer == correctAnswer) {
+        answerEvaluation.isCorrect = true;
+      } else answerEvaluation.isCorrect = false;
     }
   }
   return answerEvaluation;

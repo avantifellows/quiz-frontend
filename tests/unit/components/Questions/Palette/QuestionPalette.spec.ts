@@ -38,8 +38,8 @@ describe("QuestionPalette.vue", () => {
       ];
       const currentQuestionIndex = 1;
       await wrapper.setProps({
-        questionStates: questionStates,
-        currentQuestionIndex: currentQuestionIndex,
+        questionStates,
+        currentQuestionIndex,
       });
     });
 

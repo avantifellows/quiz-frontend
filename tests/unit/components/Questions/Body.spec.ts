@@ -44,7 +44,7 @@ describe("Body.vue", () => {
     ];
     const wrapper = mount(Body, {
       props: {
-        options: options,
+        options,
       },
     });
 
@@ -61,7 +61,7 @@ describe("Body.vue", () => {
     it("set options selected based on draft answer", async () => {
       const draftAnswer = [0];
       await wrapper.setProps({
-        draftAnswer: draftAnswer,
+        draftAnswer,
       });
 
       expect(wrapper.vm.isOptionMarked(0)).toBeTruthy();
@@ -82,8 +82,8 @@ describe("Body.vue", () => {
       const submittedAnswer = [0];
       const correctAnswer = [1];
       await wrapper.setProps({
-        submittedAnswer: submittedAnswer,
-        correctAnswer: correctAnswer,
+        submittedAnswer,
+        correctAnswer,
         isAnswerSubmitted: true,
       });
 
@@ -98,7 +98,7 @@ describe("Body.vue", () => {
     it("highlights options as gray for non-graded questions", async () => {
       const submittedAnswer = [0];
       await wrapper.setProps({
-        submittedAnswer: submittedAnswer,
+        submittedAnswer,
         isAnswerSubmitted: true,
         isGradedQuestion: false,
       });
@@ -112,8 +112,8 @@ describe("Body.vue", () => {
       const submittedAnswer = [0];
       const correctAnswer = [1];
       await wrapper.setProps({
-        submittedAnswer: submittedAnswer,
-        correctAnswer: correctAnswer,
+        submittedAnswer,
+        correctAnswer,
         isAnswerSubmitted: true,
         quizType: "assessment",
       });
@@ -144,7 +144,7 @@ describe("Body.vue", () => {
     ];
     const wrapper = mount(Body, {
       props: {
-        options: options,
+        options,
         questionType: "multi-choice",
       },
     });
@@ -163,7 +163,7 @@ describe("Body.vue", () => {
     it("set options selected based on draft answer", async () => {
       const draftAnswer = [1, 2];
       await wrapper.setProps({
-        draftAnswer: draftAnswer,
+        draftAnswer,
       });
 
       expect(wrapper.vm.isOptionMarked(0)).toBeFalsy();
@@ -185,8 +185,8 @@ describe("Body.vue", () => {
       const submittedAnswer = [1, 2];
       const correctAnswer = [0, 1];
       await wrapper.setProps({
-        submittedAnswer: submittedAnswer,
-        correctAnswer: correctAnswer,
+        submittedAnswer,
+        correctAnswer,
         isAnswerSubmitted: true,
       });
 
@@ -204,7 +204,7 @@ describe("Body.vue", () => {
     it("highlights options gray for non-graded questions", async () => {
       const submittedAnswer = [1, 2];
       await wrapper.setProps({
-        submittedAnswer: submittedAnswer,
+        submittedAnswer,
         isAnswerSubmitted: true,
         isGradedQuestion: false,
       });
@@ -221,8 +221,8 @@ describe("Body.vue", () => {
       const submittedAnswer = [1, 2];
       const correctAnswer = [0, 1];
       await wrapper.setProps({
-        submittedAnswer: submittedAnswer,
-        correctAnswer: correctAnswer,
+        submittedAnswer,
+        correctAnswer,
         isAnswerSubmitted: true,
         quizType: "assessment",
       });
@@ -270,7 +270,7 @@ describe("Body.vue", () => {
       // set char limit
       const maxCharLimit = 50;
       await wrapper.setProps({
-        maxCharLimit: maxCharLimit,
+        maxCharLimit,
       });
 
       expect(
@@ -327,7 +327,7 @@ describe("Body.vue", () => {
       const wrapper = mount(Body, {
         props: {
           questionType: "subjective",
-          draftAnswer: draftAnswer,
+          draftAnswer,
         },
       });
 
@@ -345,7 +345,7 @@ describe("Body.vue", () => {
       const wrapper = mount(Body, {
         props: {
           questionType: "subjective",
-          submittedAnswer: submittedAnswer,
+          submittedAnswer,
         },
       });
 
@@ -371,7 +371,7 @@ describe("Body.vue", () => {
     it("corrects the answer when it exceeds the max char limit", async () => {
       const maxCharLimit = 10;
       await wrapper.setProps({
-        maxCharLimit: maxCharLimit,
+        maxCharLimit,
       });
 
       const value = "thetestthetest";
@@ -380,6 +380,421 @@ describe("Body.vue", () => {
         .find('[data-test="input"]')
         .setValue(value);
       expect(wrapper.vm.subjectiveAnswer).toBe(value.slice(0, maxCharLimit));
+    });
+  });
+  describe("numerical integer questions", () => {
+    const wrapper = mount(Body, {
+      props: {
+        questionType: "numerical-integer",
+      },
+    });
+
+    it("should render question with default values", () => {
+      expect(
+        wrapper.find('[data-test="optionContainer"]').exists()
+      ).toBeFalsy();
+      expect(
+        wrapper.find('[data-test="numericalAnswerContainer"]').exists()
+      ).toBeTruthy();
+    });
+
+    it("renders disabled answer input field when answer submitted", async () => {
+      await wrapper.setProps({
+        isAnswerSubmitted: true,
+      });
+
+      expect(
+        (
+          wrapper
+            .find('[data-test="numericalAnswer"]')
+            .find('[data-test="input"]').element as HTMLInputElement
+        ).disabled
+      ).toBe(true);
+
+      await wrapper.setProps({
+        isAnswerSubmitted: false,
+      });
+    });
+
+    it("displays the answer when default answer given", async () => {
+      const draftAnswer = 9;
+      const wrapper = mount(Body, {
+        props: {
+          questionType: "numerical-integer",
+          draftAnswer: draftAnswer,
+        },
+      });
+
+      expect(
+        Number(
+          (
+            wrapper
+              .find('[data-test="numericalAnswer"]')
+              .find('[data-test="input"]').element as HTMLInputElement
+          ).value
+        )
+      ).toBe(draftAnswer);
+    });
+
+    it("displays the answer when submitted answer given", async () => {
+      const submittedAnswer = 7;
+      const wrapper = mount(Body, {
+        props: {
+          questionType: "numerical-integer",
+          submittedAnswer: submittedAnswer,
+        },
+      });
+
+      expect(
+        Number(
+          (
+            wrapper
+              .find('[data-test="numericalAnswer"]')
+              .find('[data-test="input"]').element as HTMLInputElement
+          ).value
+        )
+      ).toBe(submittedAnswer);
+    });
+
+    it("updates the answer through the input field", async () => {
+      const value = 9;
+      await wrapper
+        .find('[data-test="numericalAnswer"]')
+        .find('[data-test="input"]')
+        .setValue(value);
+
+      expect(Number(wrapper.vm.numericalAnswer)).toBe(value);
+    });
+
+    it("highlights correct/wrong answer for homework quizzes", async () => {
+      let submittedAnswer = 7;
+      let correctAnswer = 8;
+      await wrapper.setProps({
+        submittedAnswer: submittedAnswer,
+        correctAnswer: correctAnswer,
+        isAnswerSubmitted: true,
+        isGradedQuestion: true,
+      });
+
+      expect(
+        (
+          wrapper
+            .find('[data-test="numericalAnswer"]')
+            .find('[data-test="input"]').element as HTMLInputElement
+        ).className
+      ).toContain("text-red-500 border-red-400");
+
+      submittedAnswer = 7;
+      correctAnswer = 7;
+      await wrapper.setProps({
+        submittedAnswer: submittedAnswer,
+        correctAnswer: correctAnswer,
+        isAnswerSubmitted: true,
+        isGradedQuestion: true,
+      });
+
+      expect(
+        (
+          wrapper
+            .find('[data-test="numericalAnswer"]')
+            .find('[data-test="input"]').element as HTMLInputElement
+        ).className
+      ).toContain("text-green-500 border-green-500");
+
+      submittedAnswer = 9;
+      await wrapper.setProps({
+        submittedAnswer: submittedAnswer,
+        isAnswerSubmitted: true,
+        isGradedQuestion: false,
+      });
+
+      expect(
+        (
+          wrapper
+            .find('[data-test="numericalAnswer"]')
+            .find('[data-test="input"]').element as HTMLInputElement
+        ).className
+      ).toContain("bg-gray-100");
+    });
+
+    it("highlights answer gray for assessment quizzes if quiz has ended", async () => {
+      let submittedAnswer = 7;
+      let correctAnswer = 8;
+      await wrapper.setProps({
+        submittedAnswer: submittedAnswer,
+        correctAnswer: correctAnswer,
+        isAnswerSubmitted: true,
+        isGradedQuestion: true,
+        hasQuizEnded: true,
+        quizType: "assessment",
+      });
+
+      expect(
+        (
+          wrapper
+            .find('[data-test="numericalAnswer"]')
+            .find('[data-test="input"]').element as HTMLInputElement
+        ).className
+      ).toContain("text-red-500 border-red-400");
+
+      submittedAnswer = 7;
+      correctAnswer = 7;
+      await wrapper.setProps({
+        submittedAnswer: submittedAnswer,
+        correctAnswer: correctAnswer,
+        isAnswerSubmitted: true,
+        isGradedQuestion: true,
+        quizType: "assessment",
+      });
+
+      expect(
+        (
+          wrapper
+            .find('[data-test="numericalAnswer"]')
+            .find('[data-test="input"]').element as HTMLInputElement
+        ).className
+      ).toContain("text-green-500 border-green-500");
+
+      submittedAnswer = 9;
+      await wrapper.setProps({
+        submittedAnswer: submittedAnswer,
+        isAnswerSubmitted: true,
+        isGradedQuestion: false,
+        quizType: "assessment",
+      });
+
+      expect(
+        (
+          wrapper
+            .find('[data-test="numericalAnswer"]')
+            .find('[data-test="input"]').element as HTMLInputElement
+        ).className
+      ).toContain("bg-gray-100");
+    });
+
+    it("highlights answer gray for assessment quizzes if quiz has not ended", async () => {
+      await wrapper.setProps({
+        isAnswerSubmitted: true,
+        isGradedQuestion: true,
+        hasQuizEnded: false,
+        quizType: "assessment",
+      });
+
+      expect(
+        (
+          wrapper
+            .find('[data-test="numericalAnswer"]')
+            .find('[data-test="input"]').element as HTMLInputElement
+        ).className
+      ).toContain("border-gray-200");
+    });
+  });
+
+  describe("numerical float questions", () => {
+    const wrapper = mount(Body, {
+      props: {
+        questionType: "numerical-float",
+      },
+    });
+
+    it("should render question with default values", () => {
+      expect(
+        wrapper.find('[data-test="optionContainer"]').exists()
+      ).toBeFalsy();
+      expect(
+        wrapper.find('[data-test="numericalAnswerContainer"]').exists()
+      ).toBeTruthy();
+    });
+
+    it("renders disabled answer input field when answer submitted", async () => {
+      await wrapper.setProps({
+        isAnswerSubmitted: true,
+      });
+
+      expect(
+        (
+          wrapper
+            .find('[data-test="numericalAnswer"]')
+            .find('[data-test="input"]').element as HTMLInputElement
+        ).disabled
+      ).toBe(true);
+
+      await wrapper.setProps({
+        isAnswerSubmitted: false,
+      });
+    });
+
+    it("displays the answer when default answer given", async () => {
+      const draftAnswer = 7.9;
+      const wrapper = mount(Body, {
+        props: {
+          questionType: "numerical-float",
+          draftAnswer: draftAnswer,
+        },
+      });
+
+      expect(
+        Number(
+          (
+            wrapper
+              .find('[data-test="numericalAnswer"]')
+              .find('[data-test="input"]').element as HTMLInputElement
+          ).value
+        )
+      ).toBe(draftAnswer);
+    });
+
+    it("displays the answer when submitted answer given", async () => {
+      const submittedAnswer = 7.9;
+      const wrapper = mount(Body, {
+        props: {
+          questionType: "numerical-float",
+          submittedAnswer: submittedAnswer,
+        },
+      });
+
+      expect(
+        Number(
+          (
+            wrapper
+              .find('[data-test="numericalAnswer"]')
+              .find('[data-test="input"]').element as HTMLInputElement
+          ).value
+        )
+      ).toBe(submittedAnswer);
+    });
+
+    it("updates the answer through the input field", async () => {
+      const value = 9.9;
+      await wrapper
+        .find('[data-test="numericalAnswer"]')
+        .find('[data-test="input"]')
+        .setValue(value);
+
+      expect(Number(wrapper.vm.numericalAnswer)).toBe(value);
+    });
+
+    it("highlights correct/wrong answer for homework quizzes", async () => {
+      let submittedAnswer = 7.9;
+      let correctAnswer = 8.9;
+      await wrapper.setProps({
+        submittedAnswer: submittedAnswer,
+        correctAnswer: correctAnswer,
+        isAnswerSubmitted: true,
+        isGradedQuestion: true,
+      });
+
+      expect(
+        (
+          wrapper
+            .find('[data-test="numericalAnswer"]')
+            .find('[data-test="input"]').element as HTMLInputElement
+        ).className
+      ).toContain("text-red-500 border-red-400");
+
+      submittedAnswer = 7.9;
+      correctAnswer = 7.9;
+      await wrapper.setProps({
+        submittedAnswer: submittedAnswer,
+        correctAnswer: correctAnswer,
+        isAnswerSubmitted: true,
+        isGradedQuestion: true,
+      });
+
+      expect(
+        (
+          wrapper
+            .find('[data-test="numericalAnswer"]')
+            .find('[data-test="input"]').element as HTMLInputElement
+        ).className
+      ).toContain("text-green-500 border-green-500");
+
+      submittedAnswer = 9.8;
+      await wrapper.setProps({
+        submittedAnswer: submittedAnswer,
+        isAnswerSubmitted: true,
+        isGradedQuestion: false,
+      });
+
+      expect(
+        (
+          wrapper
+            .find('[data-test="numericalAnswer"]')
+            .find('[data-test="input"]').element as HTMLInputElement
+        ).className
+      ).toContain("bg-gray-100");
+    });
+
+    it("highlights answer gray for assessment quizzes if quiz has ended", async () => {
+      let submittedAnswer = 7.9;
+      let correctAnswer = 8.9;
+      await wrapper.setProps({
+        submittedAnswer: submittedAnswer,
+        correctAnswer: correctAnswer,
+        isAnswerSubmitted: true,
+        isGradedQuestion: true,
+        hasQuizEnded: true,
+        quizType: "assessment",
+      });
+
+      expect(
+        (
+          wrapper
+            .find('[data-test="numericalAnswer"]')
+            .find('[data-test="input"]').element as HTMLInputElement
+        ).className
+      ).toContain("text-red-500 border-red-400");
+
+      submittedAnswer = 7.8;
+      correctAnswer = 7.8;
+      await wrapper.setProps({
+        submittedAnswer: submittedAnswer,
+        correctAnswer: correctAnswer,
+        isAnswerSubmitted: true,
+        isGradedQuestion: true,
+        quizType: "assessment",
+      });
+
+      expect(
+        (
+          wrapper
+            .find('[data-test="numericalAnswer"]')
+            .find('[data-test="input"]').element as HTMLInputElement
+        ).className
+      ).toContain("text-green-500 border-green-500");
+
+      submittedAnswer = 9.9;
+      await wrapper.setProps({
+        submittedAnswer: submittedAnswer,
+        isAnswerSubmitted: true,
+        isGradedQuestion: false,
+        quizType: "assessment",
+      });
+
+      expect(
+        (
+          wrapper
+            .find('[data-test="numericalAnswer"]')
+            .find('[data-test="input"]').element as HTMLInputElement
+        ).className
+      ).toContain("bg-gray-100");
+    });
+
+    it("highlights answer gray for assessment quizzes if quiz has not ended", async () => {
+      await wrapper.setProps({
+        isAnswerSubmitted: true,
+        isGradedQuestion: true,
+        hasQuizEnded: false,
+        quizType: "assessment",
+      });
+
+      expect(
+        (
+          wrapper
+            .find('[data-test="numericalAnswer"]')
+            .find('[data-test="input"]').element as HTMLInputElement
+        ).className
+      ).toContain("border-gray-200");
     });
   });
 });
