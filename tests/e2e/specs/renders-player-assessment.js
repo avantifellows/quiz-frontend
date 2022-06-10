@@ -18,7 +18,14 @@ describe("Player for Assessment quizzes", () => {
       cy.intercept("PATCH", "/session_answers/*", {});
       cy.intercept("PATCH", "/sessions/*", {});
 
-      cy.visit("/quiz/abcd?userId=1");
+      cy.intercept(
+        "GET",
+        Cypress.env("backend") + "/organizations/authenticate/*",
+        {
+          fixture: "org_authentication.json",
+        }
+      );
+      cy.visit("/quiz/abcd?userId=1&apiKey=pqr");
 
       // define aliasas
       cy.get('[data-test="startQuiz"]').as("startQuizButton");
@@ -232,7 +239,14 @@ describe("Player for Assessment quizzes", () => {
 
       cy.intercept("PATCH", "/session_answers/*", {});
 
-      cy.visit("/quiz/abcd?userId=1");
+      cy.intercept(
+        "GET",
+        Cypress.env("backend") + "/organizations/authenticate/*",
+        {
+          fixture: "org_authentication.json",
+        }
+      );
+      cy.visit("/quiz/abcd?userId=1&apiKey=pqr");
 
       // define aliasas
       cy.get('[data-test="startQuiz"]').as("startQuizButton");
