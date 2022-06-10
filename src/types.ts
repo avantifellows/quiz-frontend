@@ -111,7 +111,7 @@ interface QuestionSet {
 }
 
 export interface QuizAPIResponse {
-  title: string;
+  title: quizTitleType;
   instructions: string;
   _id: string;
   language: language;

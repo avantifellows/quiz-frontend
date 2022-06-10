@@ -82,7 +82,7 @@ export default defineComponent({
   },
   props: {
     title: {
-      type: String as PropType<quizTitleType>,
+      type: [null, String] as PropType<quizTitleType>,
       required: true,
     },
     subject: {

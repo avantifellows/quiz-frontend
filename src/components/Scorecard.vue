@@ -178,7 +178,7 @@ export default defineComponent({
     },
     title: {
       required: true,
-      type: String as PropType<quizTitleType>,
+      type: [null, String] as PropType<quizTitleType>,
     },
     result: {
       type: Object as PropType<CircularProgressResult>,
