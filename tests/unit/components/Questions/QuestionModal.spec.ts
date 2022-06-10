@@ -289,12 +289,39 @@ describe("QuestionModal.vue", () => {
         wrapper.vm.$refs.body.$emit("navigate", questionIndex);
         expect(wrapper.vm.localCurrentQuestionIndex).toBe(questionIndex);
       });
-      it("should fetch next set of questions if the user navigates to an unfetched question", async () => {
+      it("should fetch next set of questions if the user navigates to an unfetched question using QuestionPallete", async () => {
         await wrapper.setProps({
           currentQuestionIndex: 1,
         });
         wrapper.vm.$refs.body.$emit("navigate", 12);
         expect(wrapper.emitted()).toHaveProperty("fetch-question-bucket");
+      })
+      it("should fetch the next set of questions (if required) if the user clicks next from footer", async () => {
+        // Next question has already been fetched
+        let currentQuestionIndex = 6
+        await wrapper.setProps({
+          currentQuestionIndex,
+        })
+        wrapper
+          .find('[data-test="footer"]')
+          .find('[data-test="nextQuestionButton"]')
+          .trigger("click");
+
+        expect(wrapper.emitted()).not.toHaveProperty("fetch-question-bucket");
+        expect(wrapper.vm.localCurrentQuestionIndex).toBe(currentQuestionIndex + 1)
+
+        // next question has not been fetched
+        currentQuestionIndex = 10
+        await wrapper.setProps({
+          currentQuestionIndex,
+        })
+        wrapper
+          .find('[data-test="footer"]')
+          .find('[data-test="nextQuestionButton"]')
+          .trigger("click");
+
+        expect(wrapper.emitted()).toHaveProperty("fetch-question-bucket");
+        expect(wrapper.vm.localCurrentQuestionIndex).toBe(currentQuestionIndex + 1)
       })
       describe("Sets question states correctly", () => {
         describe("Quiz in-progress", () => {
