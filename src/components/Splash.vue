@@ -73,7 +73,7 @@
 import IconButton from "./UI/Buttons/IconButton.vue";
 import BaseIcon from "./UI/Icons/BaseIcon.vue";
 import { defineComponent, computed, reactive, toRefs, PropType } from "vue";
-import { IconButtonTitleConfig, quizType } from "../types";
+import { IconButtonTitleConfig, quizType, quizTitleType, isFirstSessionType } from "../types";
 export default defineComponent({
   name: "Splash",
   components: {
@@ -82,7 +82,7 @@ export default defineComponent({
   },
   props: {
     title: {
-      type: String,
+      type: [null, String] as PropType<quizTitleType>,
       required: true,
     },
     subject: {
@@ -102,7 +102,7 @@ export default defineComponent({
       required: true,
     },
     isFirstSession: {
-      type: Boolean || null,
+      type: Boolean as PropType<isFirstSessionType>,
       default: null,
     },
   },
