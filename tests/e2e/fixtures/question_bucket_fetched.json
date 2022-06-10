@@ -1,0 +1,79 @@
+[
+   {
+     "_id": "6285554a1016dc7050373fd3",
+     "text": "Q6",
+     "type": "single-choice",
+     "instructions": null,
+     "image": null,
+     "options": [
+       { "text": "Option 1", "image": null },
+       { "text": "Option 2", "image": null },
+       { "text": "Option 3", "image": null }
+     ],
+     "max_char_limit": null,
+     "correct_answer": [2],
+     "graded": true,
+     "marking_scheme": null,
+     "solution": [],
+     "metadata": null,
+     "question_set_id": "6285554a1016dc7050373fbe"
+   },
+   {
+     "_id": "6285554a1016dc7050373fd4",
+     "text": "Q9",
+     "type": "multi-choice",
+     "instructions": null,
+     "image": null,
+     "options": [
+       { "text": "Option 1", "image": null },
+       { "text": "Option 2", "image": null },
+       { "text": "Option 3", "image": null }
+     ],
+     "max_char_limit": null,
+     "correct_answer": [0, 2],
+     "graded": true,
+     "marking_scheme": null,
+     "solution": [],
+     "metadata": null,
+     "question_set_id": "6285554a1016dc7050373fbe"
+   },
+   {
+     "_id": "6285554a1016dc7050373fd5",
+     "text": "Q20",
+     "type": "multi-choice",
+     "instructions": null,
+     "image": null,
+     "options": [
+       { "text": "Option 1", "image": null },
+       { "text": "Option 2", "image": null },
+       { "text": "Option 3", "image": null }
+     ],
+     "max_char_limit": null,
+     "correct_answer": [0, 2],
+     "graded": true,
+     "marking_scheme": null,
+     "solution": [],
+     "metadata": null,
+     "question_set_id": "6285554a1016dc7050373fbe"
+   },
+   {
+     "_id": "6285554a1016dc7050373fd6",
+     "text": "Q24",
+     "type": "single-choice",
+     "instructions": null,
+     "image": null,
+     "options": [
+       { "text": "Option 1", "image": null },
+       { "text": "Option 2", "image": null },
+       { "text": "Option 3", "image": null }
+     ],
+     "max_char_limit": null,
+     "correct_answer": null,
+     "graded": false,
+     "marking_scheme": null,
+     "solution": [],
+     "metadata": null,
+     "question_set_id": "6285554a1016dc7050373fbe"
+   }
+ ]
+ 
