@@ -130,7 +130,7 @@ import BaseIcon from "./UI/Icons/BaseIcon.vue";
 import IconButton from "./UI/Buttons/IconButton.vue";
 import domtoimage from "dom-to-image";
 import { useStore } from "vuex";
-import { ScorecardMetric, CircularProgressResult } from "../types";
+import { ScorecardMetric, CircularProgressResult, quizTitleType } from "../types";
 
 const confetti = require("canvas-confetti");
 const PROGRESS_BAR_ANIMATION_DELAY_TIME = 500; // a time delay to be used for animating the progress bar
@@ -178,7 +178,7 @@ export default defineComponent({
     },
     title: {
       required: true,
-      type: String,
+      type: [null, String] as PropType<quizTitleType>,
     },
     result: {
       type: Object as PropType<CircularProgressResult>,
