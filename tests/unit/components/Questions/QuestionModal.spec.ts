@@ -23,6 +23,7 @@ describe("QuestionModal.vue", () => {
       image: null,
       graded: true,
       max_char_limit: null,
+      question_set_id: "777",
     },
     {
       _id: "1235",
@@ -46,6 +47,7 @@ describe("QuestionModal.vue", () => {
       image: null,
       graded: false,
       max_char_limit: null,
+      question_set_id: "777",
     },
     {
       _id: "1236",
@@ -56,6 +58,7 @@ describe("QuestionModal.vue", () => {
       image: null,
       graded: true,
       max_char_limit: 100,
+      question_set_id: "777",
     },
     {
       _id: "1239",
@@ -66,6 +69,7 @@ describe("QuestionModal.vue", () => {
       image: null,
       graded: false,
       max_char_limit: 100,
+      question_set_id: "777",
     },
     {
       _id: "1240",
@@ -76,6 +80,7 @@ describe("QuestionModal.vue", () => {
       image: null,
       graded: true,
       max_char_limit: null,
+      question_set_id: "777",
     },
     {
       _id: "1241",
@@ -86,6 +91,123 @@ describe("QuestionModal.vue", () => {
       image: null,
       graded: false,
       max_char_limit: null,
+      question_set_id: "777",
+    },
+    {
+      _id: "1111",
+      type: "multi-choice",
+      text: "efgh",
+      options: [
+        {
+          text: "option 1",
+        },
+        {
+          text: "option 2",
+        },
+        {
+          text: "op3",
+        },
+        {
+          text: "option 4",
+        },
+      ],
+      correct_answer: [2, 3],
+      image: null,
+      graded: true,
+      max_char_limit: null,
+      question_set_id: "777",
+    },
+    {
+      _id: "2222",
+      type: "multi-choice",
+      text: "efgh",
+      options: [
+        {
+          text: "option 1",
+        },
+        {
+          text: "option 2",
+        },
+        {
+          text: "op3",
+        },
+        {
+          text: "option 4",
+        },
+      ],
+      correct_answer: [2, 3],
+      image: null,
+      graded: true,
+      max_char_limit: null,
+      question_set_id: "777",
+    },
+    {
+      _id: "3333",
+      type: "multi-choice",
+      text: "efgh",
+      options: [
+        {
+          text: "option 1",
+        },
+        {
+          text: "option 2",
+        },
+        {
+          text: "op3",
+        },
+        {
+          text: "option 4",
+        },
+      ],
+      correct_answer: [2, 3],
+      image: null,
+      graded: true,
+      max_char_limit: null,
+      question_set_id: "777",
+    },
+    {
+      _id: "3333",
+      type: "multi-choice",
+      text: null,
+      options: null,
+      image: null,
+      max_char_limit: null,
+      graded: true,
+      correct_answer: [2, 3],
+      question_set_id: "777"
+    },
+    {
+      _id: "3333",
+      type: "multi-choice",
+      text: null,
+      options: null,
+      image: null,
+      max_char_limit: null,
+      graded: true,
+      correct_answer: [2, 3],
+      question_set_id: "777",
+    },
+    {
+      _id: "3333",
+      type: "multi-choice",
+      text: null,
+      options: null,
+      image: null,
+      max_char_limit: null,
+      graded: true,
+      correct_answer: [2, 3],
+      question_set_id: "777",
+    },
+    {
+      _id: "3333",
+      type: "multi-choice",
+      text: null,
+      options: null,
+      image: null,
+      max_char_limit: null,
+      graded: true,
+      correct_answer: [2, 3],
+      question_set_id: "777",
     },
   ] as Question[];
 
@@ -167,10 +289,17 @@ describe("QuestionModal.vue", () => {
         wrapper.vm.$refs.body.$emit("navigate", questionIndex);
         expect(wrapper.vm.localCurrentQuestionIndex).toBe(questionIndex);
       });
+      it("should fetch next set of questions if the user navigates to an unfetched question", async () => {
+        await wrapper.setProps({
+          currentQuestionIndex: 1,
+        });
+        wrapper.vm.$refs.body.$emit("navigate", 12);
+        expect(wrapper.emitted()).toHaveProperty("fetch-question-bucket");
+      })
       describe("Sets question states correctly", () => {
         describe("Quiz in-progress", () => {
           it("Without having visited", () => {
-            expect(wrapper.vm.questionStates.length).toBe(3);
+            expect(wrapper.vm.questionStates.length).toBe(10);
             expect(wrapper.vm.questionStates[0]).toEqual({
               index: 0,
               value: "neutral",
@@ -214,7 +343,7 @@ describe("QuestionModal.vue", () => {
             });
           });
           it("Skipped Questions", () => {
-            expect(wrapper.vm.questionStates.length).toBe(3);
+            expect(wrapper.vm.questionStates.length).toBe(10);
             expect(wrapper.vm.questionStates[0]).toEqual({
               index: 0,
               value: "neutral",
