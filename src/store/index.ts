@@ -4,12 +4,8 @@ import { QuestionBucketingMap } from "../types"
 export default createStore({
   state: {
     isSpinnerShown: false,
-    questionsBucketingMap: {} as QuestionBucketingMap,
+    questionBucketingMap: {} as QuestionBucketingMap,
     bucketSize: 10,
-  },
-  getters: {
-    questionBucketingMap: (state) => state.questionsBucketingMap,
-    bucketSize: (state) => state.bucketSize,
   },
   mutations: {
     showSpinner(state) {
@@ -19,13 +15,13 @@ export default createStore({
       state.isSpinnerShown = false;
     },
     setQuestionBucketMap(state, value: QuestionBucketingMap) {
-      state.questionsBucketingMap = value;
+      state.questionBucketingMap = value;
     },
     updateBucketFetchedStatus(state, details: {
       key: number,
       fetchedStatus: boolean
     }) {
-      state.questionsBucketingMap[details.key].hasBeenFetched = details.fetchedStatus
+      state.questionBucketingMap[details.key].isFetched = details.fetchedStatus
     }
   },
   actions: {

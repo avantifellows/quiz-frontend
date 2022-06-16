@@ -68,7 +68,7 @@ import {
 import {
   isScreenPortrait,
   isQuestionAnswerCorrect,
-  isRequestedQuestionFetched,
+  isQuestionFetched,
 } from "../../services/Functional/Utilities";
 import {
   Question,
@@ -126,7 +126,7 @@ export default defineComponent({
     }
 
     function navigateToQuestion(questionIndex: number) {
-      if (!isRequestedQuestionFetched(questionIndex)) {
+      if (!isQuestionFetched(questionIndex)) {
         context.emit("fetch-question-bucket", questionIndex)
       }
       state.localCurrentQuestionIndex = questionIndex;
@@ -215,7 +215,7 @@ export default defineComponent({
         !isQuizAssessment.value
       ) {
         // emit an event if the requested question needs to be fetched
-        if (!isRequestedQuestionFetched(state.localCurrentQuestionIndex + 1)) {
+        if (!isQuestionFetched(state.localCurrentQuestionIndex + 1)) {
           context.emit("fetch-question-bucket", state.localCurrentQuestionIndex + 1)
         }
 

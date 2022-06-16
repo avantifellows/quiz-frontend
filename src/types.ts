@@ -61,9 +61,10 @@ export interface QuizMetadata {
 }
 
 export interface QuestionBucket {
-  bucketStartIndex: number,
-  bucketEndIndex: number,
-  hasBeenFetched: boolean
+  // `start` and `end` are array indices
+  start: number,
+  end: number,
+  isFetched: boolean
 }
 
 export interface QuestionBucketingMap {

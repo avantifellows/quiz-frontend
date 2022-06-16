@@ -350,13 +350,13 @@ export default defineComponent({
       resetConfetti();
     }
 
-    async function fetchQuestionBucket(requestedQuestionIndex: number) {
-      const bucketToFetch = Math.floor(requestedQuestionIndex / store.state.bucketSize)
-      const bucketStartIndex = store.state.questionsBucketingMap[bucketToFetch].bucketStartIndex
-      const bucketEndIndex = store.state.questionsBucketingMap[bucketToFetch].bucketEndIndex
+    async function fetchQuestionBucket(questionIndex: number) {
+      const bucketToFetch = Math.floor(questionIndex / store.state.bucketSize)
+      const bucketStartIndex = store.state.questionBucketingMap[bucketToFetch].start
+      const bucketEndIndex = store.state.questionBucketingMap[bucketToFetch].end
 
-      const fetchedQuestions = await QuestionAPIService.getQuestionsByQuestionSet(
-        state.questions[requestedQuestionIndex].question_set_id,
+      const fetchedQuestions = await QuestionAPIService.getQuestions(
+        state.questions[questionIndex].question_set_id,
         bucketStartIndex,
         store.state.bucketSize
       )

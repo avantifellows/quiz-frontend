@@ -1,5 +1,5 @@
 import { apiClient } from "./RootClient";
-import { questionsEndpoint, getByQuestionSetEndpoint } from "./Endpoints";
+import { questionsEndpoint } from "./Endpoints";
 import { Question } from "../../types";
 
 export default {
@@ -10,7 +10,7 @@ export default {
    * @param {number | undefined} limit - limit the returned number of records
    * @returns {Promise<QuizResponse>} a list of questions belonging to the given question set
    */
-  async getQuestionsByQuestionSet(
+  async getQuestions(
     questionSetId: string,
     skip: number | undefined = undefined,
     limit: number | undefined = undefined

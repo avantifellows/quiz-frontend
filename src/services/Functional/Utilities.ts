@@ -127,13 +127,25 @@ export function isQuestionAnswerCorrect(
   return answerEvaluation;
 }
 
-export function isRequestedQuestionFetched(requestedQuestionIndex: number) {
-  const bucketToCheck = Math.floor(requestedQuestionIndex / store.getters.bucketSize)
-  return store.getters.questionBucketingMap[bucketToCheck].hasBeenFetched
+/**
+ * If all the details of a question has been fetched or not
+ * @param {number} questionIndex - the index of a question in the question set
+ * @returns {boolean} - whether the question details has been fetched or not
+ */
+export function isQuestionFetched(questionIndex: number) {
+  const bucketToCheck = Math.floor(questionIndex / store.state.bucketSize)
+  return store.state.questionBucketingMap[bucketToCheck].isFetched
 }
 
+/**
+ * Dividing all the questions into buckets of a specific size.
+ * A map is created which tracks the starting and ending indices of buckets in the question set array.
+ * That map also tracks if a bucket's question's details have been fetched or not.
+ * This map is stored in the vue store.
+ * @param {number} totalQuestions - total number of questions in a question set
+ */
 export function createQuestionBuckets(totalQuestions: number) {
-  const questionsBucketingMap = {} as QuestionBucketingMap
+  const questionBucketingMap = {} as QuestionBucketingMap
 
   // calculate total buckets possible
   let totalBucketsPossible = Math.floor(totalQuestions / store.state.bucketSize)
@@ -141,17 +153,17 @@ export function createQuestionBuckets(totalQuestions: number) {
 
   // create the bucket map
   for (let bucketIndex = 0; bucketIndex < totalBucketsPossible; bucketIndex++) {
-    questionsBucketingMap[bucketIndex] = {
-      bucketStartIndex: (bucketIndex * store.state.bucketSize),
-      bucketEndIndex: (
+    questionBucketingMap[bucketIndex] = {
+      start: (bucketIndex * store.state.bucketSize),
+      end: (
         bucketIndex == totalBucketsPossible - 1 &&
         totalQuestions % store.state.bucketSize != 0
       )
-        ? (bucketIndex * store.state.bucketSize) + (totalQuestions % store.state.bucketSize - 1)
+        ? totalQuestions - 1
         : (bucketIndex * store.state.bucketSize) + (store.state.bucketSize - 1),
-      hasBeenFetched: (!bucketIndex),
+      isFetched: !bucketIndex,
     }
   }
 
-  store.dispatch("setQuestionBucketMap", questionsBucketingMap)
+  store.dispatch("setQuestionBucketMap", questionBucketingMap)
 }
