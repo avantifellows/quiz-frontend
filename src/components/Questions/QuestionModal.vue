@@ -67,8 +67,9 @@ import {
 } from "vue"
 import {
   isScreenPortrait,
-  isQuestionAnswerCorrect
-} from "../../services/Functional/Utilities"
+  isQuestionAnswerCorrect,
+  isQuestionFetched,
+} from "../../services/Functional/Utilities";
 import {
   Question,
   SubmittedResponse,
@@ -125,7 +126,10 @@ export default defineComponent({
     }
 
     function navigateToQuestion(questionIndex: number) {
-      state.localCurrentQuestionIndex = questionIndex
+      if (!isQuestionFetched(questionIndex)) {
+        context.emit("fetch-question-bucket", questionIndex)
+      }
+      state.localCurrentQuestionIndex = questionIndex;
       state.isPaletteVisible = false
     }
 
@@ -210,7 +214,12 @@ export default defineComponent({
         props.hasQuizEnded ||
         !isQuizAssessment.value
       ) {
-        state.localCurrentQuestionIndex = state.localCurrentQuestionIndex + 1
+        // emit an event if the requested question needs to be fetched
+        if (!isQuestionFetched(state.localCurrentQuestionIndex + 1)) {
+          context.emit("fetch-question-bucket", state.localCurrentQuestionIndex + 1)
+        }
+
+        state.localCurrentQuestionIndex += 1;
       } else {
         state.toast.success(
           'No more questions, please press "End Test" if you are done 👉',
@@ -407,7 +416,8 @@ export default defineComponent({
     "update:currentQuestionIndex",
     "update:responses",
     "submit-question",
-    "end-test"
-  ]
-})
+    "end-test",
+    "fetch-question-bucket"
+  ],
+});
 </script>
