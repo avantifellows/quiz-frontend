@@ -16,17 +16,20 @@ export default {
     limit: number | undefined = undefined
   ): Promise<Question[]> {
       type queryParamsType = {
+         question_set_id: string,
          skip?: number,
          limit?: number,
       }
 
-      const queryParams: queryParamsType = {}
+      const queryParams: queryParamsType = {
+        question_set_id: questionSetId,
+      }
 
       if (skip != undefined) queryParams.skip = skip
       if (limit != undefined) queryParams.limit = limit
 
       const response = await apiClient().get(
-        questionsEndpoint + getByQuestionSetEndpoint + questionSetId,
+        questionsEndpoint,
         { params: queryParams }
       );
       return response.data;

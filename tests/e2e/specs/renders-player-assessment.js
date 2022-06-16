@@ -233,7 +233,7 @@ describe("Player for Assessment quizzes", () => {
           // question palette must be closed
           cy.get('[data-test="questionPalette"]').should("not.exist");
 
-          cy.intercept("GET", "/questions/get_by_question_set/*", {
+          cy.intercept("GET", "/questions/*", {
             fixture: "question_bucket_fetched.json",
           }).as("question_bucket_call");
           cy.wait("@question_bucket_call");
