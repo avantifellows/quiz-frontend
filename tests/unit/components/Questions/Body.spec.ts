@@ -108,7 +108,7 @@ describe("Body.vue", () => {
       ).toContain("bg-gray-200");
     });
 
-    it("highlights options as gray if they are selected for assessment quizzes", async () => {
+    it("no highlights on selected options for assessments  before quiz submission", async () => {
       const submittedAnswer = [0];
       const correctAnswer = [1];
       await wrapper.setProps({
@@ -126,7 +126,7 @@ describe("Body.vue", () => {
       ).not.toContain("bg-red-500");
       expect(
         wrapper.find(`[data-test="optionContainer-0"]`).classes()
-      ).toContain("bg-gray-200");
+      ).not.toContain("bg-gray-200");
     });
   });
 
@@ -217,7 +217,7 @@ describe("Body.vue", () => {
       ).toContain("bg-gray-200");
     });
 
-    it("highlights options as gray if they are selected for assessment quizzes", async () => {
+    it("no highlights for selected options in assessments before quiz submission", async () => {
       const submittedAnswer = [1, 2];
       const correctAnswer = [0, 1];
       await wrapper.setProps({
@@ -238,10 +238,10 @@ describe("Body.vue", () => {
       ).not.toContain("bg-red-500");
       expect(
         wrapper.find('[data-test="optionContainer-1"]').classes()
-      ).toContain("bg-gray-200");
+      ).not.toContain("bg-gray-200");
       expect(
         wrapper.find('[data-test="optionContainer-2"]').classes()
-      ).toContain("bg-gray-200");
+      ).not.toContain("bg-gray-200");
     });
   });
 

@@ -225,7 +225,7 @@ export default defineComponent({
 
     function resetState() {
       if (
-        state.isDraftAnswerCleared &&
+        (state.isDraftAnswerCleared || isAnswerSubmitted.value) &&
         state.draftResponses[props.currentQuestionIndex] !=
           currentQuestionResponseAnswer.value
       ) {

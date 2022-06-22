@@ -100,10 +100,10 @@ describe("Player for Assessment quizzes", () => {
             .get('[data-test="optionSelector-1"]')
             .should("not.be.checked");
 
-          // only option 1 should have a gray background
+          // no option should have a gray background
           cy.get('[data-test="modal"]')
             .get('[data-test="optionContainer-0"]')
-            .should("have.class", "bg-gray-200");
+            .should("not.have.class", "bg-gray-200");
           cy.get('[data-test="modal"]')
             .get('[data-test="optionContainer-1"]')
             .should("not.have.class", "bg-gray-200");
@@ -267,10 +267,10 @@ describe("Player for Assessment quizzes", () => {
           .get('[data-test="optionSelector-1"]')
           .should("not.be.checked");
 
-        // only option 1 should be marked selected
+        // no option should have a gray background
         cy.get("@modal")
           .get('[data-test="optionContainer-0"]')
-          .should("have.class", "bg-gray-200");
+          .should("not.have.class", "bg-gray-200");
         cy.get("@modal")
           .get('[data-test="optionContainer-1"]')
           .should("not.have.class", "bg-gray-200");
@@ -287,10 +287,10 @@ describe("Player for Assessment quizzes", () => {
           .get('[data-test="previousQuestionButton"]')
           .trigger("click");
 
-        // option 1 should no longer be marked selected
+        // option 1 should no longer be checked
         cy.get("@modal")
           .get('[data-test="optionContainer-0"]')
-          .should("not.have.class", "bg-gray-200");
+          .should("not.be.checked");
       });
 
       it("updates submitted answer upon selecting new answer + clicking save & next", () => {
@@ -315,13 +315,13 @@ describe("Player for Assessment quizzes", () => {
           .get('[data-test="optionSelector-1"]')
           .should("be.checked");
 
-        // option 1 should no longer be marked selected, option 2 should be
+        // neither option 1 nor option 2 should have gray background
         cy.get("@modal")
           .get('[data-test="optionContainer-0"]')
           .should("not.have.class", "bg-gray-200");
         cy.get("@modal")
           .get('[data-test="optionContainer-1"]')
-          .should("have.class", "bg-gray-200");
+          .should("not.have.class", "bg-gray-200");
       });
     });
   });

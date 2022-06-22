@@ -282,20 +282,23 @@ export default defineComponent({
         return
       }
 
-      if (isQuizAssessment.value && !props.hasQuizEnded) {
-        if (props.submittedAnswer.indexOf(optionIndex) != -1) {
-          return state.nonGradedAnswerClass
-        }
-        return
-      }
+      // if (isQuizAssessment.value && !props.hasQuizEnded && !props.isGradedQuestion) {
+      //   if (props.submittedAnswer.indexOf(optionIndex) != -1) {
+      //     return state.nonGradedAnswerClass
+      //   }
+      //   return
+      // }
 
       if (
+        (!isQuizAssessment.value || props.hasQuizEnded) && // display colors if its a homework or if its assessment and quiz ended
         props.isGradedQuestion &&
         props.correctAnswer.indexOf(optionIndex) != -1
       ) {
         return state.correctOptionClass
       }
-      if (props.submittedAnswer.indexOf(optionIndex) != -1) {
+      if (
+        (!isQuizAssessment.value || props.hasQuizEnded) &&
+        props.submittedAnswer.indexOf(optionIndex) != -1) {
         if (!props.isGradedQuestion) return state.nonGradedAnswerClass
         return state.wrongOptionClass
       }
