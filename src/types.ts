@@ -9,6 +9,7 @@ type questionType =
 type language = "en" | "hi";
 export type quizType = "assessment" | "homework";
 export type quizTitleType = string | null;
+export type textAreaValueType = string | number | null;
 export type isFirstSessionType = boolean | null;
 type quizNavigationMode = "linear" | "non-linear";
 export type submittedAnswer = number[] | string | number | null;

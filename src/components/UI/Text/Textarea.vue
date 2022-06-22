@@ -21,7 +21,7 @@
 
 <script lang="ts">
 import InputText from "./InputText.vue";
-import { InputTextValidationConfig } from "../../../types";
+import { InputTextValidationConfig, textAreaValueType } from "../../../types";
 import { PropType, defineComponent, reactive, toRefs, watch } from "vue";
 
 export default defineComponent({
@@ -47,7 +47,7 @@ export default defineComponent({
     /** the value of the input to the input box */
     value: {
       default: "",
-      type: [String, Number],
+      type: [String, Number] as PropType<textAreaValueType>,
     },
     /** classes for the input boxes */
     boxStyling: {

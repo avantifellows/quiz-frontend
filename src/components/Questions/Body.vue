@@ -323,6 +323,20 @@ export default defineComponent({
       state.isImageLoading = true
     }
 
+    function checkIfNumberContainsDecimal(x: Number | null) {
+      return String(x).includes(".")
+    }
+
+    function isNumberLarge(x: Number) {
+      const maxValue: number = 1e10
+      return x > maxValue
+    }
+
+    function checkIfNumberExceedsDecimalDigitLimit(x: Number | null) {
+      const maxDecimalPlaces: number = 10 // max length of digits after decimal
+      return String(x).includes(".") && String(x).split(".")[1].length > maxDecimalPlaces - 1
+    }
+
     function preventKeypressIfApplicable(event: KeyboardEvent) {
       if (isQuestionTypeSubjective.value) {
         // checks if character limit is reached in case it is set
@@ -333,16 +347,25 @@ export default defineComponent({
         }
       }
       if (isQuestionTypeNumericalFloat.value) {
-        const keyCode = event.keyCode ? event.keyCode : event.which
-        if ((keyCode < 48 || keyCode > 57) && keyCode !== 46) {
-          // keycode 46 is the character "."
+        const keysAllowed: string[] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.']
+        const keyPressed: string = event.key
+        if (!keysAllowed.includes(keyPressed) || (event.key == "." && checkIfNumberContainsDecimal(state.numericalAnswer))) {
           event.preventDefault()
-          return
+        }
+        if (isNumberLarge(Number(state.numericalAnswer + event.key))) {
+          event.preventDefault()
+        }
+        if (checkIfNumberExceedsDecimalDigitLimit(state.numericalAnswer)) {
+          event.preventDefault()
         }
       }
       if (isQuestionTypeNumericalInteger.value) {
-        const keyCode = event.keyCode ? event.keyCode : event.which
-        if (keyCode < 48 || keyCode > 57) {
+        const keysAllowed: string[] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+        const keyPressed: string = event.key
+        if (!keysAllowed.includes(keyPressed)) {
+          event.preventDefault()
+        }
+        if (isNumberLarge(Number(state.numericalAnswer + event.key))) {
           event.preventDefault()
         }
       }
@@ -441,7 +464,8 @@ export default defineComponent({
       // the default answer to be shown for the subjective question
       if (
         props.submittedAnswer != null &&
-        typeof props.submittedAnswer == "string"
+        typeof props.submittedAnswer == "string" &&
+        !props.isDraftAnswerCleared
       ) {
         return props.submittedAnswer
       }
@@ -453,7 +477,8 @@ export default defineComponent({
     const defaultNumericalAnswer = computed(() => {
       if (
         props.submittedAnswer != null &&
-        typeof props.submittedAnswer == "number"
+        typeof props.submittedAnswer == "number" &&
+        !props.isDraftAnswerCleared
       ) {
         return props.submittedAnswer
       }
@@ -510,15 +535,17 @@ export default defineComponent({
 
     watch(
       () => props.draftAnswer,
-      (newValue) => {
+      (newValue, oldValue) => {
         // specific to subjective and numerical questions
         // when the draft answer is updated,
         // update the subjective and numerical answer too
-        if (typeof newValue == "string" || newValue == null) {
+        if (typeof newValue == "string" || (newValue == null && typeof oldValue == "string")) {
           state.subjectiveAnswer = newValue
         }
-        if (typeof newValue == "number") {
-          state.numericalAnswer = newValue
+        if (typeof newValue == "number" || (newValue == null && typeof oldValue == "number")) {
+          if (newValue != Number(state.numericalAnswer)) {
+            state.numericalAnswer = newValue
+          }
         }
       }
     )
@@ -526,7 +553,11 @@ export default defineComponent({
     watch(
       () => state.numericalAnswer,
       (newValue) => {
-        context.emit("numerical-answer-entered", Number(state.numericalAnswer))
+        if (String(newValue) == '' || newValue == null) {
+          context.emit('numerical-answer-entered', null) // when entire answer is deleted, set draftAnswer as null
+        } else {
+          context.emit("numerical-answer-entered", Number(state.numericalAnswer))
+        }
       }
     )
 

@@ -191,11 +191,7 @@ export default defineComponent({
 
     function clearAnswer() {
       state.reRenderKey = !state.reRenderKey
-      if (typeof state.draftResponses[props.currentQuestionIndex] == "number") {
-        state.draftResponses[props.currentQuestionIndex] = null
-      } else {
-        state.draftResponses[props.currentQuestionIndex] = null
-      }
+      state.draftResponses[props.currentQuestionIndex] = null
       state.isDraftAnswerCleared = true
     }
 
@@ -230,9 +226,6 @@ export default defineComponent({
     function resetState() {
       if (
         state.isDraftAnswerCleared &&
-        isQuestionTypeSubjective.value &&
-        isQuestionTypeNumericalFloat.value &&
-        isQuestionTypeNumericalInteger.value &&
         state.draftResponses[props.currentQuestionIndex] !=
           currentQuestionResponseAnswer.value
       ) {
@@ -242,7 +235,7 @@ export default defineComponent({
       state.isDraftAnswerCleared = false
     }
 
-    function numericalAnswerUpdated(answer: number) {
+    function numericalAnswerUpdated(answer: number | null) {
       state.draftResponses[props.currentQuestionIndex] = answer
     }
 
@@ -282,12 +275,12 @@ export default defineComponent({
     const isQuestionTypeSubjective = computed(
       () => questionType.value == "subjective"
     )
-    const isQuestionTypeNumericalInteger = computed(
-      () => questionType.value == "numerical-integer"
-    )
-    const isQuestionTypeNumericalFloat = computed(
-      () => questionType.value == "numerical-float"
-    )
+    // const isQuestionTypeNumericalInteger = computed(
+    //   () => questionType.value == "numerical-integer"
+    // )
+    // const isQuestionTypeNumericalFloat = computed(
+    //   () => questionType.value == "numerical-float"
+    // )
 
     const currentQuestionResponse = computed(
       () => props.responses[props.currentQuestionIndex]
@@ -300,7 +293,7 @@ export default defineComponent({
     const isAnswerSubmitted = computed(() => {
       if (currentQuestionResponseAnswer.value == null) return false
       if (typeof currentQuestionResponseAnswer.value == "number") {
-        return currentQuestionResponseAnswer.value != null
+        return true
       }
       if (isQuestionTypeSingleChoice.value || isQuestionTypeMultiChoice.value) {
         return currentQuestionResponseAnswer.value.length > 0
@@ -317,7 +310,7 @@ export default defineComponent({
       }
       if (isQuestionTypeSubjective.value) return currentDraftResponse != ""
       if (typeof currentDraftResponse == "number") {
-        return currentDraftResponse != null
+        return true
       }
       return currentDraftResponse.length > 0
     })
