@@ -1,5 +1,6 @@
 import { flushPromises, mount } from "@vue/test-utils";
 import Body from "@/components/Questions/Body.vue";
+import { nextTick } from 'vue'
 
 describe("Body.vue", () => {
   const wrapper = mount(Body);
@@ -465,6 +466,28 @@ describe("Body.vue", () => {
 
       expect(Number(wrapper.vm.numericalAnswer)).toBe(value);
     });
+
+    it("emits an update when numerical value is entered, with value as payload", async () => {
+      const value = 9;
+      await wrapper
+        .find('[data-test="numericalAnswer"]')
+        .find('[data-test="input"]')
+        .setValue(value);
+      const emitted = wrapper.emitted()
+      expect(emitted["numerical-answer-entered"].length).toBe(1)
+      expect(emitted["numerical-answer-entered"][0]).toEqual([9])
+    })
+
+    it("emits an update when empty string is entered, with null as payload", async () => {
+      const value = "";
+      await wrapper
+        .find('[data-test="numericalAnswer"]')
+        .find('[data-test="input"]')
+        .setValue(value);
+      const emitted = wrapper.emitted()
+      expect(emitted["numerical-answer-entered"].length).toBe(2) // accounts for previous emit of value 9 to be removed
+      expect(emitted["numerical-answer-entered"][1]).toEqual([null])
+    })
 
     it("highlights correct/wrong answer for homework quizzes", async () => {
       let submittedAnswer = 7;
