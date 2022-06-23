@@ -168,8 +168,9 @@ export default defineComponent({
 
         // if the selection option was already in the response
         // remove it from the response (uncheck it); otherwise add it (check it)
-        const currentResponse = state.draftResponses[props.currentQuestionIndex]
-
+        const currentResponse = JSON.parse(JSON.stringify(state.draftResponses[props.currentQuestionIndex]))
+        // JSON parse + stringify clones the array (which may contain any complex object; responses here)
+        // not cloning the array leads to update:responses -> changing currentResponse value
         if (Array.isArray(currentResponse)) {
           const optionPositionInResponse = currentResponse.indexOf(optionIndex)
           if (optionPositionInResponse != -1) {
@@ -179,6 +180,7 @@ export default defineComponent({
             currentResponse.sort()
           }
         }
+        state.draftResponses[props.currentQuestionIndex] = currentResponse
       }
     }
 
@@ -275,12 +277,6 @@ export default defineComponent({
     const isQuestionTypeSubjective = computed(
       () => questionType.value == "subjective"
     )
-    // const isQuestionTypeNumericalInteger = computed(
-    //   () => questionType.value == "numerical-integer"
-    // )
-    // const isQuestionTypeNumericalFloat = computed(
-    //   () => questionType.value == "numerical-float"
-    // )
 
     const currentQuestionResponse = computed(
       () => props.responses[props.currentQuestionIndex]

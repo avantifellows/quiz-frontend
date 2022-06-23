@@ -272,7 +272,7 @@ export default defineComponent({
      */
     function optionBackgroundClass(optionIndex: Number) {
       if (
-        !props.isAnswerSubmitted ||
+        (!props.isAnswerSubmitted && !props.hasQuizEnded) || // before quiz has ended, if answer isn't submitted
         props.isDraftAnswerCleared ||
         typeof props.correctAnswer == "string" || // check for typescript
         typeof props.submittedAnswer == "string" || // check for typescript
@@ -281,14 +281,6 @@ export default defineComponent({
       ) {
         return
       }
-
-      // if (isQuizAssessment.value && !props.hasQuizEnded && !props.isGradedQuestion) {
-      //   if (props.submittedAnswer.indexOf(optionIndex) != -1) {
-      //     return state.nonGradedAnswerClass
-      //   }
-      //   return
-      // }
-
       if (
         (!isQuizAssessment.value || props.hasQuizEnded) && // display colors if its a homework or if its assessment and quiz ended
         props.isGradedQuestion &&
@@ -298,6 +290,7 @@ export default defineComponent({
       }
       if (
         (!isQuizAssessment.value || props.hasQuizEnded) &&
+        props.submittedAnswer != null &&
         props.submittedAnswer.indexOf(optionIndex) != -1) {
         if (!props.isGradedQuestion) return state.nonGradedAnswerClass
         return state.wrongOptionClass
