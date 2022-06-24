@@ -158,15 +158,23 @@ describe("Player for Assessment quizzes", () => {
         cy.get('[data-test="modal"]')
           .get('[data-test="optionSelector-0"]')
           .trigger("click");
+        cy.get('[data-test="modal"]')
+          .get('[data-test="saveAndNextButton"]')
+          .trigger("click");
 
-        // end test
+        // question 4 -- typed but not submitted!
+        cy.get('[data-test="modal"]')
+          .get('[data-test="numericalAnswer"]')
+          .type("3");
+
+        // question 5 - skipped; end test
         cy.get('[data-test="modal"]')
           .get('[data-test="endTestButton"]')
           .trigger("click");
 
         cy.get('[data-test="scorecard"]')
           .get('[data-test="metricValue-2"]')
-          .should("have.text", 1);
+          .should("have.text", 2);
       });
 
       describe("End test", () => {
@@ -225,6 +233,66 @@ describe("Player for Assessment quizzes", () => {
           cy.get('[data-test="paletteItem-2"]')
             .get('[data-test="index"]')
             .should("have.class", "bg-yellow-200");
+        });
+      });
+
+      describe("Checking correctness of numerical integer inputs", () => {
+        beforeEach(() => {
+          cy.get('[data-test="togglePaletteButton"]').trigger("click");
+          cy.get('[data-test="paletteItem-3"]').trigger("click");
+        });
+        it("number larger than 1e10 should be truncated", () => {
+          cy.get('[data-test="modal"]')
+            .get('[data-test="numericalAnswer"]')
+            .type("1".repeat(11));
+          cy.get('textarea[data-test="input"]').should(
+            "have.value",
+            "1".repeat(10)
+          );
+        });
+
+        it("characters other than digits should not be considered", () => {
+          cy.get('[data-test="modal"]')
+            .get('[data-test="numericalAnswer"]')
+            .type("1aa23");
+          cy.get('textarea[data-test="input"]').should("have.value", "123");
+        });
+
+        it("decimal points should not be considered since this is numerical integer type", () => {
+          cy.get('[data-test="modal"]')
+            .get('[data-test="numericalAnswer"]')
+            .type("12.3");
+          cy.get('textarea[data-test="input"]').should("have.value", "123");
+        });
+      });
+
+      describe("Checking correctness of numerical float inputs", () => {
+        beforeEach(() => {
+          cy.get('[data-test="togglePaletteButton"]').trigger("click");
+          cy.get('[data-test="paletteItem-4"]').trigger("click");
+        });
+        it("digits beyond 10th decimal place should be truncated", () => {
+          cy.get('[data-test="modal"]')
+            .get('[data-test="numericalAnswer"]')
+            .type("1.0123456789012");
+          cy.get('textarea[data-test="input"]').should(
+            "have.value",
+            "1.0123456789"
+          );
+        });
+
+        it("characters other than digits and decimal point should not be considered", () => {
+          cy.get('[data-test="modal"]')
+            .get('[data-test="numericalAnswer"]')
+            .type("1aa23.234");
+          cy.get('textarea[data-test="input"]').should("have.value", "123.234");
+        });
+
+        it("only one decimal point should be allowed", () => {
+          cy.get('[data-test="modal"]')
+            .get('[data-test="numericalAnswer"]')
+            .type("12.3......234");
+          cy.get('textarea[data-test="input"]').should("have.value", "12.3234");
         });
       });
     });
