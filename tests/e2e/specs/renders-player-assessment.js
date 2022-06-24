@@ -323,6 +323,26 @@ describe("Player for Assessment quizzes", () => {
           .get('[data-test="optionContainer-1"]')
           .should("not.have.class", "bg-gray-200");
       });
+
+      it("does not update submitted answer upon selecting new answer, but not clicking save & bext", () => {
+        // change option, click next without saving
+        cy.get('[data-test="modal"]')
+          .get('[data-test="optionSelector-1"]')
+          .trigger("click");
+        cy.get('[data-test="modal"]')
+          .get('[data-test="nextQuestionButton"]')
+          .trigger("click");
+
+        // go back to previous question
+        cy.get('[data-test="modal"]')
+          .get('[data-test="previousQuestionButton"]')
+          .trigger("click");
+
+        // previous submitted option1 should only be checked
+        cy.get('[data-test="modal"]')
+          .get('[data-test="optionSelector-0"]')
+          .should("be.checked");
+      });
     });
   });
 });

@@ -1,6 +1,5 @@
 import { flushPromises, mount } from "@vue/test-utils";
 import Body from "@/components/Questions/Body.vue";
-import { nextTick } from 'vue'
 
 describe("Body.vue", () => {
   const wrapper = mount(Body);
