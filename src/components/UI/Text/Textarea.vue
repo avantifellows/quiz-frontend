@@ -14,6 +14,8 @@
         @keypress="keyPress"
         @keydown="keyDown"
         data-test="input"
+        ondrop="return false"
+        onpaste="return false"
       />
     </div>
   </InputText>

@@ -156,6 +156,8 @@ import BaseIcon from "../UI/Icons/BaseIcon.vue"
 import { quizType, paletteItemState } from "../../types"
 import QuestionPalette from "./Palette/QuestionPalette.vue"
 
+const MAX_LENGTH_CHARACTERS: number = 10 // max length of characters in numerical answer textbox
+
 export default defineComponent({
   components: {
     BaseIcon,
@@ -319,18 +321,12 @@ export default defineComponent({
       state.isImageLoading = true
     }
 
-    function checkIfNumberContainsDecimal(x: Number | null) {
+    function doesNumberContainDecimal(x: Number | null) {
       return String(x).includes(".")
     }
 
-    function isNumberLarge(x: Number) {
-      const maxValue: number = 1e10
-      return x > maxValue
-    }
-
-    function checkIfNumberExceedsDecimalDigitLimit(x: Number | null) {
-      const maxDecimalPlaces: number = 10 // max length of digits after decimal
-      return String(x).includes(".") && String(x).split(".")[1].length > maxDecimalPlaces - 1
+    function doCharactersExceedLimit(x: Number | null) {
+      return String(x).length >= MAX_LENGTH_CHARACTERS
     }
 
     function preventKeypressIfApplicable(event: KeyboardEvent) {
@@ -345,23 +341,21 @@ export default defineComponent({
       if (isQuestionTypeNumericalFloat.value) {
         const keysAllowed: string[] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.']
         const keyPressed: string = event.key
-        if (!keysAllowed.includes(keyPressed) || (event.key == "." && checkIfNumberContainsDecimal(state.numericalAnswer))) {
-          event.preventDefault()
-        }
-        if (isNumberLarge(Number(state.numericalAnswer + event.key))) {
-          event.preventDefault()
-        }
-        if (checkIfNumberExceedsDecimalDigitLimit(state.numericalAnswer)) {
+        if (
+          doCharactersExceedLimit(state.numericalAnswer) ||
+          !keysAllowed.includes(keyPressed) ||
+          (event.key == "." && (doesNumberContainDecimal(state.numericalAnswer) || Number(state.numericalAnswer) == 0))
+          // if key is "." but number already has a decimal point, or key "." is entered as the first character in answer, prevent
+        ) {
           event.preventDefault()
         }
       }
       if (isQuestionTypeNumericalInteger.value) {
         const keysAllowed: string[] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
         const keyPressed: string = event.key
-        if (!keysAllowed.includes(keyPressed)) {
-          event.preventDefault()
-        }
-        if (isNumberLarge(Number(state.numericalAnswer + event.key))) {
+        if (
+          doCharactersExceedLimit(state.numericalAnswer) ||
+          !keysAllowed.includes(keyPressed)) {
           event.preventDefault()
         }
       }

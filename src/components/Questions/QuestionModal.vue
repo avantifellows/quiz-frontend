@@ -78,6 +78,7 @@ import {
   questionState
 } from "../../types"
 import { useToast, POSITION } from "vue-toastification"
+const clonedeep = require("lodash.clonedeep");
 
 export default defineComponent({
   name: "QuestionModal",
@@ -168,7 +169,7 @@ export default defineComponent({
 
         // if the selection option was already in the response
         // remove it from the response (uncheck it); otherwise add it (check it)
-        const currentResponse = JSON.parse(JSON.stringify(state.draftResponses[props.currentQuestionIndex]))
+        const currentResponse = clonedeep(state.draftResponses[props.currentQuestionIndex])
         // JSON parse + stringify clones the array (which may contain any complex object; responses here)
         // not cloning the array leads to update:responses -> changing currentResponse value
         if (Array.isArray(currentResponse)) {
@@ -278,6 +279,13 @@ export default defineComponent({
       () => questionType.value == "subjective"
     )
 
+    const isQuestionTypeNumericalInteger = computed(
+      () => questionType.value == "numerical-integer"
+    )
+    const isQuestionTypeNumericalFloat = computed(
+      () => questionType.value == "numerical-float"
+    )
+
     const currentQuestionResponse = computed(
       () => props.responses[props.currentQuestionIndex]
     )
@@ -288,11 +296,11 @@ export default defineComponent({
 
     const isAnswerSubmitted = computed(() => {
       if (currentQuestionResponseAnswer.value == null) return false
-      if (typeof currentQuestionResponseAnswer.value == "number") {
+      if (isQuestionTypeNumericalInteger.value || isQuestionTypeNumericalFloat.value) {
         return true
       }
       if (isQuestionTypeSingleChoice.value || isQuestionTypeMultiChoice.value) {
-        return currentQuestionResponseAnswer.value.length > 0
+        return currentQuestionResponseAnswer.value != []
       }
       return true
     })
@@ -305,10 +313,10 @@ export default defineComponent({
         return false
       }
       if (isQuestionTypeSubjective.value) return currentDraftResponse != ""
-      if (typeof currentDraftResponse == "number") {
+      if (isQuestionTypeNumericalInteger.value || isQuestionTypeNumericalFloat.value) {
         return true
       }
-      return currentDraftResponse.length > 0
+      return Object.keys(currentDraftResponse).length > 0
     })
 
     const isQuizAssessment = computed(() => props.quizType == "assessment")

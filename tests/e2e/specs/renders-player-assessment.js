@@ -241,7 +241,7 @@ describe("Player for Assessment quizzes", () => {
           cy.get('[data-test="togglePaletteButton"]').trigger("click");
           cy.get('[data-test="paletteItem-3"]').trigger("click");
         });
-        it("number larger than 1e10 should be truncated", () => {
+        it("number with more than 10 digit in integral part will be truncated", () => {
           cy.get('[data-test="modal"]')
             .get('[data-test="numericalAnswer"]')
             .type("1".repeat(11));
@@ -271,13 +271,13 @@ describe("Player for Assessment quizzes", () => {
           cy.get('[data-test="togglePaletteButton"]').trigger("click");
           cy.get('[data-test="paletteItem-4"]').trigger("click");
         });
-        it("digits beyond 10th decimal place should be truncated", () => {
+        it("floating numbers with more than 10 characters should be truncated", () => {
           cy.get('[data-test="modal"]')
             .get('[data-test="numericalAnswer"]')
             .type("1.0123456789012");
           cy.get('textarea[data-test="input"]').should(
             "have.value",
-            "1.0123456789"
+            "1.01234567"
           );
         });
 
@@ -293,6 +293,13 @@ describe("Player for Assessment quizzes", () => {
             .get('[data-test="numericalAnswer"]')
             .type("12.3......234");
           cy.get('textarea[data-test="input"]').should("have.value", "12.3234");
+        });
+
+        it("first character as decimal point is not considered", () => {
+          cy.get('[data-test="modal"]')
+            .get('[data-test="numericalAnswer"]')
+            .type(".1");
+          cy.get('textarea[data-test="input"]').should("have.value", "1");
         });
       });
     });
