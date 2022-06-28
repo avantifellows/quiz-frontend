@@ -169,9 +169,9 @@ export default defineComponent({
 
         // if the selection option was already in the response
         // remove it from the response (uncheck it); otherwise add it (check it)
-        const currentResponse = clonedeep(state.draftResponses[props.currentQuestionIndex])
-        // JSON parse + stringify clones the array (which may contain any complex object; responses here)
+        // lodash clonedeep clones the array (which may contain any complex object; responses here)
         // not cloning the array leads to update:responses -> changing currentResponse value
+        const currentResponse = clonedeep(state.draftResponses[props.currentQuestionIndex])
         if (Array.isArray(currentResponse)) {
           const optionPositionInResponse = currentResponse.indexOf(optionIndex)
           if (optionPositionInResponse != -1) {

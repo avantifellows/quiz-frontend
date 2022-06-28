@@ -156,7 +156,7 @@ import BaseIcon from "../UI/Icons/BaseIcon.vue"
 import { quizType, paletteItemState } from "../../types"
 import QuestionPalette from "./Palette/QuestionPalette.vue"
 
-const MAX_LENGTH_CHARACTERS: number = 10 // max length of characters in numerical answer textbox
+const MAX_LENGTH_NUMERICAL_CHARACTERS: number = 10 // max length of characters in numerical answer textbox
 
 export default defineComponent({
   components: {
@@ -325,8 +325,8 @@ export default defineComponent({
       return String(x).includes(".")
     }
 
-    function doCharactersExceedLimit(x: Number | null) {
-      return String(x).length >= MAX_LENGTH_CHARACTERS
+    function doNumericalCharactersExceedLimit(x: Number | null) {
+      return String(x).length >= MAX_LENGTH_NUMERICAL_CHARACTERS
     }
 
     function preventKeypressIfApplicable(event: KeyboardEvent) {
@@ -342,10 +342,10 @@ export default defineComponent({
         const keysAllowed: string[] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.']
         const keyPressed: string = event.key
         if (
-          doCharactersExceedLimit(state.numericalAnswer) ||
+          doNumericalCharactersExceedLimit(state.numericalAnswer) ||
           !keysAllowed.includes(keyPressed) ||
-          (event.key == "." && (doesNumberContainDecimal(state.numericalAnswer) || Number(state.numericalAnswer) == 0))
           // if key is "." but number already has a decimal point, or key "." is entered as the first character in answer, prevent
+          (event.key == "." && (doesNumberContainDecimal(state.numericalAnswer) || Number(state.numericalAnswer) == 0))
         ) {
           event.preventDefault()
         }
@@ -354,7 +354,7 @@ export default defineComponent({
         const keysAllowed: string[] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
         const keyPressed: string = event.key
         if (
-          doCharactersExceedLimit(state.numericalAnswer) ||
+          doNumericalCharactersExceedLimit(state.numericalAnswer) ||
           !keysAllowed.includes(keyPressed)) {
           event.preventDefault()
         }
