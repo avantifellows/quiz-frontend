@@ -316,7 +316,7 @@ export default defineComponent({
       if (isQuestionTypeNumericalInteger.value || isQuestionTypeNumericalFloat.value) {
         return true
       }
-      return Object.keys(currentDraftResponse).length > 0
+      return Array.isArray(currentDraftResponse) && currentDraftResponse.length > 0
     })
 
     const isQuizAssessment = computed(() => props.quizType == "assessment")
