@@ -296,7 +296,7 @@ export default defineComponent({
     /** config for the text of the go back button */
     const backButtonTitleConfig = computed(() => {
       return {
-        value: "Go Back",
+        value: "See Answers",
         class: "text-white text-md sm:text-lg lg:text-xl font-bold",
       };
     });

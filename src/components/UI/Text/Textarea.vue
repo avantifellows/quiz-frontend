@@ -11,7 +11,7 @@
         name="placeholder"
         autocomplete="off"
         @input="inputChange"
-        @keypress="keyPress"
+        @beforeinput="beforeInput"
         @keydown="keyDown"
         data-test="input"
         ondrop="return false"
@@ -73,7 +73,7 @@ export default defineComponent({
     const state = reactive({
       localValue: props.value,
     });
-    function inputChange(event: KeyboardEvent) {
+    function inputChange(event: Event) {
       // invoked on input change
       context.emit("update:value", state.localValue);
 
@@ -85,9 +85,9 @@ export default defineComponent({
           Math.min(textareaElement.scrollHeight, props.maxHeightLimit) + "px";
       }
     }
-    function keyPress(event: KeyboardEvent) {
-      // invoked by pressing a key
-      context.emit("keypress", event);
+    function beforeInput(event: Event) {
+      // invoked when editing input/textarea field
+      context.emit("beforeinput", event);
     }
     function keyDown(event: KeyboardEvent) {
       // invoked by the event keydown
@@ -104,10 +104,10 @@ export default defineComponent({
     return {
       ...toRefs(state),
       inputChange,
-      keyPress,
+      beforeInput,
       keyDown,
     };
   },
-  emits: ["keypress", "keydown", "update:value"],
+  emits: ["beforeinput", "keydown", "update:value"],
 });
 </script>

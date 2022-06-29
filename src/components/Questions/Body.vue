@@ -98,7 +98,7 @@
             placeholder="Enter your answer here"
             :isDisabled="isAnswerDisabled"
             :maxHeightLimit="250"
-            @keypress="preventKeypressIfApplicable"
+            @beforeinput="preventKeypressIfApplicable"
             data-test="subjectiveAnswer"
           ></Textarea>
           <!-- character limit -->
@@ -131,7 +131,7 @@
             placeholder="Enter your answer here. Only numbers are allowed"
             :isDisabled="isAnswerDisabled"
             :maxHeightLimit="250"
-            @keypress="preventKeypressIfApplicable"
+            @beforeinput="preventKeypressIfApplicable"
             data-test="numericalAnswer"
           ></Textarea>
         </div>
@@ -329,7 +329,9 @@ export default defineComponent({
       return String(x).length >= MAX_LENGTH_NUMERICAL_CHARACTERS
     }
 
-    function preventKeypressIfApplicable(event: KeyboardEvent) {
+    function preventKeypressIfApplicable(event: InputEvent) {
+      if (event.data == null) return
+
       if (isQuestionTypeSubjective.value) {
         // checks if character limit is reached in case it is set
         if (!hasCharLimit.value) return
@@ -340,19 +342,19 @@ export default defineComponent({
       }
       if (isQuestionTypeNumericalFloat.value) {
         const keysAllowed: string[] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.']
-        const keyPressed: string = event.key
+        const keyPressed: string = event.data
         if (
           doNumericalCharactersExceedLimit(state.numericalAnswer) ||
           !keysAllowed.includes(keyPressed) ||
           // if key is "." but number already has a decimal point, or key "." is entered as the first character in answer, prevent
-          (event.key == "." && (doesNumberContainDecimal(state.numericalAnswer) || Number(state.numericalAnswer) == 0))
+          (event.data == "." && (doesNumberContainDecimal(state.numericalAnswer) || Number(state.numericalAnswer) == 0))
         ) {
           event.preventDefault()
         }
       }
       if (isQuestionTypeNumericalInteger.value) {
         const keysAllowed: string[] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-        const keyPressed: string = event.key
+        const keyPressed: string = event.data
         if (
           doNumericalCharactersExceedLimit(state.numericalAnswer) ||
           !keysAllowed.includes(keyPressed)) {
