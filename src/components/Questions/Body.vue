@@ -129,6 +129,7 @@
             class="px-2 w-full"
             :boxStyling="numericalAnswerBoxStyling"
             placeholder="Enter your answer here. Only numbers are allowed"
+            :inputMode="getInputMode"
             :isDisabled="isAnswerDisabled"
             :maxHeightLimit="250"
             @beforeinput="preventKeypressIfApplicable"
@@ -331,9 +332,11 @@ export default defineComponent({
 
     function preventKeypressIfApplicable(event: InputEvent) {
       if (event.data == null) {
+        // prevent "Enter" key in android browser decimal keypad mode
+        if (event.inputType == "insertLineBreak") event.preventDefault()
+        // in other cases, return to escape null type error
         return
       }
-
       if (isQuestionTypeSubjective.value) {
         // checks if character limit is reached in case it is set
         if (!hasCharLimit.value) return
@@ -486,6 +489,13 @@ export default defineComponent({
         (props.isAnswerSubmitted && !isQuizAssessment.value) ||
         props.hasQuizEnded
     )
+    // input mode refers to keypad being displayed in mobile browsers
+    const getInputMode = computed(() => {
+      if (isQuestionTypeNumericalInteger.value || isQuestionTypeNumericalFloat.value) {
+        return "decimal"
+      }
+      return "text"
+    })
 
     const subjectiveAnswerBoxStyling = computed(() => [
       {
@@ -608,6 +618,7 @@ export default defineComponent({
       maxCharLimitClass,
       isQuizAssessment,
       isAnswerDisabled,
+      getInputMode,
       subjectiveAnswerBoxStyling,
       numericalAnswerBoxStyling,
       isQuestionTypeNumericalFloat,

@@ -4,6 +4,7 @@
       <!-- input text area -->
       <textarea
         class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white disabled:bg-gray-200 rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200 disabled:cursor-not-allowed"
+        :inputmode="inputMode"
         :class="boxStyling"
         :disabled="isDisabled"
         :placeholder="placeholder"
@@ -68,6 +69,11 @@ export default defineComponent({
       default: 0,
       type: Number,
     },
+    /** whether the keypad on mobile browser should be text / decimal */
+    inputMode: {
+      default: "text",
+      type: String
+    }
   },
   setup(props, context) {
     const state = reactive({
