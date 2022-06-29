@@ -330,7 +330,9 @@ export default defineComponent({
     }
 
     function preventKeypressIfApplicable(event: InputEvent) {
-      if (event.data == null) return
+      if (event.data == null) {
+        return
+      }
 
       if (isQuestionTypeSubjective.value) {
         // checks if character limit is reached in case it is set
