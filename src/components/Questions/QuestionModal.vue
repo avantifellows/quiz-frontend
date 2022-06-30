@@ -78,6 +78,7 @@ import {
   questionState
 } from "../../types"
 import { useToast, POSITION } from "vue-toastification"
+const clonedeep = require("lodash.clonedeep");
 
 export default defineComponent({
   name: "QuestionModal",
@@ -168,8 +169,9 @@ export default defineComponent({
 
         // if the selection option was already in the response
         // remove it from the response (uncheck it); otherwise add it (check it)
-        const currentResponse = state.draftResponses[props.currentQuestionIndex]
-
+        // lodash clonedeep clones the array (which may contain any complex object; responses here)
+        // not cloning the array leads to update:responses -> changing currentResponse value
+        const currentResponse = clonedeep(state.draftResponses[props.currentQuestionIndex])
         if (Array.isArray(currentResponse)) {
           const optionPositionInResponse = currentResponse.indexOf(optionIndex)
           if (optionPositionInResponse != -1) {
@@ -179,6 +181,7 @@ export default defineComponent({
             currentResponse.sort()
           }
         }
+        state.draftResponses[props.currentQuestionIndex] = currentResponse
       }
     }
 
@@ -191,11 +194,7 @@ export default defineComponent({
 
     function clearAnswer() {
       state.reRenderKey = !state.reRenderKey
-      if (typeof state.draftResponses[props.currentQuestionIndex] == "number") {
-        state.draftResponses[props.currentQuestionIndex] = null
-      } else {
-        state.draftResponses[props.currentQuestionIndex] = null
-      }
+      state.draftResponses[props.currentQuestionIndex] = null
       state.isDraftAnswerCleared = true
     }
 
@@ -229,10 +228,7 @@ export default defineComponent({
 
     function resetState() {
       if (
-        state.isDraftAnswerCleared &&
-        isQuestionTypeSubjective.value &&
-        isQuestionTypeNumericalFloat.value &&
-        isQuestionTypeNumericalInteger.value &&
+        (state.isDraftAnswerCleared || isAnswerSubmitted.value) &&
         state.draftResponses[props.currentQuestionIndex] !=
           currentQuestionResponseAnswer.value
       ) {
@@ -242,7 +238,7 @@ export default defineComponent({
       state.isDraftAnswerCleared = false
     }
 
-    function numericalAnswerUpdated(answer: number) {
+    function numericalAnswerUpdated(answer: number | null) {
       state.draftResponses[props.currentQuestionIndex] = answer
     }
 
@@ -282,6 +278,7 @@ export default defineComponent({
     const isQuestionTypeSubjective = computed(
       () => questionType.value == "subjective"
     )
+
     const isQuestionTypeNumericalInteger = computed(
       () => questionType.value == "numerical-integer"
     )
@@ -299,11 +296,11 @@ export default defineComponent({
 
     const isAnswerSubmitted = computed(() => {
       if (currentQuestionResponseAnswer.value == null) return false
-      if (typeof currentQuestionResponseAnswer.value == "number") {
-        return currentQuestionResponseAnswer.value != null
+      if (isQuestionTypeNumericalInteger.value || isQuestionTypeNumericalFloat.value) {
+        return true
       }
       if (isQuestionTypeSingleChoice.value || isQuestionTypeMultiChoice.value) {
-        return currentQuestionResponseAnswer.value.length > 0
+        return currentQuestionResponseAnswer.value != []
       }
       return true
     })
@@ -316,10 +313,10 @@ export default defineComponent({
         return false
       }
       if (isQuestionTypeSubjective.value) return currentDraftResponse != ""
-      if (typeof currentDraftResponse == "number") {
-        return currentDraftResponse != null
+      if (isQuestionTypeNumericalInteger.value || isQuestionTypeNumericalFloat.value) {
+        return true
       }
-      return currentDraftResponse.length > 0
+      return Array.isArray(currentDraftResponse) && currentDraftResponse.length > 0
     })
 
     const isQuizAssessment = computed(() => props.quizType == "assessment")

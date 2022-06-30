@@ -78,12 +78,47 @@
           },
           "solution": [],
           "metadata": null
+        },
+        {
+          "_id": "62540adb0f748c8e206c1617",
+          "text": "Enter an integer value?",
+          "type": "numerical-integer",
+          "instructions": null,
+          "image": null,
+          "max_char_limit": null,
+          "correct_answer": 33,
+          "graded": true,
+          "marking_scheme": {
+            "correct": 3,
+            "wrong": -1,
+            "skipped": 0
+          },
+          "solution": [],
+          "metadata": null
+        },
+        {
+          "_id": "62540adb0f748c8e206c1618",
+          "text": "Enter an float value?",
+          "type": "numerical-float",
+          "instructions": null,
+          "image": null,
+          "max_char_limit": null,
+          "correct_answer": 33.3,
+          "graded": true,
+          "marking_scheme": {
+            "correct": 3,
+            "wrong": -1,
+            "skipped": 0
+          },
+          "solution": [],
+          "metadata": null
         }
       ]
     }
   ],
-  "max_marks": 10,
-  "num_graded_questions": 3,
+  "title": "cypress assessment",
+  "max_marks": 16,
+  "num_graded_questions": 5,
   "shuffle": false,
   "num_attempts_allowed": 1,
   "time_limit": null,

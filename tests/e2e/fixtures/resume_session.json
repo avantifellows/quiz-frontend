@@ -18,6 +18,16 @@
       "_id": "62625e0f773b5fb92fde890e",
       "question_id": "62540adb0f748c8e206c1616",
       "answer": null
+    },
+    {
+      "_id": "62625e0f773b5fb92fde890f",
+      "question_id": "62540adb0f748c8e206c1617",
+      "answer": 2
+    },
+    {
+      "_id": "62625e0f773b5fb92fde890g",
+      "question_id": "62540adb0f748c8e206c1618",
+      "answer": 2.3
     }
   ]
 }

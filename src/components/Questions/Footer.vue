@@ -29,7 +29,7 @@
       <icon-button
         :titleConfig="clearButtonTitleConfig"
         :buttonClass="clearButtonClass"
-        :isDisabled="!isSubmitEnabled && !isAnswerSubmitted"
+        :isDisabled="!isSubmitEnabled"
         @click="clearAnswer"
         data-test="clearButton"
       ></icon-button>

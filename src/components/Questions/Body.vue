@@ -98,7 +98,7 @@
             placeholder="Enter your answer here"
             :isDisabled="isAnswerDisabled"
             :maxHeightLimit="250"
-            @keypress="preventKeypressIfApplicable"
+            @beforeinput="preventKeypressIfApplicable"
             data-test="subjectiveAnswer"
           ></Textarea>
           <!-- character limit -->
@@ -129,9 +129,10 @@
             class="px-2 w-full"
             :boxStyling="numericalAnswerBoxStyling"
             placeholder="Enter your answer here. Only numbers are allowed"
+            :inputMode="getInputMode"
             :isDisabled="isAnswerDisabled"
             :maxHeightLimit="250"
-            @keypress="preventKeypressIfApplicable"
+            @beforeinput="preventKeypressIfApplicable"
             data-test="numericalAnswer"
           ></Textarea>
         </div>
@@ -155,6 +156,8 @@ import {
 import BaseIcon from "../UI/Icons/BaseIcon.vue"
 import { quizType, paletteItemState } from "../../types"
 import QuestionPalette from "./Palette/QuestionPalette.vue"
+
+const MAX_LENGTH_NUMERICAL_CHARACTERS: number = 10 // max length of characters in numerical answer textbox
 
 export default defineComponent({
   components: {
@@ -272,7 +275,7 @@ export default defineComponent({
      */
     function optionBackgroundClass(optionIndex: Number) {
       if (
-        !props.isAnswerSubmitted ||
+        (!props.isAnswerSubmitted && !props.hasQuizEnded) || // before quiz has ended, if answer isn't submitted
         props.isDraftAnswerCleared ||
         typeof props.correctAnswer == "string" || // check for typescript
         typeof props.submittedAnswer == "string" || // check for typescript
@@ -281,21 +284,17 @@ export default defineComponent({
       ) {
         return
       }
-
-      if (isQuizAssessment.value && !props.hasQuizEnded) {
-        if (props.submittedAnswer.indexOf(optionIndex) != -1) {
-          return state.nonGradedAnswerClass
-        }
-        return
-      }
-
       if (
+        (!isQuizAssessment.value || props.hasQuizEnded) && // display colors if its a homework or if its assessment and quiz ended
         props.isGradedQuestion &&
         props.correctAnswer.indexOf(optionIndex) != -1
       ) {
         return state.correctOptionClass
       }
-      if (props.submittedAnswer.indexOf(optionIndex) != -1) {
+      if (
+        (!isQuizAssessment.value || props.hasQuizEnded) &&
+        props.submittedAnswer != null &&
+        props.submittedAnswer.indexOf(optionIndex) != -1) {
         if (!props.isGradedQuestion) return state.nonGradedAnswerClass
         return state.wrongOptionClass
       }
@@ -323,7 +322,21 @@ export default defineComponent({
       state.isImageLoading = true
     }
 
-    function preventKeypressIfApplicable(event: KeyboardEvent) {
+    function doesNumberContainDecimal(x: Number | null) {
+      return String(x).includes(".")
+    }
+
+    function doNumericalCharactersExceedLimit(x: Number | null) {
+      return String(x).length >= MAX_LENGTH_NUMERICAL_CHARACTERS
+    }
+
+    function preventKeypressIfApplicable(event: InputEvent) {
+      if (event.data == null) {
+        // prevent "Enter" key in android browser decimal keypad mode
+        if (event.inputType == "insertLineBreak") event.preventDefault()
+        // in other cases, return to escape null type error
+        return
+      }
       if (isQuestionTypeSubjective.value) {
         // checks if character limit is reached in case it is set
         if (!hasCharLimit.value) return
@@ -333,16 +346,24 @@ export default defineComponent({
         }
       }
       if (isQuestionTypeNumericalFloat.value) {
-        const keyCode = event.keyCode ? event.keyCode : event.which
-        if ((keyCode < 48 || keyCode > 57) && keyCode !== 46) {
-          // keycode 46 is the character "."
+        const keysAllowed: string[] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.']
+        const keyPressed: string = event.data
+        if (
+          doNumericalCharactersExceedLimit(state.numericalAnswer) ||
+          !keysAllowed.includes(keyPressed) ||
+          // if key is "." but number already has a decimal point, or key "." is entered as the first character in answer, prevent
+          (event.data == "." &&
+          (doesNumberContainDecimal(state.numericalAnswer) || state.numericalAnswer == null))
+        ) {
           event.preventDefault()
-          return
         }
       }
       if (isQuestionTypeNumericalInteger.value) {
-        const keyCode = event.keyCode ? event.keyCode : event.which
-        if (keyCode < 48 || keyCode > 57) {
+        const keysAllowed: string[] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+        const keyPressed: string = event.data
+        if (
+          doNumericalCharactersExceedLimit(state.numericalAnswer) ||
+          !keysAllowed.includes(keyPressed)) {
           event.preventDefault()
         }
       }
@@ -441,7 +462,8 @@ export default defineComponent({
       // the default answer to be shown for the subjective question
       if (
         props.submittedAnswer != null &&
-        typeof props.submittedAnswer == "string"
+        typeof props.submittedAnswer == "string" &&
+        !props.isDraftAnswerCleared
       ) {
         return props.submittedAnswer
       }
@@ -453,7 +475,8 @@ export default defineComponent({
     const defaultNumericalAnswer = computed(() => {
       if (
         props.submittedAnswer != null &&
-        typeof props.submittedAnswer == "number"
+        typeof props.submittedAnswer == "number" &&
+        !props.isDraftAnswerCleared
       ) {
         return props.submittedAnswer
       }
@@ -467,6 +490,13 @@ export default defineComponent({
         (props.isAnswerSubmitted && !isQuizAssessment.value) ||
         props.hasQuizEnded
     )
+    // input mode refers to keypad being displayed in mobile browsers
+    const getInputMode = computed(() => {
+      if (isQuestionTypeNumericalInteger.value || isQuestionTypeNumericalFloat.value) {
+        return "decimal"
+      }
+      return "text"
+    })
 
     const subjectiveAnswerBoxStyling = computed(() => [
       {
@@ -510,15 +540,17 @@ export default defineComponent({
 
     watch(
       () => props.draftAnswer,
-      (newValue) => {
+      (newValue, oldValue) => {
         // specific to subjective and numerical questions
         // when the draft answer is updated,
         // update the subjective and numerical answer too
-        if (typeof newValue == "string" || newValue == null) {
+        if (typeof newValue == "string" || (newValue == null && typeof oldValue == "string")) {
           state.subjectiveAnswer = newValue
         }
-        if (typeof newValue == "number") {
-          state.numericalAnswer = newValue
+        if (typeof newValue == "number" || (newValue == null && typeof oldValue == "number")) {
+          if (newValue != Number(state.numericalAnswer)) {
+            state.numericalAnswer = newValue
+          }
         }
       }
     )
@@ -526,7 +558,11 @@ export default defineComponent({
     watch(
       () => state.numericalAnswer,
       (newValue) => {
-        context.emit("numerical-answer-entered", Number(state.numericalAnswer))
+        if (String(newValue) == '' || newValue == null) {
+          context.emit('numerical-answer-entered', null) // when entire answer is deleted, set draftAnswer as null
+        } else {
+          context.emit("numerical-answer-entered", Number(state.numericalAnswer))
+        }
       }
     )
 
@@ -583,6 +619,7 @@ export default defineComponent({
       maxCharLimitClass,
       isQuizAssessment,
       isAnswerDisabled,
+      getInputMode,
       subjectiveAnswerBoxStyling,
       numericalAnswerBoxStyling,
       isQuestionTypeNumericalFloat,
