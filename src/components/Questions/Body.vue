@@ -352,7 +352,8 @@ export default defineComponent({
           doNumericalCharactersExceedLimit(state.numericalAnswer) ||
           !keysAllowed.includes(keyPressed) ||
           // if key is "." but number already has a decimal point, or key "." is entered as the first character in answer, prevent
-          (event.data == "." && (doesNumberContainDecimal(state.numericalAnswer) || Number(state.numericalAnswer) == 0))
+          (event.data == "." &&
+          (doesNumberContainDecimal(state.numericalAnswer) || state.numericalAnswer == null))
         ) {
           event.preventDefault()
         }
