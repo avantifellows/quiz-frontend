@@ -18,19 +18,21 @@
     </div>
 
     <div
+      v-for="(itemSetState, index) in questionSetStates" :key="index"
       class="grid grid-cols-5 bp-500:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 mt-4 space-y-4"
     >
-      <PaletteItem
-        v-for="(itemState, index) in questionStates"
+        <p>{{ itemSetState.title }}</p>
+        <PaletteItem
+        v-for="(questionItemState, qindex) in itemSetState.paletteItems"
         class="hover:cursor-pointer"
         :class="{ 'mt-4': index == 0 }"
-        :key="index"
-        :index="index"
+        :key="qindex"
+        :index="qindex"
         :hasQuizEnded="hasQuizEnded"
-        :state="itemState.value"
-        :isHighlighted="currentQuestionIndex == itemState.index"
-        @click="navigateToQuestion(itemState.index)"
-        :data-test="`paletteItem-${itemState.index}`"
+        :state="questionItemState.value"
+        :isHighlighted="currentQuestionIndex == questionItemState.index"
+        @click="navigateToQuestion(questionItemState.index)"
+        :data-test="`paletteItem-${questionItemState.index}`"
       ></PaletteItem>
     </div>
   </div>
@@ -41,7 +43,7 @@ import Success from "./Success.vue";
 import Error from "./Error.vue";
 import Neutral from "./Neutral.vue";
 import PaletteItem from "./Item.vue";
-import { paletteItemState } from "../../../types";
+import { questionSetPalette } from "../../../types";
 import { defineComponent, computed, PropType } from "vue";
 
 export default defineComponent({
@@ -56,8 +58,8 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
-    questionStates: {
-      type: Array as PropType<paletteItemState[]>,
+    questionSetStates: {
+      type: Array as PropType<questionSetPalette[]>,
       default: () => [],
     },
     currentQuestionIndex: {

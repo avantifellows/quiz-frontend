@@ -6,7 +6,7 @@
     <QuestionPalette
       v-if="isPaletteVisible"
       :hasQuizEnded="hasQuizEnded"
-      :questionStates="questionStates"
+      :questionSetStates="questionSetStates"
       :currentQuestionIndex="currentQuestionIndex"
       class="absolute w-full h-full sm:w-2/3 lg:w-1/2 xl:w-1/3 z-10"
       @navigate="navigateToQuestion"
@@ -15,6 +15,10 @@
     </QuestionPalette>
 
     <div class="overflow-y-auto flex flex-col w-full mt-10">
+      <!-- question set and question number information // maybe have it in questionmodal?-->
+      <div class="mx-6 md:mx-10">
+        <p :class="questionTextClass" v-html="questionHeaderText"></p>
+      </div>
       <!-- question text -->
       <div class="mx-6 md:mx-10">
         <p :class="questionTextClass" data-test="text" v-html="text"></p>
@@ -154,7 +158,7 @@ import {
   onUpdated
 } from "vue"
 import BaseIcon from "../UI/Icons/BaseIcon.vue"
-import { quizType, paletteItemState } from "../../types"
+import { quizType, questionSetPalette } from "../../types"
 import QuestionPalette from "./Palette/QuestionPalette.vue"
 
 const MAX_LENGTH_NUMERICAL_CHARACTERS: number = 10 // max length of characters in numerical answer textbox
@@ -222,6 +226,13 @@ export default defineComponent({
       type: Boolean,
       default: false
     },
+    /** whether the user has attempted all available questions
+     * based on question set's optional limit
+    */
+    optionalLimitReached: {
+      type: Boolean,
+      default: false
+    },
     /** whether the draft answer has been cleared but not yet submitted */
     isDraftAnswerCleared: {
       default: false,
@@ -232,13 +243,17 @@ export default defineComponent({
       type: Boolean,
       default: false
     },
-    questionStates: {
-      type: Array as PropType<paletteItemState[]>,
+    questionSetStates: {
+      type: Array as PropType<questionSetPalette[]>,
       default: () => []
     },
     currentQuestionIndex: {
       type: Number,
       default: 0
+    },
+    questionSetTitle: {
+      type: String,
+      default: ""
     }
   },
   setup(props, context) {
@@ -373,6 +388,10 @@ export default defineComponent({
       context.emit("navigate", questionIndex)
     }
 
+    const questionHeaderText = computed(() => {
+      return `${props.questionSetTitle} / Question No. ${props.currentQuestionIndex}`
+    })
+
     // styling class for the question image and loading spinner containers
     const questionImageAreaClass = computed(() => ({
       "h-56 mb-4": props.isPortrait,
@@ -488,7 +507,8 @@ export default defineComponent({
     const isAnswerDisabled = computed(
       () =>
         (props.isAnswerSubmitted && !isQuizAssessment.value) ||
-        props.hasQuizEnded
+        props.hasQuizEnded ||
+        (props.optionalLimitReached && !props.isAnswerSubmitted)
     )
     // input mode refers to keypad being displayed in mobile browsers
     const getInputMode = computed(() => {
@@ -597,6 +617,7 @@ export default defineComponent({
 
     return {
       ...toRefs(state),
+      questionHeaderText,
       stopImageLoading,
       optionBackgroundClass,
       isOptionMarked,

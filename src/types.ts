@@ -70,7 +70,7 @@ interface QuestionMetadata {
   difficulty: string;
 }
 
-interface TimeLimit {
+export interface TimeLimit {
   min: number;
   max: number;
 }
@@ -106,9 +106,16 @@ export interface Question {
   metadata: QuestionMetadata | null;
 }
 
-interface QuestionSet {
+export interface QuestionSet {
   _id: string;
   questions: Question[];
+  num_questions_allowed_to_attempt: number;
+  title: string | null;
+}
+
+export interface QuestionSetIndexLimits {
+  low: number;
+  high: number;
 }
 
 export interface QuizAPIResponse {
@@ -158,6 +165,11 @@ export type questionState = "success" | "error" | "neutral";
 export interface paletteItemState {
   index: number; // index of the corresponding question in the list of questions
   value: questionState;
+}
+
+export interface questionSetPalette {
+  title: string | null,
+  paletteItems: paletteItemState[]
 }
 
 export interface OrganizationAPIResponse {

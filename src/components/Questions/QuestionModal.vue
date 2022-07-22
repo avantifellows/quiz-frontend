@@ -9,6 +9,15 @@
     <div
       class="flex flex-col grow bg-white w-full justify-between overflow-hidden"
     >
+      <Timer
+        v-if="isQuizAssessment"
+        :timeLimit="quizTimeLimit"
+        :warningTimeLimit="TIME_LIMIT_WARNING"
+        :timeElapsed="timeElapsed"
+        @time-limit-warning="displayTimeLimitWarning"
+        @time-is-up="endTest"
+      >
+      </Timer>
       <Body
         :text="currentQuestion.text"
         :options="currentQuestion.options"
@@ -25,8 +34,10 @@
         :isDraftAnswerCleared="isDraftAnswerCleared"
         :quizType="quizType"
         :hasQuizEnded="hasQuizEnded"
+        :optionalLimitReached="optionalLimitReached"
+        :questionSetTitle="questionSetTitle"
         :currentQuestionIndex="currentQuestionIndex"
-        :questionStates="questionStates"
+        :questionSetStates="questionSetStates"
         @option-selected="questionOptionSelected"
         @subjective-answer-entered="subjectiveAnswerUpdated"
         @numerical-answer-entered="numericalAnswerUpdated"
@@ -56,6 +67,7 @@
 import Body from "./Body.vue"
 import Footer from "./Footer.vue"
 import Header from "./Header.vue"
+import Timer from "../Timer.vue"
 import {
   defineComponent,
   PropType,
@@ -67,25 +79,27 @@ import {
 } from "vue"
 import {
   isScreenPortrait,
-  isQuestionAnswerCorrect
 } from "../../services/Functional/Utilities"
 import {
   Question,
   SubmittedResponse,
   DraftResponse,
   quizType,
-  paletteItemState,
-  questionState
+  QuestionSetIndexLimits,
+  questionSetPalette,
+  TimeLimit
 } from "../../types"
 import { useToast, POSITION } from "vue-toastification"
 const clonedeep = require("lodash.clonedeep");
+const TIME_LIMIT_WARNING: number = 5; // seconds after which warning has to be displayed, later take a % of maxtime
 
 export default defineComponent({
   name: "QuestionModal",
   components: {
     Body,
     Footer,
-    Header
+    Header,
+    Timer
   },
   props: {
     questions: {
@@ -107,6 +121,30 @@ export default defineComponent({
     quizType: {
       type: String as PropType<quizType>,
       default: "homework"
+    },
+    maxQuestionsAllowedToAttempt: {
+      type: Number,
+      default: 0
+    },
+    questionSetTitle: {
+      type: String,
+      default: ""
+    },
+    qsetIndexLimits: {
+      required: true,
+      type: Object as PropType<QuestionSetIndexLimits>
+    },
+    questionSetStates: {
+      type: Array as PropType<questionSetPalette[]>,
+      default: () => []
+    },
+    quizTimeLimit: {
+      required: true,
+      type: Object as PropType<TimeLimit>
+    },
+    timeElapsed: {
+      type: Number,
+      default: 0
     }
   },
   setup(props, context) {
@@ -126,6 +164,8 @@ export default defineComponent({
     }
 
     function navigateToQuestion(questionIndex: number) {
+      state.reRenderKey = !state.reRenderKey
+      resetState()
       state.localCurrentQuestionIndex = questionIndex
       state.isPaletteVisible = false
     }
@@ -141,6 +181,17 @@ export default defineComponent({
       () => props.currentQuestionIndex,
       (newValue: Number) => {
         state.localCurrentQuestionIndex = newValue.valueOf()
+        if (!props.hasQuizEnded && optionalLimitReached.value && currentQuestionResponseAnswer.value == null) {
+          state.toast.warning(
+            `You cannot attempt this question since you have already answered ${props.maxQuestionsAllowedToAttempt} questions in current section.`,
+            {
+              position: POSITION.TOP_CENTER,
+              timeout: 3000,
+              draggablePercent: 0.4
+            }
+          )
+        }
+        console.log(optionalLimitReached.value, currentQuestionResponseAnswer.value, "in watch props current")
       }
     )
 
@@ -236,6 +287,7 @@ export default defineComponent({
           currentQuestionResponseAnswer.value
       }
       state.isDraftAnswerCleared = false
+      state.toast.clear() // if toast exists in current state, clear when you switch state
     }
 
     function numericalAnswerUpdated(answer: number | null) {
@@ -306,6 +358,10 @@ export default defineComponent({
     })
 
     const isAttemptValid = computed(() => {
+      if (optionalLimitReached.value && currentQuestionResponseAnswer.value == null) {
+        // this cannot be answered
+        return false
+      }
       const currentDraftResponse = state.draftResponses[
         props.currentQuestionIndex
       ] as DraftResponse
@@ -321,51 +377,14 @@ export default defineComponent({
 
     const isQuizAssessment = computed(() => props.quizType == "assessment")
 
-    const questionStates = computed(() => {
-      const states = [] as paletteItemState[]
-
-      if (props.hasQuizEnded) {
-        for (let index = 0; index < props.questions.length; index++) {
-          const questionAnswerEvaluation = isQuestionAnswerCorrect(
-            props.questions[index],
-            props.responses[index].answer
-          )
-          // we are not adding ungraded questions to the palette
-          if (!questionAnswerEvaluation.valid) continue
-          let state: questionState
-          if (
-            !questionAnswerEvaluation.answered ||
-            questionAnswerEvaluation.isCorrect == null
-          ) {
-            state = "neutral"
-          } else {
-            questionAnswerEvaluation.isCorrect
-              ? (state = "success")
-              : (state = "error")
-          }
-          states.push({
-            index,
-            value: state
-          })
-        }
-      } else {
-        for (let index = 0; index < props.questions.length; index++) {
-          if (!props.questions[index].graded) continue
-          let state: questionState
-          if (!props.responses[index].visited) {
-            state = "neutral"
-          } else {
-            if (props.responses[index].answer != null) state = "success"
-            else state = "error"
-          }
-          states.push({
-            index,
-            value: state
-          })
-        }
+    const optionalLimitReached = computed(() => {
+      let numSubmittedResponses = 0
+      for (let idx = props.qsetIndexLimits.low; idx < props.qsetIndexLimits.high; idx++) {
+        const response = props.responses[idx]
+        if (response.answer != null) numSubmittedResponses += 1
       }
-
-      return states
+      if (numSubmittedResponses == props.maxQuestionsAllowedToAttempt) return true
+      return false
     })
 
     // instantiating draftResponses here
@@ -377,6 +396,20 @@ export default defineComponent({
     checkScreenOrientation()
     // add listener for screen size being changed
     window.addEventListener("resize", checkScreenOrientation)
+
+    // displaying warning when time is less
+    function displayTimeLimitWarning() {
+      if (!props.hasQuizEnded) {
+        state.toast.warning(
+            `Only ${TIME_LIMIT_WARNING} minutes left! Please submit!`,
+            {
+              position: POSITION.TOP_CENTER,
+              timeout: 3000,
+              draggablePercent: 0.4
+            }
+        )
+      }
+    }
 
     return {
       ...toRefs(state),
@@ -396,8 +429,10 @@ export default defineComponent({
       isAnswerSubmitted,
       isAttemptValid,
       isQuizAssessment,
+      optionalLimitReached,
       numericalAnswerUpdated,
-      questionStates
+      TIME_LIMIT_WARNING,
+      displayTimeLimitWarning
     }
   },
   emits: [
