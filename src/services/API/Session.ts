@@ -3,6 +3,8 @@ import { sessionsEndpoint, sessionAnswersEndpoint } from "./Endpoints";
 import {
   SessionAPIResponse,
   SessionAnswerAPIResponse,
+  UpdateSessionAPIPayload,
+  UpdateSessionAPIResponse,
   UpdateSessionAnswerAPIPayload,
 } from "../../types";
 
@@ -25,23 +27,26 @@ export default {
   },
 
   /**
-   * @param sessionId - id of the session to be updated
-   * @param hasQuizEnded - whether the quiz has ended
-   * @returns {Promise<SessionAPIResponse>} data corresponding to the updated session
+   * @param {string} sessionId - id of the session to be updated
+   * @param {UpdateSessionAPIPayload} payload - contains info of whether the quiz has ended,
+   * and whether quiz has started for the first time
+   * @returns {Promise<UpdateSessionAPIResponse>} data corresponding to the updated session response
    */
   async updateSession(
     sessionId: string,
-    hasQuizEnded: boolean
-  ): Promise<SessionAPIResponse> {
-    const response = await apiClient().patch(sessionsEndpoint + sessionId, {
-      has_quiz_ended: hasQuizEnded,
-    });
+    payload: UpdateSessionAPIPayload
+  ): Promise<UpdateSessionAPIResponse> {
+    const response = await apiClient().patch(
+      sessionsEndpoint + sessionId,
+      payload
+    );
     return response.data;
   },
 
   /**
    * @param {string} sessionAnswerId - id of the sessionAnswer instance to update
-   * @param {submittedAnswer} answer - the answer that needs to be updated
+   * @param {UpdateSessionAnswerAPIPayload} payload - contains the answer {submittedAnswer} that
+   * needs to be updated and a boolean variable to indicate that the question is visited
    * @returns {Promise<SessionAnswerAPIResponse>} - the updated sessionAnswer instance
    */
   async updateSessionAnswer(

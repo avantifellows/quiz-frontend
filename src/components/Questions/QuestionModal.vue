@@ -3,7 +3,11 @@
     <Header
       v-if="isQuizAssessment"
       :hasQuizEnded="hasQuizEnded"
+      :hasTimeLimit="$props.quizTimeLimit != null"
       v-model:isPaletteVisible="isPaletteVisible"
+      :timeRemaining="timeRemaining"
+      :warningTimeLimit="timeLimitWarning"
+      @time-limit-warning="displayTimeLimitWarning"
       @end-test="endTest"
     ></Header>
     <div
@@ -75,7 +79,8 @@ import {
   DraftResponse,
   quizType,
   paletteItemState,
-  questionState
+  questionState,
+  TimeLimit
 } from "../../types"
 import { useToast, POSITION } from "vue-toastification"
 const clonedeep = require("lodash.clonedeep");
@@ -107,6 +112,14 @@ export default defineComponent({
     quizType: {
       type: String as PropType<quizType>,
       default: "homework"
+    },
+    quizTimeLimit: {
+      type: Object as PropType<TimeLimit> || null,
+      default: null
+    },
+    timeRemaining: {
+      type: Number,
+      default: 0
     }
   },
   setup(props, context) {
@@ -120,6 +133,9 @@ export default defineComponent({
       isPaletteVisible: false, // whether the question palette is visible
       reRenderKey: false // a key to re-render a component
     })
+
+    // display warning when time remaining goes below this threshold (in minutes)
+    const timeLimitWarning: number = 3
 
     function checkScreenOrientation() {
       state.isPortrait = isScreenPortrait()
@@ -378,6 +394,20 @@ export default defineComponent({
     // add listener for screen size being changed
     window.addEventListener("resize", checkScreenOrientation)
 
+    // displaying warning when time is less
+    function displayTimeLimitWarning() {
+      if (!props.hasQuizEnded) {
+        state.toast.warning(
+            `Only ${timeLimitWarning} minutes left! Please submit!`,
+            {
+              position: POSITION.TOP_CENTER,
+              timeout: 3000,
+              draggablePercent: 0.4
+            }
+        )
+      }
+    }
+
     return {
       ...toRefs(state),
       questionOptionSelected,
@@ -397,7 +427,9 @@ export default defineComponent({
       isAttemptValid,
       isQuizAssessment,
       numericalAnswerUpdated,
-      questionStates
+      questionStates,
+      timeLimitWarning,
+      displayTimeLimitWarning
     }
   },
   emits: [

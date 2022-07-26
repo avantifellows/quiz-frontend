@@ -70,7 +70,7 @@ interface QuestionMetadata {
   difficulty: string;
 }
 
-interface TimeLimit {
+export interface TimeLimit {
   min: number;
   max: number;
 }
@@ -133,6 +133,16 @@ export interface SessionAPIResponse {
   is_first: boolean;
   session_answers: SubmittedResponse[];
   has_quiz_ended?: boolean;
+  has_quiz_started?: boolean;
+  time_remaining?: number;
+}
+
+export interface UpdateSessionAPIPayload {
+  has_quiz_ended: boolean;
+  has_quiz_started_first_time: boolean
+}
+export interface UpdateSessionAPIResponse {
+  time_remaining: number; // how much time is remaining for quiz to complete
 }
 
 export interface SessionAnswerAPIResponse {

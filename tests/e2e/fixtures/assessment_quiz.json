@@ -121,7 +121,7 @@
   "num_graded_questions": 5,
   "shuffle": false,
   "num_attempts_allowed": 1,
-  "time_limit": null,
+  "time_limit": {"min": 0, "max": 200},
   "navigation_mode": "non-linear",
   "instructions": null,
   "language": "en",
