@@ -3,12 +3,13 @@
     <Header
       v-if="isQuizAssessment"
       :hasQuizEnded="hasQuizEnded"
-      :hasTimeLimit="$props.quizTimeLimit != null"
+      :hasTimeLimit="quizTimeLimit != null"
       v-model:isPaletteVisible="isPaletteVisible"
       :timeRemaining="timeRemaining"
       :warningTimeLimit="timeLimitWarning"
       @time-limit-warning="displayTimeLimitWarning"
       @end-test="endTest"
+      data-test="header"
     ></Header>
     <div
       class="flex flex-col grow bg-white w-full justify-between overflow-hidden"

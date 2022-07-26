@@ -650,4 +650,41 @@ describe("QuestionModal.vue", () => {
       });
     });
   });
+
+  describe("timed quiz", () => {
+    it("no timer button when there is no time limit provided", async () => {
+      await wrapper.setProps({
+        quizType: "assessment",
+        quizTimeLimit: null,
+        timeRemaining: 0
+      });
+      expect(wrapper
+        .find('[data-test="header"]')
+        .find('[data-test="timerButton"]').exists()
+      ).toBe(false);
+    });
+
+    it("timer button exists when time limit is provided", async () => {
+      await wrapper.setProps({
+        quizType: "assessment",
+        quizTimeLimit: { min: 0, max: 200 },
+        timeRemaining: 200
+      });
+      expect(wrapper
+        .find('[data-test="header"]')
+        .find('[data-test="timerButton"]').exists()
+      ).toBe(true);
+    });
+
+    it("end test should be emitted if timeRemaining is zero", async () => {
+      await wrapper.setProps({
+        quizType: "assessment",
+        quizTimeLimit: { min: 0, max: 200 },
+        timeRemaining: 1
+      });
+      setTimeout(() => {
+        expect(wrapper.emitted()).toHaveProperty("end-test");
+      }, 2000);
+    })
+  });
 });
