@@ -675,16 +675,30 @@ describe("QuestionModal.vue", () => {
         .find('[data-test="timerButton"]').exists()
       ).toBe(true);
     });
+  });
 
-    it("end test should be emitted if timeRemaining is zero", async () => {
-      await wrapper.setProps({
+  describe("timed quiz check for warning", () => {
+    const wrapper = mount(QuestionModal, {
+      props: {
+        questions,
+        responses: clonedeep(responses),
+        currentQuestionIndex: 0,
         quizType: "assessment",
         quizTimeLimit: { min: 0, max: 200 },
-        timeRemaining: 1
-      });
+        timeRemaining: 181
+      },
+    });
+    it("warning should be displayed if timeRemaining goes below limit", (done) => {
+      // note: warning_limit is 180 seconds (3 minutes)
+      const warningDisplayFunction = jest.spyOn(wrapper.vm, 'displayTimeLimitWarning')
       setTimeout(() => {
-        expect(wrapper.emitted()).toHaveProperty("end-test");
-      }, 2000);
-    })
+        expect(wrapper
+          .find('[data-test="header"]')
+          .find('[data-test="timerButton"]').text()
+        ).toBe("00:03:00");
+        expect(wrapper.emitted()).toHaveProperty("test-warning-shown");
+        done()
+      }, 1000);
+    });
   });
 });

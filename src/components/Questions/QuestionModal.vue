@@ -406,6 +406,7 @@ export default defineComponent({
               draggablePercent: 0.4
             }
         )
+        context.emit("test-warning-shown");
       }
     }
 
@@ -437,7 +438,8 @@ export default defineComponent({
     "update:currentQuestionIndex",
     "update:responses",
     "submit-question",
-    "end-test"
+    "end-test",
+    "test-warning-shown"
   ]
 })
 </script>
