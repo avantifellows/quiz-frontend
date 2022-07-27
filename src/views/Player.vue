@@ -167,12 +167,11 @@ export default defineComponent({
 
     async function startQuiz() {
       const payload = {
-        has_quiz_ended: state.hasQuizEnded,
-        has_quiz_started_first_time: false
+        has_quiz_ended_first_time: false,
+        has_quiz_started_first_time: !state.hasQuizStarted
       };
       if (!state.hasQuizStarted) {
         // when start/resume button is clicked first time
-        payload.has_quiz_started_first_time = true;
         state.hasQuizStarted = true;
       }
       const response: UpdateSessionAPIResponse = await SessionAPIService.updateSession(
@@ -182,7 +181,6 @@ export default defineComponent({
       state.timeRemaining = response.time_remaining;
       if (state.timeRemaining == 0) {
         // show results based on submitted session's answers (if any)
-        state.hasQuizEnded = true;
         endTest()
       }
       state.currentQuestionIndex = 0;
@@ -229,7 +227,7 @@ export default defineComponent({
     function endTest() {
       if (!state.hasQuizEnded) {
         SessionAPIService.updateSession(state.sessionId, {
-          has_quiz_ended: true,
+          has_quiz_ended_first_time: true,
           has_quiz_started_first_time: false
         });
         state.hasQuizEnded = true;

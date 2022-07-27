@@ -138,7 +138,7 @@ export interface SessionAPIResponse {
 }
 
 export interface UpdateSessionAPIPayload {
-  has_quiz_ended: boolean;
+  has_quiz_ended_first_time: boolean;
   has_quiz_started_first_time: boolean
 }
 export interface UpdateSessionAPIResponse {
