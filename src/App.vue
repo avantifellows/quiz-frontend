@@ -9,6 +9,7 @@
 }
 @font-face {
   font-family: "Kruti Dev";
+  size-adjust: 150%;
   src: local("Kruti Dev"), url("./assets/fonts/Kruti_Dev_10.TTF") format("truetype");
 }
 </style>
