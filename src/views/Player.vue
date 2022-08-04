@@ -68,6 +68,7 @@ import { useRoute, useRouter } from "vue-router";
 import {
   Question,
   SubmittedResponse,
+  UpdateSessionAPIPayload,
   UpdateSessionAPIResponse,
   QuizMetadata,
   submittedAnswer,
@@ -120,7 +121,6 @@ export default defineComponent({
       marksScored: 0,
       maxMarks: 0, // maximum marks that can be scored
       isScorecardShown: false, // to show the scorecard or not
-      hasQuizStarted: false, // whether the quiz has started; start/resume clicked
       hasQuizEnded: false, // whether the quiz has ended - only valid for quizType = assessment
       sessionId: "", // id of the session created for a user-quiz combination
     });
@@ -166,22 +166,26 @@ export default defineComponent({
     );
 
     async function startQuiz() {
-      const payload = {
-        has_quiz_ended_first_time: false,
-        has_quiz_started_first_time: !state.hasQuizStarted
-      };
-      if (!state.hasQuizStarted) {
-        // when start/resume button is clicked first time
-        state.hasQuizStarted = true;
-      }
-      const response: UpdateSessionAPIResponse = await SessionAPIService.updateSession(
-        state.sessionId,
-        payload
-      );
-      state.timeRemaining = response.time_remaining;
-      if (state.timeRemaining == 0) {
+      if (!state.hasQuizEnded) {
+        let payload: UpdateSessionAPIPayload;
+        if (state.isFirstSession) {
+          payload = {
+            event: "start-quiz"
+          }
+        } else {
+          payload = {
+            event: "resume-quiz"
+          }
+        }
+        const response: UpdateSessionAPIResponse = await SessionAPIService.updateSession(
+          state.sessionId,
+          payload
+        );
+        state.timeRemaining = response.time_remaining;
+        if (state.timeRemaining == 0) {
         // show results based on submitted session's answers (if any)
-        endTest()
+          endTest()
+        }
       }
       state.currentQuestionIndex = 0;
     }
@@ -208,7 +212,6 @@ export default defineComponent({
       state.responses = sessionDetails.session_answers;
       state.isFirstSession = sessionDetails.is_first;
       state.hasQuizEnded = sessionDetails.has_quiz_ended || false;
-      state.hasQuizStarted = sessionDetails.has_quiz_started || false;
     }
 
     async function getQuizCreateSession() {
@@ -227,8 +230,7 @@ export default defineComponent({
     function endTest() {
       if (!state.hasQuizEnded) {
         SessionAPIService.updateSession(state.sessionId, {
-          has_quiz_ended_first_time: true,
-          has_quiz_started_first_time: false
+          event: "end-quiz"
         });
         state.hasQuizEnded = true;
       }

@@ -652,7 +652,7 @@ describe("QuestionModal.vue", () => {
   });
 
   describe("timed quiz", () => {
-    it("no timer button when there is no time limit provided", async () => {
+    it("no countdown timer when there is no time limit provided", async () => {
       await wrapper.setProps({
         quizType: "assessment",
         quizTimeLimit: null,
@@ -660,11 +660,11 @@ describe("QuestionModal.vue", () => {
       });
       expect(wrapper
         .find('[data-test="header"]')
-        .find('[data-test="timerButton"]').exists()
+        .find('[data-test="countdownTimer"]').exists()
       ).toBe(false);
     });
 
-    it("timer button exists when time limit is provided", async () => {
+    it("countdown timer exists when time limit is provided", async () => {
       await wrapper.setProps({
         quizType: "assessment",
         quizTimeLimit: { min: 0, max: 200 },
@@ -672,7 +672,7 @@ describe("QuestionModal.vue", () => {
       });
       expect(wrapper
         .find('[data-test="header"]')
-        .find('[data-test="timerButton"]').exists()
+        .find('[data-test="countdownTimer"]').exists()
       ).toBe(true);
     });
   });
@@ -694,7 +694,7 @@ describe("QuestionModal.vue", () => {
       setTimeout(() => {
         expect(wrapper
           .find('[data-test="header"]')
-          .find('[data-test="timerButton"]').text()
+          .find('[data-test="countdownTimer"]').text()
         ).toBe("00:03:00");
         expect(wrapper.emitted()).toHaveProperty("test-warning-shown");
         done()

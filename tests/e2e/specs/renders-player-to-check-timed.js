@@ -45,31 +45,34 @@ describe("Player for Assessment Timed quizzes", () => {
         cy.get("@startQuizButton").trigger("click");
       });
 
-      it("displays timer button in header", () => {
-        cy.get('[data-test="timerButton"').should("exist");
+      it("displays countdown timer in header", () => {
+        cy.get('[data-test="countdownTimer"').should("exist");
       });
 
-      it("length of text in timer button should be 8", () => {
-        cy.get('[data-test="timerButton"')
+      it("length of text in countdown timer should be 8", () => {
+        cy.get('[data-test="countdownTimer"')
           .invoke("text")
           .should("have.length", 8); // 2 + 1 + 2 + 1 + 2
       });
 
       it("time displayed in button should be less than or equal to timeRemaining", () => {
-        cy.get(`[data-test="timerButton"]`)
+        cy.get(`[data-test="countdownTimer"]`)
           .invoke("text")
           .then((tx) => {
             expect(convertTimetoInt(tx)).to.not.be.below(200);
           });
       });
 
-      it("timer button background should be gray when time remaining more than warning time", () => {
+      it("countdown timer background should be gray when time remaining more than warning time", () => {
         // warning time limit is 3 minutes (180 seconds)
-        cy.get(`[data-test="timerButton"`).should("have.class", "bg-gray-500");
+        cy.get(`[data-test="countdownTimer"`).should(
+          "have.class",
+          "bg-gray-500"
+        );
       });
 
       it("time remaining should be displayed in hh:mm:ss format", () => {
-        cy.get(`[data-test="timerButton"`)
+        cy.get(`[data-test="countdownTimer"`)
           .invoke("text")
           .should("equal", "00:03:20");
       });
@@ -84,7 +87,7 @@ describe("Player for Assessment Timed quizzes", () => {
         cy.get('[data-test="backButton"]').trigger("click");
 
         // timer shouldn't be there in header
-        cy.get(`[data-test="timerButton"`).should("not.exist");
+        cy.get(`[data-test="countdownTimer"`).should("not.exist");
       });
     });
   });
@@ -117,8 +120,8 @@ describe("Player for Assessment Timed quizzes", () => {
         cy.get("@startQuizButton").trigger("click");
       });
 
-      it("does not display timer button in header", () => {
-        cy.get('[data-test="timerButton"').should("not.exist");
+      it("does not display countdown timer in header", () => {
+        cy.get('[data-test="countdownTimer"').should("not.exist");
       });
     });
   });
@@ -151,8 +154,11 @@ describe("Player for Assessment Timed quizzes", () => {
         cy.get("@startQuizButton").trigger("click");
       });
 
-      it("timer button background should be red when time remaining less than warning time", () => {
-        cy.get(`[data-test="timerButton"`).should("have.class", "bg-red-600");
+      it("countdown timer background should be red when time remaining less than warning time", () => {
+        cy.get(`[data-test="countdownTimer"`).should(
+          "have.class",
+          "bg-red-600"
+        );
       });
 
       it("end test and display scorecard when time is up (after a tick)", () => {

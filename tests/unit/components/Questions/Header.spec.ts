@@ -29,11 +29,11 @@ describe("Basic tests on Header", () => {
 
 describe("Header with no time limit", () => {
   const wrapper = mount(Header);
-  it("does not display timer button when there is no time limit", async () => {
+  it("does not display countdown timer when there is no time limit", async () => {
     await wrapper.setProps({
       hasTimeLimit: false
     });
-    expect(wrapper.find(`[data-test="timerButton"]`).exists()).toBe(false);
+    expect(wrapper.find(`[data-test="countdownTimer"]`).exists()).toBe(false);
   });
 });
 
@@ -46,11 +46,11 @@ describe("Header with time limit and time remaining is close to warning time", (
     }
   });
   it("emits warning when timer goes below warning limit", (done) => {
-    expect(wrapper.find(`[data-test="timerButton"]`).exists()).toBe(true);
+    expect(wrapper.find(`[data-test="countdownTimer"]`).exists()).toBe(true);
     // wait for 2 seconds to check changes
     setTimeout(() => {
       expect(wrapper.emitted()).toHaveProperty("time-limit-warning");
-      expect(wrapper.find(`[data-test="timerButton"]`).text()).toBe("00:00:59")
+      expect(wrapper.find(`[data-test="countdownTimer"]`).text()).toBe("00:00:59")
       done()
     }, 2000);
   });

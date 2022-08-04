@@ -28,8 +28,7 @@ export default {
 
   /**
    * @param {string} sessionId - id of the session to be updated
-   * @param {UpdateSessionAPIPayload} payload - contains info of whether the quiz has ended first time,
-   * and whether quiz has started for the first time
+   * @param {UpdateSessionAPIPayload} payload - contains start/resume/end event information
    * @returns {Promise<UpdateSessionAPIResponse>} data corresponding to the updated session response
    */
   async updateSession(

@@ -8,12 +8,12 @@
       data-test="togglePaletteButton"
     ></icon-button>
     <div class="flex space-x-3">
-      <!-- timer button / can't click -->
+      <!-- countdown timer / can't click -->
       <icon-button
-      v-if="!hasQuizEnded && $props.hasTimeLimit"
-      :titleConfig="timerButtonTitleConfig"
-      :buttonClass="timerButtonClass"
-      data-test="timerButton"
+      v-if="!hasQuizEnded && hasTimeLimit"
+      :titleConfig="countdownTimerTitleConfig"
+      :buttonClass="countdownTimerClass"
+      data-test="countdownTimer"
     ></icon-button>
 
     <!-- end-test button -->
@@ -64,9 +64,9 @@ export default defineComponent({
       endTestButtonClass:
         "bg-emerald-500 hover:bg-emerald-600 ring-emerald-500 p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl disabled:opacity-50 disabled:pointer-events-none",
       localIsPaletteVisible: props.isPaletteVisible,
-      timerButtonNormal:
+      countdownTimerNormal:
         "bg-gray-500 ring-gray-500 p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl hover:cursor-default",
-      timerButtonAlert:
+      countdownTimerAlert:
         "bg-red-600 ring-red-500 p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl hover:cursor-default",
       timeRemaining: props.timeRemaining
     });
@@ -92,17 +92,17 @@ export default defineComponent({
         "text-white text-sm bp-500:text-md lg:text-lg xl:text-xl font-bold",
     }));
 
-    const timerButtonClass = computed(() => {
+    const countdownTimerClass = computed(() => {
       let buttonClass;
       if (state.timeRemaining >= props.warningTimeLimit * 60) {
-        buttonClass = state.timerButtonNormal;
+        buttonClass = state.countdownTimerNormal;
       } else {
-        buttonClass = state.timerButtonAlert;
+        buttonClass = state.countdownTimerAlert;
       }
       return buttonClass;
     })
 
-    function appendZeroForSingleDigits(digit: Number) {
+    function padWithZeroes(digit: Number) {
       if (digit.toString().length <= 1) {
         return "0" + digit.toString()
       }
@@ -110,18 +110,18 @@ export default defineComponent({
     }
 
     const seconds = computed(() => {
-      return appendZeroForSingleDigits((state.timeRemaining) % 60)
+      return padWithZeroes((state.timeRemaining) % 60)
     })
 
     const minutes = computed(() => {
-      return appendZeroForSingleDigits(Math.trunc(state.timeRemaining / 60) % 60)
+      return padWithZeroes(Math.trunc(state.timeRemaining / 60) % 60)
     })
 
     const hours = computed(() => {
-      return appendZeroForSingleDigits(Math.trunc(state.timeRemaining / 60 / 60) % 24)
+      return padWithZeroes(Math.trunc(state.timeRemaining / 60 / 60) % 24)
     })
 
-    const timerButtonTitleConfig = computed(() => (
+    const countdownTimerTitleConfig = computed(() => (
       {
         value: `${hours.value}:${minutes.value}:${seconds.value}`,
         class:
@@ -180,8 +180,8 @@ export default defineComponent({
       endTestButtonTitleConfig,
       togglePaletteButtonIconConfig,
       togglePaletteButtonClass,
-      timerButtonClass,
-      timerButtonTitleConfig
+      countdownTimerClass,
+      countdownTimerTitleConfig
     };
   },
   components: {

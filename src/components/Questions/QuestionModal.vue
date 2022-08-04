@@ -6,7 +6,7 @@
       :hasTimeLimit="quizTimeLimit != null"
       v-model:isPaletteVisible="isPaletteVisible"
       :timeRemaining="timeRemaining"
-      :warningTimeLimit="timeLimitWarning"
+      :warningTimeLimit="timeLimitWarningThreshold"
       @time-limit-warning="displayTimeLimitWarning"
       @end-test="endTest"
       data-test="header"
@@ -136,7 +136,7 @@ export default defineComponent({
     })
 
     // display warning when time remaining goes below this threshold (in minutes)
-    const timeLimitWarning: number = 3
+    const timeLimitWarningThreshold: number = 3
 
     function checkScreenOrientation() {
       state.isPortrait = isScreenPortrait()
@@ -395,11 +395,11 @@ export default defineComponent({
     // add listener for screen size being changed
     window.addEventListener("resize", checkScreenOrientation)
 
-    // displaying warning when time is less
+    // displaying warning when time is lesser than the warning threshold
     function displayTimeLimitWarning() {
       if (!props.hasQuizEnded) {
         state.toast.warning(
-            `Only ${timeLimitWarning} minutes left! Please submit!`,
+            `Only ${timeLimitWarningThreshold} minutes left! Please submit!`,
             {
               position: POSITION.TOP_CENTER,
               timeout: 3000,
@@ -430,7 +430,7 @@ export default defineComponent({
       isQuizAssessment,
       numericalAnswerUpdated,
       questionStates,
-      timeLimitWarning,
+      timeLimitWarningThreshold,
       displayTimeLimitWarning
     }
   },
