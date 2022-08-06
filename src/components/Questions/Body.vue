@@ -378,7 +378,15 @@ export default defineComponent({
     }
 
     const questionHeaderText = computed(() => {
-      return `Q. ${props.currentQuestionIndex + 1}`
+      let questionTypeText: string = "";
+      if (props.questionType == "single-choice") {
+        questionTypeText = "Single Choice";
+      } else if (props.questionType == "multi-choice") {
+        questionTypeText = "Multiple Choice"
+      } else if (props.questionType == "numerical-float" || props.questionType == "numerical-integer") {
+        questionTypeText = "Subjective Numerical"
+      }
+      return `Q. ${props.currentQuestionIndex + 1}  ${questionTypeText}`
     })
 
     // styling class for the question image and loading spinner containers
