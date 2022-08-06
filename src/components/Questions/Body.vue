@@ -15,6 +15,10 @@
     </QuestionPalette>
 
     <div class="overflow-y-auto flex flex-col w-full mt-10">
+      <!-- question number information ¯-->
+      <div class="mx-6 md:mx-10">
+        <p :class="questionTextClass" data-test="question-header-text" v-html="questionHeaderText"></p>
+      </div>
       <!-- question text -->
       <div class="mx-6 md:mx-10">
         <p :class="questionTextClass" data-test="text" v-html="text"></p>
@@ -373,6 +377,10 @@ export default defineComponent({
       context.emit("navigate", questionIndex)
     }
 
+    const questionHeaderText = computed(() => {
+      return `Q. ${props.currentQuestionIndex + 1}`
+    })
+
     // styling class for the question image and loading spinner containers
     const questionImageAreaClass = computed(() => ({
       "h-56 mb-4": props.isPortrait,
@@ -597,6 +605,7 @@ export default defineComponent({
 
     return {
       ...toRefs(state),
+      questionHeaderText,
       stopImageLoading,
       optionBackgroundClass,
       isOptionMarked,
