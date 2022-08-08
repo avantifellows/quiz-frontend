@@ -1,11 +1,4 @@
 // contains all the custom types that we want to use
-
-type questionWithOptions = "single-choice" | "multi-choice";
-type questionType =
-  | questionWithOptions
-  | "subjective"
-  | "numerical-float"
-  | "numerical-integer";
 type language = "en" | "hi";
 export type quizType = "assessment" | "homework";
 export type quizTitleType = string | null;
@@ -14,6 +7,21 @@ export type isFirstSessionType = boolean | null;
 type quizNavigationMode = "linear" | "non-linear";
 export type submittedAnswer = number[] | string | number | null;
 type correctAnswer = number[] | number | null;
+
+export enum questionType {
+  SINGLE_CHOICE = "single-choice",
+  MULTI_CHOICE = "multi-choice",
+  NUMERICAL_INTEGER = "numerical-integer",
+  NUMERICAL_FLOAT = "numerical-float",
+  SUBJECTIVE = "subjective"
+}
+
+export enum questionTypeHeaderText {
+    SINGLE_CHOICE = "Single Choice",
+    MULTI_CHOICE = "Multiple Choice",
+    NUMERICAL_INTEGER = "Subjective Numerical",
+    NUMERICAL_FLOAT = "Subjective Numerical",
+ }
 
 export interface IconButtonTitleConfig {
   value: string;

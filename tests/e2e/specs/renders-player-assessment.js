@@ -236,6 +236,20 @@ describe("Player for Assessment quizzes", () => {
         });
       });
 
+      describe("Checking correctness of question header description", () => {
+        beforeEach(() => {
+          cy.get('[data-test="togglePaletteButton"]').trigger("click");
+        });
+        // Item-3 is numerical int question
+        it("check if question number displayed is correct", () => {
+          cy.get('[data-test="paletteItem-3"]').trigger("click");
+          cy.get('[data-test="question-header-text"]').should(
+            "have.text",
+            "Q.4  Subjective Numerical"
+          );
+        });
+      });
+
       describe("Checking correctness of numerical integer inputs", () => {
         beforeEach(() => {
           cy.get('[data-test="togglePaletteButton"]').trigger("click");
