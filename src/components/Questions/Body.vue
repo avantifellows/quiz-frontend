@@ -14,7 +14,11 @@
     >
     </QuestionPalette>
 
-    <div class="overflow-y-auto flex flex-col w-full mt-10">
+    <div class="overflow-y-auto flex flex-col w-full">
+      <!-- question number and type information-->
+      <div class="bg-gray-300">
+      <p :class="questionHeaderTextClass" data-test="question-header-text" v-html="questionHeaderText"></p>
+      </div>
       <!-- question text -->
       <div class="mx-6 md:mx-10">
         <p :class="questionTextClass" data-test="text" v-html="text"></p>
@@ -154,7 +158,7 @@ import {
   onUpdated
 } from "vue"
 import BaseIcon from "../UI/Icons/BaseIcon.vue"
-import { quizType, paletteItemState } from "../../types"
+import { quizType, paletteItemState, questionType, questionTypeHeaderText } from "../../types"
 import QuestionPalette from "./Palette/QuestionPalette.vue"
 
 const MAX_LENGTH_NUMERICAL_CHARACTERS: number = 10 // max length of characters in numerical answer textbox
@@ -193,8 +197,8 @@ export default defineComponent({
       type: Boolean
     },
     questionType: {
-      default: "single-choice",
-      type: String
+      default: questionType.SINGLE_CHOICE,
+      type: String as PropType<questionType>
     },
     /** the character limit to be used if present */
     maxCharLimit: {
@@ -246,17 +250,26 @@ export default defineComponent({
     const state = reactive({
       isImageLoading: false,
       // set containing the question types in which options are present
-      questionTypesWithOptions: new Set(["single-choice", "multi-choice"]),
+      questionTypesWithOptions: new Set([questionType.SINGLE_CHOICE, questionType.MULTI_CHOICE]),
       nonGradedAnswerClass: "bg-gray-200",
       correctOptionClass: "text-white bg-green-500",
       wrongOptionClass: "text-white bg-red-500",
+      questionHeaderTextClass:
+        "text-lg md:text-xl lg:text-2xl mx-4 m-2 text-center leading-tight whitespace-pre-wrap",
       questionTextClass:
-        "text-lg md:text-xl lg:text-2xl mx-4 m-2 font-bold leading-tight whitespace-pre-wrap",
+        "text-lg md:text-xl lg:text-2xl mx-4 mt-6 m-2 font-bold leading-tight whitespace-pre-wrap",
       optionTextClass:
         "p-2 text-lg md:text-xl lg:text-2xl border rounded-md mx-2 whitespace-pre-wrap",
       subjectiveAnswer: null as string | null, // holds the answer to the subjective question
       numericalAnswer: null as number | null // holds the answer to the numerical question
     })
+
+    const questionTypeHeaderMapping = new Map<string, string>([
+      [questionType.SINGLE_CHOICE, questionTypeHeaderText.SINGLE_CHOICE],
+      [questionType.MULTI_CHOICE, questionTypeHeaderText.MULTI_CHOICE],
+      [questionType.NUMERICAL_INTEGER, questionTypeHeaderText.NUMERICAL_INTEGER],
+      [questionType.NUMERICAL_FLOAT, questionTypeHeaderText.NUMERICAL_FLOAT]
+    ]);
 
     /** stop the loading spinner when the image has been loaded **/
     function stopImageLoading() {
@@ -373,6 +386,10 @@ export default defineComponent({
       context.emit("navigate", questionIndex)
     }
 
+    const questionHeaderText = computed(() => {
+      return `Q.${props.currentQuestionIndex + 1}  ${questionTypeHeaderMapping.get(props.questionType)}`
+    })
+
     // styling class for the question image and loading spinner containers
     const questionImageAreaClass = computed(() => ({
       "h-56 mb-4": props.isPortrait,
@@ -395,19 +412,19 @@ export default defineComponent({
       state.questionTypesWithOptions.has(props.questionType)
     )
     const isQuestionTypeSubjective = computed(
-      () => props.questionType == "subjective"
+      () => props.questionType == questionType.SUBJECTIVE
     )
     const isQuestionTypeMultiChoice = computed(
-      () => props.questionType == "multi-choice"
+      () => props.questionType == questionType.MULTI_CHOICE
     )
     const isQuestionTypeSingleChoice = computed(
-      () => props.questionType == "single-choice"
+      () => props.questionType == questionType.SINGLE_CHOICE
     )
     const isQuestionTypeNumericalInteger = computed(
-      () => props.questionType == "numerical-integer"
+      () => props.questionType == questionType.NUMERICAL_INTEGER
     )
     const isQuestionTypeNumericalFloat = computed(
-      () => props.questionType == "numerical-float"
+      () => props.questionType == questionType.NUMERICAL_FLOAT
     )
 
     // styling class to decide orientation of image + options
@@ -597,6 +614,7 @@ export default defineComponent({
 
     return {
       ...toRefs(state),
+      questionHeaderText,
       stopImageLoading,
       optionBackgroundClass,
       isOptionMarked,
