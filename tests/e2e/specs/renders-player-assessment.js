@@ -245,7 +245,7 @@ describe("Player for Assessment quizzes", () => {
           cy.get('[data-test="paletteItem-3"]').trigger("click");
           cy.get('[data-test="question-header-text"]').should(
             "have.text",
-            "Q. 4  Subjective Numerical"
+            "Q.4  Subjective Numerical"
           );
         });
       });
