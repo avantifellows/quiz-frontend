@@ -73,7 +73,8 @@ import {
   QuizMetadata,
   submittedAnswer,
   quizTitleType,
-  TimeLimit
+  TimeLimit,
+  eventType
 } from "../types";
 import BaseIcon from "../components/UI/Icons/BaseIcon.vue";
 import OrganizationAPIService from "../services/API/Organization";
@@ -170,11 +171,11 @@ export default defineComponent({
         let payload: UpdateSessionAPIPayload;
         if (state.isFirstSession) {
           payload = {
-            event: "start-quiz"
+            event: eventType.START_QUIZ
           }
         } else {
           payload = {
-            event: "resume-quiz"
+            event: eventType.RESUME_QUIZ
           }
         }
         const response: UpdateSessionAPIResponse = await SessionAPIService.updateSession(
@@ -230,7 +231,7 @@ export default defineComponent({
     function endTest() {
       if (!state.hasQuizEnded) {
         SessionAPIService.updateSession(state.sessionId, {
-          event: "end-quiz"
+          event: eventType.END_QUIZ
         });
         state.hasQuizEnded = true;
       }

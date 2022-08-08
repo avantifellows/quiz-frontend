@@ -12,9 +12,14 @@ export type quizTitleType = string | null;
 export type textAreaValueType = string | number | null;
 export type isFirstSessionType = boolean | null;
 type quizNavigationMode = "linear" | "non-linear";
-export type eventType = "start-quiz" | "resume-quiz" | "end-quiz"
 export type submittedAnswer = number[] | string | number | null;
 type correctAnswer = number[] | number | null;
+
+export enum eventType {
+  START_QUIZ = "start-quiz",
+  RESUME_QUIZ = "resume-quiz",
+  END_QUIZ = "end-quiz"
+}
 
 export interface IconButtonTitleConfig {
   value: string;
