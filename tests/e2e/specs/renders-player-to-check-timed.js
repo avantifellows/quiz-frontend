@@ -1,3 +1,5 @@
+import { eventType } from "../../../src/types";
+
 // https://docs.cypress.io/api/introduction/api.html
 
 function convertTimetoInt(tx) {
@@ -38,11 +40,22 @@ describe("Player for Assessment Timed quizzes", () => {
 
       // define aliasas
       cy.get('[data-test="startQuiz"]').as("startQuizButton");
+      cy.server();
+      cy.route("PATCH", "/sessions/*").as("patch_session");
     });
 
     describe("Timed Quiz Started", () => {
       beforeEach(() => {
         cy.get("@startQuizButton").trigger("click");
+      });
+
+      it("patch session payload should have START_QUIZ event", () => {
+        // wait for patch session to happen
+        cy.wait("@patch_session");
+        // now check if the payload sent is correct
+        cy.get("@patch_session").its("request.body").should("deep.equal", {
+          event: eventType.START_QUIZ,
+        });
       });
 
       it("displays countdown timer in header", () => {
@@ -52,14 +65,14 @@ describe("Player for Assessment Timed quizzes", () => {
       it("length of text in countdown timer should be 8", () => {
         cy.get('[data-test="countdownTimer"')
           .invoke("text")
-          .should("have.length", 8); // 2 + 1 + 2 + 1 + 2
+          .should("have.length", 8); // 2 + 1 + 2 + 1 + 2 (hh:mm:ss)
       });
 
       it("time displayed in button should be less than or equal to timeRemaining", () => {
         cy.get(`[data-test="countdownTimer"]`)
           .invoke("text")
           .then((tx) => {
-            expect(convertTimetoInt(tx)).to.not.be.below(200);
+            expect(convertTimetoInt(tx)).to.not.be.above(200);
           });
       });
 
@@ -88,6 +101,23 @@ describe("Player for Assessment Timed quizzes", () => {
 
         // timer shouldn't be there in header
         cy.get(`[data-test="countdownTimer"`).should("not.exist");
+      });
+
+      it("session patch should contain END_QUIZ event when end button is clicked", () => {
+        // wait for START_QUIZ patch to be called
+        cy.wait("@patch_session");
+
+        // click on end button
+        cy.get('[data-test="modal"]')
+          .get('[data-test="endTestButton"]')
+          .trigger("click");
+
+        // wait for END_QUIZ patch to be called
+        cy.wait("@patch_session");
+        // check if payload has END_QUIZ event
+        cy.get("@patch_session").its("request.body").should("deep.equal", {
+          event: eventType.END_QUIZ,
+        });
       });
     });
   });
@@ -147,11 +177,20 @@ describe("Player for Assessment Timed quizzes", () => {
 
       // define aliasas
       cy.get('[data-test="startQuiz"]').as("startQuizButton");
+      cy.server();
+      cy.route("PATCH", "/sessions/*").as("patch_session");
     });
 
     describe("Timed Quiz Started", () => {
       beforeEach(() => {
         cy.get("@startQuizButton").trigger("click");
+      });
+
+      it("patch session payload should have RESUME_QUIZ event", () => {
+        cy.wait("@patch_session");
+        cy.get("@patch_session").its("request.body").should("deep.equal", {
+          event: eventType.RESUME_QUIZ,
+        });
       });
 
       it("countdown timer background should be red when time remaining less than warning time", () => {

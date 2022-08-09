@@ -138,7 +138,7 @@ export interface SessionAPIResponse {
   quiz_id: string;
   is_first: boolean;
   session_answers: SubmittedResponse[];
-  has_quiz_ended?: boolean;
+  has_quiz_ended: boolean;
   time_remaining?: number;
 }
 
