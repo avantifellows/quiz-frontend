@@ -650,4 +650,55 @@ describe("QuestionModal.vue", () => {
       });
     });
   });
+
+  describe("timed quiz", () => {
+    it("no countdown timer when there is no time limit provided", async () => {
+      await wrapper.setProps({
+        quizType: "assessment",
+        quizTimeLimit: null,
+        timeRemaining: 0
+      });
+      expect(wrapper
+        .find('[data-test="header"]')
+        .find('[data-test="countdownTimer"]').exists()
+      ).toBe(false);
+    });
+
+    it("countdown timer exists when time limit is provided", async () => {
+      await wrapper.setProps({
+        quizType: "assessment",
+        quizTimeLimit: { min: 0, max: 200 },
+        timeRemaining: 200
+      });
+      expect(wrapper
+        .find('[data-test="header"]')
+        .find('[data-test="countdownTimer"]').exists()
+      ).toBe(true);
+    });
+  });
+
+  describe("timed quiz check for warning", () => {
+    const wrapper = mount(QuestionModal, {
+      props: {
+        questions,
+        responses: clonedeep(responses),
+        currentQuestionIndex: 0,
+        quizType: "assessment",
+        quizTimeLimit: { min: 0, max: 200 },
+        timeRemaining: 181
+      },
+    });
+    it("warning should be displayed if timeRemaining goes below limit", (done) => {
+      // note: warning_limit is 180 seconds (3 minutes)
+      const warningDisplayFunction = jest.spyOn(wrapper.vm, 'displayTimeLimitWarning')
+      setTimeout(() => {
+        expect(wrapper
+          .find('[data-test="header"]')
+          .find('[data-test="countdownTimer"]').text()
+        ).toBe("00:03:00");
+        expect(wrapper.emitted()).toHaveProperty("test-warning-shown");
+        done()
+      }, 1000);
+    });
+  });
 });

@@ -327,6 +327,7 @@ describe("Player for Assessment quizzes", () => {
       });
 
       cy.intercept("PATCH", "/session_answers/*", {});
+      cy.intercept("PATCH", "/sessions/*", {});
 
       cy.intercept(
         "GET",

@@ -8,6 +8,12 @@ type quizNavigationMode = "linear" | "non-linear";
 export type submittedAnswer = number[] | string | number | null;
 type correctAnswer = number[] | number | null;
 
+export enum eventType {
+  START_QUIZ = "start-quiz",
+  RESUME_QUIZ = "resume-quiz",
+  END_QUIZ = "end-quiz"
+}
+
 export enum questionType {
   SINGLE_CHOICE = "single-choice",
   MULTI_CHOICE = "multi-choice",
@@ -78,7 +84,7 @@ interface QuestionMetadata {
   difficulty: string;
 }
 
-interface TimeLimit {
+export interface TimeLimit {
   min: number;
   max: number;
 }
@@ -140,7 +146,15 @@ export interface SessionAPIResponse {
   quiz_id: string;
   is_first: boolean;
   session_answers: SubmittedResponse[];
-  has_quiz_ended?: boolean;
+  has_quiz_ended: boolean;
+  time_remaining?: number;
+}
+
+export interface UpdateSessionAPIPayload {
+  event: eventType;
+}
+export interface UpdateSessionAPIResponse {
+  time_remaining: number; // how much time is remaining for quiz to complete
 }
 
 export interface SessionAnswerAPIResponse {

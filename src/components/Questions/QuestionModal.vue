@@ -3,8 +3,13 @@
     <Header
       v-if="isQuizAssessment"
       :hasQuizEnded="hasQuizEnded"
+      :hasTimeLimit="quizTimeLimit != null"
       v-model:isPaletteVisible="isPaletteVisible"
+      :timeRemaining="timeRemaining"
+      :warningTimeLimit="timeLimitWarningThreshold"
+      @time-limit-warning="displayTimeLimitWarning"
       @end-test="endTest"
+      data-test="header"
     ></Header>
     <div
       class="flex flex-col grow bg-white w-full justify-between overflow-hidden"
@@ -75,7 +80,8 @@ import {
   DraftResponse,
   quizType,
   paletteItemState,
-  questionState
+  questionState,
+  TimeLimit
 } from "../../types"
 import { useToast, POSITION } from "vue-toastification"
 const clonedeep = require("lodash.clonedeep");
@@ -107,6 +113,14 @@ export default defineComponent({
     quizType: {
       type: String as PropType<quizType>,
       default: "homework"
+    },
+    quizTimeLimit: {
+      type: Object as PropType<TimeLimit> || null,
+      default: null
+    },
+    timeRemaining: {
+      type: Number,
+      default: 0
     }
   },
   setup(props, context) {
@@ -120,6 +134,9 @@ export default defineComponent({
       isPaletteVisible: false, // whether the question palette is visible
       reRenderKey: false // a key to re-render a component
     })
+
+    // display warning when time remaining goes below this threshold (in minutes)
+    const timeLimitWarningThreshold: number = 3
 
     function checkScreenOrientation() {
       state.isPortrait = isScreenPortrait()
@@ -378,6 +395,21 @@ export default defineComponent({
     // add listener for screen size being changed
     window.addEventListener("resize", checkScreenOrientation)
 
+    // displaying warning when time is lesser than the warning threshold
+    function displayTimeLimitWarning() {
+      if (!props.hasQuizEnded) {
+        state.toast.warning(
+            `Only ${timeLimitWarningThreshold} minutes left! Please submit!`,
+            {
+              position: POSITION.TOP_CENTER,
+              timeout: 3000,
+              draggablePercent: 0.4
+            }
+        )
+        context.emit("test-warning-shown");
+      }
+    }
+
     return {
       ...toRefs(state),
       questionOptionSelected,
@@ -397,14 +429,17 @@ export default defineComponent({
       isAttemptValid,
       isQuizAssessment,
       numericalAnswerUpdated,
-      questionStates
+      questionStates,
+      timeLimitWarningThreshold,
+      displayTimeLimitWarning
     }
   },
   emits: [
     "update:currentQuestionIndex",
     "update:responses",
     "submit-question",
-    "end-test"
+    "end-test",
+    "test-warning-shown"
   ]
 })
 </script>
