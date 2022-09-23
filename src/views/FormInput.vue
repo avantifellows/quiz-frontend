@@ -160,7 +160,8 @@
         <FormKit
             type="tel"
             label="*Family Income"
-            validation="required|matches:/^[0-9]{8}$/"
+            validation="required|matches:/^[0-9]{5,8}$/"
+            validation-visibility="live"
             name="family_income"
             help="Please enter your family income. (not sure what validation @suri)"
         />

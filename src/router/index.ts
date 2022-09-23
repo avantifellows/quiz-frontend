@@ -58,7 +58,6 @@ const router = createRouter({
 
 router.beforeEach((to) => {
   /** Before each router, check if the user is a third party and therefore, needs authentication. */
-  console.log(to);
   if (to.meta.requiresAuth) {
     const queryParams = Object.keys(to.query);
     const isAuthenticated =
