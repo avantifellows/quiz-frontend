@@ -35,7 +35,7 @@
             type="date"
             label="*Date of Birth"
             validation="required|date_between:1990-01-01 00:00:00,2020-12-31 23:59:59"
-            :validation-messages="{ date_between: 'Please enter date of birth in dd-mm-yyyy format' }"
+            :validation-messages="{ date_between: 'Please enter date of birth in dd/mm/yyyy format; between 01/01/1990 and 31/12/2020' }"
             name="dob"
             help="Enter your date of birth. Example: 22-09-2000"
         />
@@ -77,16 +77,17 @@
             type="select"
             label="*Region"
             placeholder="Select your region"
-            :options="['Bhopal', 'Lucknow', 'Chandigarh', 'Shillong', 'Pune', 'Patna', 'Hyderabad', 'Jaipur']"
+            :options="['Bhopal', 'Chandigarh', 'Hyderabad', 'Jaipur', 'Lucknow', 'Patna', 'Pune', 'Shillong']"
             validation="required"
             name="region"
+            v-model="region"
             help="Please select your JNV's region. Example: Shillong"
         />
         <FormKit
             type="select"
             label="*State"
             placeholder="Select your state"
-            :options="states"
+            :options="stateList || []"
             validation="required"
             v-model="stateName"
             name="state"
@@ -94,7 +95,7 @@
         />
         <FormKit
             type="text"
-            label="*City"
+            label="*City/Town"
             validation="required|alpha_spaces|length:3,30"
             name="city"
             help="Enter your city's name. Example: Hyderabad"
@@ -122,7 +123,7 @@
             type="select"
             label="*Stream"
             placeholder="Select your stream"
-            :options="['PCM', 'PCB', 'PCMB']"
+            :options="streamList"
             validation="required"
             name="stream"
             help="Please select your stream. Example: PCM (Physics, Chemistry, Math)"
@@ -137,6 +138,14 @@
             name="grade"
             help="Select 12 if you are in 12th grade/class"
         />
+        <FormKit
+            type="email"
+            label="Email Address"
+            validation="email"
+            validation-visibility="live"
+            name="email"
+            help="Enter a valid email address if you have one. Example: karn.mathur@gmail.com"
+            />
         <!-- We override validation-visibility for the input below: -->
         <FormKit
             type="tel"
@@ -149,8 +158,8 @@
         />
         <FormKit
             type="select"
-            label="*Primary SmartPhone Owner"
-            placeholder="Who owns your phone?"
+            label="*Who owns the above phone?"
+            placeholder="Primary SmartPhone Owner"
             :options="['Student', 'Father', 'Mother', 'Sibling', 'Other']"
             validation="required"
             name="primary_smartphone_owner"
@@ -159,15 +168,15 @@
         />
         <FormKit
             type="tel"
-            label="*Family Income"
-            validation="required|matches:/^[0-9]{5}$/"
+            label="*Family Income per Annum"
+            validation="required|number|length:1,10"
             validation-visibility="live"
             name="family_income"
-            help="Please enter your family income. 5 digits for now"
+            help="Please enter your family income per annum (year) in digits. Example: 100000"
         />
         <FormKit
             type="select"
-            label="*Guardian's Profession"
+            label="*Parent/Guardian's Profession"
             placeholder="Select your guardian's profession"
             :options="['Government', 'Non Government', 'Daily Wage', 'Other']"
             validation="required"
@@ -176,9 +185,9 @@
         />
         <FormKit
             type="select"
-            label="*Guardian's Education Level"
+            label="*Parent/Guardian's Education Level"
             placeholder="Guardian's Education Level"
-            :options="['Untutored', 'Under matriculation', 'Matriculation', 'Graduation', 'Post Graduation', 'Doctoral']"
+            :options="['Untutored', 'Under Matriculation', 'Matriculation', 'Graduation', 'Post Graduation', 'Doctoral']"
             validation="required"
             name="guardian_education_level"
             help="If your father/mother/guardian studied till matriculation, select 'Matriculation'"
@@ -193,28 +202,22 @@
 import { useRouter } from "vue-router";
 import { defineComponent, reactive, toRefs, computed } from "vue";
 import { jnvState } from "../assets/json/statesToJnv"
+import { regionState } from "../assets/json/regionsToState"
 import FormDataAPI from "../services/API/FormInputHandling";
 
 export default defineComponent({
   name: "FormInput",
   setup() {
     const router = useRouter();
-    // const route = useRoute();
 
     const state = reactive({
-      states: ['Andaman and Nicobar Islands U.T.', 'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chandigarh U.T.', 'Chhattisgarh',
-        'Dadra & Nagar Haveli-U.T.', 'Daman & Diu U.T.', 'Delhi UT', 'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jammu & Kashmir',
-        'Jharkhand', 'Karnataka', 'Kerala', 'LADAKH', 'Lakshadweep U.T.', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya',
-        'Mizoram', 'Nagaland', 'Orissa', 'Pondicherry U.T.', 'Punjab', 'Rajasthan', 'Sikkim', 'Telangana', 'Tripura', 'Uttar Pradesh',
-        'Uttarakhand', 'West Bengal'],
+      region: "",
       course: "",
       grade: "",
       stateName: "",
       studentName: "",
       phoneNumber: ""
     });
-
-    console.log(state.grade);
 
     const userId = computed(() => {
       return state.phoneNumber + "_" + state.studentName.replaceAll(" ", "");
@@ -232,18 +235,21 @@ export default defineComponent({
       }
     });
 
+    const stateList = computed(() => {
+      return regionState[state.region];
+    })
+
     const jnvList = computed(() => {
       return jnvState[state.stateName];
     });
 
-    // const submitForm = async (formData, node) => {
-    //   try {
-    //     await axios.post(formData)
-    //     node.clearErrors()
-    //   } catch (err: AxiosError) {
-    //     node.setErrors(err.formErrors, err.fieldErrors);
-    //   }
-    // };
+    const streamList = computed(() => {
+      if (state.course == "JEE") {
+        return ["PCM", "PCMB"]
+      } else {
+        return ["PCB", "PCMB"]
+      }
+    });
 
     const submitForm = async (formData : any) => {
       // check if good submission
@@ -253,7 +259,9 @@ export default defineComponent({
 
     return {
       ...toRefs(state),
+      stateList,
       jnvList,
+      streamList,
       quizId,
       userId,
       submitForm
