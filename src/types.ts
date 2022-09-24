@@ -191,3 +191,7 @@ export interface CircularProgressResult {
   title: string;
   value: string;
 }
+
+export interface JnvDict {
+  [index : string] : string[];
+}
