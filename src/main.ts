@@ -3,6 +3,8 @@ import App from "./App.vue";
 import router from "./router";
 import store from "./store";
 import Toast, { ToastInterface } from "vue-toastification";
+import { plugin, defaultConfig } from '@formkit/vue'
+import '@formkit/themes/genesis'
 import VueClickAway from "vue3-click-away";
 
 import "./index.css";
@@ -27,4 +29,5 @@ const filterBeforeCreate = (
 
 app.use(Toast, { filterBeforeCreate });
 app.use(VueClickAway);
+app.use(plugin, defaultConfig);
 app.mount("#app");
