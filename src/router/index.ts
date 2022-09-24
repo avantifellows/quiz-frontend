@@ -4,7 +4,7 @@ const requiredAuthKeys = ["userId", "apiKey"];
 
 const routes = [
   {
-    path: "/jnvenable",
+    path: "/forms/jnvenable",
     name: "FormInput",
     component: () =>
       import(/* webpackChunkName: "about" */ "@/views/FormInput.vue"),

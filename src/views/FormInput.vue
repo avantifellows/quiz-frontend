@@ -1,13 +1,11 @@
 <template>
     <div class="h-full">
         <!-- Header -->
-        <div class="flex w-full justify-between  bg-gray-200 p-4">
-            <p class=" text-black text-5xl" data-test="title">
-                JNV Enable Test - Avanti Fellows
-            </p>
+        <div class="flex w-full justify-center  bg-gray-200 p-4">
+            <img src="../assets/images/jnvEnableLogo.png"/>
         </div>
         <div class="flex flex-col items-center justify-center p-10">
-            <p class="text-2xl pb-4">Registration Form</p>
+            <p class="text-2xl pb-4">JNV Enable Test - Registration Form</p>
             <FormKit
         type="form"
         :config="{ validationVisibility: 'submit' }"
@@ -225,13 +223,13 @@ export default defineComponent({
 
     const quizId = computed(() => {
       if (state.course == "JEE" && state.grade == "11") {
-        return "632d54e1d7b622945cfd5ad5";
+        return "632ea573793e9f5d8563d0a5";
       } else if (state.course == "JEE" && state.grade == "12") {
-        return "632d54ffd7b622945cfd5ae1"
+        return "632ea5c2b77e5240e42f8d0b"
       } else if (state.course == "NEET" && state.grade == "11") {
-        return "632d5517d7b622945cfd5aed";
+        return "632ea5e6b77e5240e42f8d1d";
       } else {
-        return "632d552cd7b622945cfd5af9";
+        return "632ea5d6b77e5240e42f8d14";
       }
     });
 

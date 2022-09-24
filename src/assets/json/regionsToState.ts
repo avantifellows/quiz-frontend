@@ -1,7 +1,7 @@
 import { JnvDict } from "../../types";
 
 export const regionState : JnvDict = {
-  Bhopal: ['Chhattisgarh', 'Madhya Pradesh', 'Odisha', 'Orissa'],
+  Bhopal: ['Chhattisgarh', 'Madhya Pradesh', 'Orissa'],
   Lucknow: ['Uttarakhand', 'Uttar Pradesh'],
   Chandigarh: ['Chandigarh',
     'Himachal Pradesh',
