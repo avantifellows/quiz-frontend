@@ -14,7 +14,11 @@
     >
     </QuestionPalette>
 
-    <div class="overflow-y-auto flex flex-col w-full mt-10">
+    <div class="overflow-y-auto flex flex-col w-full">
+      <!-- question number and type information-->
+      <div class="bg-gray-300">
+      <p :class="questionHeaderTextClass" data-test="question-header-text" v-html="questionHeaderText"></p>
+      </div>
       <!-- question text -->
       <div class="mx-6 md:mx-10">
         <p :class="questionTextClass" data-test="text" v-html="text"></p>
@@ -98,7 +102,7 @@
             placeholder="Enter your answer here"
             :isDisabled="isAnswerDisabled"
             :maxHeightLimit="250"
-            @keypress="preventKeypressIfApplicable"
+            @beforeinput="preventKeypressIfApplicable"
             data-test="subjectiveAnswer"
           ></Textarea>
           <!-- character limit -->
@@ -129,9 +133,10 @@
             class="px-2 w-full"
             :boxStyling="numericalAnswerBoxStyling"
             placeholder="Enter your answer here. Only numbers are allowed"
+            :inputMode="getInputMode"
             :isDisabled="isAnswerDisabled"
             :maxHeightLimit="250"
-            @keypress="preventKeypressIfApplicable"
+            @beforeinput="preventKeypressIfApplicable"
             data-test="numericalAnswer"
           ></Textarea>
         </div>
@@ -153,8 +158,10 @@ import {
   onUpdated
 } from "vue"
 import BaseIcon from "../UI/Icons/BaseIcon.vue"
-import { quizType, paletteItemState } from "../../types"
+import { quizType, paletteItemState, questionType, questionTypeHeaderText } from "../../types"
 import QuestionPalette from "./Palette/QuestionPalette.vue"
+
+const MAX_LENGTH_NUMERICAL_CHARACTERS: number = 10 // max length of characters in numerical answer textbox
 
 export default defineComponent({
   components: {
@@ -190,8 +197,8 @@ export default defineComponent({
       type: Boolean
     },
     questionType: {
-      default: "single-choice",
-      type: String
+      default: questionType.SINGLE_CHOICE,
+      type: String as PropType<questionType>
     },
     /** the character limit to be used if present */
     maxCharLimit: {
@@ -243,17 +250,26 @@ export default defineComponent({
     const state = reactive({
       isImageLoading: false,
       // set containing the question types in which options are present
-      questionTypesWithOptions: new Set(["single-choice", "multi-choice"]),
+      questionTypesWithOptions: new Set([questionType.SINGLE_CHOICE, questionType.MULTI_CHOICE]),
       nonGradedAnswerClass: "bg-gray-200",
       correctOptionClass: "text-white bg-green-500",
       wrongOptionClass: "text-white bg-red-500",
+      questionHeaderTextClass:
+        "text-lg md:text-xl lg:text-2xl mx-4 m-2 text-center leading-tight whitespace-pre-wrap",
       questionTextClass:
-        "text-lg md:text-xl lg:text-2xl mx-4 m-2 font-bold leading-tight whitespace-pre-wrap",
+        "text-lg md:text-xl lg:text-2xl mx-4 mt-6 m-2 font-bold leading-tight whitespace-pre-wrap",
       optionTextClass:
         "p-2 text-lg md:text-xl lg:text-2xl border rounded-md mx-2 whitespace-pre-wrap",
       subjectiveAnswer: null as string | null, // holds the answer to the subjective question
       numericalAnswer: null as number | null // holds the answer to the numerical question
     })
+
+    const questionTypeHeaderMapping = new Map<string, string>([
+      [questionType.SINGLE_CHOICE, questionTypeHeaderText.SINGLE_CHOICE],
+      [questionType.MULTI_CHOICE, questionTypeHeaderText.MULTI_CHOICE],
+      [questionType.NUMERICAL_INTEGER, questionTypeHeaderText.NUMERICAL_INTEGER],
+      [questionType.NUMERICAL_FLOAT, questionTypeHeaderText.NUMERICAL_FLOAT]
+    ]);
 
     /** stop the loading spinner when the image has been loaded **/
     function stopImageLoading() {
@@ -272,7 +288,7 @@ export default defineComponent({
      */
     function optionBackgroundClass(optionIndex: Number) {
       if (
-        !props.isAnswerSubmitted ||
+        (!props.isAnswerSubmitted && !props.hasQuizEnded) || // before quiz has ended, if answer isn't submitted
         props.isDraftAnswerCleared ||
         typeof props.correctAnswer == "string" || // check for typescript
         typeof props.submittedAnswer == "string" || // check for typescript
@@ -281,21 +297,17 @@ export default defineComponent({
       ) {
         return
       }
-
-      if (isQuizAssessment.value && !props.hasQuizEnded) {
-        if (props.submittedAnswer.indexOf(optionIndex) != -1) {
-          return state.nonGradedAnswerClass
-        }
-        return
-      }
-
       if (
+        (!isQuizAssessment.value || props.hasQuizEnded) && // display colors if its a homework or if its assessment and quiz ended
         props.isGradedQuestion &&
         props.correctAnswer.indexOf(optionIndex) != -1
       ) {
         return state.correctOptionClass
       }
-      if (props.submittedAnswer.indexOf(optionIndex) != -1) {
+      if (
+        (!isQuizAssessment.value || props.hasQuizEnded) &&
+        props.submittedAnswer != null &&
+        props.submittedAnswer.indexOf(optionIndex) != -1) {
         if (!props.isGradedQuestion) return state.nonGradedAnswerClass
         return state.wrongOptionClass
       }
@@ -323,7 +335,21 @@ export default defineComponent({
       state.isImageLoading = true
     }
 
-    function preventKeypressIfApplicable(event: KeyboardEvent) {
+    function doesNumberContainDecimal(x: Number | null) {
+      return String(x).includes(".")
+    }
+
+    function doNumericalCharactersExceedLimit(x: Number | null) {
+      return String(x).length >= MAX_LENGTH_NUMERICAL_CHARACTERS
+    }
+
+    function preventKeypressIfApplicable(event: InputEvent) {
+      if (event.data == null) {
+        // prevent "Enter" key in android browser decimal keypad mode
+        if (event.inputType == "insertLineBreak") event.preventDefault()
+        // in other cases, return to escape null type error
+        return
+      }
       if (isQuestionTypeSubjective.value) {
         // checks if character limit is reached in case it is set
         if (!hasCharLimit.value) return
@@ -333,16 +359,24 @@ export default defineComponent({
         }
       }
       if (isQuestionTypeNumericalFloat.value) {
-        const keyCode = event.keyCode ? event.keyCode : event.which
-        if ((keyCode < 48 || keyCode > 57) && keyCode !== 46) {
-          // keycode 46 is the character "."
+        const keysAllowed: string[] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.']
+        const keyPressed: string = event.data
+        if (
+          doNumericalCharactersExceedLimit(state.numericalAnswer) ||
+          !keysAllowed.includes(keyPressed) ||
+          // if key is "." but number already has a decimal point, or key "." is entered as the first character in answer, prevent
+          (event.data == "." &&
+          (doesNumberContainDecimal(state.numericalAnswer) || state.numericalAnswer == null))
+        ) {
           event.preventDefault()
-          return
         }
       }
       if (isQuestionTypeNumericalInteger.value) {
-        const keyCode = event.keyCode ? event.keyCode : event.which
-        if (keyCode < 48 || keyCode > 57) {
+        const keysAllowed: string[] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+        const keyPressed: string = event.data
+        if (
+          doNumericalCharactersExceedLimit(state.numericalAnswer) ||
+          !keysAllowed.includes(keyPressed)) {
           event.preventDefault()
         }
       }
@@ -351,6 +385,10 @@ export default defineComponent({
     function navigateToQuestion(questionIndex: number) {
       context.emit("navigate", questionIndex)
     }
+
+    const questionHeaderText = computed(() => {
+      return `Q.${props.currentQuestionIndex + 1}  ${questionTypeHeaderMapping.get(props.questionType)}`
+    })
 
     // styling class for the question image and loading spinner containers
     const questionImageAreaClass = computed(() => ({
@@ -374,19 +412,19 @@ export default defineComponent({
       state.questionTypesWithOptions.has(props.questionType)
     )
     const isQuestionTypeSubjective = computed(
-      () => props.questionType == "subjective"
+      () => props.questionType == questionType.SUBJECTIVE
     )
     const isQuestionTypeMultiChoice = computed(
-      () => props.questionType == "multi-choice"
+      () => props.questionType == questionType.MULTI_CHOICE
     )
     const isQuestionTypeSingleChoice = computed(
-      () => props.questionType == "single-choice"
+      () => props.questionType == questionType.SINGLE_CHOICE
     )
     const isQuestionTypeNumericalInteger = computed(
-      () => props.questionType == "numerical-integer"
+      () => props.questionType == questionType.NUMERICAL_INTEGER
     )
     const isQuestionTypeNumericalFloat = computed(
-      () => props.questionType == "numerical-float"
+      () => props.questionType == questionType.NUMERICAL_FLOAT
     )
 
     // styling class to decide orientation of image + options
@@ -441,7 +479,8 @@ export default defineComponent({
       // the default answer to be shown for the subjective question
       if (
         props.submittedAnswer != null &&
-        typeof props.submittedAnswer == "string"
+        typeof props.submittedAnswer == "string" &&
+        !props.isDraftAnswerCleared
       ) {
         return props.submittedAnswer
       }
@@ -453,7 +492,8 @@ export default defineComponent({
     const defaultNumericalAnswer = computed(() => {
       if (
         props.submittedAnswer != null &&
-        typeof props.submittedAnswer == "number"
+        typeof props.submittedAnswer == "number" &&
+        !props.isDraftAnswerCleared
       ) {
         return props.submittedAnswer
       }
@@ -467,6 +507,13 @@ export default defineComponent({
         (props.isAnswerSubmitted && !isQuizAssessment.value) ||
         props.hasQuizEnded
     )
+    // input mode refers to keypad being displayed in mobile browsers
+    const getInputMode = computed(() => {
+      if (isQuestionTypeNumericalInteger.value || isQuestionTypeNumericalFloat.value) {
+        return "decimal"
+      }
+      return "text"
+    })
 
     const subjectiveAnswerBoxStyling = computed(() => [
       {
@@ -510,15 +557,17 @@ export default defineComponent({
 
     watch(
       () => props.draftAnswer,
-      (newValue) => {
+      (newValue, oldValue) => {
         // specific to subjective and numerical questions
         // when the draft answer is updated,
         // update the subjective and numerical answer too
-        if (typeof newValue == "string" || newValue == null) {
+        if (typeof newValue == "string" || (newValue == null && typeof oldValue == "string")) {
           state.subjectiveAnswer = newValue
         }
-        if (typeof newValue == "number") {
-          state.numericalAnswer = newValue
+        if (typeof newValue == "number" || (newValue == null && typeof oldValue == "number")) {
+          if (newValue != Number(state.numericalAnswer)) {
+            state.numericalAnswer = newValue
+          }
         }
       }
     )
@@ -526,7 +575,11 @@ export default defineComponent({
     watch(
       () => state.numericalAnswer,
       (newValue) => {
-        context.emit("numerical-answer-entered", Number(state.numericalAnswer))
+        if (String(newValue) == '' || newValue == null) {
+          context.emit('numerical-answer-entered', null) // when entire answer is deleted, set draftAnswer as null
+        } else {
+          context.emit("numerical-answer-entered", Number(state.numericalAnswer))
+        }
       }
     )
 
@@ -561,6 +614,7 @@ export default defineComponent({
 
     return {
       ...toRefs(state),
+      questionHeaderText,
       stopImageLoading,
       optionBackgroundClass,
       isOptionMarked,
@@ -583,6 +637,7 @@ export default defineComponent({
       maxCharLimitClass,
       isQuizAssessment,
       isAnswerDisabled,
+      getInputMode,
       subjectiveAnswerBoxStyling,
       numericalAnswerBoxStyling,
       isQuestionTypeNumericalFloat,

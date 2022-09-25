@@ -81,7 +81,7 @@
 
         <!-- action buttons -->
         <div
-          class="place-self-center flex h-14"
+          class="place-self-center flex h-20"
           :class="{
             'mt-5': isCircularProgressShown,
             'flex-row space-x-8 w-100 mt-12': !isPortrait,
@@ -296,7 +296,7 @@ export default defineComponent({
     /** config for the text of the go back button */
     const backButtonTitleConfig = computed(() => {
       return {
-        value: "Go Back",
+        value: "See Answers",
         class: "text-white text-md sm:text-lg lg:text-xl font-bold",
       };
     });

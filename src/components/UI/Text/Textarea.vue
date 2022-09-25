@@ -4,6 +4,7 @@
       <!-- input text area -->
       <textarea
         class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white disabled:bg-gray-200 rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200 disabled:cursor-not-allowed"
+        :inputmode="inputMode"
         :class="boxStyling"
         :disabled="isDisabled"
         :placeholder="placeholder"
@@ -11,9 +12,11 @@
         name="placeholder"
         autocomplete="off"
         @input="inputChange"
-        @keypress="keyPress"
+        @beforeinput="beforeInput"
         @keydown="keyDown"
         data-test="input"
+        ondrop="return false"
+        onpaste="return false"
       />
     </div>
   </InputText>
@@ -21,7 +24,7 @@
 
 <script lang="ts">
 import InputText from "./InputText.vue";
-import { InputTextValidationConfig } from "../../../types";
+import { InputTextValidationConfig, textAreaValueType } from "../../../types";
 import { PropType, defineComponent, reactive, toRefs, watch } from "vue";
 
 export default defineComponent({
@@ -47,7 +50,7 @@ export default defineComponent({
     /** the value of the input to the input box */
     value: {
       default: "",
-      type: [String, Number],
+      type: [String, Number] as PropType<textAreaValueType>,
     },
     /** classes for the input boxes */
     boxStyling: {
@@ -66,12 +69,17 @@ export default defineComponent({
       default: 0,
       type: Number,
     },
+    /** whether the keypad on mobile browser should be text / decimal */
+    inputMode: {
+      default: "text",
+      type: String
+    }
   },
   setup(props, context) {
     const state = reactive({
       localValue: props.value,
     });
-    function inputChange(event: KeyboardEvent) {
+    function inputChange(event: Event) {
       // invoked on input change
       context.emit("update:value", state.localValue);
 
@@ -83,9 +91,9 @@ export default defineComponent({
           Math.min(textareaElement.scrollHeight, props.maxHeightLimit) + "px";
       }
     }
-    function keyPress(event: KeyboardEvent) {
-      // invoked by pressing a key
-      context.emit("keypress", event);
+    function beforeInput(event: Event) {
+      // invoked when editing input/textarea field
+      context.emit("beforeinput", event);
     }
     function keyDown(event: KeyboardEvent) {
       // invoked by the event keydown
@@ -102,10 +110,10 @@ export default defineComponent({
     return {
       ...toRefs(state),
       inputChange,
-      keyPress,
+      beforeInput,
       keyDown,
     };
   },
-  emits: ["keypress", "keydown", "update:value"],
+  emits: ["beforeinput", "keydown", "update:value"],
 });
 </script>

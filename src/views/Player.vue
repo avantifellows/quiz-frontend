@@ -25,6 +25,8 @@
         :questions="questions"
         :quizType="metadata.quiz_type"
         :hasQuizEnded="hasQuizEnded"
+        :quizTimeLimit="quizTimeLimit"
+        :timeRemaining="timeRemaining"
         v-model:currentQuestionIndex="currentQuestionIndex"
         v-model:responses="responses"
         @submit-question="submitQuestion"
@@ -69,9 +71,13 @@ import { useStore } from "vuex";
 import {
   Question,
   SubmittedResponse,
+  UpdateSessionAPIPayload,
+  UpdateSessionAPIResponse,
   QuizMetadata,
   submittedAnswer,
   quizTitleType,
+  TimeLimit,
+  eventType
 } from "../types";
 import BaseIcon from "../components/UI/Icons/BaseIcon.vue";
 import OrganizationAPIService from "../services/API/Organization";
@@ -108,6 +114,8 @@ export default defineComponent({
       metadata: {} as QuizMetadata,
       questions: [] as Question[],
       responses: [] as SubmittedResponse[], // holds the responses to each item submitted by the viewer
+      quizTimeLimit: {} as TimeLimit | null,
+      timeRemaining: 0,
       // whether the current session is the first for the given user-quiz pair
       // a value of null means the data has not been fetched yet
       isFirstSession: null as boolean | null,
@@ -161,7 +169,28 @@ export default defineComponent({
       }
     );
 
-    function startQuiz() {
+    async function startQuiz() {
+      if (!state.hasQuizEnded) {
+        let payload: UpdateSessionAPIPayload;
+        if (state.isFirstSession) {
+          payload = {
+            event: eventType.START_QUIZ
+          }
+        } else {
+          payload = {
+            event: eventType.RESUME_QUIZ
+          }
+        }
+        const response: UpdateSessionAPIResponse = await SessionAPIService.updateSession(
+          state.sessionId,
+          payload
+        );
+        state.timeRemaining = response.time_remaining;
+        if (state.timeRemaining == 0) {
+        // show results based on submitted session's answers (if any)
+          endTest()
+        }
+      }
       state.currentQuestionIndex = 0;
     }
 
@@ -171,6 +200,7 @@ export default defineComponent({
       // question set for now
       const questionSet = quizDetails.question_sets[0];
       state.questions = questionSet.questions;
+      state.quizTimeLimit = quizDetails.time_limit;
       state.metadata = quizDetails.metadata;
       state.maxMarks =
         quizDetails.max_marks || quizDetails.num_graded_questions;
@@ -204,7 +234,9 @@ export default defineComponent({
 
     function endTest() {
       if (!state.hasQuizEnded) {
-        SessionAPIService.updateSession(state.sessionId, true);
+        SessionAPIService.updateSession(state.sessionId, {
+          event: eventType.END_QUIZ
+        });
         state.hasQuizEnded = true;
       }
     }
