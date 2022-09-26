@@ -172,9 +172,10 @@ describe("Player for Assessment quizzes", () => {
           .get('[data-test="endTestButton"]')
           .trigger("click");
 
+        // number of skipped questions shown in scorecard
         cy.get('[data-test="scorecard"]')
           .get('[data-test="metricValue-2"]')
-          .should("have.text", 2);
+          .should("have.text", 15);
       });
 
       describe("End test", () => {
