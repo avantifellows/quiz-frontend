@@ -67,7 +67,7 @@ describe("Header with time remaining close to zero", () => {
   it("emits end-test when time remaining hits zero", (done) => {
     // wait for 2 seconds to check changes
     setTimeout(() => {
-      expect(wrapper.emitted()).toHaveProperty("end-test");
+      expect(wrapper.emitted()).toHaveProperty("end-test-by-time");
       done()
     }, 2000);
   });
