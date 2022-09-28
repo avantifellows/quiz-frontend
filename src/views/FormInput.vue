@@ -1,11 +1,28 @@
 <template>
     <div class="h-full">
         <!-- Header -->
-        <div class="flex w-full justify-center  bg-gray-200 p-4">
+        <div class="flex w-full justify-center  bg-white p-4">
             <img src="../assets/images/jnvEnableLogo.png"/>
         </div>
         <div class="flex flex-col items-center justify-center p-10">
-            <p class="text-2xl pb-4">JNV Enable Test - Registration Form</p>
+            <div class="box-border bg-gray-100 rounded-lg p-6">
+                <p class="font-bold underline text-lg">PLEASE READ THE FOLLOWING INSTRUCTIONS CAREFULLY</p>
+                <ul class="list-decimal p-3">
+                    <li>Please fill the form correctly and submit to access the test.</li>
+                    <li>Please select your course and grade correctly to access the right test.</li>
+                    <li>Test Details:
+                        <ul class="list-disc">
+                            <li>Class 11 JEE: 180 minutes, 75 questions (300 marks)</li>
+                            <li>Class 12 JEE: 180 minutes, 75 questions (300 marks)</li>
+                            <li>Class 11 NEET: 180 minutes, 180 questions (720 marks)</li>
+                            <li>Class 12 NEET: 180 minutes, 180 questions (720 marks)</li>
+                        </ul>
+                    </li>
+                    <li class="text-red-600">During the test, to confirm your answer please click <b>SAVE & NEXT</b>. Your response to a question will not be considered incase you fail to save your answer.</li>
+                    <li>Only press <b>END TEST</b> once you have completed and reviewed your answers. You will not be able to change your responses once you click on <b>END TEST</b></li>
+                </ul>
+            </div>
+            <p class="text-2xl pt-2 pb-4">JNV Enable Test - Registration Form</p>
             <FormKit
         type="form"
         :config="{ validationVisibility: 'submit' }"
@@ -14,7 +31,7 @@
         <FormKit
             type="text"
             label="*Name"
-            validation="required|alpha_spaces|length:3,30"
+            validation="required|alpha_spaces|length:3,40"
             v-model="studentName"
             validation-visibility="live"
             name="name"
@@ -30,17 +47,42 @@
             help="Select your gender."
         />
         <FormKit
-            type="date"
-            label="*Date of Birth"
-            validation="required|date_between:1990-01-01 00:00:00,2020-12-31 23:59:59"
-            :validation-messages="{ date_between: 'Please enter date of birth in dd/mm/yyyy format; between 01/01/1990 and 31/12/2020' }"
+            type="group"
+            v-model="dateOfBirth"
             name="dob"
-            help="Enter your date of birth. Example: 22-09-2000"
-        />
+        >
+        <div class="flex flex-row space-x-5">
+            <FormKit
+            type="select"
+            label="*Month"
+            name="month"
+            placeholder="Month"
+            :options="monthList"
+            validation="required"
+            help="Select your Date of Birth."
+            />
+            <FormKit
+            type="select"
+            name="day"
+            label="*Day"
+            placeholder="Day"
+            :options="dayList"
+            validation="required"
+            />
+            <FormKit
+            type="select"
+            name="year"
+            label="*Year"
+            placeholder="Year"
+            :options="yearList"
+            validation="required"
+            />
+        </div>
+        </FormKit>
         <FormKit
             type="text"
             label="*Father's Name"
-            validation="required|alpha_spaces|length:3,30"
+            validation="required|alpha_spaces|length:3,40"
             name="father_name"
             validation-visibility="live"
             help="Enter your father's full name."
@@ -48,7 +90,7 @@
         <FormKit
             type="text"
             label="*Mother's Name"
-            validation="required|alpha_spaces|length:3,30"
+            validation="required|alpha_spaces|length:3,40"
             name="mother_name"
             validation-visibility="live"
             help="Enter your mother's full name."
@@ -95,6 +137,7 @@
             type="text"
             label="*City/Town"
             validation="required|alpha_spaces|length:3,30"
+            validation-visibility="live"
             name="city"
             help="Enter your city's name. Example: Hyderabad"
         />
@@ -154,7 +197,7 @@
             name="number"
             help="Please enter a valid mobile number. Example: 9848022335"
         />
-        <FormKit
+        <!-- <FormKit
             type="select"
             label="*Who owns the above phone?"
             placeholder="Primary SmartPhone Owner"
@@ -163,7 +206,7 @@
             name="primary_smartphone_owner"
             help="If you own the phone, select 'Student'.
             If your brother/sister owns the phone, select 'Sibling'"
-        />
+        /> -->
         <FormKit
             type="tel"
             label="*Family Income per Annum"
@@ -172,7 +215,7 @@
             name="family_income"
             help="Please enter your family income per annum (year) in digits. Example: 100000"
         />
-        <FormKit
+        <!-- <FormKit
             type="select"
             label="*Parent/Guardian's Profession"
             placeholder="Select your guardian's profession"
@@ -189,14 +232,13 @@
             validation="required"
             name="guardian_education_level"
             help="If your father/mother/guardian studied till matriculation, select 'Matriculation'"
-        />
+        /> -->
             </FormKit>
         </div>
         </div>
   </template>
 
 <script lang="ts">
-// import axios, { AxiosRequestConfig, AxiosError, AxiosInstance } from "axios";
 import { useRouter } from "vue-router";
 import { defineComponent, reactive, toRefs, computed } from "vue";
 import { jnvState } from "../assets/json/statesToJnv"
@@ -214,11 +256,15 @@ export default defineComponent({
       grade: "",
       stateName: "",
       studentName: "",
-      phoneNumber: ""
+      phoneNumber: "",
+      dateOfBirth: "",
+      monthList: Array.from({ length: 12 }, (_, i) => i + 1),
+      dayList: Array.from({ length: 31 }, (_, i) => i + 1),
+      yearList: Array.from({ length: 30 }, (_, i) => i + 1990).reverse(),
     });
 
     const userId = computed(() => {
-      return state.phoneNumber + "_" + state.studentName.replaceAll(" ", "");
+      return state.phoneNumber + "_" + state.studentName.replaceAll(" ", "").toLowerCase().substring(0, 10);
     });
 
     const quizId = computed(() => {
