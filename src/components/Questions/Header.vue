@@ -135,7 +135,7 @@ export default defineComponent({
           context.emit("time-limit-warning")
         }
         if (newValue == 0) {
-          context.emit("end-test")
+          context.emit("end-test-by-time")
         }
       })
 
@@ -187,6 +187,6 @@ export default defineComponent({
   components: {
     IconButton,
   },
-  emits: ["end-test", "update:isPaletteVisible", "time-limit-warning"],
+  emits: ["end-test", "end-test-by-time", "update:isPaletteVisible", "time-limit-warning"],
 });
 </script>
