@@ -270,7 +270,7 @@ export default defineComponent({
 
     const quizId = computed(() => {
       if (state.course == "JEE" && state.grade == "11") {
-        return "6335664e1f3f59aaf5372685";
+        return "63355b2c4bae698a1d7a36b0";
       } else if (state.course == "JEE" && state.grade == "12") {
         return "63355c1a4bae698a1d7a36d8"
       } else if (state.course == "NEET" && state.grade == "11") {
