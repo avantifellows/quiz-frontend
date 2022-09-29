@@ -12,12 +12,13 @@
                     <li>Please select your course and grade correctly to access the right test.</li>
                     <li>Test Details:
                         <ul class="list-disc">
-                            <li>Class 11 JEE: 180 minutes, 75 questions (300 marks)</li>
+                            <li>Class 11 JEE: 120 minutes, 30 questions (120 marks)</li>
                             <li>Class 12 JEE: 180 minutes, 75 questions (300 marks)</li>
-                            <li>Class 11 NEET: 180 minutes, 180 questions (720 marks)</li>
+                            <li>Class 11 NEET: 120 minutes, 30 questions (120 marks)</li>
                             <li>Class 12 NEET: 180 minutes, 180 questions (720 marks)</li>
                         </ul>
                     </li>
+                    <li>Scoring Pattern -- Correct Answer: +4, Wrong Answer: -1, Skipped: 0</li>
                     <li class="text-red-600">During the test, to confirm your answer please click <b>SAVE & NEXT</b>. Your response to a question will not be considered incase you fail to save your answer.</li>
                     <li>Only press <b>END TEST</b> once you have completed and reviewed your answers. You will not be able to change your responses once you click on <b>END TEST</b></li>
                 </ul>
