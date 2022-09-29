@@ -33,6 +33,7 @@ jobs:
       - name: Build
         env:
           VUE_APP_BACKEND: ${{ secrets.VUE_APP_BACKEND }}
+          FORM_LAMBDA_BACKEND: ${{ secrets.FORM_LAMBDA_BACKEND }}
         run: npm run build
 
       - name: Configure AWS Credentials

@@ -270,13 +270,13 @@ export default defineComponent({
 
     const quizId = computed(() => {
       if (state.course == "JEE" && state.grade == "11") {
-        return "632ea573793e9f5d8563d0a5";
+        return "6335664e1f3f59aaf5372685";
       } else if (state.course == "JEE" && state.grade == "12") {
-        return "632ea5c2b77e5240e42f8d0b"
+        return "63355c1a4bae698a1d7a36d8"
       } else if (state.course == "NEET" && state.grade == "11") {
-        return "632ea5e6b77e5240e42f8d1d";
+        return "63355b2c4bae698a1d7a36b0";
       } else {
-        return "632ea5d6b77e5240e42f8d14";
+        return "63355c2a4bae698a1d7a3725";
       }
     });
 
