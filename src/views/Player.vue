@@ -189,9 +189,6 @@ export default defineComponent({
     });
 
     async function startQuiz() {
-      console.log(process.env.VUE_APP_BACKEND);
-      console.log(process.env.VUE_APP_FORM_LAMBDA);
-      console.log(process.env);
       if (!state.hasQuizEnded) {
         let payload: UpdateSessionAPIPayload;
         if (state.isFirstSession) {
