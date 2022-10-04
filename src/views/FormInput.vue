@@ -261,7 +261,7 @@ export default defineComponent({
       dateOfBirth: "",
       monthList: Array.from({ length: 12 }, (_, i) => i + 1),
       dayList: Array.from({ length: 31 }, (_, i) => i + 1),
-      yearList: Array.from({ length: 30 }, (_, i) => i + 1990).reverse(),
+      yearList: Array.from({ length: 30 }, (_, i) => i + 1989).reverse(),
     });
 
     const userId = computed(() => {
