@@ -58,6 +58,7 @@
             label="*Month"
             name="month"
             placeholder="Month"
+            v-model="month"
             :options="monthList"
             validation="required"
             help="Select your Date of Birth."
@@ -65,6 +66,7 @@
             <FormKit
             type="select"
             name="day"
+            v-model="day"
             label="*Day"
             placeholder="Day"
             :options="dayList"
@@ -73,6 +75,7 @@
             <FormKit
             type="select"
             name="year"
+            v-model="year"
             label="*Year"
             placeholder="Year"
             :options="yearList"
@@ -259,13 +262,18 @@ export default defineComponent({
       studentName: "",
       phoneNumber: "",
       dateOfBirth: "",
+      month: "",
+      day: "",
+      year: "",
       monthList: Array.from({ length: 12 }, (_, i) => i + 1),
       dayList: Array.from({ length: 31 }, (_, i) => i + 1),
       yearList: Array.from({ length: 30 }, (_, i) => i + 1989).reverse(),
     });
 
     const userId = computed(() => {
-      return state.phoneNumber + "_" + state.studentName.replaceAll(" ", "").toLowerCase().substring(0, 10);
+      const month = state.month.toString().padStart(2, '0');
+      const day = state.day.toString().padStart(2, '0');
+      return state.phoneNumber + "_" + month + day + state.year;
     });
 
     const quizId = computed(() => {
