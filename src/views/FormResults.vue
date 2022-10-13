@@ -19,7 +19,7 @@
                         </ul>
                     </li>
                     <li>Scoring Pattern -- Correct Answer: +4, Wrong Answer: -1, Skipped: 0</li>
-                    <li>In case of any error, please contact Avanti JNV Team (+91 7259707090)</li>
+                    <li>In case of any error, please contact Avanti JNV Team (+91 8639328767)</li>
                 </ul>
             </div>
             <p class="text-2xl pt-2 pb-4">JNV Enable Test - Results</p>
