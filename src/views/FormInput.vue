@@ -56,9 +56,9 @@
             <FormKit
             type="select"
             label="*Month"
+            v-model="month"
             name="month"
             placeholder="Month"
-            v-model="month"
             :options="monthList"
             validation="required"
             help="Select your Date of Birth."
