@@ -289,7 +289,7 @@ describe("QuestionModal.vue", () => {
         wrapper.vm.$refs.body.$emit("navigate", questionIndex);
         expect(wrapper.vm.localCurrentQuestionIndex).toBe(questionIndex);
       });
-      it("should fetch next set of questions if the user navigates to an unfetched question using QuestionPallete", async () => {
+      it("should fetch next set of questions if the user navigates to an unfetched question using QuestionPalette", async () => {
         await wrapper.setProps({
           currentQuestionIndex: 1,
         });
