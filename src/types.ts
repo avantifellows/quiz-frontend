@@ -199,6 +199,14 @@ export interface OrganizationAPIResponse {
   name: string;
 }
 
+export interface FormResultResponse {
+  response: string,
+  all_results_exist: boolean,
+  result_link: string,
+  test_name: string,
+  redirect: boolean
+}
+
 export interface CircularProgressResult {
   title: string;
   value: string;

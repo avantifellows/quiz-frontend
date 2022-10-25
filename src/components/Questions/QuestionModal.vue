@@ -9,6 +9,7 @@
       :warningTimeLimit="timeLimitWarningThreshold"
       @time-limit-warning="displayTimeLimitWarning"
       @end-test="endTest"
+      @end-test-by-time="endTestByTime"
       data-test="header"
     ></Header>
     <div
@@ -133,7 +134,7 @@ export default defineComponent({
       toast: useToast(),
       isDraftAnswerCleared: false, // whether the draft answer has been cleared but not yet submitted
       isPaletteVisible: false, // whether the question palette is visible
-      reRenderKey: false // a key to re-render a component
+      reRenderKey: false, // a key to re-render a component
     })
 
     // display warning when time remaining goes below this threshold (in minutes)
@@ -276,6 +277,14 @@ export default defineComponent({
     function endTest() {
       state.localCurrentQuestionIndex = props.questions.length
       context.emit("end-test")
+    }
+
+    function endTestByTime() {
+      // same function as above -- can update later for new feature
+      if (!props.hasQuizEnded) {
+        state.localCurrentQuestionIndex = props.questions.length
+        context.emit("end-test")
+      }
     }
 
     onUnmounted(() => {
@@ -428,6 +437,7 @@ export default defineComponent({
       subjectiveAnswerUpdated,
       clearAnswer,
       endTest,
+      endTestByTime,
       navigateToQuestion,
       currentQuestion,
       questionType,

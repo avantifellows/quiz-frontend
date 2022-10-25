@@ -90,18 +90,24 @@ describe("Player for Assessment Timed quizzes", () => {
           .should("equal", "00:03:20");
       });
 
-      it("timer not displayed after test ends and we go back", () => {
-        // click end test
-        cy.get('[data-test="modal"]')
-          .get('[data-test="endTestButton"]')
-          .trigger("click");
+      // *** commenting out this test for now since "Go Back" button is hidden ***
+      // it("timer not displayed after test ends and we go back", () => {
+      //   // click end test
+      //   cy.get('[data-test="modal"]')
+      //     .get('[data-test="endTestButton"]')
+      //     .trigger("click");
 
-        // go back
-        cy.get('[data-test="backButton"]').trigger("click");
+      //   // additional click since endTest protected
+      //   cy.get('[data-test="modal"]')
+      //     .get('[data-test="endTestButton"]')
+      //     .trigger("click");
 
-        // timer shouldn't be there in header
-        cy.get(`[data-test="countdownTimer"`).should("not.exist");
-      });
+      //   // go back
+      //   cy.get('[data-test="backButton"]').trigger("click");
+
+      //   // timer shouldn't be there in header
+      //   cy.get(`[data-test="countdownTimer"`).should("not.exist");
+      // });
 
       it("session patch should contain END_QUIZ event when end button is clicked", () => {
         // wait for START_QUIZ patch to be called
