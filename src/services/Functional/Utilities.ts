@@ -148,7 +148,7 @@ export function createQuestionBuckets(totalQuestions: number) {
   const questionBucketingMap = {} as QuestionBucketingMap
 
   // calculate total buckets possible
-  let totalBucketsPossible = Math.ceil(totalQuestions / store.state.bucketSize)
+  const totalBucketsPossible = Math.ceil(totalQuestions / store.state.bucketSize)
 
   // create the bucket map
   for (let bucketIndex = 0; bucketIndex < totalBucketsPossible; bucketIndex++) {
