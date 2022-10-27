@@ -75,6 +75,17 @@ export interface QuizMetadata {
   topic?: string;
 }
 
+export interface QuestionBucket {
+  // `start` and `end` are array indices
+  start: number,
+  end: number,
+  isFetched: boolean
+}
+
+export interface QuestionBucketingMap {
+  [key: number]: QuestionBucket
+}
+
 interface QuestionMetadata {
   grade: string;
   subject: string;
@@ -118,6 +129,7 @@ export interface Question {
   solution: string[] | null;
   _id: string;
   metadata: QuestionMetadata | null;
+  question_set_id: string
 }
 
 interface QuestionSet {
