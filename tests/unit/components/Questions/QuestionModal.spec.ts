@@ -855,7 +855,7 @@ describe("QuestionModal.vue", () => {
         expect(wrapper
           .find('[data-test="header"]')
           .find('[data-test="countdownTimer"]').text()
-        ).toBe("00:02:59");
+        ).toBe("00:03:00");
         expect(wrapper.emitted()).toHaveProperty("test-warning-shown");
         done()
       }, 1000);
