@@ -31,6 +31,7 @@
         v-model:responses="responses"
         @submit-question="submitQuestion"
         @end-test="endTest"
+        @fetch-question-bucket="fetchQuestionBucket"
         v-if="isQuestionShown"
         data-test="modal"
       ></QuestionModal>
@@ -60,11 +61,13 @@
 import QuestionModal from "../components/Questions/QuestionModal.vue";
 import Splash from "../components/Splash.vue";
 import Scorecard from "../components/Scorecard.vue";
-import { resetConfetti, isQuestionAnswerCorrect } from "../services/Functional/Utilities";
+import { resetConfetti, isQuestionAnswerCorrect, createQuestionBuckets } from "../services/Functional/Utilities";
 import QuizAPIService from "../services/API/Quiz";
 import SessionAPIService from "../services/API/Session";
+import QuestionAPIService from "../services/API/Question"
 import { defineComponent, reactive, toRefs, computed, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
+import { useStore } from "vuex";
 import {
   Question,
   SubmittedResponse,
@@ -104,7 +107,7 @@ export default defineComponent({
   setup(props) {
     const router = useRouter();
     const route = useRoute();
-
+    const store = useStore();
     const state = reactive({
       currentQuestionIndex: -1 as number,
       title: null as quizTitleType,
@@ -202,6 +205,7 @@ export default defineComponent({
       state.maxMarks =
         quizDetails.max_marks || quizDetails.num_graded_questions;
       state.title = quizDetails.title;
+      createQuestionBuckets(state.questions.length)
     }
 
     async function createSession() {
@@ -378,6 +382,27 @@ export default defineComponent({
       resetConfetti();
     }
 
+    async function fetchQuestionBucket(questionIndex: number) {
+      const bucketToFetch = Math.floor(questionIndex / store.state.bucketSize)
+      const bucketStartIndex = store.state.questionBucketingMap[bucketToFetch].start
+      const bucketEndIndex = store.state.questionBucketingMap[bucketToFetch].end
+
+      const fetchedQuestions = await QuestionAPIService.getQuestions(
+        state.questions[questionIndex].question_set_id,
+        bucketStartIndex,
+        store.state.bucketSize
+      )
+
+      for (let i = bucketStartIndex; i <= bucketEndIndex; i++) {
+        state.questions[i] = fetchedQuestions[i - bucketStartIndex]
+      }
+
+      store.dispatch("updateBucketFetchedStatus", {
+        key: bucketToFetch,
+        fetchedStatus: true,
+      })
+    }
+
     return {
       ...toRefs(state),
       isQuestionShown,
@@ -391,7 +416,8 @@ export default defineComponent({
       startQuiz,
       submitQuestion,
       goToPreviousQuestion,
-      endTest
+      endTest,
+      fetchQuestionBucket,
     };
   },
 });

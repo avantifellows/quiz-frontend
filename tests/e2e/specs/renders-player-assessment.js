@@ -172,9 +172,10 @@ describe("Player for Assessment quizzes", () => {
           .get('[data-test="endTestButton"]')
           .trigger("click");
 
+        // number of skipped questions shown in scorecard
         cy.get('[data-test="scorecard"]')
           .get('[data-test="metricValue-2"]')
-          .should("have.text", 2);
+          .should("have.text", 15);
       });
 
       describe("End test", () => {
@@ -217,6 +218,7 @@ describe("Player for Assessment quizzes", () => {
             .get('[data-test="index"]')
             .should("have.class", "bg-gray-200");
 
+          // click the 3rd item in the question palette
           cy.get('[data-test="paletteItem-2"]').trigger("click");
 
           // question palette must be closed
@@ -233,6 +235,25 @@ describe("Player for Assessment quizzes", () => {
           cy.get('[data-test="paletteItem-2"]')
             .get('[data-test="index"]')
             .should("have.class", "bg-yellow-200");
+
+          // click the last question present in the question palette
+          cy.get('[data-test="paletteItem-22"]').trigger("click");
+
+          // question palette must be closed
+          cy.get('[data-test="questionPalette"]').should("not.exist");
+
+          cy.intercept("GET", "/questions/*", {
+            fixture: "question_bucket_fetched.json",
+          }).as("question_bucket_call");
+          cy.wait("@question_bucket_call");
+
+          // open the question palette
+          cy.get('[data-test="togglePaletteButton"]').trigger("click");
+
+          // index for the item corresponding to the last question should be highlighted
+          cy.get('[data-test="paletteItem-22"]')
+            .get('[data-test="index"]')
+            .should("have.class", "bg-gray-200");
         });
       });
 
