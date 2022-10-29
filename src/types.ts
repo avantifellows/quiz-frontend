@@ -1,11 +1,5 @@
 // contains all the custom types that we want to use
 
-type questionWithOptions = "single-choice" | "multi-choice";
-type questionType =
-  | questionWithOptions
-  | "subjective"
-  | "numerical-float"
-  | "numerical-integer";
 type language = "en" | "hi";
 export type quizType = "assessment" | "homework";
 export type quizTitleType = string | null;
@@ -14,6 +8,27 @@ export type isFirstSessionType = boolean | null;
 type quizNavigationMode = "linear" | "non-linear";
 export type submittedAnswer = number[] | string | number | null;
 type correctAnswer = number[] | number | null;
+
+export enum eventType {
+  START_QUIZ = "start-quiz",
+  RESUME_QUIZ = "resume-quiz",
+  END_QUIZ = "end-quiz"
+}
+
+export enum questionType {
+  SINGLE_CHOICE = "single-choice",
+  MULTI_CHOICE = "multi-choice",
+  NUMERICAL_INTEGER = "numerical-integer",
+  NUMERICAL_FLOAT = "numerical-float",
+  SUBJECTIVE = "subjective"
+}
+
+export enum questionTypeHeaderText {
+    SINGLE_CHOICE = "Single Choice",
+    MULTI_CHOICE = "Multiple Choice",
+    NUMERICAL_INTEGER = "Subjective Numerical",
+    NUMERICAL_FLOAT = "Subjective Numerical",
+ }
 
 export interface IconButtonTitleConfig {
   value: string;
@@ -61,6 +76,17 @@ export interface QuizMetadata {
   topic?: string;
 }
 
+export interface QuestionBucket {
+  // `start` and `end` are array indices
+  start: number,
+  end: number,
+  isFetched: boolean
+}
+
+export interface QuestionBucketingMap {
+  [key: number]: QuestionBucket
+}
+
 interface QuestionMetadata {
   grade: string;
   subject: string;
@@ -104,12 +130,14 @@ export interface Question {
   solution: string[] | null;
   _id: string;
   metadata: QuestionMetadata | null;
+  question_set_id: string
 }
 
 export interface QuestionSet {
   _id: string;
   questions: Question[];
-  num_questions_allowed_to_attempt: number;
+  has_optional_questions: boolean;
+  max_questions_allowed_to_attempt: number;
   title: string | null;
 }
 
@@ -139,7 +167,15 @@ export interface SessionAPIResponse {
   quiz_id: string;
   is_first: boolean;
   session_answers: SubmittedResponse[];
-  has_quiz_ended?: boolean;
+  has_quiz_ended: boolean;
+  time_remaining?: number;
+}
+
+export interface UpdateSessionAPIPayload {
+  event: eventType;
+}
+export interface UpdateSessionAPIResponse {
+  time_remaining: number; // how much time is remaining for quiz to complete
 }
 
 export interface SessionAnswerAPIResponse {
@@ -177,7 +213,19 @@ export interface OrganizationAPIResponse {
   name: string;
 }
 
+export interface FormResultResponse {
+  response: string,
+  all_results_exist: boolean,
+  result_link: string,
+  test_name: string,
+  redirect: boolean
+}
+
 export interface CircularProgressResult {
   title: string;
   value: string;
+}
+
+export interface JnvDict {
+  [index : string] : string[];
 }
