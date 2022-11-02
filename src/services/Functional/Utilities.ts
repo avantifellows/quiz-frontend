@@ -134,7 +134,12 @@ export function isQuestionAnswerCorrect(
  */
 export function isQuestionFetched(questionIndex: number) {
   const bucketToCheck = Math.floor(questionIndex / store.state.bucketSize)
-  return store.state.questionBucketingMap[bucketToCheck].isFetched
+  if (
+    'questionBucketingMap' in store.state &&
+    store.state.questionBucketingMap[bucketToCheck] != null &&
+    'isFetched' in store.state.questionBucketingMap[bucketToCheck]
+  ) return store.state.questionBucketingMap[bucketToCheck].isFetched
+  return true
 }
 
 /**
