@@ -135,6 +135,7 @@ export default defineComponent({
       isDraftAnswerCleared: false, // whether the draft answer has been cleared but not yet submitted
       isPaletteVisible: false, // whether the question palette is visible
       reRenderKey: false, // a key to re-render a component
+      hasEndTestBeenClickedOnce: true
     })
 
     // display warning when time remaining goes below this threshold (in minutes)
@@ -275,8 +276,26 @@ export default defineComponent({
     }
 
     function endTest() {
-      state.localCurrentQuestionIndex = props.questions.length
-      context.emit("end-test")
+      if (!props.hasQuizEnded && state.hasEndTestBeenClickedOnce) {
+        let attemptedQuestions = 0;
+        for (const response of props.responses) {
+          if (response.answer != null) {
+            attemptedQuestions += 1;
+          }
+        }
+        state.toast.success(
+            `You have answered ${attemptedQuestions} out of ${props.questions.length} questions. Please verify your responses and click End Test button again to make final submission.`,
+            {
+              position: POSITION.TOP_CENTER,
+              timeout: 5000,
+              draggablePercent: 0.4
+            }
+        )
+        state.hasEndTestBeenClickedOnce = false;
+      } else {
+        state.localCurrentQuestionIndex = props.questions.length
+        context.emit("end-test")
+      }
     }
 
     function endTestByTime() {
