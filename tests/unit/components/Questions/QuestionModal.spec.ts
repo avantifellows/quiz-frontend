@@ -271,6 +271,7 @@ describe("QuestionModal.vue", () => {
       });
       it("sets question index to number of questions upon end test", async () => {
         wrapper.find('[data-test="endTestButton"]').trigger("click");
+        wrapper.find('[data-test="endTestButton"]').trigger("click"); // adding additional click to protect endTest button
         expect(wrapper.vm.localCurrentQuestionIndex).toBe(questions.length);
       });
       it("does not increment question index when save & next button is clicked for last question", () => {
