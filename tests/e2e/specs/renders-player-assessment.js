@@ -172,6 +172,11 @@ describe("Player for Assessment quizzes", () => {
           .get('[data-test="endTestButton"]')
           .trigger("click");
 
+        // additional click to protect endTest button
+        cy.get('[data-test="modal"]')
+          .get('[data-test="endTestButton"]')
+          .trigger("click");
+
         // number of skipped questions shown in scorecard
         cy.get('[data-test="scorecard"]')
           .get('[data-test="metricValue-2"]')
@@ -183,6 +188,10 @@ describe("Player for Assessment quizzes", () => {
           cy.get('[data-test="modal"]')
             .get('[data-test="endTestButton"]')
             .trigger("click");
+
+          cy.get('[data-test="modal"]')
+            .get('[data-test="endTestButton"]')
+            .trigger("click"); // additional click to protect endTest button
         });
 
         it("shows scorecard upon selecting End Test", () => {
