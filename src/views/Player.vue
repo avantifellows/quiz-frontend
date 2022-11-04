@@ -30,11 +30,12 @@
         :questionSetStates="questionSetStates"
         :qsetIndexLimits="currentQsetIndexLimits"
         :quizTimeLimit="quizTimeLimit"
-        :timeElapsed="timeElapsedAtSessionStart"
+        :timeRemaining="timeRemaining"
         v-model:currentQuestionIndex="currentQuestionIndex"
         v-model:responses="responses"
         @submit-question="submitQuestion"
         @end-test="endTest"
+        @fetch-question-bucket="fetchQuestionBucket"
         v-if="isQuestionShown"
         data-test="modal"
       ></QuestionModal>
@@ -64,15 +65,19 @@
 import QuestionModal from "../components/Questions/QuestionModal.vue";
 import Splash from "../components/Splash.vue";
 import Scorecard from "../components/Scorecard.vue";
-import { resetConfetti, isQuestionAnswerCorrect } from "../services/Functional/Utilities";
+import { resetConfetti, isQuestionAnswerCorrect, isQuestionFetched, createQuestionBuckets } from "../services/Functional/Utilities";
 import QuizAPIService from "../services/API/Quiz";
 import SessionAPIService from "../services/API/Session";
+import QuestionAPIService from "../services/API/Question"
 import { defineComponent, reactive, toRefs, computed, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
+import { useStore } from "vuex";
 import {
   QuizAPIResponse,
   Question,
   SubmittedResponse,
+  UpdateSessionAPIPayload,
+  UpdateSessionAPIResponse,
   QuizMetadata,
   submittedAnswer,
   quizTitleType,
@@ -81,7 +86,8 @@ import {
   questionState,
   paletteItemState,
   questionSetPalette,
-  TimeLimit
+  TimeLimit,
+  eventType
 } from "../types";
 import BaseIcon from "../components/UI/Icons/BaseIcon.vue";
 import OrganizationAPIService from "../services/API/Organization";
@@ -111,7 +117,7 @@ export default defineComponent({
   setup(props) {
     const router = useRouter();
     const route = useRoute();
-
+    const store = useStore();
     const state = reactive({
       currentQuestionIndex: -1 as number,
       title: null as quizTitleType,
@@ -126,7 +132,7 @@ export default defineComponent({
       // high: highest questionIndex belonging to current question set
       currentQsetIndexLimits: {} as QuestionSetIndexLimits,
       quizTimeLimit: {} as TimeLimit | null,
-      timeElapsedAtSessionStart: 0, // time elapsed so far since first session
+      timeRemaining: 0,
       // whether the current session is the first for the given user-quiz pair
       // a value of null means the data has not been fetched yet
       isFirstSession: null as boolean | null,
@@ -177,17 +183,49 @@ export default defineComponent({
             }
           );
         }
-        state.currentQsetIndex = state.qsetCumulativeLengths.findIndex(
-          cumulativeLength => cumulativeLength > newValue
-        )
-        if (state.currentQsetIndex > 0) {
-          state.currentQsetIndexLimits.low = state.qsetCumulativeLengths[state.currentQsetIndex - 1]
-        } else state.currentQsetIndexLimits.low = 0
-        state.currentQsetIndexLimits.high = state.qsetCumulativeLengths[state.currentQsetIndex]
+        // the index where cumulative length first exceeds newValue
+        [state.currentQsetIndex, state.currentQsetIndexLimits] = getQsetLimits(state.currentQuestionIndex);
       }
     );
 
-    function startQuiz() {
+    function getQsetLimits(questionIndex : number) : [number, QuestionSetIndexLimits] {
+      // returns the question set index a question belongs to
+      // and the limits of that question set (low and high)
+      const qsetIndex = state.qsetCumulativeLengths.findIndex(
+        cumulativeLength => cumulativeLength > questionIndex
+      )
+
+      const qsetIndexLimits: QuestionSetIndexLimits = { low: 0, high: 0 };
+      if (qsetIndex > 0) {
+        qsetIndexLimits.low = state.qsetCumulativeLengths[qsetIndex - 1]
+      } else qsetIndexLimits.low = 0
+      qsetIndexLimits.high = state.qsetCumulativeLengths[qsetIndex]
+
+      return [qsetIndex, qsetIndexLimits];
+    }
+
+    async function startQuiz() {
+      if (!state.hasQuizEnded) {
+        let payload: UpdateSessionAPIPayload;
+        if (state.isFirstSession) {
+          payload = {
+            event: eventType.START_QUIZ
+          }
+        } else {
+          payload = {
+            event: eventType.RESUME_QUIZ
+          }
+        }
+        const response: UpdateSessionAPIResponse = await SessionAPIService.updateSession(
+          state.sessionId,
+          payload
+        );
+        state.timeRemaining = response.time_remaining;
+        if (state.timeRemaining == 0) {
+        // show results based on submitted session's answers (if any)
+          endTest()
+        }
+      }
       state.currentQuestionIndex = 0;
     }
 
@@ -195,18 +233,20 @@ export default defineComponent({
       const quizDetails : QuizAPIResponse = await QuizAPIService.getQuiz(props.quizId);
       // since we know that there is going to be only one
       // question set for now
-      state.questionSets = quizDetails.question_sets
+      state.questionSets = quizDetails.question_sets;
+      const totalQuestionsInEachSet = [];
       for (const [idx, questionSet] of state.questionSets.entries()) {
         state.questions.push(...questionSet.questions) // spread to add questions
+        totalQuestionsInEachSet.push(questionSet.questions.length)
         if (idx == 0) state.qsetCumulativeLengths.push(questionSet.questions.length)
         else state.qsetCumulativeLengths.push(state.qsetCumulativeLengths[idx - 1] + questionSet.questions.length)
       }
-
-      state.quizTimeLimit = { min: 0, max: 180 }
+      state.quizTimeLimit = quizDetails.time_limit;
       state.metadata = quizDetails.metadata;
       state.maxMarks =
         quizDetails.max_marks || quizDetails.num_graded_questions;
       state.title = quizDetails.title;
+      createQuestionBuckets(totalQuestionsInEachSet);
     }
 
     async function createSession() {
@@ -235,7 +275,9 @@ export default defineComponent({
 
     function endTest() {
       if (!state.hasQuizEnded) {
-        SessionAPIService.updateSession(state.sessionId, true);
+        SessionAPIService.updateSession(state.sessionId, {
+          event: eventType.END_QUIZ
+        });
         state.hasQuizEnded = true;
       }
     }
@@ -385,7 +427,7 @@ export default defineComponent({
      * compute details of current question set
      */
     const maxQuestionsAllowedToAttempt = computed(() => {
-      return state.questionSets[state.currentQsetIndex].num_questions_allowed_to_attempt
+      return state.questionSets[state.currentQsetIndex].max_questions_allowed_to_attempt
     })
 
     const currentQsetTitle = computed(() => {
@@ -396,7 +438,7 @@ export default defineComponent({
      * preparing states for palette
      */
     const questionSetStates = computed(() => {
-      const qsetstates = [] as questionSetPalette[]
+      const qsetStates = [] as questionSetPalette[]
 
       if (state.hasQuizEnded) {
         for (let index = 0; index < state.questionSets.length; index++) {
@@ -425,7 +467,7 @@ export default defineComponent({
               value: qstate
             })
           }
-          qsetstates.push({
+          qsetStates.push({
             title: state.questionSets[index].title,
             paletteItems: states
           })
@@ -449,15 +491,41 @@ export default defineComponent({
               value: qstate
             })
           }
-          qsetstates.push({
+          qsetStates.push({
             title: state.questionSets[index].title,
             paletteItems: states
           })
         }
       }
 
-      return qsetstates
+      return qsetStates
     })
+
+    async function fetchQuestionBucket(questionIndex: number) {
+      const [qsetIndex, qsetIndexLimits] = getQsetLimits(questionIndex);
+      let questionIndexInSet = questionIndex;
+      if (qsetIndex != 0) questionIndexInSet = questionIndex - state.qsetCumulativeLengths[qsetIndex - 1];
+      if (!isQuestionFetched(qsetIndex, questionIndexInSet)) {
+        const bucketToFetch = Math.floor(questionIndexInSet / store.state.bucketSize)
+        const bucketStartIndex = store.state.questionBucketingMaps[qsetIndex][bucketToFetch].start
+        const bucketEndIndex = store.state.questionBucketingMaps[qsetIndex][bucketToFetch].end
+
+        const fetchedQuestions = await QuestionAPIService.getQuestions(
+          state.questions[questionIndex].question_set_id,
+          bucketStartIndex,
+          store.state.bucketSize
+        )
+
+        for (let i = bucketStartIndex; i <= bucketEndIndex; i++) {
+          state.questions[i] = fetchedQuestions[i - bucketStartIndex]
+        }
+
+        store.dispatch("updateBucketFetchedStatus", {
+          key: [qsetIndex, bucketToFetch],
+          fetchedStatus: true,
+        })
+      }
+    }
 
     return {
       ...toRefs(state),
@@ -470,12 +538,14 @@ export default defineComponent({
       isQuizLoaded,
       scorecardResult,
       startQuiz,
+      getQsetLimits,
       submitQuestion,
       goToPreviousQuestion,
       endTest,
       maxQuestionsAllowedToAttempt,
       currentQsetTitle,
       questionSetStates,
+      fetchQuestionBucket,
     };
   },
 });

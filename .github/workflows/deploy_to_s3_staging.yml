@@ -34,6 +34,7 @@ jobs:
       - name: Build
         env:
           VUE_APP_BACKEND: ${{ secrets.VUE_APP_BACKEND }}
+          VUE_APP_FORM_LAMBDA: ${{ secrets.VUE_APP_FORM_LAMBDA }}
         run: npm run build-staging
 
       - name: Configure AWS Credentials

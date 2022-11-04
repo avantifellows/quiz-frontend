@@ -158,7 +158,11 @@ import {
   onUpdated
 } from "vue"
 import BaseIcon from "../UI/Icons/BaseIcon.vue"
+<<<<<<< HEAD
 import { quizType, questionSetPalette, questionType, questionTypeHeaderText } from "../../types"
+=======
+import { quizType, paletteItemState, questionType, questionTypeHeaderText } from "../../types"
+>>>>>>> main
 import QuestionPalette from "./Palette/QuestionPalette.vue"
 
 const MAX_LENGTH_NUMERICAL_CHARACTERS: number = 10 // max length of characters in numerical answer textbox
@@ -398,7 +402,11 @@ export default defineComponent({
     }
 
     const questionHeaderText = computed(() => {
+<<<<<<< HEAD
       return `${props.questionSetTitle} / Q.${props.currentQuestionIndex + 1}  ${questionTypeHeaderMapping.get(props.questionType)}`
+=======
+      return `Q.${props.currentQuestionIndex + 1}  ${questionTypeHeaderMapping.get(props.questionType)}`
+>>>>>>> main
     })
 
     // styling class for the question image and loading spinner containers

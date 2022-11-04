@@ -3,21 +3,18 @@
     <Header
       v-if="isQuizAssessment"
       :hasQuizEnded="hasQuizEnded"
+      :hasTimeLimit="quizTimeLimit != null"
       v-model:isPaletteVisible="isPaletteVisible"
+      :timeRemaining="timeRemaining"
+      :warningTimeLimit="timeLimitWarningThreshold"
+      @time-limit-warning="displayTimeLimitWarning"
       @end-test="endTest"
+      @end-test-by-time="endTestByTime"
+      data-test="header"
     ></Header>
     <div
       class="flex flex-col grow bg-white w-full justify-between overflow-hidden"
     >
-      <Timer
-        v-if="isQuizAssessment"
-        :timeLimit="quizTimeLimit"
-        :warningTimeLimit="TIME_LIMIT_WARNING"
-        :timeElapsed="timeElapsed"
-        @time-limit-warning="displayTimeLimitWarning"
-        @time-is-up="endTest"
-      >
-      </Timer>
       <Body
         :text="currentQuestion.text"
         :options="currentQuestion.options"
@@ -67,7 +64,6 @@
 import Body from "./Body.vue"
 import Footer from "./Footer.vue"
 import Header from "./Header.vue"
-import Timer from "../Timer.vue"
 import {
   defineComponent,
   PropType,
@@ -79,27 +75,31 @@ import {
 } from "vue"
 import {
   isScreenPortrait,
-} from "../../services/Functional/Utilities"
+  isQuestionAnswerCorrect,
+} from "../../services/Functional/Utilities";
 import {
   Question,
   SubmittedResponse,
   DraftResponse,
   quizType,
+<<<<<<< HEAD
   QuestionSetIndexLimits,
   questionSetPalette,
+=======
+  paletteItemState,
+  questionState,
+>>>>>>> main
   TimeLimit
 } from "../../types"
 import { useToast, POSITION } from "vue-toastification"
 const clonedeep = require("lodash.clonedeep");
-const TIME_LIMIT_WARNING: number = 5; // seconds after which warning has to be displayed, later take a % of maxtime
 
 export default defineComponent({
   name: "QuestionModal",
   components: {
     Body,
     Footer,
-    Header,
-    Timer
+    Header
   },
   props: {
     questions: {
@@ -122,6 +122,7 @@ export default defineComponent({
       type: String as PropType<quizType>,
       default: "homework"
     },
+<<<<<<< HEAD
     maxQuestionsAllowedToAttempt: {
       type: Number,
       default: 0
@@ -139,10 +140,10 @@ export default defineComponent({
       default: () => []
     },
     quizTimeLimit: {
-      required: true,
-      type: Object as PropType<TimeLimit>
+      type: Object as PropType<TimeLimit> || null,
+      default: null
     },
-    timeElapsed: {
+    timeRemaining: {
       type: Number,
       default: 0
     }
@@ -156,17 +157,21 @@ export default defineComponent({
       toast: useToast(),
       isDraftAnswerCleared: false, // whether the draft answer has been cleared but not yet submitted
       isPaletteVisible: false, // whether the question palette is visible
-      reRenderKey: false // a key to re-render a component
+      reRenderKey: false, // a key to re-render a component
     })
+
+    // display warning when time remaining goes below this threshold (in minutes)
+    const timeLimitWarningThreshold: number = 3
 
     function checkScreenOrientation() {
       state.isPortrait = isScreenPortrait()
     }
 
     function navigateToQuestion(questionIndex: number) {
+      context.emit("fetch-question-bucket", questionIndex)
       state.reRenderKey = !state.reRenderKey
       resetState()
-      state.localCurrentQuestionIndex = questionIndex
+      state.localCurrentQuestionIndex = questionIndex;
       state.isPaletteVisible = false
     }
 
@@ -260,7 +265,10 @@ export default defineComponent({
         props.hasQuizEnded ||
         !isQuizAssessment.value
       ) {
-        state.localCurrentQuestionIndex = state.localCurrentQuestionIndex + 1
+        // emit an event for the question to be fetched
+        context.emit("fetch-question-bucket", state.localCurrentQuestionIndex + 1)
+
+        state.localCurrentQuestionIndex += 1;
       } else {
         state.toast.success(
           'No more questions, please press "End Test" if you are done 👉',
@@ -302,6 +310,14 @@ export default defineComponent({
     function endTest() {
       state.localCurrentQuestionIndex = props.questions.length
       context.emit("end-test")
+    }
+
+    function endTestByTime() {
+      // same function as above -- can update later for new feature
+      if (!props.hasQuizEnded) {
+        state.localCurrentQuestionIndex = props.questions.length
+        context.emit("end-test")
+      }
     }
 
     onUnmounted(() => {
@@ -397,17 +413,29 @@ export default defineComponent({
     // add listener for screen size being changed
     window.addEventListener("resize", checkScreenOrientation)
 
+<<<<<<< HEAD
     // displaying warning when time is less
     function displayTimeLimitWarning() {
       if (!props.hasQuizEnded) {
         state.toast.warning(
             `Only ${TIME_LIMIT_WARNING} minutes left! Please submit!`,
+=======
+    // displaying warning when time is lesser than the warning threshold
+    function displayTimeLimitWarning() {
+      if (!props.hasQuizEnded) {
+        state.toast.warning(
+            `Only ${timeLimitWarningThreshold} minutes left! Please submit!`,
+>>>>>>> main
             {
               position: POSITION.TOP_CENTER,
               timeout: 3000,
               draggablePercent: 0.4
             }
         )
+<<<<<<< HEAD
+=======
+        context.emit("test-warning-shown");
+>>>>>>> main
       }
     }
 
@@ -420,6 +448,7 @@ export default defineComponent({
       subjectiveAnswerUpdated,
       clearAnswer,
       endTest,
+      endTestByTime,
       navigateToQuestion,
       currentQuestion,
       questionType,
@@ -431,7 +460,12 @@ export default defineComponent({
       isQuizAssessment,
       optionalLimitReached,
       numericalAnswerUpdated,
+<<<<<<< HEAD
       TIME_LIMIT_WARNING,
+=======
+      questionStates,
+      timeLimitWarningThreshold,
+>>>>>>> main
       displayTimeLimitWarning
     }
   },
@@ -439,7 +473,9 @@ export default defineComponent({
     "update:currentQuestionIndex",
     "update:responses",
     "submit-question",
-    "end-test"
-  ]
-})
+    "end-test",
+    "fetch-question-bucket",
+    "test-warning-shown"
+  ],
+});
 </script>

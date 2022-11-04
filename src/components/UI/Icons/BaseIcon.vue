@@ -19,7 +19,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import QuestionMarkRound from "./QuestionMarkRound.vue";
 import StudentInClass from "./StudentInClass.vue";
 import Math from "./Math.vue";
