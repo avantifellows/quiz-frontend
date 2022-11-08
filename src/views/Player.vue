@@ -186,7 +186,7 @@ export default defineComponent({
           payload
         );
         state.timeRemaining = response.time_remaining;
-        if (state.timeRemaining == 0) {
+        if (state.timeRemaining == 0 && isQuizAssessment.value) {
         // show results based on submitted session's answers (if any)
           endTest()
         }
