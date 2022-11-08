@@ -300,7 +300,7 @@ export default defineComponent({
 
     function endTestByTime() {
       // same function as above -- can update later for new feature
-      if (!props.hasQuizEnded) {
+      if (!props.hasQuizEnded && isQuizAssessment.value) {
         state.localCurrentQuestionIndex = props.questions.length
         context.emit("end-test")
       }
