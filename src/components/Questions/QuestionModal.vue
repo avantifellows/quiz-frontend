@@ -251,6 +251,9 @@ export default defineComponent({
     function showPreviousQuestion() {
       state.reRenderKey = !state.reRenderKey
       resetState()
+      if (!isQuestionFetched(state.localCurrentQuestionIndex - 1)) {
+        context.emit("fetch-question-bucket", state.localCurrentQuestionIndex - 1)
+      }
       state.localCurrentQuestionIndex -= 1
     }
 
