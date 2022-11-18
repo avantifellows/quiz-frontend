@@ -12,9 +12,9 @@
                     <li>Please select your course and grade correctly to access the right test.</li>
                     <li>Test Details:
                         <ul class="list-disc">
-                            <li>Class 11 JEE: 120 minutes, 30 questions (120 marks)</li>
+                            <li>Class 11 JEE: 120 minutes, 75 questions (300 marks)</li>
                             <li>Class 12 JEE: 180 minutes, 75 questions (300 marks)</li>
-                            <li>Class 11 NEET: 120 minutes, 30 questions (120 marks)</li>
+                            <li>Class 11 NEET: 120 minutes, 180 questions (720 marks)</li>
                             <li>Class 12 NEET: 180 minutes, 180 questions (720 marks)</li>
                         </ul>
                     </li>
@@ -278,13 +278,13 @@ export default defineComponent({
 
     const quizId = computed(() => {
       if (state.course == "JEE" && state.grade == "11") {
-        return "63355b2c4bae698a1d7a36b0";
+        return "6377941c33f566cae7acf465";
       } else if (state.course == "JEE" && state.grade == "12") {
-        return "63355c1a4bae698a1d7a36d8"
+        return "6377943a33f566cae7acf568"
       } else if (state.course == "NEET" && state.grade == "11") {
-        return "63355b2c4bae698a1d7a36b0";
+        return "6377942e33f566cae7acf4b2";
       } else {
-        return "63355c2a4bae698a1d7a3725";
+        return "6377956e33f566cae7acf6eb";
       }
     });
 
