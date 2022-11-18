@@ -65,7 +65,7 @@ import { resetConfetti, isQuestionAnswerCorrect, createQuestionBuckets } from ".
 import QuizAPIService from "../services/API/Quiz";
 import SessionAPIService from "../services/API/Session";
 import QuestionAPIService from "../services/API/Question"
-import { defineComponent, reactive, toRefs, computed, watch } from "vue";
+import { defineComponent, reactive, toRefs, computed, watch, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import {
@@ -168,6 +168,26 @@ export default defineComponent({
         }
       }
     );
+
+    async function timerUpdates() {
+      if (!state.hasQuizEnded && state.currentQuestionIndex != -1) {
+        const payload: UpdateSessionAPIPayload = {
+          event: eventType.DUMMY_EVENT
+        }
+        const response: UpdateSessionAPIResponse = await SessionAPIService.updateSession(
+          state.sessionId,
+          payload
+        );
+        if (response.time_remaining == 0) {
+          endTest()
+        }
+      }
+    };
+    onMounted(() => {
+      window.setInterval(() => {
+        timerUpdates();
+      }, 8000);
+    });
 
     async function startQuiz() {
       if (!state.hasQuizEnded) {
@@ -418,6 +438,7 @@ export default defineComponent({
       goToPreviousQuestion,
       endTest,
       fetchQuestionBucket,
+      timerUpdates
     };
   },
 });
