@@ -12,6 +12,7 @@ type correctAnswer = number[] | number | null;
 export enum eventType {
   START_QUIZ = "start-quiz",
   RESUME_QUIZ = "resume-quiz",
+  DUMMY_EVENT = "dummy-event",
   END_QUIZ = "end-quiz"
 }
 

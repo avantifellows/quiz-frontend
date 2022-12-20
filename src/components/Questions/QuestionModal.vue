@@ -74,21 +74,15 @@ import {
   watch
 } from "vue"
 import {
-  isScreenPortrait,
-  isQuestionAnswerCorrect,
+  isScreenPortrait
 } from "../../services/Functional/Utilities";
 import {
   Question,
   SubmittedResponse,
   DraftResponse,
   quizType,
-<<<<<<< HEAD
   QuestionSetIndexLimits,
   questionSetPalette,
-=======
-  paletteItemState,
-  questionState,
->>>>>>> main
   TimeLimit
 } from "../../types"
 import { useToast, POSITION } from "vue-toastification"
@@ -122,7 +116,10 @@ export default defineComponent({
       type: String as PropType<quizType>,
       default: "homework"
     },
-<<<<<<< HEAD
+    numQuestions: {
+      type: Number,
+      default: 0
+    },
     maxQuestionsAllowedToAttempt: {
       type: Number,
       default: 0
@@ -158,6 +155,7 @@ export default defineComponent({
       isDraftAnswerCleared: false, // whether the draft answer has been cleared but not yet submitted
       isPaletteVisible: false, // whether the question palette is visible
       reRenderKey: false, // a key to re-render a component
+      hasEndTestBeenClickedOnce: true
     })
 
     // display warning when time remaining goes below this threshold (in minutes)
@@ -188,7 +186,7 @@ export default defineComponent({
         state.localCurrentQuestionIndex = newValue.valueOf()
         if (!props.hasQuizEnded && optionalLimitReached.value && currentQuestionResponseAnswer.value == null) {
           state.toast.warning(
-            `You cannot attempt this question since you have already answered ${props.maxQuestionsAllowedToAttempt} questions in current section.`,
+            `You cannot attempt this question since you have already answered ${props.maxQuestionsAllowedToAttempt} questions in current section (Q.${props.qsetIndexLimits.low + 1} - Q.${props.qsetIndexLimits.high})`,
             {
               position: POSITION.TOP_CENTER,
               timeout: 3000,
@@ -196,7 +194,7 @@ export default defineComponent({
             }
           )
         }
-        console.log(optionalLimitReached.value, currentQuestionResponseAnswer.value, "in watch props current")
+        // console.log(optionalLimitReached.value, currentQuestionResponseAnswer.value, "in watch props current")
       }
     )
 
@@ -265,7 +263,7 @@ export default defineComponent({
         props.hasQuizEnded ||
         !isQuizAssessment.value
       ) {
-        // emit an event for the question to be fetched
+        // if already fetched, emit will have no effect
         context.emit("fetch-question-bucket", state.localCurrentQuestionIndex + 1)
 
         state.localCurrentQuestionIndex += 1;
@@ -282,6 +280,8 @@ export default defineComponent({
     function showPreviousQuestion() {
       state.reRenderKey = !state.reRenderKey
       resetState()
+      // if already fetched, emit will have no effect
+      context.emit("fetch-question-bucket", state.localCurrentQuestionIndex - 1)
       state.localCurrentQuestionIndex -= 1
     }
 
@@ -308,13 +308,31 @@ export default defineComponent({
     }
 
     function endTest() {
-      state.localCurrentQuestionIndex = props.questions.length
-      context.emit("end-test")
+      if (!props.hasQuizEnded && state.hasEndTestBeenClickedOnce) {
+        let attemptedQuestions = 0;
+        for (const response of props.responses) {
+          if (response.answer != null) {
+            attemptedQuestions += 1;
+          }
+        }
+        state.toast.success(
+            `You have answered ${attemptedQuestions} out of ${props.numQuestions} questions. Please verify your responses and click End Test button again to make final submission.`,
+            {
+              position: POSITION.TOP_CENTER,
+              timeout: 5000,
+              draggablePercent: 0.4
+            }
+        )
+        state.hasEndTestBeenClickedOnce = false;
+      } else {
+        state.localCurrentQuestionIndex = props.questions.length
+        context.emit("end-test")
+      }
     }
 
     function endTestByTime() {
       // same function as above -- can update later for new feature
-      if (!props.hasQuizEnded) {
+      if (!props.hasQuizEnded && isQuizAssessment.value) {
         state.localCurrentQuestionIndex = props.questions.length
         context.emit("end-test")
       }
@@ -413,29 +431,18 @@ export default defineComponent({
     // add listener for screen size being changed
     window.addEventListener("resize", checkScreenOrientation)
 
-<<<<<<< HEAD
-    // displaying warning when time is less
-    function displayTimeLimitWarning() {
-      if (!props.hasQuizEnded) {
-        state.toast.warning(
-            `Only ${TIME_LIMIT_WARNING} minutes left! Please submit!`,
-=======
     // displaying warning when time is lesser than the warning threshold
     function displayTimeLimitWarning() {
       if (!props.hasQuizEnded) {
         state.toast.warning(
             `Only ${timeLimitWarningThreshold} minutes left! Please submit!`,
->>>>>>> main
             {
               position: POSITION.TOP_CENTER,
               timeout: 3000,
               draggablePercent: 0.4
             }
         )
-<<<<<<< HEAD
-=======
         context.emit("test-warning-shown");
->>>>>>> main
       }
     }
 
@@ -460,12 +467,7 @@ export default defineComponent({
       isQuizAssessment,
       optionalLimitReached,
       numericalAnswerUpdated,
-<<<<<<< HEAD
-      TIME_LIMIT_WARNING,
-=======
-      questionStates,
       timeLimitWarningThreshold,
->>>>>>> main
       displayTimeLimitWarning
     }
   },

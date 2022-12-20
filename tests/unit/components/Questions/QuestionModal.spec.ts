@@ -1,5 +1,5 @@
 import { flushPromises, mount } from "@vue/test-utils";
-import { Question, SubmittedResponse } from "@/types";
+import { Question, QuestionSetIndexLimits, SubmittedResponse } from "@/types";
 import QuestionModal from "@/components/Questions/QuestionModal.vue";
 import { createQuestionBuckets } from "@/services/Functional/Utilities";
 
@@ -221,21 +221,29 @@ describe("QuestionModal.vue", () => {
     })
   );
 
+  const qsetIndexLimits: QuestionSetIndexLimits = {
+    low: 0,
+    high: questions.length
+  }
+
   let wrapper: any;
   const mountWrapper = async (
     params = {
       currentQuestionIndex: 0,
+      maxQuestionsAllowedToAttempt: questions.length
     }
   ) => {
     if (wrapper != undefined) wrapper.unmount();
 
-    createQuestionBuckets(questions.length)
+    createQuestionBuckets([questions.length])
 
     wrapper = mount(QuestionModal, {
       props: {
         questions,
         responses: clonedeep(responses),
         currentQuestionIndex: params.currentQuestionIndex,
+        maxQuestionsAllowedToAttempt: params.maxQuestionsAllowedToAttempt,
+        qsetIndexLimits: clonedeep(qsetIndexLimits)
       },
     });
   };
@@ -271,6 +279,7 @@ describe("QuestionModal.vue", () => {
       });
       it("sets question index to number of questions upon end test", async () => {
         wrapper.find('[data-test="endTestButton"]').trigger("click");
+        wrapper.find('[data-test="endTestButton"]').trigger("click"); // adding additional click to protect endTest button
         expect(wrapper.vm.localCurrentQuestionIndex).toBe(questions.length);
       });
       it("does not increment question index when save & next button is clicked for last question", () => {
@@ -516,7 +525,10 @@ describe("QuestionModal.vue", () => {
   describe("multi-choice questions", () => {
     const questionIndex = 1;
 
-    beforeEach(() => mountWrapper({ currentQuestionIndex: questionIndex }));
+    beforeEach(() => mountWrapper({
+      currentQuestionIndex: questionIndex,
+      maxQuestionsAllowedToAttempt: questions.length
+    }));
 
     it("selecting option makes answer valid", async () => {
       // initially answer should be invalid
@@ -548,7 +560,10 @@ describe("QuestionModal.vue", () => {
 
     describe("submits question", () => {
       beforeEach(async () => {
-        await mountWrapper({ currentQuestionIndex: questionIndex });
+        await mountWrapper({
+          currentQuestionIndex: questionIndex,
+          maxQuestionsAllowedToAttempt: questions.length
+        });
 
         // select options
         const body = wrapper.find('[data-test="body"]');
@@ -615,7 +630,10 @@ describe("QuestionModal.vue", () => {
   describe("subjective questions", () => {
     const questionIndex = 2;
 
-    beforeEach(() => mountWrapper({ currentQuestionIndex: questionIndex }));
+    beforeEach(() => mountWrapper({
+      currentQuestionIndex: questionIndex,
+      maxQuestionsAllowedToAttempt: questions.length
+    }));
 
     it("entering answer makes answer valid", async () => {
       // initially answer should be invalid
@@ -713,7 +731,10 @@ describe("QuestionModal.vue", () => {
   describe("numerical questions", () => {
     const questionIndex = 4;
 
-    beforeEach(() => mountWrapper({ currentQuestionIndex: questionIndex }));
+    beforeEach(() => mountWrapper({
+      currentQuestionIndex: questionIndex,
+      maxQuestionsAllowedToAttempt: questions.length
+    }));
 
     it("entering answer makes answer valid", async () => {
       // initially answer should be invalid

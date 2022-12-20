@@ -21,4 +21,8 @@ module.exports = {
     },
   },
   plugins: [],
+  // disabling preflight plugin because one type of default causes problems in the cms question text html code
+  corePlugins: {
+    preflight: false,
+  },
 };
