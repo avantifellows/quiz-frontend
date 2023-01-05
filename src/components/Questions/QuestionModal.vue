@@ -186,10 +186,12 @@ export default defineComponent({
         state.localCurrentQuestionIndex = newValue.valueOf()
         if (!props.hasQuizEnded && optionalLimitReached.value && currentQuestionResponseAnswer.value == null) {
           state.toast.warning(
-            `You cannot attempt this question since you have already answered ${props.maxQuestionsAllowedToAttempt} questions in current section (Q.${props.qsetIndexLimits.low + 1} - Q.${props.qsetIndexLimits.high})`,
+            `You have already attempted maximum allowed (${props.maxQuestionsAllowedToAttempt}) questions in current section (Q.${props.qsetIndexLimits.low + 1} - Q.${props.qsetIndexLimits.high}).
+To attempt this question, unselect an answer to another question in this section.
+            `,
             {
               position: POSITION.TOP_CENTER,
-              timeout: 3000,
+              timeout: 6000,
               draggablePercent: 0.4
             }
           )

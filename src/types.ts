@@ -205,8 +205,9 @@ export interface paletteItemState {
 }
 
 export interface questionSetPalette {
-  title: string | null,
-  paletteItems: paletteItemState[]
+  title: string | null;
+  paletteItems: paletteItemState[];
+  instructionText: string;
 }
 
 export interface OrganizationAPIResponse {

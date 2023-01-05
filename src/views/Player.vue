@@ -491,9 +491,16 @@ export default defineComponent({
               value: qstate
             })
           }
+          let paletteInstructionText: string = "";
+          if (state.questionSets[index].has_optional_questions) {
+            paletteInstructionText = `You may attempt only up to ${state.questionSets[index].max_questions_allowed_to_attempt} questions in this section.`
+          } else {
+            paletteInstructionText = `You may attempt all (${state.questionSets[index].max_questions_allowed_to_attempt}) questions in this section.`
+          }
           qsetStates.push({
             title: state.questionSets[index].title,
-            paletteItems: states
+            paletteItems: states,
+            instructionText: paletteInstructionText
           })
         }
       } else {
@@ -515,9 +522,16 @@ export default defineComponent({
               value: qstate
             })
           }
+          let paletteInstructionText: string = "";
+          if (state.questionSets[index].has_optional_questions) {
+            paletteInstructionText = `You may attempt only up to ${state.questionSets[index].max_questions_allowed_to_attempt} questions in this section.`
+          } else {
+            paletteInstructionText = `You may attempt all (${state.questionSets[index].max_questions_allowed_to_attempt}) questions in this section.`
+          }
           qsetStates.push({
             title: state.questionSets[index].title,
-            paletteItems: states
+            paletteItems: states,
+            instructionText: paletteInstructionText
           })
         }
       }
