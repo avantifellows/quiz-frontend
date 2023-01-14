@@ -492,10 +492,10 @@ export default defineComponent({
             })
           }
           let paletteInstructionText: string = "";
-          if (state.questionSets[index].has_optional_questions) {
+          if (state.questionSets[index].max_questions_allowed_to_attempt < state.questionSets[index].questions.length) {
             paletteInstructionText = `You may attempt only up to ${state.questionSets[index].max_questions_allowed_to_attempt} questions in this section.`
           } else {
-            paletteInstructionText = `You may attempt all (${state.questionSets[index].max_questions_allowed_to_attempt}) questions in this section.`
+            paletteInstructionText = `You may attempt all questions in this section.`
           }
           qsetStates.push({
             title: state.questionSets[index].title,
@@ -523,10 +523,10 @@ export default defineComponent({
             })
           }
           let paletteInstructionText: string = "";
-          if (state.questionSets[index].has_optional_questions) {
+          if (state.questionSets[index].max_questions_allowed_to_attempt < state.questionSets[index].questions.length) {
             paletteInstructionText = `You may attempt only up to ${state.questionSets[index].max_questions_allowed_to_attempt} questions in this section.`
           } else {
-            paletteInstructionText = `You may attempt all (${state.questionSets[index].max_questions_allowed_to_attempt}) questions in this section.`
+            paletteInstructionText = `You may attempt all questions in this section.`
           }
           qsetStates.push({
             title: state.questionSets[index].title,

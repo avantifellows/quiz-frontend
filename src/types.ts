@@ -137,7 +137,6 @@ export interface Question {
 export interface QuestionSet {
   _id: string;
   questions: Question[];
-  has_optional_questions: boolean;
   max_questions_allowed_to_attempt: number;
   title: string | null;
 }
