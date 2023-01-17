@@ -235,7 +235,7 @@ describe("QuestionModal.vue", () => {
   ) => {
     if (wrapper != undefined) wrapper.unmount();
 
-    createQuestionBuckets([questions.length])
+    createQuestionBuckets([questions.length]);
 
     wrapper = mount(QuestionModal, {
       props: {

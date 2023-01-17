@@ -19,15 +19,15 @@
 
     <div
       v-for="(itemSetState, index) in questionSetStates" :key="index" class="space-y-2">
-        <p :class="titleTextClass">{{ itemSetState.title }}</p>
-        <p :class="instructionTextClass">{{ itemSetState.instructionText }}</p>
+        <p :class="titleTextClass" :data-test="`paletteTitle-${index}`">{{ itemSetState.title }}</p>
+        <p :class="instructionTextClass" :data-test="`paletteInstruction-${index}`">{{ itemSetState.instructionText }}</p>
         <div class="grid grid-cols-5 bp-500:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 mt-4 space-y-4">
           <PaletteItem
             v-for="(questionItemState, qindex) in itemSetState.paletteItems"
             class="hover:cursor-pointer"
             :class="{ 'mt-4': qindex == 0 }"
             :key="qindex"
-            :index="qindex"
+            :index="questionItemState.index"
             :hasQuizEnded="hasQuizEnded"
             :state="questionItemState.value"
             :isHighlighted="currentQuestionIndex == questionItemState.index"

@@ -22,7 +22,7 @@ describe("QuestionPalette.vue", () => {
 
   describe("Palette Item", () => {
     beforeEach(async () => {
-      const questionStates = [
+      const questionStates0 = [
         {
           index: 0,
           value: "success",
@@ -36,9 +36,35 @@ describe("QuestionPalette.vue", () => {
           value: "neutral",
         },
       ];
+      const questionStates1 = [
+        {
+          index: 3,
+          value: "success",
+        },
+        {
+          index: 4,
+          value: "error",
+        },
+        {
+          index: 5,
+          value: "neutral",
+        },
+      ];
+      const questionSetStates = [
+        {
+          title: "Question Set 0",
+          paletteItems: questionStates0,
+          instructionText: "You may attempt all questions",
+        },
+        {
+          title: "Question Set 1",
+          paletteItems: questionStates1,
+          instructionText: "You may attempt all questions",
+        },
+      ];
       const currentQuestionIndex = 1;
       await wrapper.setProps({
-        questionStates,
+        questionSetStates,
         currentQuestionIndex,
       });
     });
@@ -62,8 +88,8 @@ describe("QuestionPalette.vue", () => {
         "bg-yellow-200"
       );
 
-      // palette item 3
-      paletteItem = wrapper.find('[data-test="paletteItem-2"]');
+      // palette item 6
+      paletteItem = wrapper.find('[data-test="paletteItem-5"]');
       expect(paletteItem.find('[data-test="success"]').exists()).toBeFalsy();
       expect(paletteItem.find('[data-test="error"]').exists()).toBeFalsy();
       expect(paletteItem.find('[data-test="neutral"]').exists()).toBeTruthy();
@@ -73,12 +99,36 @@ describe("QuestionPalette.vue", () => {
     });
 
     it("clicks to selected question upon clicking palette item", () => {
-      const questionIndex = 1;
+      const questionIndex = 4;
       wrapper
         .find(`[data-test="paletteItem-${questionIndex}"]`)
         .trigger("click");
       expect(wrapper.emitted()).toHaveProperty("navigate");
       expect(wrapper.emitted().navigate[0]).toEqual([questionIndex]);
+    });
+
+    it("displays question set title", () => {
+      let questionSetIndex = 0;
+      expect(wrapper
+        .find(`[data-test="paletteTitle-${questionSetIndex}"]`).text()
+      ).toBe("Question Set 0");
+
+      questionSetIndex = 1;
+      expect(wrapper
+        .find(`[data-test="paletteTitle-${questionSetIndex}"]`).text()
+      ).toBe("Question Set 1");
+    });
+
+    it("displays instruction text for each set", () => {
+      let questionSetIndex = 0;
+      expect(wrapper
+        .find(`[data-test="paletteInstruction-${questionSetIndex}"]`).text()
+      ).toBe("You may attempt all questions");
+
+      questionSetIndex = 1;
+      expect(wrapper
+        .find(`[data-test="paletteInstruction-${questionSetIndex}"]`).text()
+      ).toBe("You may attempt all questions");
     });
   });
 });
