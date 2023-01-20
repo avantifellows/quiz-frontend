@@ -18,21 +18,21 @@
     </div>
 
     <div
-      v-for="(itemSetState, index) in questionSetStates" :key="index" class="space-y-2">
-        <p :class="titleTextClass" :data-test="`paletteTitle-${index}`">{{ itemSetState.title }}</p>
-        <p :class="instructionTextClass" :data-test="`paletteInstruction-${index}`">{{ itemSetState.instructionText }}</p>
+      v-for="(questionSetState, index) in questionSetStates" :key="index" class="space-y-2">
+        <p :class="titleTextClass" :data-test="`paletteTitle-${index}`">{{ questionSetState.title }}</p>
+        <p :class="instructionTextClass" :data-test="`paletteInstruction-${index}`">{{ questionSetState.instructionText }}</p>
         <div class="grid grid-cols-5 bp-500:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 mt-4 space-y-4">
           <PaletteItem
-            v-for="(questionItemState, qindex) in itemSetState.paletteItems"
+            v-for="(questionState, qindex) in questionSetState.paletteItems"
             class="hover:cursor-pointer"
             :class="{ 'mt-4': qindex == 0 }"
             :key="qindex"
-            :index="questionItemState.index"
+            :index="questionState.index"
             :hasQuizEnded="hasQuizEnded"
-            :state="questionItemState.value"
-            :isHighlighted="currentQuestionIndex == questionItemState.index"
-            @click="navigateToQuestion(questionItemState.index)"
-            :data-test="`paletteItem-${questionItemState.index}`"
+            :state="questionState.value"
+            :isHighlighted="currentQuestionIndex == questionState.index"
+            @click="navigateToQuestion(questionState.index)"
+            :data-test="`paletteItem-${questionState.index}`"
           ></PaletteItem>
         </div>
 
@@ -46,7 +46,7 @@ import Error from "./Error.vue";
 import Neutral from "./Neutral.vue";
 import PaletteItem from "./Item.vue";
 import { questionSetPalette } from "../../../types";
-import { defineComponent, computed, reactive, PropType } from "vue";
+import { defineComponent, computed, PropType } from "vue";
 
 export default defineComponent({
   components: {
@@ -84,12 +84,12 @@ export default defineComponent({
       props.hasQuizEnded ? "Skipped" : "Not Visited"
     );
 
-    const state = reactive({
+    const state = {
       instructionTextClass:
         "text-lg md:text-xl lg:text-2xl mx-4 m-2 leading-tight whitespace-pre-wrap text-slate-500",
       titleTextClass:
         "text-lg md:text-xl lg:text-2xl mx-4 mt-10 m-2 font-bold leading-tight whitespace-pre-wrap",
-    })
+    }
 
     return {
       ...state,

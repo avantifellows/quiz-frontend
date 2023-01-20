@@ -142,8 +142,8 @@ export interface QuestionSet {
 }
 
 export interface QuestionSetIndexLimits {
-  low: number;
-  high: number;
+  low: number; // the lowest question number in a question set
+  high: number; // the highest question number in a question set
 }
 
 export interface QuizAPIResponse {

@@ -196,8 +196,8 @@ To attempt this question, unselect an answer to another question in this section
               draggablePercent: 0.4
             }
           )
+          context.emit("test-optional-warning-shown");
         }
-        // console.log(optionalLimitReached.value, currentQuestionResponseAnswer.value, "in watch props current")
       }
     )
 
@@ -266,7 +266,8 @@ To attempt this question, unselect an answer to another question in this section
         props.hasQuizEnded ||
         !isQuizAssessment.value
       ) {
-        // if already fetched, emit will have no effect
+        // if bucket corresponding to index has not been fetched yet, this emit will fetch it
+        // if bucket has already been fetched, emit will have no effect
         context.emit("fetch-question-bucket", state.localCurrentQuestionIndex + 1)
 
         state.localCurrentQuestionIndex += 1;
@@ -283,7 +284,8 @@ To attempt this question, unselect an answer to another question in this section
     function showPreviousQuestion() {
       state.reRenderKey = !state.reRenderKey
       resetState()
-      // if already fetched, emit will have no effect
+      // if bucket corresponding to index has not been fetched yet, this emit will fetch it
+      // if bucket has already been fetched, emit will have no effect
       context.emit("fetch-question-bucket", state.localCurrentQuestionIndex - 1)
       state.localCurrentQuestionIndex -= 1
     }
@@ -480,7 +482,8 @@ To attempt this question, unselect an answer to another question in this section
     "submit-question",
     "end-test",
     "fetch-question-bucket",
-    "test-warning-shown"
+    "test-warning-shown",
+    "test-optional-warning-shown"
   ],
 });
 </script>
