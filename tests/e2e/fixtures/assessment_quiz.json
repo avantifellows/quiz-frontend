@@ -3,6 +3,7 @@
   "question_sets": [
     {
       "_id": "62540adb0f748c8e206c1613",
+      "max_questions_allowed_to_attempt": 24,
       "questions": [
         {
           "_id": "62540adb0f748c8e206c1614",
