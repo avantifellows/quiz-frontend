@@ -216,6 +216,22 @@ describe("Player for Assessment quizzes", () => {
           cy.get('[data-test="questionPalette"]').should("exist");
         });
 
+        it("shows title of question set in palette", () => {
+          cy.get('[data-test="paletteTitle-0"').should("exist");
+          cy.get('[data-test="paletteTitle-0"').should(
+            "have.text",
+            "Question Set 0"
+          );
+        });
+
+        it("shows instruction of question set in palette -- attempt all questions", () => {
+          cy.get('[data-test="paletteInstruction-0"').should("exist");
+          cy.get('[data-test="paletteInstruction-0"').should(
+            "have.text",
+            "You may attempt all questions in this section."
+          );
+        });
+
         it("moves to question when clicking on item on question palette", () => {
           // index for the item corresponding to question 1 should be highlighted
           cy.get('[data-test="questionPalette"]')
@@ -275,7 +291,7 @@ describe("Player for Assessment quizzes", () => {
           cy.get('[data-test="paletteItem-3"]').trigger("click");
           cy.get('[data-test="question-header-text"]').should(
             "have.text",
-            " / Q.4  Subjective Numerical" // {Question Set Title / Q.{Question Number} {Question Type}}
+            "Question Set 0 / Q.4  Subjective Numerical" // {Question Set Title / Q.{Question Number} {Question Type}}
           );
         });
       });
