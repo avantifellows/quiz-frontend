@@ -6,7 +6,7 @@
     <QuestionPalette
       v-if="isPaletteVisible"
       :hasQuizEnded="hasQuizEnded"
-      :questionStates="questionStates"
+      :questionSetStates="questionSetStates"
       :currentQuestionIndex="currentQuestionIndex"
       class="absolute w-full h-full sm:w-2/3 lg:w-1/2 xl:w-1/3 z-10"
       @navigate="navigateToQuestion"
@@ -158,7 +158,7 @@ import {
   onUpdated
 } from "vue"
 import BaseIcon from "../UI/Icons/BaseIcon.vue"
-import { quizType, paletteItemState, questionType, questionTypeHeaderText } from "../../types"
+import { quizType, questionSetPalette, questionType, questionTypeHeaderText } from "../../types"
 import QuestionPalette from "./Palette/QuestionPalette.vue"
 
 const MAX_LENGTH_NUMERICAL_CHARACTERS: number = 10 // max length of characters in numerical answer textbox
@@ -226,6 +226,13 @@ export default defineComponent({
       type: Boolean,
       default: false
     },
+    /** whether the user has attempted all available questions
+     * based on question set's optional limit
+    */
+    optionalLimitReached: {
+      type: Boolean,
+      default: false
+    },
     /** whether the draft answer has been cleared but not yet submitted */
     isDraftAnswerCleared: {
       default: false,
@@ -236,13 +243,17 @@ export default defineComponent({
       type: Boolean,
       default: false
     },
-    questionStates: {
-      type: Array as PropType<paletteItemState[]>,
+    questionSetStates: {
+      type: Array as PropType<questionSetPalette[]>,
       default: () => []
     },
     currentQuestionIndex: {
       type: Number,
       default: 0
+    },
+    questionSetTitle: {
+      type: String,
+      default: ""
     }
   },
   setup(props, context) {
@@ -387,7 +398,7 @@ export default defineComponent({
     }
 
     const questionHeaderText = computed(() => {
-      return `Q.${props.currentQuestionIndex + 1}  ${questionTypeHeaderMapping.get(props.questionType)}`
+      return `${props.questionSetTitle} / Q.${props.currentQuestionIndex + 1}  ${questionTypeHeaderMapping.get(props.questionType)}`
     })
 
     // styling class for the question image and loading spinner containers
@@ -505,6 +516,7 @@ export default defineComponent({
     const isAnswerDisabled = computed(
       () =>
         (props.isAnswerSubmitted && !isQuizAssessment.value) ||
+        (props.optionalLimitReached && !props.isAnswerSubmitted) ||
         props.hasQuizEnded
     )
     // input mode refers to keypad being displayed in mobile browsers

@@ -18,20 +18,24 @@
     </div>
 
     <div
-      class="grid grid-cols-5 bp-500:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 mt-4 space-y-4"
-    >
-      <PaletteItem
-        v-for="(itemState, index) in questionStates"
-        class="hover:cursor-pointer"
-        :class="{ 'mt-4': index == 0 }"
-        :key="index"
-        :index="index"
-        :hasQuizEnded="hasQuizEnded"
-        :state="itemState.value"
-        :isHighlighted="currentQuestionIndex == itemState.index"
-        @click="navigateToQuestion(itemState.index)"
-        :data-test="`paletteItem-${itemState.index}`"
-      ></PaletteItem>
+      v-for="(questionSetState, index) in questionSetStates" :key="index" class="space-y-2">
+        <p :class="titleTextClass" :data-test="`paletteTitle-${index}`">{{ questionSetState.title }}</p>
+        <p :class="instructionTextClass" :data-test="`paletteInstruction-${index}`">{{ questionSetState.instructionText }}</p>
+        <div class="grid grid-cols-5 bp-500:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 mt-4 space-y-4">
+          <PaletteItem
+            v-for="(questionState, qindex) in questionSetState.paletteItems"
+            class="hover:cursor-pointer"
+            :class="{ 'mt-4': qindex == 0 }"
+            :key="qindex"
+            :index="questionState.index"
+            :hasQuizEnded="hasQuizEnded"
+            :state="questionState.value"
+            :isHighlighted="currentQuestionIndex == questionState.index"
+            @click="navigateToQuestion(questionState.index)"
+            :data-test="`paletteItem-${questionState.index}`"
+          ></PaletteItem>
+        </div>
+
     </div>
   </div>
 </template>
@@ -41,7 +45,7 @@ import Success from "./Success.vue";
 import Error from "./Error.vue";
 import Neutral from "./Neutral.vue";
 import PaletteItem from "./Item.vue";
-import { paletteItemState } from "../../../types";
+import { questionSetPalette } from "../../../types";
 import { defineComponent, computed, PropType } from "vue";
 
 export default defineComponent({
@@ -56,8 +60,8 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
-    questionStates: {
-      type: Array as PropType<paletteItemState[]>,
+    questionSetStates: {
+      type: Array as PropType<questionSetPalette[]>,
       default: () => [],
     },
     currentQuestionIndex: {
@@ -80,7 +84,15 @@ export default defineComponent({
       props.hasQuizEnded ? "Skipped" : "Not Visited"
     );
 
+    const state = {
+      instructionTextClass:
+        "text-lg md:text-xl lg:text-2xl mx-4 m-2 leading-tight whitespace-pre-wrap text-slate-500",
+      titleTextClass:
+        "text-lg md:text-xl lg:text-2xl mx-4 mt-10 m-2 font-bold leading-tight whitespace-pre-wrap",
+    }
+
     return {
+      ...state,
       navigateToQuestion,
       legendSuccessText,
       legendErrorText,

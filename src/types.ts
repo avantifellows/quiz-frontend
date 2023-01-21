@@ -1,4 +1,5 @@
 // contains all the custom types that we want to use
+
 type language = "en" | "hi";
 export type quizType = "assessment" | "homework";
 export type quizTitleType = string | null;
@@ -133,9 +134,16 @@ export interface Question {
   question_set_id: string
 }
 
-interface QuestionSet {
+export interface QuestionSet {
   _id: string;
   questions: Question[];
+  max_questions_allowed_to_attempt: number;
+  title: string | null;
+}
+
+export interface QuestionSetIndexLimits {
+  low: number; // the lowest question number in a question set
+  high: number; // the highest question number in a question set
 }
 
 export interface QuizAPIResponse {
@@ -193,6 +201,12 @@ export type questionState = "success" | "error" | "neutral";
 export interface paletteItemState {
   index: number; // index of the corresponding question in the list of questions
   value: questionState;
+}
+
+export interface questionSetPalette {
+  title: string | null;
+  paletteItems: paletteItemState[];
+  instructionText: string;
 }
 
 export interface OrganizationAPIResponse {

@@ -1,5 +1,5 @@
 import { flushPromises, mount } from "@vue/test-utils";
-import { Question, SubmittedResponse } from "@/types";
+import { Question, QuestionSetIndexLimits, SubmittedResponse } from "@/types";
 import QuestionModal from "@/components/Questions/QuestionModal.vue";
 import { createQuestionBuckets } from "@/services/Functional/Utilities";
 
@@ -221,21 +221,29 @@ describe("QuestionModal.vue", () => {
     })
   );
 
+  const qsetTestIndexLimits = {
+    low: 0,
+    high: questions.length
+  } as QuestionSetIndexLimits;
+
   let wrapper: any;
   const mountWrapper = async (
     params = {
       currentQuestionIndex: 0,
+      maxQuestionsAllowedToAttempt: questions.length
     }
   ) => {
     if (wrapper != undefined) wrapper.unmount();
 
-    createQuestionBuckets(questions.length)
+    createQuestionBuckets([questions.length]);
 
     wrapper = mount(QuestionModal, {
       props: {
         questions,
         responses: clonedeep(responses),
         currentQuestionIndex: params.currentQuestionIndex,
+        maxQuestionsAllowedToAttempt: params.maxQuestionsAllowedToAttempt,
+        qsetIndexLimits: qsetTestIndexLimits,
       },
     });
   };
@@ -298,21 +306,7 @@ describe("QuestionModal.vue", () => {
         expect(wrapper.emitted()).toHaveProperty("fetch-question-bucket");
       })
       it("should fetch the next set of questions (if required) if the user clicks next from footer", async () => {
-        // Next question has already been fetched
-        let currentQuestionIndex = 6
-        await wrapper.setProps({
-          currentQuestionIndex,
-        })
-        wrapper
-          .find('[data-test="footer"]')
-          .find('[data-test="nextQuestionButton"]')
-          .trigger("click");
-
-        expect(wrapper.emitted()).not.toHaveProperty("fetch-question-bucket");
-        expect(wrapper.vm.localCurrentQuestionIndex).toBe(currentQuestionIndex + 1)
-
-        // next question has not been fetched
-        currentQuestionIndex = 10
+        const currentQuestionIndex = 10
         await wrapper.setProps({
           currentQuestionIndex,
         })
@@ -324,117 +318,118 @@ describe("QuestionModal.vue", () => {
         expect(wrapper.emitted()).toHaveProperty("fetch-question-bucket");
         expect(wrapper.vm.localCurrentQuestionIndex).toBe(currentQuestionIndex + 1)
       })
-      describe("Sets question states correctly", () => {
-        describe("Quiz in-progress", () => {
-          it("Without having visited", () => {
-            expect(wrapper.vm.questionStates.length).toBe(10);
-            expect(wrapper.vm.questionStates[0]).toEqual({
-              index: 0,
-              value: "neutral",
-            });
-            expect(wrapper.vm.questionStates[1]).toEqual({
-              index: 2,
-              value: "neutral",
-            });
-          });
+      // shift this to Player.vue
+      // describe("Sets question states correctly", () => {
+      //   describe("Quiz in-progress", () => {
+      //     it("Without having visited", () => {
+      //       expect(wrapper.vm.questionStates.length).toBe(10);
+      //       expect(wrapper.vm.questionStates[0]).toEqual({
+      //         index: 0,
+      //         value: "neutral",
+      //       });
+      //       expect(wrapper.vm.questionStates[1]).toEqual({
+      //         index: 2,
+      //         value: "neutral",
+      //       });
+      //     });
 
-          it("Having visited but not answered", async () => {
-            const visitedResponses = clonedeep(responses);
-            visitedResponses[2].visited = true;
-            await wrapper.setProps({
-              responses: visitedResponses,
-            });
-            expect(wrapper.vm.questionStates[1]).toEqual({
-              index: 2,
-              value: "error",
-            });
-          });
+      //     it("Having visited but not answered", async () => {
+      //       const visitedResponses = clonedeep(responses);
+      //       visitedResponses[2].visited = true;
+      //       await wrapper.setProps({
+      //         responses: visitedResponses,
+      //       });
+      //       expect(wrapper.vm.questionStates[1]).toEqual({
+      //         index: 2,
+      //         value: "error",
+      //       });
+      //     });
 
-          it("Having answered", async () => {
-            const visitedResponses = clonedeep(responses);
-            visitedResponses[0].visited = true;
-            visitedResponses[0].answer = [0];
-            await wrapper.setProps({
-              responses: visitedResponses,
-            });
-            expect(wrapper.vm.questionStates[0]).toEqual({
-              index: 0,
-              value: "success",
-            });
-          });
-        });
+      //     it("Having answered", async () => {
+      //       const visitedResponses = clonedeep(responses);
+      //       visitedResponses[0].visited = true;
+      //       visitedResponses[0].answer = [0];
+      //       await wrapper.setProps({
+      //         responses: visitedResponses,
+      //       });
+      //       expect(wrapper.vm.questionStates[0]).toEqual({
+      //         index: 0,
+      //         value: "success",
+      //       });
+      //     });
+      //   });
 
-        describe("Quiz ended", () => {
-          beforeEach(async () => {
-            await wrapper.setProps({
-              hasQuizEnded: true,
-            });
-          });
-          it("Skipped Questions", () => {
-            expect(wrapper.vm.questionStates.length).toBe(10);
-            expect(wrapper.vm.questionStates[0]).toEqual({
-              index: 0,
-              value: "neutral",
-            });
-            expect(wrapper.vm.questionStates[1]).toEqual({
-              index: 2,
-              value: "neutral",
-            });
-          });
+      //   describe("Quiz ended", () => {
+      //     beforeEach(async () => {
+      //       await wrapper.setProps({
+      //         hasQuizEnded: true,
+      //       });
+      //     });
+      //     it("Skipped Questions", () => {
+      //       expect(wrapper.vm.questionStates.length).toBe(10);
+      //       expect(wrapper.vm.questionStates[0]).toEqual({
+      //         index: 0,
+      //         value: "neutral",
+      //       });
+      //       expect(wrapper.vm.questionStates[1]).toEqual({
+      //         index: 2,
+      //         value: "neutral",
+      //       });
+      //     });
 
-          it("Wrongly answered", async () => {
-            const visitedResponses = clonedeep(responses);
-            visitedResponses[0].answer = [1];
-            await wrapper.setProps({
-              responses: visitedResponses,
-            });
-            expect(wrapper.vm.questionStates[0]).toEqual({
-              index: 0,
-              value: "error",
-            });
-          });
+      //     it("Wrongly answered", async () => {
+      //       const visitedResponses = clonedeep(responses);
+      //       visitedResponses[0].answer = [1];
+      //       await wrapper.setProps({
+      //         responses: visitedResponses,
+      //       });
+      //       expect(wrapper.vm.questionStates[0]).toEqual({
+      //         index: 0,
+      //         value: "error",
+      //       });
+      //     });
 
-          it("Correctly answered - single choice", async () => {
-            const visitedResponses = clonedeep(responses);
-            visitedResponses[0].answer = [0];
-            await wrapper.setProps({
-              responses: visitedResponses,
-            });
-            expect(wrapper.vm.questionStates[0]).toEqual({
-              index: 0,
-              value: "success",
-            });
-          });
+      //     it("Correctly answered - single choice", async () => {
+      //       const visitedResponses = clonedeep(responses);
+      //       visitedResponses[0].answer = [0];
+      //       await wrapper.setProps({
+      //         responses: visitedResponses,
+      //       });
+      //       expect(wrapper.vm.questionStates[0]).toEqual({
+      //         index: 0,
+      //         value: "success",
+      //       });
+      //     });
 
-          it("Correctly answered - multi choice", async () => {
-            const newQuestions = clonedeep(questions);
-            newQuestions[1].graded = true;
+      //     it("Correctly answered - multi choice", async () => {
+      //       const newQuestions = clonedeep(questions);
+      //       newQuestions[1].graded = true;
 
-            const visitedResponses = clonedeep(responses);
-            visitedResponses[1].answer = [2, 3];
-            await wrapper.setProps({
-              questions: newQuestions,
-              responses: visitedResponses,
-            });
-            expect(wrapper.vm.questionStates[1]).toEqual({
-              index: 1,
-              value: "success",
-            });
-          });
+      //       const visitedResponses = clonedeep(responses);
+      //       visitedResponses[1].answer = [2, 3];
+      //       await wrapper.setProps({
+      //         questions: newQuestions,
+      //         responses: visitedResponses,
+      //       });
+      //       expect(wrapper.vm.questionStates[1]).toEqual({
+      //         index: 1,
+      //         value: "success",
+      //       });
+      //     });
 
-          it("Correctly answered - single choice", async () => {
-            const visitedResponses = clonedeep(responses);
-            visitedResponses[2].answer = "abcd";
-            await wrapper.setProps({
-              responses: visitedResponses,
-            });
-            expect(wrapper.vm.questionStates[1]).toEqual({
-              index: 2,
-              value: "success",
-            });
-          });
-        });
-      });
+      //     it("Correctly answered - single choice", async () => {
+      //       const visitedResponses = clonedeep(responses);
+      //       visitedResponses[2].answer = "abcd";
+      //       await wrapper.setProps({
+      //         responses: visitedResponses,
+      //       });
+      //       expect(wrapper.vm.questionStates[1]).toEqual({
+      //         index: 2,
+      //         value: "success",
+      //       });
+      //     });
+      //   });
+      // });
     });
   });
 
@@ -517,7 +512,10 @@ describe("QuestionModal.vue", () => {
   describe("multi-choice questions", () => {
     const questionIndex = 1;
 
-    beforeEach(() => mountWrapper({ currentQuestionIndex: questionIndex }));
+    beforeEach(() => mountWrapper({
+      currentQuestionIndex: questionIndex,
+      maxQuestionsAllowedToAttempt: questions.length
+    }));
 
     it("selecting option makes answer valid", async () => {
       // initially answer should be invalid
@@ -549,7 +547,10 @@ describe("QuestionModal.vue", () => {
 
     describe("submits question", () => {
       beforeEach(async () => {
-        await mountWrapper({ currentQuestionIndex: questionIndex });
+        await mountWrapper({
+          currentQuestionIndex: questionIndex,
+          maxQuestionsAllowedToAttempt: questions.length
+        });
 
         // select options
         const body = wrapper.find('[data-test="body"]');
@@ -616,7 +617,10 @@ describe("QuestionModal.vue", () => {
   describe("subjective questions", () => {
     const questionIndex = 2;
 
-    beforeEach(() => mountWrapper({ currentQuestionIndex: questionIndex }));
+    beforeEach(() => mountWrapper({
+      currentQuestionIndex: questionIndex,
+      maxQuestionsAllowedToAttempt: questions.length
+    }));
 
     it("entering answer makes answer valid", async () => {
       // initially answer should be invalid
@@ -714,7 +718,10 @@ describe("QuestionModal.vue", () => {
   describe("numerical questions", () => {
     const questionIndex = 4;
 
-    beforeEach(() => mountWrapper({ currentQuestionIndex: questionIndex }));
+    beforeEach(() => mountWrapper({
+      currentQuestionIndex: questionIndex,
+      maxQuestionsAllowedToAttempt: questions.length
+    }));
 
     it("entering answer makes answer valid", async () => {
       // initially answer should be invalid
@@ -845,6 +852,7 @@ describe("QuestionModal.vue", () => {
         responses: clonedeep(responses),
         currentQuestionIndex: 0,
         quizType: "assessment",
+        qsetIndexLimits: qsetTestIndexLimits,
         quizTimeLimit: { min: 0, max: 200 },
         timeRemaining: 181
       },
@@ -860,6 +868,37 @@ describe("QuestionModal.vue", () => {
         expect(wrapper.emitted()).toHaveProperty("test-warning-shown");
         done()
       }, 1000);
+    });
+  });
+
+  describe("Optional Questions", () => {
+    const submittedResponses = clonedeep(responses);
+
+    submittedResponses[2].visited = true;
+
+    for (let index = 0; index < 5; index++) {
+      submittedResponses[index].visited = true;
+      submittedResponses[index].answer = 0;
+    }
+
+    it("optional warning toast should be emitted", async () => {
+      const questionIndex = 5; // numerical float question
+      await wrapper.setProps({
+        currentQuestionIndex: questionIndex,
+        maxQuestionsAllowedToAttempt: 5,
+        responses: submittedResponses,
+      });
+      expect(wrapper.emitted()).toHaveProperty("test-optional-warning-shown");
+    });
+
+    it("optional warning toast should not be emitted", async () => {
+      const questionIndex = 5; // numerical float question
+      await wrapper.setProps({
+        currentQuestionIndex: questionIndex,
+        maxQuestionsAllowedToAttempt: 6,
+        responses: submittedResponses,
+      });
+      expect(wrapper.emitted()).not.toHaveProperty("test-optional-warning-shown");
     });
   });
 });

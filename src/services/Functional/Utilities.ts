@@ -1,5 +1,5 @@
 import store from "../../store/index";
-import { Question, submittedAnswer, answerEvaluation, QuestionBucketingMap } from "../../types";
+import { Question, submittedAnswer, answerEvaluation, QuestionBucketingMap, QuestionBucket } from "../../types";
 const isEqual = require("deep-eql");
 
 /**
@@ -129,45 +129,51 @@ export function isQuestionAnswerCorrect(
 
 /**
  * If all the details of a question has been fetched or not
+ * @param {number} qsetIndex - the index of question set (map to consider)
  * @param {number} questionIndex - the index of a question in the question set
- * @returns {boolean} - whether the question details has been fetched or not
+ * @returns {boolean} - whether the question details have been fetched or not
  */
-export function isQuestionFetched(questionIndex: number) {
+export function isQuestionFetched(qsetIndex: number, questionIndex: number) {
   const bucketToCheck = Math.floor(questionIndex / store.state.bucketSize)
   if (
-    'questionBucketingMap' in store.state &&
-    store.state.questionBucketingMap[bucketToCheck] != null &&
-    'isFetched' in store.state.questionBucketingMap[bucketToCheck]
-  ) return store.state.questionBucketingMap[bucketToCheck].isFetched
+    'questionBucketingMaps' in store.state &&
+    store.state.questionBucketingMaps[qsetIndex] != null &&
+    store.state.questionBucketingMaps[qsetIndex][bucketToCheck] != null &&
+    'isFetched' in store.state.questionBucketingMaps[qsetIndex][bucketToCheck]
+  ) return store.state.questionBucketingMaps[qsetIndex][bucketToCheck].isFetched
   return true
 }
 
 /**
- * Dividing all the questions into buckets of a specific size.
- * A map is created which tracks the starting and ending indices of buckets in the question set array.
+ * Dividing all the questions in a set into buckets of a specific size.
+ * A map is created which tracks the starting and ending indices of buckets in each question set array.
  * That map also tracks if a bucket's question's details have been fetched or not.
- * This map is stored in the vue store.
- * @param {number} totalQuestions - total number of questions in a question set
+ * This map for each set is stored in the vue store.
+ * @param {Array<number>} totalQuestionsInEachSet - array of total number of questions in each question set
  */
-export function createQuestionBuckets(totalQuestions: number) {
-  const questionBucketingMap = {} as QuestionBucketingMap
+export function createQuestionBuckets(totalQuestionsInEachSet: Array<number>) {
+  const questionBucketingMaps = [] as Array<QuestionBucketingMap>
 
   // calculate total buckets possible
-  const totalBucketsPossible = Math.ceil(totalQuestions / store.state.bucketSize)
+  for (const [mapIndex, totalQuestions] of totalQuestionsInEachSet.entries()) {
+    const totalBucketsPossible = Math.ceil(totalQuestions / store.state.bucketSize)
 
-  // create the bucket map
-  for (let bucketIndex = 0; bucketIndex < totalBucketsPossible; bucketIndex++) {
-    questionBucketingMap[bucketIndex] = {
-      start: (bucketIndex * store.state.bucketSize),
-      end: (
-        bucketIndex == totalBucketsPossible - 1 &&
+    // create the bucket map
+    const questionBucketingMap = {} as QuestionBucketingMap
+    for (let bucketIndex = 0; bucketIndex < totalBucketsPossible; bucketIndex++) {
+      questionBucketingMap[bucketIndex] = {
+        start: (bucketIndex * store.state.bucketSize),
+        end: (
+          bucketIndex == totalBucketsPossible - 1 &&
         totalQuestions % store.state.bucketSize != 0
-      )
-        ? totalQuestions - 1
-        : (bucketIndex * store.state.bucketSize) + (store.state.bucketSize - 1),
-      isFetched: !bucketIndex,
+        )
+          ? totalQuestions - 1
+          : (bucketIndex * store.state.bucketSize) + (store.state.bucketSize - 1),
+        isFetched: !bucketIndex,
+      }
     }
+    questionBucketingMaps.push(questionBucketingMap);
   }
 
-  store.dispatch("setQuestionBucketMap", questionBucketingMap)
+  store.dispatch("setQuestionBucketMap", questionBucketingMaps)
 }

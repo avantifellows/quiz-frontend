@@ -4,7 +4,7 @@ import { QuestionBucketingMap } from "../types"
 export default createStore({
   state: {
     isSpinnerShown: false,
-    questionBucketingMap: {} as QuestionBucketingMap,
+    questionBucketingMaps: [] as Array<QuestionBucketingMap>,
     bucketSize: 10,
   },
   mutations: {
@@ -14,14 +14,15 @@ export default createStore({
     hideSpinner(state) {
       state.isSpinnerShown = false;
     },
-    setQuestionBucketMap(state, value: QuestionBucketingMap) {
-      state.questionBucketingMap = value;
+    setQuestionBucketMap(state, value: Array<QuestionBucketingMap>) {
+      state.questionBucketingMaps = value;
     },
     updateBucketFetchedStatus(state, details: {
-      key: number,
+      qsetIndex: number,
+      bucketIndex: number,
       fetchedStatus: boolean
     }) {
-      state.questionBucketingMap[details.key].isFetched = details.fetchedStatus
+      state.questionBucketingMaps[details.qsetIndex][details.bucketIndex].isFetched = details.fetchedStatus
     }
   },
   actions: {
@@ -31,11 +32,12 @@ export default createStore({
     hideSpinner({ commit }) {
       commit("hideSpinner");
     },
-    setQuestionBucketMap({ commit }, value: QuestionBucketingMap) {
+    setQuestionBucketMap({ commit }, value: Array<QuestionBucketingMap>) {
       commit("setQuestionBucketMap", value)
     },
     updateBucketFetchedStatus({ commit }, details: {
-      key: number,
+      qsetIndex: number,
+      bucketIndex: number,
       fetchedStatus: boolean
     }) {
       commit("updateBucketFetchedStatus", details)

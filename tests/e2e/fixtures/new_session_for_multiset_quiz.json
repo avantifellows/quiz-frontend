@@ -1,0 +1,153 @@
+{
+    "_id": "62625e0f773b5fb92fde890b",
+    "user_id": "1",
+    "quiz_id": "abcd",
+    "has_quiz_ended": false,
+    "is_first": true,
+    "session_answers": [
+      {
+          "_id": "62a37b95c54e0efc5c53d4f6",
+          "question_id": "62540adb0f748c8e206c1614",
+          "answer": null,
+          "visited": false
+      },
+      {
+          "_id": "62a37b95c54e0efc5c53d4f7",
+          "question_id": "62540adb0f748c8e206c1615",
+          "answer": null,
+          "visited": false
+      },
+      {
+          "_id": "62a37b95c54e0efc5c53d4f8",
+          "question_id": "62540adb0f748c8e206c1616",
+          "answer": null,
+          "visited": false
+      },
+      {
+          "_id": "62a37b95c54e0efc5c53d4f9",
+          "question_id": "62540adb0f748c8e206c1617",
+          "answer": null,
+          "visited": false
+      },
+      {
+          "_id": "62a37b95c54e0efc5c53d4fa",
+          "question_id": "62540adb0f748c8e206c1618",
+          "answer": null,
+          "visited": false
+      },
+      {
+          "_id": "62a37b95c54e0efc5c53d4fb",
+          "question_id": "62540adb0f748c8e206c1619",
+          "answer": null,
+          "visited": false
+      },
+      {
+          "_id": "62a37b95c54e0efc5c53d4fc",
+          "question_id": "62540adb0f748c8e206c1620",
+          "answer": null,
+          "visited": false
+      },
+      {
+          "_id": "62a37b95c54e0efc5c53d4fd",
+          "question_id": "62540adb0f748c8e206c1621",
+          "answer": null,
+          "visited": false
+      },
+      {
+          "_id": "62a37b95c54e0efc5c53d4fe",
+          "question_id": "62540adb0f748c8e206c1622",
+          "answer": null,
+          "visited": false
+      },
+      {
+          "_id": "62a37b95c54e0efc5c53d4ff",
+          "question_id": "62540adb0f748c8e206c1623",
+          "answer": null,
+          "visited": false
+      },
+      {
+          "_id": "62a37b95c54e0efc5c53d500",
+          "question_id": "62540adb0f748c8e206c1624",
+          "answer": null,
+          "visited": false
+      },
+      {
+          "_id": "62a37b95c54e0efc5c53d501",
+          "question_id": "62540adb0f748c8e206c1625",
+          "answer": null,
+          "visited": false
+      },
+      {
+          "_id": "62a37b95c54e0efc5c53d502",
+          "question_id": "62540adb0f748c8e206c1626",
+          "answer": [0],
+          "visited": true
+      },
+      {
+          "_id": "62a37b95c54e0efc5c53d503",
+          "question_id": "62540adb0f748c8e206c1614f",
+          "answer": [0],
+          "visited": true
+      },
+      {
+          "_id": "62a37b95c54e0efc5c53d504",
+          "question_id": "62540adb0f748c8e206c1615f",
+          "answer": [0],
+          "visited": true
+      },
+      {
+          "_id": "62a37b95c54e0efc5c53d505",
+          "question_id": "62540adb0f748c8e206c1616f",
+          "answer": null,
+          "visited": false
+      },
+      {
+          "_id": "62a37b95c54e0efc5c53d506",
+          "question_id": "62540adb0f748c8e206c1617f",
+          "answer": null,
+          "visited": false
+      },
+      {
+          "_id": "62a37b95c54e0efc5c53d507",
+          "question_id": "62540adb0f748c8e206c1618f",
+          "answer": null,
+          "visited": false
+      },
+      {
+          "_id": "62a37b95c54e0efc5c53d508",
+          "question_id": "62540adb0f748c8e206c1618fg",
+          "answer": null,
+          "visited": false
+      },
+      {
+          "_id": "62a37b95c54e0efc5c53d509",
+          "question_id": "62540adb0f748c8e206c1618fgh",
+          "answer": null,
+          "visited": false
+      },
+      {
+          "_id": "62a37b95c54e0efc5c53d50a",
+          "question_id": "62540adb0f748c8e206c1618fgi",
+          "answer": null,
+          "visited": false
+      },
+      {
+          "_id": "62a37b95c54e0efc5c53d50b",
+          "question_id": "62540adb0f748c8e206c1618fj",
+          "answer": null,
+          "visited": false
+      },
+      {
+          "_id": "62a37b95c54e0efc5c53d50c",
+          "question_id": "62540adb0f748c8e206c1618fk",
+          "answer": null,
+          "visited": false
+      },
+      {
+          "_id": "62a37b95c54e0efc5c53d50d",
+          "question_id": "62540adb0f748c8e206c1618fl",
+          "answer": null,
+          "visited": false
+      }
+    ]
+  }
