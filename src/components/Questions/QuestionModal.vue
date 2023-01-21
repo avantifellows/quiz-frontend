@@ -31,8 +31,10 @@
         :isDraftAnswerCleared="isDraftAnswerCleared"
         :quizType="quizType"
         :hasQuizEnded="hasQuizEnded"
+        :optionalLimitReached="optionalLimitReached"
+        :questionSetTitle="questionSetTitle"
         :currentQuestionIndex="currentQuestionIndex"
-        :questionStates="questionStates"
+        :questionSetStates="questionSetStates"
         @option-selected="questionOptionSelected"
         @subjective-answer-entered="subjectiveAnswerUpdated"
         @numerical-answer-entered="numericalAnswerUpdated"
@@ -72,17 +74,15 @@ import {
   watch
 } from "vue"
 import {
-  isScreenPortrait,
-  isQuestionAnswerCorrect,
-  isQuestionFetched,
+  isScreenPortrait
 } from "../../services/Functional/Utilities";
 import {
   Question,
   SubmittedResponse,
   DraftResponse,
   quizType,
-  paletteItemState,
-  questionState,
+  QuestionSetIndexLimits,
+  questionSetPalette,
   TimeLimit
 } from "../../types"
 import { useToast, POSITION } from "vue-toastification"
@@ -116,6 +116,26 @@ export default defineComponent({
       type: String as PropType<quizType>,
       default: "homework"
     },
+    numQuestions: {
+      type: Number,
+      default: 0
+    },
+    maxQuestionsAllowedToAttempt: {
+      type: Number,
+      default: 0
+    },
+    questionSetTitle: {
+      type: String,
+      default: ""
+    },
+    qsetIndexLimits: {
+      required: true,
+      type: Object as PropType<QuestionSetIndexLimits>
+    },
+    questionSetStates: {
+      type: Array as PropType<questionSetPalette[]>,
+      default: () => []
+    },
     quizTimeLimit: {
       type: Object as PropType<TimeLimit> || null,
       default: null
@@ -146,9 +166,9 @@ export default defineComponent({
     }
 
     function navigateToQuestion(questionIndex: number) {
-      if (!isQuestionFetched(questionIndex)) {
-        context.emit("fetch-question-bucket", questionIndex)
-      }
+      context.emit("fetch-question-bucket", questionIndex)
+      state.reRenderKey = !state.reRenderKey
+      resetState()
       state.localCurrentQuestionIndex = questionIndex;
       state.isPaletteVisible = false
     }
@@ -164,6 +184,20 @@ export default defineComponent({
       () => props.currentQuestionIndex,
       (newValue: Number) => {
         state.localCurrentQuestionIndex = newValue.valueOf()
+        if (!props.hasQuizEnded && optionalLimitReached.value && currentQuestionResponseAnswer.value == null) {
+          state.toast.warning(
+            `You have already attempted maximum allowed (${props.maxQuestionsAllowedToAttempt}) questions in current section (Q.${props.qsetIndexLimits.low + 1} - Q.${props.qsetIndexLimits.high}).
+
+To attempt this question, unselect an answer to another question in this section.
+            `,
+            {
+              position: POSITION.TOP_CENTER,
+              timeout: 7000,
+              draggablePercent: 0.4
+            }
+          )
+          context.emit("test-optional-warning-shown");
+        }
       }
     )
 
@@ -232,10 +266,9 @@ export default defineComponent({
         props.hasQuizEnded ||
         !isQuizAssessment.value
       ) {
-        // emit an event if the requested question needs to be fetched
-        if (!isQuestionFetched(state.localCurrentQuestionIndex + 1)) {
-          context.emit("fetch-question-bucket", state.localCurrentQuestionIndex + 1)
-        }
+        // if bucket corresponding to index has not been fetched yet, this emit will fetch it
+        // if bucket has already been fetched, emit will have no effect
+        context.emit("fetch-question-bucket", state.localCurrentQuestionIndex + 1)
 
         state.localCurrentQuestionIndex += 1;
       } else {
@@ -251,9 +284,9 @@ export default defineComponent({
     function showPreviousQuestion() {
       state.reRenderKey = !state.reRenderKey
       resetState()
-      if (!isQuestionFetched(state.localCurrentQuestionIndex - 1)) {
-        context.emit("fetch-question-bucket", state.localCurrentQuestionIndex - 1)
-      }
+      // if bucket corresponding to index has not been fetched yet, this emit will fetch it
+      // if bucket has already been fetched, emit will have no effect
+      context.emit("fetch-question-bucket", state.localCurrentQuestionIndex - 1)
       state.localCurrentQuestionIndex -= 1
     }
 
@@ -267,6 +300,7 @@ export default defineComponent({
           currentQuestionResponseAnswer.value
       }
       state.isDraftAnswerCleared = false
+      state.toast.clear() // if toast exists in current state, clear when you switch state
     }
 
     function numericalAnswerUpdated(answer: number | null) {
@@ -287,7 +321,7 @@ export default defineComponent({
           }
         }
         state.toast.success(
-            `You have answered ${attemptedQuestions} out of ${props.questions.length} questions. Please verify your responses and click End Test button again to make final submission.`,
+            `You have answered ${attemptedQuestions} out of ${props.numQuestions} questions. Please verify your responses and click End Test button again to make final submission.`,
             {
               position: POSITION.TOP_CENTER,
               timeout: 5000,
@@ -363,6 +397,10 @@ export default defineComponent({
     })
 
     const isAttemptValid = computed(() => {
+      if (optionalLimitReached.value && currentQuestionResponseAnswer.value == null) {
+        // this cannot be answered
+        return false
+      }
       const currentDraftResponse = state.draftResponses[
         props.currentQuestionIndex
       ] as DraftResponse
@@ -378,51 +416,14 @@ export default defineComponent({
 
     const isQuizAssessment = computed(() => props.quizType == "assessment")
 
-    const questionStates = computed(() => {
-      const states = [] as paletteItemState[]
-
-      if (props.hasQuizEnded) {
-        for (let index = 0; index < props.questions.length; index++) {
-          const questionAnswerEvaluation = isQuestionAnswerCorrect(
-            props.questions[index],
-            props.responses[index].answer
-          )
-          // we are not adding ungraded questions to the palette
-          if (!questionAnswerEvaluation.valid) continue
-          let state: questionState
-          if (
-            !questionAnswerEvaluation.answered ||
-            questionAnswerEvaluation.isCorrect == null
-          ) {
-            state = "neutral"
-          } else {
-            questionAnswerEvaluation.isCorrect
-              ? (state = "success")
-              : (state = "error")
-          }
-          states.push({
-            index,
-            value: state
-          })
-        }
-      } else {
-        for (let index = 0; index < props.questions.length; index++) {
-          if (!props.questions[index].graded) continue
-          let state: questionState
-          if (!props.responses[index].visited) {
-            state = "neutral"
-          } else {
-            if (props.responses[index].answer != null) state = "success"
-            else state = "error"
-          }
-          states.push({
-            index,
-            value: state
-          })
-        }
+    const optionalLimitReached = computed(() => {
+      let numSubmittedResponses = 0
+      for (let idx = props.qsetIndexLimits.low; idx < props.qsetIndexLimits.high; idx++) {
+        const response = props.responses[idx]
+        if (response.answer != null) numSubmittedResponses += 1
       }
-
-      return states
+      if (numSubmittedResponses == props.maxQuestionsAllowedToAttempt) return true
+      return false
     })
 
     // instantiating draftResponses here
@@ -469,8 +470,8 @@ export default defineComponent({
       isAnswerSubmitted,
       isAttemptValid,
       isQuizAssessment,
+      optionalLimitReached,
       numericalAnswerUpdated,
-      questionStates,
       timeLimitWarningThreshold,
       displayTimeLimitWarning
     }
@@ -481,7 +482,8 @@ export default defineComponent({
     "submit-question",
     "end-test",
     "fetch-question-bucket",
-    "test-warning-shown"
+    "test-warning-shown",
+    "test-optional-warning-shown"
   ],
 });
 </script>
