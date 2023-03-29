@@ -21,8 +21,34 @@
         data-test="splash"
       ></Splash>
 
+      <OmrModal
+        :questions="questions"
+        class="absolute z-10"
+        :class="{
+          hidden: !isOmrMode,
+        }"
+        :quizType="metadata.quiz_type"
+        :hasQuizEnded="hasQuizEnded"
+        :isOmrMode="isOmrMode"
+        :numQuestions="maxQuestionsAllowedToAttempt"
+        :maxQuestionsAllowedToAttempt="currentMaxQuestionsAllowedToAttempt"
+        :questionSetStates="questionSetStates"
+        :qsetIndexLimits="currentQsetIndexLimits"
+        :quizTimeLimit="quizTimeLimit"
+        :timeRemaining="timeRemaining"
+        v-model:currentQuestionIndex="currentQuestionIndex"
+        v-model:responses="responses"
+        @submit-omr-question="submitOmrQuestion"
+        @end-test="endTest"
+        data-test="omr-modal"
+        v-if="isQuestionShown"
+      ></OmrModal>
+
       <QuestionModal
         :questions="questions"
+        :class="{
+          hidden: isOmrMode,
+        }"
         :quizType="metadata.quiz_type"
         :hasQuizEnded="hasQuizEnded"
         :numQuestions="maxQuestionsAllowedToAttempt"
@@ -64,6 +90,7 @@
 
 <script lang="ts">
 import QuestionModal from "../components/Questions/QuestionModal.vue";
+import OmrModal from "../components/Omr/OmrModal.vue"
 import Splash from "../components/Splash.vue";
 import Scorecard from "../components/Scorecard.vue";
 import { resetConfetti, isQuestionAnswerCorrect, isQuestionFetched, createQuestionBuckets } from "../services/Functional/Utilities";
@@ -100,6 +127,7 @@ export default defineComponent({
     QuestionModal,
     Scorecard,
     BaseIcon,
+    OmrModal
   },
   props: {
     quizId: {
@@ -155,6 +183,9 @@ export default defineComponent({
     });
 
     const isQuizAssessment = computed(() => state.metadata.quiz_type == "assessment");
+
+    // const isOmrMode = computed(() => state.metadata.quiz_type == "assessment" && state.metadata.omr_mode == true);
+    const isOmrMode = true;
 
     const isSplashShown = computed(() => state.currentQuestionIndex == -1);
     const numQuestions = computed(() => state.questions.length);
@@ -289,6 +320,13 @@ export default defineComponent({
 
     /** updates the session answer once a response is submitted */
     function submitQuestion() {
+      const itemResponse = state.responses[state.currentQuestionIndex];
+      SessionAPIService.updateSessionAnswer(itemResponse._id, {
+        answer: itemResponse.answer,
+      });
+    }
+
+    function submitOmrQuestion() {
       const itemResponse = state.responses[state.currentQuestionIndex];
       SessionAPIService.updateSessionAnswer(itemResponse._id, {
         answer: itemResponse.answer,
@@ -583,13 +621,15 @@ export default defineComponent({
       startQuiz,
       getQsetLimits,
       submitQuestion,
+      submitOmrQuestion,
       goToPreviousQuestion,
       endTest,
       currentMaxQuestionsAllowedToAttempt,
       currentQsetTitle,
       questionSetStates,
       fetchQuestionBucket,
-      timerUpdates
+      timerUpdates,
+      isOmrMode
     };
   },
 });

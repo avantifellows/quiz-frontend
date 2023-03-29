@@ -75,6 +75,7 @@ export interface QuizMetadata {
   subject: string;
   chapter?: string;
   topic?: string;
+  omr_mode: boolean;
 }
 
 export interface QuestionBucket {
@@ -139,6 +140,7 @@ export interface QuestionSet {
   questions: Question[];
   max_questions_allowed_to_attempt: number;
   title: string | null;
+  marking_scheme: MarkingScheme;
 }
 
 export interface QuestionSetIndexLimits {
