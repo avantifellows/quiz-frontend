@@ -15,7 +15,7 @@ describe("Player for Assessment quizzes", () => {
         fixture: "new_session.json",
       });
 
-      cy.intercept("PATCH", "/session_answers/*", {});
+      cy.intercept("PATCH", "/session_answers/**", {});
       cy.intercept("PATCH", "/sessions/*", {});
 
       cy.intercept(
@@ -372,7 +372,7 @@ describe("Player for Assessment quizzes", () => {
         fixture: "resume_session.json",
       });
 
-      cy.intercept("PATCH", "/session_answers/*", {});
+      cy.intercept("PATCH", "/session_answers/**", {});
       cy.intercept("PATCH", "/sessions/*", {});
 
       cy.intercept(
