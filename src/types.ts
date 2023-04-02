@@ -95,6 +95,8 @@ interface QuestionMetadata {
   topic: string;
   competency: string[];
   difficulty: string;
+  chapter_id: string;
+  topic_id: string;
 }
 
 export interface TimeLimit {
@@ -131,7 +133,8 @@ export interface Question {
   solution: string[] | null;
   _id: string;
   metadata: QuestionMetadata | null;
-  question_set_id: string
+  question_set_id: string;
+  source_id: string | null;
 }
 
 export interface QuestionSet {
