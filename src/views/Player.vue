@@ -176,10 +176,11 @@ export default defineComponent({
           state.isScorecardShown = true;
           if (!hasGradedQuestions.value) return;
           calculateScorecardMetrics();
-        } else if (!state.responses[newValue].visited) {
+        } else if (!state.hasQuizEnded && !state.responses[newValue].visited) {
           state.responses[newValue].visited = true;
           SessionAPIService.updateSessionAnswer(
-            state.responses[state.currentQuestionIndex]._id,
+            state.sessionId,
+            state.currentQuestionIndex,
             {
               visited: true,
             }
@@ -290,9 +291,13 @@ export default defineComponent({
     /** updates the session answer once a response is submitted */
     function submitQuestion() {
       const itemResponse = state.responses[state.currentQuestionIndex];
-      SessionAPIService.updateSessionAnswer(itemResponse._id, {
-        answer: itemResponse.answer,
-      });
+      SessionAPIService.updateSessionAnswer(
+        state.sessionId,
+        state.currentQuestionIndex,
+        {
+          answer: itemResponse.answer,
+        }
+      );
     }
 
     function endTest() {
