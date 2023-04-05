@@ -176,7 +176,7 @@ export default defineComponent({
           state.isScorecardShown = true;
           if (!hasGradedQuestions.value) return;
           calculateScorecardMetrics();
-        } else if (!state.responses[newValue].visited) {
+        } else if (!state.hasQuizEnded && !state.responses[newValue].visited) {
           state.responses[newValue].visited = true;
           SessionAPIService.updateSessionAnswer(
             state.sessionId,
