@@ -43,17 +43,20 @@ export default {
   },
 
   /**
-   * @param {string} sessionAnswerId - id of the sessionAnswer instance to update
+   * @param {string} sessionId - id of the session for which the sessionAnswer is to be updated
+   * @param {number} positionIndex - At what index is the question present in the quiz/question set.
+   *                                 This index corresponds to the index of sessionAnswer in session
    * @param {UpdateSessionAnswerAPIPayload} payload - contains the answer {submittedAnswer} that
    * needs to be updated and a boolean variable to indicate that the question is visited
    * @returns {Promise<SessionAnswerAPIResponse>} - the updated sessionAnswer instance
    */
   async updateSessionAnswer(
-    sessionAnswerId: string,
+    sessionId: string,
+    positionIndex: number,
     payload: UpdateSessionAnswerAPIPayload
   ): Promise<SessionAnswerAPIResponse> {
     const response = await apiClient().patch(
-      sessionAnswersEndpoint + sessionAnswerId,
+      sessionAnswersEndpoint + sessionId + "/" + positionIndex,
       payload
     );
     return response.data;
