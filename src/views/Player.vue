@@ -174,6 +174,9 @@ export default defineComponent({
       (newValue) => {
         if (newValue == numQuestions.value) {
           state.isScorecardShown = true;
+          if (!state.hasQuizEnded && !isQuizAssessment.value) {
+            endTest() // send an end-quiz event for homeworks
+          }
           if (!hasGradedQuestions.value) return;
           calculateScorecardMetrics();
         } else if (!state.hasQuizEnded && !state.responses[newValue].visited) {
