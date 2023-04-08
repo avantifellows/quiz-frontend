@@ -16,7 +16,7 @@ describe("Player for Assessment quizzes", () => {
         // of which 3 are answered (first 3 questions in 2nd qset)
       });
 
-      cy.intercept("PATCH", "/session_answers/*", {});
+      cy.intercept("PATCH", "/session_answers/**", {});
       cy.intercept("PATCH", "/sessions/*", {});
 
       cy.intercept(

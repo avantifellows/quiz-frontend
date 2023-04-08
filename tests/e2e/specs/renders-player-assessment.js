@@ -15,7 +15,7 @@ describe("Player for Assessment quizzes", () => {
         fixture: "new_session.json",
       });
 
-      cy.intercept("PATCH", "/session_answers/*", {});
+      cy.intercept("PATCH", "/session_answers/**", {});
       cy.intercept("PATCH", "/sessions/*", {});
 
       cy.intercept(
@@ -261,15 +261,17 @@ describe("Player for Assessment quizzes", () => {
             .get('[data-test="index"]')
             .should("have.class", "bg-yellow-200");
 
+          // check if question_set subset pattern is working well
+          cy.intercept("GET", "/questions/*", {
+            fixture: "question_bucket_fetched.json",
+          }).as("question_bucket_call");
+
           // click the last question present in the question palette
           cy.get('[data-test="paletteItem-22"]').trigger("click");
 
           // question palette must be closed
           cy.get('[data-test="questionPalette"]').should("not.exist");
 
-          cy.intercept("GET", "/questions/*", {
-            fixture: "question_bucket_fetched.json",
-          }).as("question_bucket_call");
           cy.wait("@question_bucket_call");
 
           // open the question palette
@@ -372,7 +374,7 @@ describe("Player for Assessment quizzes", () => {
         fixture: "resume_session.json",
       });
 
-      cy.intercept("PATCH", "/session_answers/*", {});
+      cy.intercept("PATCH", "/session_answers/**", {});
       cy.intercept("PATCH", "/sessions/*", {});
 
       cy.intercept(
