@@ -63,7 +63,7 @@
         @submit-question="submitQuestion"
         @end-test="endTest"
         @fetch-question-bucket="fetchQuestionBucket"
-        v-if="isQuestionShown"
+        v-if="isQuestionShown && !isOmrMode"
         data-test="modal"
       ></QuestionModal>
 
@@ -257,7 +257,7 @@ export default defineComponent({
     onMounted(() => {
       window.setInterval(() => {
         timerUpdates();
-      }, 8000);
+      }, 38000);
     });
 
     async function startQuiz() {
@@ -334,11 +334,17 @@ export default defineComponent({
       );
     }
 
-    function submitOmrQuestion() {
-      const itemResponse = state.responses[state.currentQuestionIndex];
-      SessionAPIService.updateSessionAnswer(itemResponse._id, {
-        answer: itemResponse.answer,
-      });
+    function submitOmrQuestion(newQuestionIndex: number) {
+      console.log("high level the index is", state.currentQuestionIndex, newQuestionIndex);
+      const itemResponse = state.responses[newQuestionIndex];
+      console.log("item response is", itemResponse);
+      SessionAPIService.updateSessionAnswer(
+        state.sessionId,
+        newQuestionIndex,
+        {
+          answer: itemResponse.answer,
+        }
+      );
     }
 
     function endTest() {

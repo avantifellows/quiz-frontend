@@ -1,8 +1,8 @@
 <template>
     <div
-      class="flex relative h-full overflow-y-auto"
+      class="flex h-full"
     >
-      <div class="overflow-y-auto flex flex-row w-full">
+      <div class="flex flex-row w-full">
         <!-- question number and type information-->
         <div>
         <p :class="questionHeaderTextClass" data-test="question-header-text" v-html="questionHeaderText"></p>
@@ -16,7 +16,7 @@
             data-test="optionContainer"
           >
             <ul class="w-full">
-              <li class="list-none space-x-1 flex flex-row">
+              <li class="list-none flex flex-row">
                 <div
                   v-for="(option, optionIndex) in options"
                   :key="optionIndex"
@@ -29,9 +29,11 @@
                     <!-- understand the meaning of the attributes here:
                       https://www.w3schools.com/tags/att_input_type_radio.asp -->
 
+                    <!-- radio button rely on names to decide what gets to be checked -->
+                    <!-- so ensure unique names for all radio buttons -->
                     <input
                       :type="optionInputType"
-                      name="option"
+                      :name="`option-${optionIndex}-${$props.currentQuestionIndex}`"
                       class="place-self-center text-primary focus:ring-0 disabled:cursor-not-allowed"
                       style="box-shadow: none"
                       @click="selectOption(optionIndex)"
@@ -39,8 +41,9 @@
                       :disabled="isAnswerDisabled"
                       :data-test="`optionSelector-${optionIndex}`"
                     />
+                    <!-- assuming max 12 options  -->
                     <div
-                      v-html="optionIndex + 1"
+                      v-html="'ABCDEFGHIJKL'.split('')[optionIndex]"
                       class="ml-2 h-full place-self-center text-base sm:text-lg"
                       :data-test="`option-${optionIndex}`"
                     ></div>
@@ -94,7 +97,7 @@
               v-model:value="numericalAnswer"
               class="px-2 w-full"
               :boxStyling="numericalAnswerBoxStyling"
-              placeholder="Enter your answer here. Only numbers are allowed"
+              placeholder="Only numbers are allowed"
               :inputMode="getInputMode"
               :isDisabled="isAnswerDisabled"
               :maxHeightLimit="250"
@@ -120,7 +123,7 @@ import {
   onUpdated
 } from "vue"
 
-import { quizType, questionType, questionTypeHeaderText } from "../../types"
+import { quizType, questionType } from "../../types"
 
 const MAX_LENGTH_NUMERICAL_CHARACTERS: number = 10 // max length of characters in numerical answer textbox
 
@@ -180,9 +183,9 @@ export default defineComponent({
     /** whether the user has attempted all available questions
        * based on question set's optional limit
       */
-    optionalLimitReached: {
-      type: Boolean,
-      default: false
+    questionDisabledArray: {
+      type: Array,
+      default: () => []
     },
     /** whether the draft answer has been cleared but not yet submitted */
     isDraftAnswerCleared: {
@@ -202,7 +205,7 @@ export default defineComponent({
       correctOptionClass: "text-white bg-green-500",
       wrongOptionClass: "text-white bg-red-500",
       questionHeaderTextClass:
-          "text-lg md:text-xl lg:text-2xl mx-4 m-2 text-center leading-tight whitespace-pre-wrap",
+          "text-lg md:text-xl lg:text-2xl mx-2 md:mx-10 py-6 text-center leading-tight whitespace-pre-wrap",
       questionTextClass:
           "text-lg md:text-xl lg:text-2xl mx-4 mt-6 m-2 font-bold leading-tight whitespace-pre-wrap",
       optionTextClass:
@@ -211,12 +214,12 @@ export default defineComponent({
       numericalAnswer: null as number | null // holds the answer to the numerical question
     })
 
-    const questionTypeHeaderMapping = new Map<string, string>([
-      [questionType.SINGLE_CHOICE, questionTypeHeaderText.SINGLE_CHOICE],
-      [questionType.MULTI_CHOICE, questionTypeHeaderText.MULTI_CHOICE],
-      [questionType.NUMERICAL_INTEGER, questionTypeHeaderText.NUMERICAL_INTEGER],
-      [questionType.NUMERICAL_FLOAT, questionTypeHeaderText.NUMERICAL_FLOAT]
-    ]);
+    // const questionTypeHeaderMapping = new Map<string, string>([
+    //   [questionType.SINGLE_CHOICE, questionTypeHeaderText.SINGLE_CHOICE],
+    //   [questionType.MULTI_CHOICE, questionTypeHeaderText.MULTI_CHOICE],
+    //   [questionType.NUMERICAL_INTEGER, questionTypeHeaderText.NUMERICAL_INTEGER],
+    //   [questionType.NUMERICAL_FLOAT, questionTypeHeaderText.NUMERICAL_FLOAT]
+    // ]);
 
     /**
        * returns the background class for an option
@@ -266,7 +269,7 @@ export default defineComponent({
     }
 
     function selectOption(optionIndex: Number) {
-      context.emit("option-selected", optionIndex)
+      context.emit("option-selected", optionIndex, props.currentQuestionIndex)
     }
 
     function labelClass(optionText: String) {
@@ -357,7 +360,7 @@ export default defineComponent({
           "content-center": false,
           "flex-col": false
         },
-        "flex mx-6 md:mx-10 py-4"
+        "flex mx-2 md:mx-10 py-4"
       ]
     })
 
@@ -426,7 +429,7 @@ export default defineComponent({
     const isAnswerDisabled = computed(
       () =>
         (props.isAnswerSubmitted && !isQuizAssessment.value) ||
-          (props.optionalLimitReached && !props.isAnswerSubmitted) ||
+          (props.questionDisabledArray[props.currentQuestionIndex] && !props.isAnswerSubmitted) ||
           props.hasQuizEnded
     )
     // input mode refers to keypad being displayed in mobile browsers
@@ -441,7 +444,7 @@ export default defineComponent({
       {
         "bg-gray-100": props.isAnswerSubmitted
       },
-      "bp-420:h-20 sm:h-28 md:h-36 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed"
+      "bp-420:h-20 sm:h-28 md:h-26 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed"
     ])
 
     const numericalAnswerBoxStyling = computed(() => [
@@ -462,7 +465,7 @@ export default defineComponent({
             (props.isAnswerSubmitted && !props.isGradedQuestion) ||
             (isQuizAssessment.value && !props.hasQuizEnded)
       },
-      "bp-420:h-20 sm:h-28 md:h-36 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed"
+      "bp-420:h-12 sm:h-12 md:h-12 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed"
     ])
 
     state.subjectiveAnswer = defaultSubjectiveAnswer.value
@@ -489,9 +492,9 @@ export default defineComponent({
       () => state.numericalAnswer,
       (newValue) => {
         if (String(newValue) == '' || newValue == null) {
-          context.emit('numerical-answer-entered', null) // when entire answer is deleted, set draftAnswer as null
+          context.emit('numerical-answer-entered', null, props.currentQuestionIndex) // when entire answer is deleted, set draftAnswer as null
         } else {
-          context.emit("numerical-answer-entered", Number(state.numericalAnswer))
+          context.emit("numerical-answer-entered", Number(state.numericalAnswer), props.currentQuestionIndex)
         }
       }
     )
@@ -507,7 +510,7 @@ export default defineComponent({
           // prevent answers more than the character limit from being entered via copy pasting
           state.subjectiveAnswer = newValue.substring(0, props.maxCharLimit)
         }
-        context.emit("subjective-answer-entered", state.subjectiveAnswer)
+        context.emit("subjective-answer-entered", state.subjectiveAnswer, props.currentQuestionIndex)
       }
     )
 

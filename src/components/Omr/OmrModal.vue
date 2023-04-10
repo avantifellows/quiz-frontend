@@ -1,6 +1,7 @@
 <template>
-    <div class="h-full flex flex-col bg-white w-full justify-between absolute">
+    <div class="flex flex-col bg-white w-full justify-between">
       <Header
+        class="fixed top-0"
         v-if="isQuizAssessment"
         :hasQuizEnded="hasQuizEnded"
         :hasTimeLimit="quizTimeLimit != null"
@@ -15,43 +16,43 @@
       ></Header>
 
       <div
-        class="flex flex-col grow bg-white w-full justify-between space-y-10"
+        class="flex flex-col grow space-y-10"
       >
-      <div class="mb-40">
-        <!-- to ensure that questions don't appear behind footer -->
-        <div
-        v-for="(questionSetState, index) in questionSetStates" :key="index" class="space-y-2">
-            <p :class="titleTextClass" :data-test="`paletteTitle-${index}`">{{ questionSetState.title }}</p>
-            <p :class="instructionTextClass" :data-test="`paletteInstruction-${index}`">{{ questionSetState.instructionText }}</p>
-            <div class="mt-4 space-y-4">
-            <OmrItem
-                v-for="(questionState, qindex) in questionSetState.paletteItems"
-                class="hover:cursor-pointer"
-                :class="{ 'mt-4': qindex == 0 }"
-                :options="$props.questions[questionState.index].options"
-                :correctAnswer="$props.questions[questionState.index].correct_answer"
-                :questionType="$props.questions[questionState.index].type"
-                :isGradedQuestion="$props.questions[questionState.index].graded"
-                :maxCharLimit="$props.questions[questionState.index].max_char_limit"
-                :isPortrait="isPortrait"
-                :draftAnswer="draftResponses[questionState.index]"
-                :submittedAnswer="draftResponses[questionState.index]"
-                :isAnswerSubmitted="isAnswerSubmitted"
-                :isDraftAnswerCleared="isDraftAnswerCleared"
-                :quizType="quizType"
-                :hasQuizEnded="hasQuizEnded"
-                :optionalLimitReached="optionalLimitReached"
-                :currentQuestionIndex="questionState.index"
-                @option-selected="questionOptionSelected"
-                @subjective-answer-entered="subjectiveAnswerUpdated"
-                @numerical-answer-entered="numericalAnswerUpdated"
-                :key="qindex"
-                :data-test="`omritem-${questionState.index}`"
-                ref="omritem"
-            ></OmrItem>
-            </div>
+        <div class="mt-20 mb-20">
+          <!-- to ensure that questions don't appear behind footer -->
+          <div
+          v-for="(questionSetState, index) in questionSetStates" :key="index" class="space-y-2">
+              <p :class="titleTextClass" :data-test="`paletteTitle-${index}`">{{ questionSetState.title }}</p>
+              <p :class="instructionTextClass" :data-test="`paletteInstruction-${index}`">{{ questionSetState.instructionText }}</p>
+              <div class="mt-4 space-y-4">
+              <OmrItem
+                  v-for="(questionState, qindex) in questionSetState.paletteItems"
+                  :class="{ 'mt-4': qindex == 0 }"
+                  :options="$props.questions[questionState.index].options"
+                  :correctAnswer="$props.questions[questionState.index].correct_answer"
+                  :questionType="$props.questions[questionState.index].type"
+                  :isGradedQuestion="$props.questions[questionState.index].graded"
+                  :maxCharLimit="$props.questions[questionState.index].max_char_limit"
+                  :isPortrait="isPortrait"
+                  :draftAnswer="draftResponses[questionState.index]"
+                  :submittedAnswer="draftResponses[questionState.index]"
+                  :isAnswerSubmitted="isAnswerSubmitted"
+                  :isDraftAnswerCleared="isDraftAnswerCleared"
+                  :quizType="quizType"
+                  :hasQuizEnded="hasQuizEnded"
+                  :questionDisabledArray="questionDisabledArray"
+                  :currentQuestionIndex="questionState.index"
+                  @option-selected="questionOptionSelected"
+                  @click="updateQuestionIndex(questionState.index)"
+                  @subjective-answer-entered="subjectiveAnswerUpdated"
+                  @numerical-answer-entered="numericalAnswerUpdated"
+                  :key="qindex"
+                  :data-test="`omritem-${questionState.index}`"
+                  ref="omritem"
+              ></OmrItem>
+              </div>
+          </div>
         </div>
-      </div>
 
         <Footer
           class="fixed bottom-0"
@@ -98,7 +99,7 @@ import { useToast, POSITION } from "vue-toastification"
 const clonedeep = require("lodash.clonedeep");
 
 export default defineComponent({
-  name: "QuestionModal",
+  name: "OmrModal",
   components: {
     OmrItem,
     Footer,
@@ -182,9 +183,14 @@ export default defineComponent({
       state.isPortrait = isScreenPortrait()
     }
 
+    function updateQuestionIndex(newQuestionIndex: number) {
+      state.localCurrentQuestionIndex = newQuestionIndex;
+    }
+
     watch(
       () => state.localCurrentQuestionIndex,
       (newValue) => {
+        console.log("sending info to parent", props.currentQuestionIndex, "props bad as exp")
         context.emit("update:currentQuestionIndex", newValue)
       }
     )
@@ -192,7 +198,6 @@ export default defineComponent({
     watch(
       () => props.currentQuestionIndex,
       (newValue: Number) => {
-        state.localCurrentQuestionIndex = newValue.valueOf()
         if (!props.hasQuizEnded && optionalLimitReached.value && currentQuestionResponseAnswer.value == null) {
           state.toast.warning(
               `You have already attempted maximum allowed (${props.maxQuestionsAllowedToAttempt}) questions in current section (Q.${props.qsetIndexLimits.low + 1} - Q.${props.qsetIndexLimits.high}).
@@ -221,23 +226,24 @@ export default defineComponent({
     /**
        * triggered upon selecting an option
        */
-    function questionOptionSelected(optionIndex: number) {
+    function questionOptionSelected(optionIndex: number, newQuestionIndex: number) {
+      console.log("ques option selected", optionIndex, props.currentQuestionIndex, newQuestionIndex)
+      updateQuestionIndex(newQuestionIndex);
       if (isQuestionTypeSingleChoice.value) {
         // for MCQ, simply set the option as the current response
-        state.draftResponses[props.currentQuestionIndex] = [optionIndex]
-        return
+        state.draftResponses[state.localCurrentQuestionIndex] = [optionIndex]
       }
 
       if (isQuestionTypeMultiChoice.value) {
-        if (state.draftResponses[props.currentQuestionIndex] == null) {
-          state.draftResponses[props.currentQuestionIndex] = []
+        if (state.draftResponses[state.localCurrentQuestionIndex] == null) {
+          state.draftResponses[state.localCurrentQuestionIndex] = []
         }
 
         // if the selection option was already in the response
         // remove it from the response (uncheck it); otherwise add it (check it)
         // lodash clonedeep clones the array (which may contain any complex object; responses here)
         // not cloning the array leads to update:responses -> changing currentResponse value
-        const currentResponse = clonedeep(state.draftResponses[props.currentQuestionIndex])
+        const currentResponse = clonedeep(state.draftResponses[state.localCurrentQuestionIndex])
         if (Array.isArray(currentResponse)) {
           const optionPositionInResponse = currentResponse.indexOf(optionIndex)
           if (optionPositionInResponse != -1) {
@@ -247,37 +253,41 @@ export default defineComponent({
             currentResponse.sort()
           }
         }
-        state.draftResponses[props.currentQuestionIndex] = currentResponse
+        state.draftResponses[state.localCurrentQuestionIndex] = currentResponse
       }
 
       if (!state.localResponses.length) return
-      state.localResponses[props.currentQuestionIndex].answer =
-          state.draftResponses[props.currentQuestionIndex]
-      context.emit("submit-omr-question"); // submit answer whenever there is an update / option selected
+      state.localResponses[state.localCurrentQuestionIndex].answer =
+          state.draftResponses[state.localCurrentQuestionIndex]
+      console.log("beofre submit question the indices of local n new", state.localCurrentQuestionIndex, newQuestionIndex);
+      context.emit("submit-omr-question", newQuestionIndex); // submit answer whenever there is an update / option selected
     }
 
     function clearAnswer() {
       state.reRenderKey = !state.reRenderKey
-      state.draftResponses[props.currentQuestionIndex] = null
-      state.localResponses[props.currentQuestionIndex].answer =
-          state.draftResponses[props.currentQuestionIndex] // update local response too
-      context.emit("submit-omr-question")
+      state.draftResponses[state.localCurrentQuestionIndex] = null
+      state.localResponses[state.localCurrentQuestionIndex].answer =
+          state.draftResponses[state.localCurrentQuestionIndex] // update local response too
+      console.log("during clear the button is", state.localCurrentQuestionIndex);
+      context.emit("submit-omr-question", state.localCurrentQuestionIndex);
       state.isDraftAnswerCleared = true // there is no concept of draft answer in omr mode
     }
 
-    function numericalAnswerUpdated(answer: number | null) {
-      state.draftResponses[props.currentQuestionIndex] = answer
-      state.localResponses[props.currentQuestionIndex].answer =
-          state.draftResponses[props.currentQuestionIndex]
-      context.emit("submit-omr-question");
+    function numericalAnswerUpdated(answer: number | null, newQuestionIndex: number) {
+      updateQuestionIndex(newQuestionIndex);
+      state.draftResponses[state.localCurrentQuestionIndex] = answer
+      state.localResponses[state.localCurrentQuestionIndex].answer =
+          state.draftResponses[state.localCurrentQuestionIndex]
+      context.emit("submit-omr-question", newQuestionIndex);
     }
 
     /** update the attempt to the current question - valid for subjective questions */
-    function subjectiveAnswerUpdated(answer: string) {
-      state.draftResponses[props.currentQuestionIndex] = answer
-      state.localResponses[props.currentQuestionIndex].answer =
-          state.draftResponses[props.currentQuestionIndex]
-      context.emit("submit-omr-question");
+    function subjectiveAnswerUpdated(answer: string, newQuestionIndex: number) {
+      updateQuestionIndex(newQuestionIndex);
+      state.draftResponses[state.localCurrentQuestionIndex] = answer
+      state.localResponses[state.localCurrentQuestionIndex].answer =
+          state.draftResponses[state.localCurrentQuestionIndex]
+      context.emit("submit-omr-question", newQuestionIndex);
     }
 
     function endTest() {
@@ -317,7 +327,7 @@ export default defineComponent({
     })
 
     const currentQuestion = computed(
-      () => props.questions[props.currentQuestionIndex]
+      () => props.questions[state.localCurrentQuestionIndex]
     )
 
     const questionType = computed(() => currentQuestion.value.type)
@@ -346,7 +356,7 @@ export default defineComponent({
     )
 
     const currentQuestionResponse = computed(
-      () => props.responses[props.currentQuestionIndex]
+      () => props.responses[state.localCurrentQuestionIndex]
     )
 
     const currentQuestionResponseAnswer = computed(
@@ -370,7 +380,7 @@ export default defineComponent({
         return false
       }
       const currentDraftResponse = state.draftResponses[
-        props.currentQuestionIndex
+        state.localCurrentQuestionIndex
       ] as DraftResponse
       if (currentDraftResponse == null) {
         return false
@@ -392,6 +402,24 @@ export default defineComponent({
       }
       if (numSubmittedResponses == props.maxQuestionsAllowedToAttempt) return true
       return false
+    })
+
+    const questionDisabledArray = computed(() => {
+      const arr = [] as Array<Boolean>;
+      // instantiating array to determine if answering a question is disabled - false initially
+      props.questions.forEach((question) => {
+        arr.push(false);
+      })
+
+      if (optionalLimitReached.value == true) {
+        for (let idx = props.qsetIndexLimits.low; idx < props.qsetIndexLimits.high; idx++) {
+          const response = props.responses[idx]
+          if (response.answer == null) arr[idx] = true;
+          // since optionalLimitReached is true, remaining questions in set can't be answered
+        }
+      }
+
+      return arr;
     })
 
     // instantiating draftResponses here
@@ -421,6 +449,7 @@ export default defineComponent({
 
     return {
       ...toRefs(state),
+      updateQuestionIndex,
       questionOptionSelected,
       subjectiveAnswerUpdated,
       clearAnswer,
@@ -435,6 +464,7 @@ export default defineComponent({
       isAttemptValid,
       isQuizAssessment,
       optionalLimitReached,
+      questionDisabledArray,
       numericalAnswerUpdated,
       timeLimitWarningThreshold,
       displayTimeLimitWarning
