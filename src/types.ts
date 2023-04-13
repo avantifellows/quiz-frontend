@@ -1,7 +1,7 @@
 // contains all the custom types that we want to use
 
 type language = "en" | "hi";
-export type quizType = "assessment" | "homework";
+export type quizType = "assessment" | "homework" | "omr-assessment";
 export type quizTitleType = string | null;
 export type textAreaValueType = string | number | null;
 export type isFirstSessionType = boolean | null;
@@ -212,6 +212,7 @@ export interface questionSetPalette {
   title: string | null;
   paletteItems: paletteItemState[];
   instructionText: string;
+  maxQuestionsAllowedToAttempt: number;
 }
 
 export interface OrganizationAPIResponse {

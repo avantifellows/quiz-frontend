@@ -33,6 +33,7 @@
         :numQuestions="maxQuestionsAllowedToAttempt"
         :maxQuestionsAllowedToAttempt="currentMaxQuestionsAllowedToAttempt"
         :questionSetStates="questionSetStates"
+        :qsetIndex="currentQsetIndex"
         :qsetIndexLimits="currentQsetIndexLimits"
         :quizTimeLimit="quizTimeLimit"
         :timeRemaining="timeRemaining"
@@ -41,7 +42,7 @@
         @submit-omr-question="submitOmrQuestion"
         @end-test="endTest"
         data-test="omr-modal"
-        v-if="isQuestionShown"
+        v-if="isQuestionShown && isOmeMode"
       ></OmrModal>
 
       <QuestionModal
@@ -182,10 +183,10 @@ export default defineComponent({
       });
     });
 
-    const isQuizAssessment = computed(() => state.metadata.quiz_type == "assessment");
+    const isQuizAssessment = computed(() => (state.metadata.quiz_type == "assessment" || state.metadata.quiz_type == "omr-assessment"));
 
     // const isOmrMode = computed(() => state.metadata.quiz_type == "assessment" && state.metadata.omr_mode == true);
-    const isOmrMode = true;
+    const isOmrMode = computed(() => state.metadata.quiz_type == "omr-assessment");
 
     const isSplashShown = computed(() => state.currentQuestionIndex == -1);
     const numQuestions = computed(() => state.questions.length);
@@ -210,8 +211,10 @@ export default defineComponent({
           }
           if (!hasGradedQuestions.value) return;
           calculateScorecardMetrics();
-        } else if (!state.hasQuizEnded && !state.responses[newValue].visited) {
+        } else if (!state.hasQuizEnded && !state.responses[newValue] && !isOmrMode.value) {
           state.responses[newValue].visited = true;
+          // update `visited` key seperately only if not in omr mode
+          // if it is omr mode, update `visited` key along with session-answer update
           SessionAPIService.updateSessionAnswer(
             state.sessionId,
             state.currentQuestionIndex,
@@ -335,14 +338,14 @@ export default defineComponent({
     }
 
     function submitOmrQuestion(newQuestionIndex: number) {
-      console.log("high level the index is", state.currentQuestionIndex, newQuestionIndex);
+      state.responses[state.currentQuestionIndex].visited = true;
       const itemResponse = state.responses[newQuestionIndex];
-      console.log("item response is", itemResponse);
       SessionAPIService.updateSessionAnswer(
         state.sessionId,
         newQuestionIndex,
         {
           answer: itemResponse.answer,
+          visited: itemResponse.visited,
         }
       );
     }
@@ -552,7 +555,8 @@ export default defineComponent({
           qsetStates.push({
             title: state.questionSets[index].title,
             paletteItems: states,
-            instructionText: paletteInstructionText
+            instructionText: paletteInstructionText,
+            maxQuestionsAllowedToAttempt: state.questionSets[index].max_questions_allowed_to_attempt
           })
         }
       } else {
@@ -583,7 +587,8 @@ export default defineComponent({
           qsetStates.push({
             title: state.questionSets[index].title,
             paletteItems: states,
-            instructionText: paletteInstructionText
+            instructionText: paletteInstructionText,
+            maxQuestionsAllowedToAttempt: state.questionSets[index].max_questions_allowed_to_attempt
           })
         }
       }
@@ -626,6 +631,7 @@ export default defineComponent({
       ...toRefs(state),
       isQuestionShown,
       isSplashShown,
+      isQuizAssessment,
       scorecardMetrics,
       scorecardProgress,
       numQuestionsAnswered,

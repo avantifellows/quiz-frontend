@@ -4,7 +4,7 @@
     >
       <div class="flex flex-row w-full">
         <!-- question number and type information-->
-        <div>
+        <div class="basis-3/12">
         <p :class="questionHeaderTextClass" data-test="question-header-text" v-html="questionHeaderText"></p>
         </div>
         <div :class="orientationClass">
@@ -183,9 +183,9 @@ export default defineComponent({
     /** whether the user has attempted all available questions
        * based on question set's optional limit
       */
-    questionDisabledArray: {
-      type: Array,
-      default: () => []
+    isQuestionDisabled: {
+      type: Boolean,
+      default: false
     },
     /** whether the draft answer has been cleared but not yet submitted */
     isDraftAnswerCleared: {
@@ -198,12 +198,13 @@ export default defineComponent({
     },
   },
   setup(props, context) {
-    const isQuizAssessment = computed(() => props.quizType == "assessment")
+    const isQuizAssessment = computed(() => props.quizType == "assessment" || props.quizType == "omr-assessment")
     const state = reactive({
       questionTypesWithOptions: new Set([questionType.SINGLE_CHOICE, questionType.MULTI_CHOICE]),
       nonGradedAnswerClass: "bg-gray-200",
       correctOptionClass: "text-white bg-green-500",
       wrongOptionClass: "text-white bg-red-500",
+      disabledOptionClass: "bg-gray-200",
       questionHeaderTextClass:
           "text-lg md:text-xl lg:text-2xl mx-2 md:mx-10 py-6 text-center leading-tight whitespace-pre-wrap",
       questionTextClass:
@@ -232,6 +233,10 @@ export default defineComponent({
        * @param {Number} optionIndex - index of the option
        */
     function optionBackgroundClass(optionIndex: Number) {
+      // for omr-mode, when answer is disabled, gray the option box
+      if (isAnswerDisabled.value && !props.hasQuizEnded) {
+        return state.disabledOptionClass
+      }
       if (
         (!props.isAnswerSubmitted && !props.hasQuizEnded) || // before quiz has ended, if answer isn't submitted
           props.isDraftAnswerCleared ||
@@ -429,7 +434,7 @@ export default defineComponent({
     const isAnswerDisabled = computed(
       () =>
         (props.isAnswerSubmitted && !isQuizAssessment.value) ||
-          (props.questionDisabledArray[props.currentQuestionIndex] && !props.isAnswerSubmitted) ||
+          props.isQuestionDisabled ||
           props.hasQuizEnded
     )
     // input mode refers to keypad being displayed in mobile browsers
@@ -523,6 +528,7 @@ export default defineComponent({
     onUpdated(() => {
       // Force render any math on the page when component is updated
       // @ts-ignore
+      console.log("current idx is", props.currentQuestionIndex);
       if ("MathJax" in window) (window.MathJax as any).typeset()
     })
 

@@ -36,17 +36,17 @@
                   :isPortrait="isPortrait"
                   :draftAnswer="draftResponses[questionState.index]"
                   :submittedAnswer="draftResponses[questionState.index]"
-                  :isAnswerSubmitted="isAnswerSubmitted"
-                  :isDraftAnswerCleared="isDraftAnswerCleared"
+                  :isAnswerSubmitted="true"
+                  :isDraftAnswerCleared="false"
                   :quizType="quizType"
-                  :hasQuizEnded="hasQuizEnded"
-                  :questionDisabledArray="questionDisabledArray"
+                  :hasQuizEnded="false"
+                  :isQuestionDisabled="questionDisabledArray[questionState.index]"
                   :currentQuestionIndex="questionState.index"
                   @option-selected="questionOptionSelected"
                   @click="updateQuestionIndex(questionState.index)"
                   @subjective-answer-entered="subjectiveAnswerUpdated"
                   @numerical-answer-entered="numericalAnswerUpdated"
-                  :key="qindex"
+                  :key="questionState.index"
                   :data-test="`omritem-${questionState.index}`"
                   ref="omritem"
               ></OmrItem>
@@ -96,7 +96,9 @@ import {
   TimeLimit
 } from "../../types"
 import { useToast, POSITION } from "vue-toastification"
+
 const clonedeep = require("lodash.clonedeep");
+// const { v4: uuidv4 } = require('uuid');
 
 export default defineComponent({
   name: "OmrModal",
@@ -142,6 +144,10 @@ export default defineComponent({
       required: true,
       type: Object as PropType<QuestionSetIndexLimits>
     },
+    qsetIndex: {
+      type: Number,
+      default: 0
+    },
     questionSetStates: {
       type: Array as PropType<questionSetPalette[]>,
       default: () => []
@@ -183,6 +189,11 @@ export default defineComponent({
       state.isPortrait = isScreenPortrait()
     }
 
+    function generateId(idx: number) {
+      // return uuidv4() + idx;
+      return idx; // random key string for vue component
+    }
+
     function updateQuestionIndex(newQuestionIndex: number) {
       state.localCurrentQuestionIndex = newQuestionIndex;
     }
@@ -190,7 +201,6 @@ export default defineComponent({
     watch(
       () => state.localCurrentQuestionIndex,
       (newValue) => {
-        console.log("sending info to parent", props.currentQuestionIndex, "props bad as exp")
         context.emit("update:currentQuestionIndex", newValue)
       }
     )
@@ -198,7 +208,7 @@ export default defineComponent({
     watch(
       () => props.currentQuestionIndex,
       (newValue: Number) => {
-        if (!props.hasQuizEnded && optionalLimitReached.value && currentQuestionResponseAnswer.value == null) {
+        if (!props.hasQuizEnded && optionalLimitReachedArray.value[props.qsetIndex] && !isAnswerSubmitted.value) {
           state.toast.warning(
               `You have already attempted maximum allowed (${props.maxQuestionsAllowedToAttempt}) questions in current section (Q.${props.qsetIndexLimits.low + 1} - Q.${props.qsetIndexLimits.high}).
 
@@ -227,11 +237,18 @@ export default defineComponent({
        * triggered upon selecting an option
        */
     function questionOptionSelected(optionIndex: number, newQuestionIndex: number) {
-      console.log("ques option selected", optionIndex, props.currentQuestionIndex, newQuestionIndex)
       updateQuestionIndex(newQuestionIndex);
       if (isQuestionTypeSingleChoice.value) {
         // for MCQ, simply set the option as the current response
-        state.draftResponses[state.localCurrentQuestionIndex] = [optionIndex]
+        let currentResponse = clonedeep(state.draftResponses[state.localCurrentQuestionIndex])
+
+        if (currentResponse != null && currentResponse[0] == optionIndex) {
+          // if user has selected same radio button again
+          currentResponse = null;
+        } else {
+          currentResponse = [optionIndex]
+        }
+        state.draftResponses[state.localCurrentQuestionIndex] = currentResponse;
       }
 
       if (isQuestionTypeMultiChoice.value) {
@@ -243,11 +260,15 @@ export default defineComponent({
         // remove it from the response (uncheck it); otherwise add it (check it)
         // lodash clonedeep clones the array (which may contain any complex object; responses here)
         // not cloning the array leads to update:responses -> changing currentResponse value
-        const currentResponse = clonedeep(state.draftResponses[state.localCurrentQuestionIndex])
+        let currentResponse = clonedeep(state.draftResponses[state.localCurrentQuestionIndex])
         if (Array.isArray(currentResponse)) {
           const optionPositionInResponse = currentResponse.indexOf(optionIndex)
           if (optionPositionInResponse != -1) {
             currentResponse.splice(optionPositionInResponse, 1)
+            if (currentResponse.length == 0) {
+              // if all options unselected, set answer to null
+              currentResponse = null;
+            }
           } else {
             currentResponse.push(optionIndex)
             currentResponse.sort()
@@ -259,18 +280,15 @@ export default defineComponent({
       if (!state.localResponses.length) return
       state.localResponses[state.localCurrentQuestionIndex].answer =
           state.draftResponses[state.localCurrentQuestionIndex]
-      console.log("beofre submit question the indices of local n new", state.localCurrentQuestionIndex, newQuestionIndex);
       context.emit("submit-omr-question", newQuestionIndex); // submit answer whenever there is an update / option selected
     }
 
     function clearAnswer() {
-      state.reRenderKey = !state.reRenderKey
       state.draftResponses[state.localCurrentQuestionIndex] = null
       state.localResponses[state.localCurrentQuestionIndex].answer =
           state.draftResponses[state.localCurrentQuestionIndex] // update local response too
-      console.log("during clear the button is", state.localCurrentQuestionIndex);
       context.emit("submit-omr-question", state.localCurrentQuestionIndex);
-      state.isDraftAnswerCleared = true // there is no concept of draft answer in omr mode
+      state.isDraftAnswerCleared = true
     }
 
     function numericalAnswerUpdated(answer: number | null, newQuestionIndex: number) {
@@ -375,7 +393,7 @@ export default defineComponent({
     })
 
     const isAttemptValid = computed(() => {
-      if (optionalLimitReached.value && currentQuestionResponseAnswer.value == null) {
+      if (optionalLimitReachedArray.value[props.qsetIndex] && currentQuestionResponseAnswer.value == null) {
         // this cannot be answered
         return false
       }
@@ -392,16 +410,32 @@ export default defineComponent({
       return Array.isArray(currentDraftResponse) && currentDraftResponse.length > 0
     })
 
-    const isQuizAssessment = computed(() => props.quizType == "assessment")
+    const isQuizAssessment = computed(() => props.quizType == "assessment" || props.quizType == "omr-assessment")
 
-    const optionalLimitReached = computed(() => {
-      let numSubmittedResponses = 0
-      for (let idx = props.qsetIndexLimits.low; idx < props.qsetIndexLimits.high; idx++) {
-        const response = props.responses[idx]
-        if (response.answer != null) numSubmittedResponses += 1
+    const optionalLimitReachedArray = computed(() => {
+      const arr = [] as Array<Boolean>;
+      props.questionSetStates.forEach((questionSetState) => {
+        arr.push(false);
+      });
+
+      for (let idx = 0; idx < props.questionSetStates.length; idx++) {
+        const questionSetState = props.questionSetStates[idx];
+        const sizeOfState = questionSetState.paletteItems.length;
+
+        // no optional questions in this state, limit can't be reached
+        if (sizeOfState == questionSetState.maxQuestionsAllowedToAttempt) continue
+
+        const lowQsetIndex = questionSetState.paletteItems[0].index;
+        const highQsetIndex = lowQsetIndex + sizeOfState;
+        let numSubmittedResponses = 0;
+        for (let qindex = lowQsetIndex; qindex < highQsetIndex; qindex++) {
+          const response = props.responses[qindex];
+          if (response.answer != null) numSubmittedResponses += 1
+        }
+        if (numSubmittedResponses == questionSetState.maxQuestionsAllowedToAttempt) arr[idx] = true;
       }
-      if (numSubmittedResponses == props.maxQuestionsAllowedToAttempt) return true
-      return false
+
+      return arr;
     })
 
     const questionDisabledArray = computed(() => {
@@ -411,11 +445,17 @@ export default defineComponent({
         arr.push(false);
       })
 
-      if (optionalLimitReached.value == true) {
-        for (let idx = props.qsetIndexLimits.low; idx < props.qsetIndexLimits.high; idx++) {
-          const response = props.responses[idx]
-          if (response.answer == null) arr[idx] = true;
-          // since optionalLimitReached is true, remaining questions in set can't be answered
+      for (let idx = 0; idx < props.questionSetStates.length; idx++) {
+        if (optionalLimitReachedArray.value[idx] == true) {
+          const questionSetState = props.questionSetStates[idx];
+          const sizeOfState = questionSetState.paletteItems.length;
+          const lowQsetIndex = questionSetState.paletteItems[0].index;
+          const highQsetIndex = lowQsetIndex + sizeOfState;
+          for (let qindex = lowQsetIndex; qindex < highQsetIndex; qindex++) {
+            const response = props.responses[qindex];
+            if (response.answer == null) arr[qindex] = true;
+            // since optionalLimitReached is true, remaining questions in set can't be answered
+          }
         }
       }
 
@@ -449,6 +489,7 @@ export default defineComponent({
 
     return {
       ...toRefs(state),
+      generateId,
       updateQuestionIndex,
       questionOptionSelected,
       subjectiveAnswerUpdated,
@@ -463,7 +504,7 @@ export default defineComponent({
       isAnswerSubmitted,
       isAttemptValid,
       isQuizAssessment,
-      optionalLimitReached,
+      optionalLimitReachedArray,
       questionDisabledArray,
       numericalAnswerUpdated,
       timeLimitWarningThreshold,

@@ -27,6 +27,9 @@
     >
       <!-- clear button - assessment -->
       <icon-button
+        :class="{
+          hidden: isOmrMode
+        }"
         :titleConfig="clearButtonTitleConfig"
         :buttonClass="clearButtonClass"
         :isDisabled="!isSubmitEnabled"
@@ -122,7 +125,7 @@ export default defineComponent({
     }
   },
   setup(props, context) {
-    const isQuizAssessment = computed(() => props.quizType == "assessment");
+    const isQuizAssessment = computed(() => props.quizType == "assessment" || props.quizType == "omr-assessment");
     const state = reactive({
       assessmentNavigationButtonIconClass: [
         {
