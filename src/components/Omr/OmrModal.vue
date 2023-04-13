@@ -34,12 +34,9 @@
                   :isGradedQuestion="$props.questions[questionState.index].graded"
                   :maxCharLimit="$props.questions[questionState.index].max_char_limit"
                   :isPortrait="isPortrait"
-                  :draftAnswer="draftResponses[questionState.index]"
-                  :submittedAnswer="draftResponses[questionState.index]"
-                  :isAnswerSubmitted="isAnswerSubmitted"
-                  :isDraftAnswerCleared="isDraftAnswerCleared"
                   :quizType="quizType"
                   :hasQuizEnded="hasQuizEnded"
+                  :submittedAnswer="draftResponses[questionState.index]"
                   :isQuestionDisabled="questionDisabledArray[questionState.index]"
                   :currentQuestionIndex="questionState.index"
                   @option-selected="questionOptionSelected"
@@ -54,24 +51,19 @@
           </div>
         </div>
 
-        <Footer
-          class="fixed bottom-0"
-          :isAnswerSubmitted="isAnswerSubmitted"
-          :isPreviousButtonShown="currentQuestionIndex > 0"
-          :isNextButtonShown="currentQuestionIndex != questions.length - 1"
-          :isSubmitEnabled="isAttemptValid"
-          :isOmrMode="isOmrMode"
-          :quizType="quizType"
-          :hasQuizEnded="hasQuizEnded"
-          @clear="clearAnswer"
-          data-test="footer"
-        ></Footer>
+        <!-- footer -->
+        <div
+          class="flex w-full lg:p-6 justify-between z-50 place-self-end fixed bottom-0"
+          :class="{
+            'bg-white p-4': !isQuizAssessment,
+            'bg-gray-200 py-4 px-2': isQuizAssessment,
+          }"
+        ></div>
       </div>
     </div>
   </template>
 
 <script lang="ts">
-import Footer from "../Questions/Footer.vue"
 import Header from "../Questions/Header.vue"
 import OmrItem from "./OmrItem.vue"
 import {
@@ -97,14 +89,12 @@ import {
 } from "../../types"
 import { useToast, POSITION } from "vue-toastification"
 
-const clonedeep = require("lodash.clonedeep");
 // const { v4: uuidv4 } = require('uuid');
 
 export default defineComponent({
   name: "OmrModal",
   components: {
     OmrItem,
-    Footer,
     Header
   },
   props: {
@@ -208,7 +198,7 @@ export default defineComponent({
     watch(
       () => props.currentQuestionIndex,
       (newValue: Number) => {
-        if (!props.hasQuizEnded && optionalLimitReachedArray.value[props.qsetIndex] && !isAnswerSubmitted.value) {
+        if (!props.hasQuizEnded && optionalLimitReachedArray.value[props.qsetIndex] && state.localResponses[state.localCurrentQuestionIndex].answer == null) {
           state.toast.warning(
               `You have already attempted maximum allowed (${props.maxQuestionsAllowedToAttempt}) questions in current section (Q.${props.qsetIndexLimits.low + 1} - Q.${props.qsetIndexLimits.high}).
 
@@ -228,6 +218,7 @@ export default defineComponent({
     watch(
       () => state.localResponses,
       (newValue) => {
+        console.log("response updated!", newValue, state.localCurrentQuestionIndex)
         context.emit("update:responses", newValue)
       },
       { deep: true }
@@ -236,75 +227,27 @@ export default defineComponent({
     /**
        * triggered upon selecting an option
        */
-    function questionOptionSelected(optionIndex: number, newQuestionIndex: number) {
+    function questionOptionSelected(draftAnswer: DraftResponse, newQuestionIndex: number) {
       updateQuestionIndex(newQuestionIndex);
-      if (isQuestionTypeSingleChoice.value) {
-        // for MCQ, simply set the option as the current response
-        let currentResponse = clonedeep(state.draftResponses[state.localCurrentQuestionIndex])
-
-        if (currentResponse != null && currentResponse[0] == optionIndex) {
-          // if user has selected same radio button again
-          currentResponse = null;
-        } else {
-          currentResponse = [optionIndex]
-        }
-        state.draftResponses[state.localCurrentQuestionIndex] = currentResponse;
-      }
-
-      if (isQuestionTypeMultiChoice.value) {
-        if (state.draftResponses[state.localCurrentQuestionIndex] == null) {
-          state.draftResponses[state.localCurrentQuestionIndex] = []
-        }
-
-        // if the selection option was already in the response
-        // remove it from the response (uncheck it); otherwise add it (check it)
-        // lodash clonedeep clones the array (which may contain any complex object; responses here)
-        // not cloning the array leads to update:responses -> changing currentResponse value
-        let currentResponse = clonedeep(state.draftResponses[state.localCurrentQuestionIndex])
-        if (Array.isArray(currentResponse)) {
-          const optionPositionInResponse = currentResponse.indexOf(optionIndex)
-          if (optionPositionInResponse != -1) {
-            currentResponse.splice(optionPositionInResponse, 1)
-            if (currentResponse.length == 0) {
-              // if all options unselected, set answer to null
-              currentResponse = null;
-            }
-          } else {
-            currentResponse.push(optionIndex)
-            currentResponse.sort()
-          }
-        }
-        state.draftResponses[state.localCurrentQuestionIndex] = currentResponse
-      }
-
       if (!state.localResponses.length) return
-      state.localResponses[state.localCurrentQuestionIndex].answer =
-          state.draftResponses[state.localCurrentQuestionIndex]
+      state.localResponses[state.localCurrentQuestionIndex].answer = draftAnswer
       context.emit("submit-omr-question", newQuestionIndex); // submit answer whenever there is an update / option selected
     }
 
     function clearAnswer() {
-      state.draftResponses[state.localCurrentQuestionIndex] = null
-      state.localResponses[state.localCurrentQuestionIndex].answer =
-          state.draftResponses[state.localCurrentQuestionIndex] // update local response too
-      context.emit("submit-omr-question", state.localCurrentQuestionIndex);
-      state.isDraftAnswerCleared = true
+      // no clearAnswer functionality for OmrModal
     }
 
     function numericalAnswerUpdated(answer: number | null, newQuestionIndex: number) {
       updateQuestionIndex(newQuestionIndex);
-      state.draftResponses[state.localCurrentQuestionIndex] = answer
-      state.localResponses[state.localCurrentQuestionIndex].answer =
-          state.draftResponses[state.localCurrentQuestionIndex]
+      state.localResponses[state.localCurrentQuestionIndex].answer = answer
       context.emit("submit-omr-question", newQuestionIndex);
     }
 
     /** update the attempt to the current question - valid for subjective questions */
     function subjectiveAnswerUpdated(answer: string, newQuestionIndex: number) {
       updateQuestionIndex(newQuestionIndex);
-      state.draftResponses[state.localCurrentQuestionIndex] = answer
-      state.localResponses[state.localCurrentQuestionIndex].answer =
-          state.draftResponses[state.localCurrentQuestionIndex]
+      state.localResponses[state.localCurrentQuestionIndex].answer = answer
       context.emit("submit-omr-question", newQuestionIndex);
     }
 
@@ -356,12 +299,13 @@ export default defineComponent({
 
     const isGradedQuestion = computed(() => currentQuestion.value.graded)
 
-    const isQuestionTypeMultiChoice = computed(
-      () => questionType.value == "multi-choice"
-    )
-    const isQuestionTypeSingleChoice = computed(
-      () => questionType.value == "single-choice"
-    )
+    // const isQuestionTypeMultiChoice = computed(
+    // () => questionType.value == "multi-choice"
+    // )
+    // const isQuestionTypeSingleChoice = computed(
+    // () => questionType.value == "single-choice"
+    // )
+
     const isQuestionTypeSubjective = computed(
       () => questionType.value == "subjective"
     )
@@ -381,25 +325,12 @@ export default defineComponent({
       () => currentQuestionResponse.value?.answer
     )
 
-    const isAnswerSubmitted = computed(() => {
-      if (currentQuestionResponseAnswer.value == null) return false
-      if (isQuestionTypeNumericalInteger.value || isQuestionTypeNumericalFloat.value) {
-        return true
-      }
-      if (isQuestionTypeSingleChoice.value || isQuestionTypeMultiChoice.value) {
-        return currentQuestionResponseAnswer.value != []
-      }
-      return true
-    })
-
     const isAttemptValid = computed(() => {
       if (optionalLimitReachedArray.value[props.qsetIndex] && currentQuestionResponseAnswer.value == null) {
         // this cannot be answered
         return false
       }
-      const currentDraftResponse = state.draftResponses[
-        state.localCurrentQuestionIndex
-      ] as DraftResponse
+      const currentDraftResponse = state.localResponses[state.localCurrentQuestionIndex].answer as DraftResponse;
       if (currentDraftResponse == null) {
         return false
       }
@@ -462,7 +393,7 @@ export default defineComponent({
       return arr;
     })
 
-    // instantiating draftResponses here
+    // instantiating draftResponses here -- useful when quiz is resumed
     props.responses.forEach((response) => {
       state.draftResponses.push(response.answer)
     })
@@ -501,7 +432,6 @@ export default defineComponent({
       questionCorrectAnswer,
       isGradedQuestion,
       currentQuestionResponseAnswer,
-      isAnswerSubmitted,
       isAttemptValid,
       isQuizAssessment,
       optionalLimitReachedArray,

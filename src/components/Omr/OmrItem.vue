@@ -123,9 +123,11 @@ import {
   onUpdated
 } from "vue"
 
-import { quizType, questionType } from "../../types"
+import { quizType, questionType, DraftResponse } from "../../types"
 
 const MAX_LENGTH_NUMERICAL_CHARACTERS: number = 10 // max length of characters in numerical answer textbox
+
+const clonedeep = require("lodash.clonedeep");
 
 export default defineComponent({
   components: {
@@ -140,19 +142,10 @@ export default defineComponent({
       default: null,
       type: [String, Number, Array]
     },
-    /** answer for the question which has been submitted */
+    /** submitted answer -- used to initialize omr-item's draft answer when quiz is resumed */
     submittedAnswer: {
       default: null,
       type: [String, Number, Array]
-    },
-    /** answer for the question which has been entered but not submitted */
-    draftAnswer: {
-      default: null,
-      type: [String, Number, Array]
-    },
-    isAnswerSubmitted: {
-      default: false,
-      type: Boolean
     },
     questionType: {
       default: questionType.SINGLE_CHOICE,
@@ -187,11 +180,6 @@ export default defineComponent({
       type: Boolean,
       default: false
     },
-    /** whether the draft answer has been cleared but not yet submitted */
-    isDraftAnswerCleared: {
-      default: false,
-      type: Boolean
-    },
     currentQuestionIndex: {
       type: Number,
       default: 0
@@ -201,6 +189,7 @@ export default defineComponent({
     const isQuizAssessment = computed(() => props.quizType == "assessment" || props.quizType == "omr-assessment")
     const state = reactive({
       questionTypesWithOptions: new Set([questionType.SINGLE_CHOICE, questionType.MULTI_CHOICE]),
+      draftAnswer: props.submittedAnswer as DraftResponse, // answer for the current question
       nonGradedAnswerClass: "bg-gray-200",
       correctOptionClass: "text-white bg-green-500",
       wrongOptionClass: "text-white bg-red-500",
@@ -214,6 +203,8 @@ export default defineComponent({
       subjectiveAnswer: null as string | null, // holds the answer to the subjective question
       numericalAnswer: null as number | null // holds the answer to the numerical question
     })
+
+    // instantiating subjective and numerical answers in case of quiz being resumed
 
     // const questionTypeHeaderMapping = new Map<string, string>([
     //   [questionType.SINGLE_CHOICE, questionTypeHeaderText.SINGLE_CHOICE],
@@ -232,18 +223,17 @@ export default defineComponent({
        * - question is non-graded and the given option has been selected
        * @param {Number} optionIndex - index of the option
        */
-    function optionBackgroundClass(optionIndex: Number) {
+    function optionBackgroundClass(optionIndex: number) {
       // for omr-mode, when answer is disabled, gray the option box
       if (isAnswerDisabled.value && !props.hasQuizEnded) {
         return state.disabledOptionClass
       }
       if (
-        (!props.isAnswerSubmitted && !props.hasQuizEnded) || // before quiz has ended, if answer isn't submitted
-          props.isDraftAnswerCleared ||
+        (!isAnswerSubmitted.value && !props.hasQuizEnded) || // before quiz has ended, if answer isn't submitted
           typeof props.correctAnswer == "string" || // check for typescript
-          typeof props.submittedAnswer == "string" || // check for typescript
+          typeof state.draftAnswer == "string" || // check for typescript
           typeof props.correctAnswer == "number" || // check for typescript
-          typeof props.submittedAnswer == "number" // check for typescript
+          typeof state.draftAnswer == "number" // check for typescript
       ) {
         return
       }
@@ -256,25 +246,66 @@ export default defineComponent({
       }
       if (
         (!isQuizAssessment.value || props.hasQuizEnded) &&
-          props.submittedAnswer != null &&
-          props.submittedAnswer.indexOf(optionIndex) != -1) {
+          state.draftAnswer != null &&
+          state.draftAnswer.indexOf(optionIndex) != -1) {
         if (!props.isGradedQuestion) return state.nonGradedAnswerClass
         return state.wrongOptionClass
       }
     }
 
     // whether the given option index should be marked selected
-    function isOptionMarked(optionIndex: Number) {
+    function isOptionMarked(optionIndex: number) {
       return (
-        props.draftAnswer != null &&
-          typeof props.draftAnswer != "string" &&
-          typeof props.draftAnswer != "number" &&
-          props.draftAnswer.indexOf(optionIndex) != -1
+        state.draftAnswer != null &&
+          typeof state.draftAnswer != "string" &&
+          typeof state.draftAnswer != "number" &&
+          state.draftAnswer.indexOf(optionIndex) != -1
       )
     }
 
+    /**
+      * triggered upon selecting an option
+      */
     function selectOption(optionIndex: Number) {
-      context.emit("option-selected", optionIndex, props.currentQuestionIndex)
+      if (isQuestionTypeSingleChoice.value) {
+        // for MCQ, simply set the option as the current response
+        let currentResponse = clonedeep(state.draftAnswer);
+        if (currentResponse != null && Array.isArray(currentResponse) && currentResponse[0] == optionIndex) {
+          // if user has selected same radio button again
+          currentResponse = null;
+        } else {
+          currentResponse = [optionIndex]
+        }
+        state.draftAnswer = currentResponse;
+      }
+
+      if (isQuestionTypeMultiChoice.value) {
+        if (state.draftAnswer == null) {
+          state.draftAnswer = []
+        }
+
+        // if the selection option was already in the response
+        // remove it from the response (uncheck it); otherwise add it (check it)
+        // lodash clonedeep clones the array (which may contain any complex object; responses here)
+        // not cloning the array leads to update:responses -> changing currentResponse value
+        let currentResponse = clonedeep(state.draftAnswer);
+        if (Array.isArray(currentResponse)) {
+          const optionPositionInResponse = currentResponse.indexOf(optionIndex)
+          if (optionPositionInResponse != -1) {
+            currentResponse.splice(optionPositionInResponse, 1)
+            if (currentResponse.length == 0) {
+              // if all options unselected, set answer to null
+              currentResponse = null;
+            }
+          } else {
+            currentResponse.push(optionIndex)
+            currentResponse.sort()
+          }
+        }
+        state.draftAnswer = currentResponse;
+      }
+
+      context.emit("option-selected", state.draftAnswer, props.currentQuestionIndex)
     }
 
     function labelClass(optionText: String) {
@@ -387,6 +418,17 @@ export default defineComponent({
 
     const hasCharLimit = computed(() => props.maxCharLimit != -1)
 
+    const isAnswerSubmitted = computed(() => {
+      if (state.draftAnswer == null) return false
+      if (isQuestionTypeNumericalInteger.value || isQuestionTypeNumericalFloat.value) {
+        return state.numericalAnswer != null
+      }
+      if (isQuestionTypeSingleChoice.value || isQuestionTypeMultiChoice.value) {
+        return Array.isArray(state.draftAnswer) && state.draftAnswer.length > 0
+      }
+      return true
+    })
+
     const maxCharLimitClass = computed(() => {
       // class for the character limit text
       if (charactersLeft.value > 0.2 * props.maxCharLimit) {
@@ -407,33 +449,25 @@ export default defineComponent({
     const defaultSubjectiveAnswer = computed(() => {
       // the default answer to be shown for the subjective question
       if (
-        props.submittedAnswer != null &&
-          typeof props.submittedAnswer == "string" &&
-          !props.isDraftAnswerCleared
+        state.draftAnswer != null &&
+          typeof state.draftAnswer == "string"
       ) {
-        return props.submittedAnswer
-      }
-      if (typeof props.draftAnswer == "string") {
-        return props.draftAnswer
+        return state.draftAnswer
       }
       return ""
     })
     const defaultNumericalAnswer = computed(() => {
       if (
-        props.submittedAnswer != null &&
-          typeof props.submittedAnswer == "number" &&
-          !props.isDraftAnswerCleared
+        state.draftAnswer != null &&
+          typeof state.draftAnswer == "number"
       ) {
-        return props.submittedAnswer
-      }
-      if (typeof props.draftAnswer == "number") {
-        return props.draftAnswer
+        return state.draftAnswer
       }
       return null
     })
     const isAnswerDisabled = computed(
       () =>
-        (props.isAnswerSubmitted && !isQuizAssessment.value) ||
+        (isAnswerSubmitted.value && !isQuizAssessment.value) ||
           props.isQuestionDisabled ||
           props.hasQuizEnded
     )
@@ -447,7 +481,7 @@ export default defineComponent({
 
     const subjectiveAnswerBoxStyling = computed(() => [
       {
-        "bg-gray-100": props.isAnswerSubmitted
+        "bg-gray-100": isAnswerSubmitted.value
       },
       "bp-420:h-20 sm:h-28 md:h-26 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed"
     ])
@@ -455,19 +489,19 @@ export default defineComponent({
     const numericalAnswerBoxStyling = computed(() => [
       {
         "text-green-500 border-green-500":
-            props.submittedAnswer == props.correctAnswer &&
-            props.isAnswerSubmitted &&
+            state.draftAnswer == props.correctAnswer &&
+            isAnswerSubmitted.value &&
             props.isGradedQuestion &&
             (!isQuizAssessment.value ||
               (isQuizAssessment.value && props.hasQuizEnded)),
         "text-red-500 border-red-400":
-            props.submittedAnswer != props.correctAnswer &&
-            props.isAnswerSubmitted &&
+            state.draftAnswer != props.correctAnswer &&
+            isAnswerSubmitted.value &&
             props.isGradedQuestion &&
             (!isQuizAssessment.value ||
               (isQuizAssessment.value && props.hasQuizEnded)),
         "bg-gray-100":
-            (props.isAnswerSubmitted && !props.isGradedQuestion) ||
+            (isAnswerSubmitted.value && !props.isGradedQuestion) ||
             (isQuizAssessment.value && !props.hasQuizEnded)
       },
       "bp-420:h-12 sm:h-12 md:h-12 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed"
@@ -477,28 +511,13 @@ export default defineComponent({
     state.numericalAnswer = defaultNumericalAnswer.value
 
     watch(
-      () => props.draftAnswer,
-      (newValue, oldValue) => {
-        // specific to subjective and numerical questions
-        // when the draft answer is updated,
-        // update the subjective and numerical answer too
-        if (typeof newValue == "string" || (newValue == null && typeof oldValue == "string")) {
-          state.subjectiveAnswer = newValue
-        }
-        if (typeof newValue == "number" || (newValue == null && typeof oldValue == "number")) {
-          if (newValue != Number(state.numericalAnswer)) {
-            state.numericalAnswer = newValue
-          }
-        }
-      }
-    )
-
-    watch(
       () => state.numericalAnswer,
       (newValue) => {
         if (String(newValue) == '' || newValue == null) {
+          state.draftAnswer = null;
           context.emit('numerical-answer-entered', null, props.currentQuestionIndex) // when entire answer is deleted, set draftAnswer as null
         } else {
+          state.draftAnswer = Number(state.numericalAnswer);
           context.emit("numerical-answer-entered", Number(state.numericalAnswer), props.currentQuestionIndex)
         }
       }
@@ -515,6 +534,7 @@ export default defineComponent({
           // prevent answers more than the character limit from being entered via copy pasting
           state.subjectiveAnswer = newValue.substring(0, props.maxCharLimit)
         }
+        state.draftAnswer = state.subjectiveAnswer;
         context.emit("subjective-answer-entered", state.subjectiveAnswer, props.currentQuestionIndex)
       }
     )
@@ -538,6 +558,7 @@ export default defineComponent({
       optionBackgroundClass,
       isOptionMarked,
       selectOption,
+      isAnswerSubmitted,
       labelClass,
       preventKeypressIfApplicable,
       questionImageAreaClass,
