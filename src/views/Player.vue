@@ -42,7 +42,7 @@
         @submit-omr-question="submitOmrQuestion"
         @end-test="endTest"
         data-test="omr-modal"
-        v-if="isQuestionShown && isOmeMode"
+        v-if="isQuestionShown && isOmrMode"
       ></OmrModal>
 
       <QuestionModal
