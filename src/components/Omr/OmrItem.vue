@@ -548,7 +548,6 @@ export default defineComponent({
     onUpdated(() => {
       // Force render any math on the page when component is updated
       // @ts-ignore
-      console.log("current idx is", props.currentQuestionIndex);
       if ("MathJax" in window) (window.MathJax as any).typeset()
     })
 

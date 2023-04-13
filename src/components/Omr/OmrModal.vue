@@ -40,7 +40,6 @@
                   :isQuestionDisabled="questionDisabledArray[questionState.index]"
                   :currentQuestionIndex="questionState.index"
                   @option-selected="questionOptionSelected"
-                  @click="updateQuestionIndex(questionState.index)"
                   @subjective-answer-entered="subjectiveAnswerUpdated"
                   @numerical-answer-entered="numericalAnswerUpdated"
                   :key="questionState.index"
@@ -198,7 +197,7 @@ export default defineComponent({
     watch(
       () => props.currentQuestionIndex,
       (newValue: Number) => {
-        if (!props.hasQuizEnded && optionalLimitReachedArray.value[props.qsetIndex] && state.localResponses[state.localCurrentQuestionIndex].answer == null) {
+        if (!props.hasQuizEnded && optionalLimitReachedArray.value[props.qsetIndex]) {
           state.toast.warning(
               `You have already attempted maximum allowed (${props.maxQuestionsAllowedToAttempt}) questions in current section (Q.${props.qsetIndexLimits.low + 1} - Q.${props.qsetIndexLimits.high}).
 
@@ -218,7 +217,6 @@ export default defineComponent({
     watch(
       () => state.localResponses,
       (newValue) => {
-        console.log("response updated!", newValue, state.localCurrentQuestionIndex)
         context.emit("update:responses", newValue)
       },
       { deep: true }
