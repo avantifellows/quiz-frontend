@@ -211,7 +211,7 @@ export default defineComponent({
           }
           if (!hasGradedQuestions.value) return;
           calculateScorecardMetrics();
-        } else if (!state.hasQuizEnded && !state.responses[newValue] && !isOmrMode.value) {
+        } else if (!state.hasQuizEnded && !state.responses[newValue].visited && !isOmrMode.value) {
           state.responses[newValue].visited = true;
           // update `visited` key seperately only if not in omr mode
           // if it is omr mode, update `visited` key along with session-answer update
