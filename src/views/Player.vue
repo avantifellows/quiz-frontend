@@ -211,10 +211,8 @@ export default defineComponent({
           }
           if (!hasGradedQuestions.value) return;
           calculateScorecardMetrics();
-        } else if (!state.hasQuizEnded && !state.responses[newValue].visited && !isOmrMode.value) {
+        } else if (!state.hasQuizEnded && !state.responses[newValue].visited) {
           state.responses[newValue].visited = true;
-          // update `visited` key seperately only if not in omr mode
-          // if it is omr mode, update `visited` key along with session-answer update
           SessionAPIService.updateSessionAnswer(
             state.sessionId,
             state.currentQuestionIndex,
@@ -338,14 +336,12 @@ export default defineComponent({
     }
 
     function submitOmrQuestion(newQuestionIndex: number) {
-      state.responses[state.currentQuestionIndex].visited = true;
       const itemResponse = state.responses[newQuestionIndex];
       SessionAPIService.updateSessionAnswer(
         state.sessionId,
         newQuestionIndex,
         {
           answer: itemResponse.answer,
-          visited: itemResponse.visited,
         }
       );
     }
