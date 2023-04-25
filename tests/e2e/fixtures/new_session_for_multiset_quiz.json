@@ -80,19 +80,19 @@
       {
           "_id": "62a37b95c54e0efc5c53d502",
           "question_id": "62540adb0f748c8e206c1626",
-          "answer": [0],
+          "answer": null,
           "visited": true
       },
       {
           "_id": "62a37b95c54e0efc5c53d503",
           "question_id": "62540adb0f748c8e206c1614f",
-          "answer": [0],
+          "answer": null,
           "visited": true
       },
       {
           "_id": "62a37b95c54e0efc5c53d504",
           "question_id": "62540adb0f748c8e206c1615f",
-          "answer": [0],
+          "answer": null,
           "visited": true
       },
       {

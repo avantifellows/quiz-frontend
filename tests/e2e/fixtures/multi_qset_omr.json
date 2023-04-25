@@ -1,0 +1,568 @@
+{
+    "_id": "abcd",
+    "question_sets": [
+      {
+        "_id": "62540adb0f748c8e206c1613",
+        "max_questions_allowed_to_attempt": 12,
+        "title": "Question Set 0",
+        "questions": [
+          {
+            "_id": "62540adb0f748c8e206c1614",
+            "text": "Which grade are you in?",
+            "type": "single-choice",
+            "instructions": null,
+            "image": null,
+            "options": [
+              { "text": "Option 1", "image": null },
+              { "text": "Option 2", "image": null },
+              { "text": "Option 3", "image": null }
+            ],
+            "max_char_limit": null,
+            "correct_answer": [0],
+            "graded": true,
+            "marking_scheme": {
+              "correct": 4,
+              "wrong": -2,
+              "skipped": -1
+            },
+            "solution": [],
+            "metadata": null,
+            "source": null,
+            "source_id": null,
+            "question_set_id": "6285554a1016dc7050373fbe"
+          },
+          {
+            "_id": "62540adb0f748c8e206c1615",
+            "text": "Which grade are you in?",
+            "type": "multi-choice",
+            "instructions": null,
+            "image": {
+              "url": "https://plio-prod-assets.s3.ap-south-1.amazonaws.com/images/afbxudrmbl.png",
+              "alt_text": "Image"
+            },
+            "options": [
+              { "text": "Option 1", "image": null },
+              {
+                "text": "Option 2",
+                "image": {
+                  "url": "https://plio-prod-assets.s3.ap-south-1.amazonaws.com/images/afbxudrmbl.png",
+                  "alt_text": null
+                }
+              },
+              { "text": "Option 3", "image": null }
+            ],
+            "max_char_limit": null,
+            "correct_answer": [0, 2],
+            "graded": true,
+            "marking_scheme": {
+              "correct": 3,
+              "wrong": -1,
+              "skipped": -1
+            },
+            "solution": [],
+            "metadata": null,
+            "source": null,
+            "source_id": null,
+            "question_set_id": "6285554a1016dc7050373fbe"
+          },
+          {
+            "_id": "62540adb0f748c8e206c1616",
+            "text": "Which subject are you studying?",
+            "type": "multi-choice",
+            "instructions": null,
+            "image": null,
+            "options": [
+              { "text": "Option 1", "image": null },
+              { "text": "Option 2", "image": null },
+              { "text": "Option 3", "image": null }
+            ],
+            "max_char_limit": null,
+            "correct_answer": [1],
+            "graded": true,
+            "marking_scheme": {
+              "correct": 3,
+              "wrong": -1,
+              "skipped": 0
+            },
+            "solution": [],
+            "metadata": null,
+            "source": null,
+            "source_id": null,
+            "question_set_id": "6285554a1016dc7050373fbe"
+          },
+          {
+            "_id": "62540adb0f748c8e206c1617",
+            "text": "Enter an integer value?",
+            "type": "numerical-integer",
+            "instructions": null,
+            "image": null,
+            "max_char_limit": null,
+            "correct_answer": 33,
+            "graded": true,
+            "marking_scheme": {
+              "correct": 3,
+              "wrong": -1,
+              "skipped": 0
+            },
+            "solution": [],
+            "metadata": null,
+            "source": null,
+            "source_id": null,
+            "question_set_id": "6285554a1016dc7050373fbe"
+          },
+          {
+            "_id": "62540adb0f748c8e206c1618",
+            "text": "Enter an float value?",
+            "type": "numerical-float",
+            "instructions": null,
+            "image": null,
+            "max_char_limit": null,
+            "correct_answer": 33.3,
+            "graded": true,
+            "marking_scheme": {
+              "correct": 3,
+              "wrong": -1,
+              "skipped": 0
+            },
+            "solution": [],
+            "metadata": null,
+            "source": null,
+            "source_id": null,
+            "question_set_id": "6285554a1016dc7050373fbe"
+          },
+          {
+            "_id": "62540adb0f748c8e206c1619",
+            "text": "Enter an float value?",
+            "type": "numerical-float",
+            "instructions": null,
+            "image": null,
+            "max_char_limit": null,
+            "correct_answer": 33.3,
+            "graded": true,
+            "marking_scheme": {
+              "correct": 3,
+              "wrong": -1,
+              "skipped": 0
+            },
+            "solution": [],
+            "metadata": null,
+            "source": null,
+            "source_id": null,
+            "question_set_id": "6285554a1016dc7050373fbe"
+          },
+          {
+            "_id": "62540adb0f748c8e206c1620",
+            "text": "Enter an float value?",
+            "type": "numerical-float",
+            "instructions": null,
+            "image": null,
+            "max_char_limit": null,
+            "correct_answer": 33.3,
+            "graded": true,
+            "marking_scheme": {
+              "correct": 3,
+              "wrong": -1,
+              "skipped": 0
+            },
+            "solution": [],
+            "metadata": null,
+            "source": null,
+            "source_id": null,
+            "question_set_id": "6285554a1016dc7050373fbe"
+          },
+          {
+            "_id": "62540adb0f748c8e206c1621",
+            "text": "Enter an float value?",
+            "type": "numerical-float",
+            "instructions": null,
+            "image": null,
+            "max_char_limit": null,
+            "correct_answer": 33.3,
+            "graded": true,
+            "marking_scheme": {
+              "correct": 3,
+              "wrong": -1,
+              "skipped": 0
+            },
+            "solution": [],
+            "metadata": null,
+            "source": null,
+            "source_id": null,
+            "question_set_id": "6285554a1016dc7050373fbe"
+          },
+          {
+            "_id": "62540adb0f748c8e206c1622",
+            "text": "Enter an float value?",
+            "type": "numerical-float",
+            "instructions": null,
+            "image": null,
+            "max_char_limit": null,
+            "correct_answer": 33.3,
+            "graded": true,
+            "marking_scheme": {
+              "correct": 3,
+              "wrong": -1,
+              "skipped": 0
+            },
+            "solution": [],
+            "metadata": null,
+            "source": null,
+            "source_id": null,
+            "question_set_id": "6285554a1016dc7050373fbe"
+          },
+          {
+            "_id": "62540adb0f748c8e206c1623",
+            "text": "Enter an float value?",
+            "type": "numerical-float",
+            "instructions": null,
+            "image": null,
+            "max_char_limit": null,
+            "correct_answer": 33.3,
+            "graded": true,
+            "marking_scheme": {
+              "correct": 3,
+              "wrong": -1,
+              "skipped": 0
+            },
+            "solution": [],
+            "metadata": null,
+            "source": null,
+            "source_id": null,
+            "question_set_id": "6285554a1016dc7050373fbe"
+          },
+          {
+            "_id": "62540adb0f748c8e206c1624",
+            "text": "Enter an float value?",
+            "type": "numerical-float",
+            "instructions": null,
+            "image": null,
+            "max_char_limit": null,
+            "correct_answer": 33.3,
+            "graded": true,
+            "marking_scheme": {
+              "correct": 3,
+              "wrong": -1,
+              "skipped": 0
+            },
+            "solution": [],
+            "metadata": null,
+            "source": null,
+            "source_id": null,
+            "question_set_id": "6285554a1016dc7050373fbe"
+          },
+          {
+            "_id": "62540adb0f748c8e206c1625",
+            "text": "Enter an float value?",
+            "type": "numerical-float",
+            "instructions": null,
+            "image": null,
+            "max_char_limit": null,
+            "correct_answer": 33.3,
+            "graded": true,
+            "marking_scheme": {
+              "correct": 3,
+              "wrong": -1,
+              "skipped": 0
+            },
+            "solution": [],
+            "metadata": null,
+            "source": null,
+            "source_id": null,
+            "question_set_id": "6285554a1016dc7050373fbe"
+          }
+        ]
+      },
+      {
+        "_id": "6285554a1016dc7050373fbf",
+        "max_questions_allowed_to_attempt": 3,
+        "title": "Question Set 1",
+        "questions": [
+          {
+            "_id": "62540adb0f748c8e206c1614f",
+            "text": "Which grade are you in?",
+            "type": "single-choice",
+            "instructions": null,
+            "image": null,
+            "options": [
+              { "text": "Option 1", "image": null },
+              { "text": "Option 2", "image": null },
+              { "text": "Option 3", "image": null }
+            ],
+            "max_char_limit": null,
+            "correct_answer": [0],
+            "graded": true,
+            "marking_scheme": {
+              "correct": 4,
+              "wrong": -2,
+              "skipped": -1
+            },
+            "solution": [],
+            "metadata": null,
+            "source": null,
+            "source_id": null,
+            "question_set_id": "6285554a1016dc7050373fbf"
+          },
+          {
+            "_id": "62540adb0f748c8e206c1615f",
+            "text": "Which grade are you in?",
+            "type": "multi-choice",
+            "instructions": null,
+            "image": {
+              "url": "https://plio-prod-assets.s3.ap-south-1.amazonaws.com/images/afbxudrmbl.png",
+              "alt_text": "Image"
+            },
+            "options": [
+              { "text": "Option 1", "image": null },
+              {
+                "text": "Option 2",
+                "image": {
+                  "url": "https://plio-prod-assets.s3.ap-south-1.amazonaws.com/images/afbxudrmbl.png",
+                  "alt_text": null
+                }
+              },
+              { "text": "Option 3", "image": null }
+            ],
+            "max_char_limit": null,
+            "correct_answer": [0, 2],
+            "graded": true,
+            "marking_scheme": {
+              "correct": 3,
+              "wrong": -1,
+              "skipped": -1
+            },
+            "solution": [],
+            "metadata": null,
+            "source": null,
+            "source_id": null,
+            "question_set_id": "6285554a1016dc7050373fbf"
+          },
+          {
+            "_id": "62540adb0f748c8e206c1616f",
+            "text": "Which subject are you studying?",
+            "type": "multi-choice",
+            "instructions": null,
+            "image": null,
+            "options": [
+              { "text": "Option 1", "image": null },
+              { "text": "Option 2", "image": null },
+              { "text": "Option 3", "image": null }
+            ],
+            "max_char_limit": null,
+            "correct_answer": [1],
+            "graded": true,
+            "marking_scheme": {
+              "correct": 3,
+              "wrong": -1,
+              "skipped": 0
+            },
+            "solution": [],
+            "metadata": null,
+            "source": null,
+            "source_id": null,
+            "question_set_id": "6285554a1016dc7050373fbf"
+          },
+          {
+            "_id": "62540adb0f748c8e206c1617f",
+            "text": "Which grade are you in?",
+            "type": "single-choice",
+            "instructions": null,
+            "image": null,
+            "options": [
+              { "text": "Option 1", "image": null },
+              { "text": "Option 2", "image": null },
+              { "text": "Option 3", "image": null }
+            ],
+            "max_char_limit": null,
+            "correct_answer": [0],
+            "graded": true,
+            "marking_scheme": {
+              "correct": 4,
+              "wrong": -2,
+              "skipped": -1
+            },
+            "solution": [],
+            "metadata": null,
+            "source": null,
+            "source_id": null,
+            "question_set_id": "6285554a1016dc7050373fbf"
+          },
+          {
+            "_id": "62540adb0f748c8e206c1618f",
+            "text": "Enter an float value?",
+            "type": "numerical-float",
+            "instructions": null,
+            "image": null,
+            "max_char_limit": null,
+            "correct_answer": 33.3,
+            "graded": true,
+            "marking_scheme": {
+              "correct": 3,
+              "wrong": -1,
+              "skipped": 0
+            },
+            "solution": [],
+            "metadata": null,
+            "source": null,
+            "source_id": null,
+            "question_set_id": "6285554a1016dc7050373fbf"
+          },
+          {
+            "_id": "62540adb0f748c8e206c1618fg",
+            "text": "Enter an float value?",
+            "type": "numerical-float",
+            "instructions": null,
+            "image": null,
+            "max_char_limit": null,
+            "correct_answer": 33.3,
+            "graded": true,
+            "marking_scheme": {
+              "correct": 3,
+              "wrong": -1,
+              "skipped": 0
+            },
+            "solution": [],
+            "metadata": null,
+            "source": null,
+            "source_id": null,
+            "question_set_id": "6285554a1016dc7050373fbf"
+          },
+          {
+            "_id": "62540adb0f748c8e206c1618fgh",
+            "text": "Enter an float value?",
+            "type": "numerical-float",
+            "instructions": null,
+            "image": null,
+            "max_char_limit": null,
+            "correct_answer": 33.3,
+            "graded": true,
+            "marking_scheme": {
+              "correct": 3,
+              "wrong": -1,
+              "skipped": 0
+            },
+            "solution": [],
+            "metadata": null,
+            "source": null,
+            "source_id": null,
+            "question_set_id": "6285554a1016dc7050373fbf"
+          },
+          {
+            "_id": "62540adb0f748c8e206c1618fgi",
+            "text": "Enter an float value?",
+            "type": "numerical-float",
+            "instructions": null,
+            "image": null,
+            "max_char_limit": null,
+            "correct_answer": 33.3,
+            "graded": true,
+            "marking_scheme": {
+              "correct": 3,
+              "wrong": -1,
+              "skipped": 0
+            },
+            "solution": [],
+            "metadata": null,
+            "source": null,
+            "source_id": null,
+            "question_set_id": "6285554a1016dc7050373fbf"
+          },
+          {
+            "_id": "62540adb0f748c8e206c1618fj",
+            "text": "Enter an float value?",
+            "type": "numerical-float",
+            "instructions": null,
+            "image": null,
+            "max_char_limit": null,
+            "correct_answer": 33.3,
+            "graded": true,
+            "marking_scheme": {
+              "correct": 3,
+              "wrong": -1,
+              "skipped": 0
+            },
+            "solution": [],
+            "metadata": null,
+            "source": null,
+            "source_id": null,
+            "question_set_id": "6285554a1016dc7050373fbf"
+          },
+          {
+            "_id": "62540adb0f748c8e206c1618fk",
+            "text": "Enter an float value?",
+            "type": "numerical-float",
+            "instructions": null,
+            "image": null,
+            "max_char_limit": null,
+            "correct_answer": 33.3,
+            "graded": true,
+            "marking_scheme": {
+              "correct": 3,
+              "wrong": -1,
+              "skipped": 0
+            },
+            "solution": [],
+            "metadata": null,
+            "source": null,
+            "source_id": null,
+            "question_set_id": "6285554a1016dc7050373fbf"
+          },
+          {
+            "_id": "62540adb0f748c8e206c1618fl",
+            "text": "Enter an float value?",
+            "type": "numerical-float",
+            "instructions": null,
+            "image": null,
+            "max_char_limit": null,
+            "correct_answer": 33.3,
+            "graded": true,
+            "marking_scheme": {
+              "correct": 3,
+              "wrong": -1,
+              "skipped": 0
+            },
+            "solution": [],
+            "metadata": null,
+            "source": null,
+            "source_id": null,
+            "question_set_id": "6285554a1016dc7050373fbf"
+          },
+          {
+            "_id": "62540adb0f748c8e206c1618fp",
+            "text": "Enter an float value?",
+            "type": "numerical-float",
+            "instructions": null,
+            "image": null,
+            "max_char_limit": null,
+            "correct_answer": 33.3,
+            "graded": true,
+            "marking_scheme": {
+              "correct": 3,
+              "wrong": -1,
+              "skipped": 0
+            },
+            "solution": [],
+            "metadata": null,
+            "source": null,
+            "source_id": null,
+            "question_set_id": "6285554a1016dc7050373fbf"
+          }
+        ]
+      }
+    ],
+    "title": "cypress omr assessment",
+    "max_marks": 48,
+    "num_graded_questions": 24,
+    "shuffle": false,
+    "num_attempts_allowed": 1,
+    "time_limit": {"min": 0, "max": 200},
+    "navigation_mode": "non-linear",
+    "instructions": null,
+    "language": "en",
+    "metadata": {
+      "quiz_type": "omr-assessment",
+      "grade": "8",
+      "subject": "Maths",
+      "chapter": null,
+      "topic": null
+    }
+  }

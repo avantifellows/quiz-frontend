@@ -185,7 +185,6 @@ export default defineComponent({
 
     const isQuizAssessment = computed(() => (state.metadata.quiz_type == "assessment" || state.metadata.quiz_type == "omr-assessment"));
 
-    // const isOmrMode = computed(() => state.metadata.quiz_type == "assessment" && state.metadata.omr_mode == true);
     const isOmrMode = computed(() => state.metadata.quiz_type == "omr-assessment");
 
     const isSplashShown = computed(() => state.currentQuestionIndex == -1);
@@ -258,7 +257,7 @@ export default defineComponent({
     onMounted(() => {
       window.setInterval(() => {
         timerUpdates();
-      }, 38000);
+      }, 60000);
     });
 
     async function startQuiz() {

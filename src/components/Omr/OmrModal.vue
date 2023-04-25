@@ -22,8 +22,8 @@
           <!-- to ensure that questions don't appear behind footer -->
           <div
           v-for="(questionSetState, index) in questionSetStates" :key="index" class="space-y-2">
-              <p :class="titleTextClass" :data-test="`paletteTitle-${index}`">{{ questionSetState.title }}</p>
-              <p :class="instructionTextClass" :data-test="`paletteInstruction-${index}`">{{ questionSetState.instructionText }}</p>
+              <p :class="titleTextClass" :data-test="`questionSetTitle-${index}`">{{ questionSetState.title }}</p>
+              <p :class="instructionTextClass" :data-test="`questionSetInstruction-${index}`">{{ questionSetState.instructionText }}</p>
               <div class="mt-4 space-y-4">
               <OmrItem
                   v-for="(questionState, qindex) in questionSetState.paletteItems"
@@ -43,7 +43,7 @@
                   @subjective-answer-entered="subjectiveAnswerUpdated"
                   @numerical-answer-entered="numericalAnswerUpdated"
                   :key="questionState.index"
-                  :data-test="`omritem-${questionState.index}`"
+                  :data-test="`OmrItem-${questionState.index}`"
                   ref="omritem"
               ></OmrItem>
               </div>
@@ -88,7 +88,7 @@ import {
 } from "../../types"
 import { useToast, POSITION } from "vue-toastification"
 
-// const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require('uuid');
 
 export default defineComponent({
   name: "OmrModal",
@@ -179,8 +179,8 @@ export default defineComponent({
     }
 
     function generateId(idx: number) {
-      // return uuidv4() + idx;
-      return idx; // random key string for vue component
+      return uuidv4() + idx;
+      // return idx; // random key string for vue component
     }
 
     function updateQuestionIndex(newQuestionIndex: number) {
