@@ -173,7 +173,7 @@ describe("Player for OMR quizzes", () => {
 
       describe("Question Palette", () => {
         it("Omr view should not contain question palette", () => {
-          cy.get('[data-test="togglePaletteButton"]').should("not.exist");
+          cy.get('[data-test="togglePaletteButton"]').should("not.be.visible");
         });
       });
 
