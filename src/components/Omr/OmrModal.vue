@@ -44,7 +44,7 @@
                   @numerical-answer-entered="numericalAnswerUpdated"
                   :key="questionState.index"
                   :data-test="`OmrItem-${questionState.index}`"
-                  ref="omritem"
+                  :ref="`omritem-${questionState.index}`"
               ></OmrItem>
               </div>
           </div>
