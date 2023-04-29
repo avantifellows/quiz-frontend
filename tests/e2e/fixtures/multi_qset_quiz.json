@@ -5,6 +5,11 @@
         "_id": "62540adb0f748c8e206c1613",
         "max_questions_allowed_to_attempt": 12,
         "title": "Question Set 0",
+        "marking_scheme": {
+          "correct": 4,
+          "wrong": -2,
+          "skipped": -1
+        },
         "questions": [
           {
             "_id": "62540adb0f748c8e206c1614",
@@ -276,6 +281,11 @@
         "_id": "6285554a1016dc7050373fbf",
         "max_questions_allowed_to_attempt": 3,
         "title": "Question Set 1",
+        "marking_scheme": {
+          "correct": 4,
+          "wrong": -2,
+          "skipped": -1
+        },
         "questions": [
           {
             "_id": "62540adb0f748c8e206c1614f",

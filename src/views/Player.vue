@@ -547,6 +547,7 @@ export default defineComponent({
           } else {
             paletteInstructionText = `You may attempt all questions in this section.`
           }
+          paletteInstructionText += ` Correct Answer: +${state.questionSets[index].marking_scheme.correct}, Wrong Answer: ${state.questionSets[index].marking_scheme.wrong}, Skipped: ${state.questionSets[index].marking_scheme.skipped}`
           qsetStates.push({
             title: state.questionSets[index].title,
             paletteItems: states,
@@ -579,6 +580,7 @@ export default defineComponent({
           } else {
             paletteInstructionText = `You may attempt all questions in this section.`
           }
+          paletteInstructionText += ` Correct Answer: +${state.questionSets[index].marking_scheme.correct}, Wrong Answer: ${state.questionSets[index].marking_scheme.wrong}, Skipped: ${state.questionSets[index].marking_scheme.skipped}`
           qsetStates.push({
             title: state.questionSets[index].title,
             paletteItems: states,

@@ -320,7 +320,7 @@ describe("Player for OMR quizzes", () => {
           cy.get('[data-test="questionSetInstruction-1"').should("exist");
           cy.get('[data-test="questionSetInstruction-1"').should(
             "have.text",
-            "You may attempt only up to 3 questions in this section."
+            "You may attempt only up to 3 questions in this section. Correct Answer: +4, Wrong Answer: -2, Skipped: -1"
           );
         });
 
