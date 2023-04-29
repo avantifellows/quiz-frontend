@@ -228,11 +228,15 @@ To attempt this question, unselect an answer to another question in this section
         // remove it from the response (uncheck it); otherwise add it (check it)
         // lodash clonedeep clones the array (which may contain any complex object; responses here)
         // not cloning the array leads to update:responses -> changing currentResponse value
-        const currentResponse = clonedeep(state.draftResponses[props.currentQuestionIndex])
+        let currentResponse = clonedeep(state.draftResponses[props.currentQuestionIndex])
         if (Array.isArray(currentResponse)) {
           const optionPositionInResponse = currentResponse.indexOf(optionIndex)
           if (optionPositionInResponse != -1) {
             currentResponse.splice(optionPositionInResponse, 1)
+            if (currentResponse.length == 0) {
+              // if all options unselected, set answer to null
+              currentResponse = null;
+            }
           } else {
             currentResponse.push(optionIndex)
             currentResponse.sort()

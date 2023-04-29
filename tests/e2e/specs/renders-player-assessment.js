@@ -228,7 +228,7 @@ describe("Player for Assessment quizzes", () => {
           cy.get('[data-test="paletteInstruction-0"').should("exist");
           cy.get('[data-test="paletteInstruction-0"').should(
             "have.text",
-            "You may attempt all questions in this section."
+            "You may attempt all questions in this section. Correct Answer: +4, Wrong Answer: -2, Skipped: -1"
           );
         });
 
@@ -293,7 +293,7 @@ describe("Player for Assessment quizzes", () => {
           cy.get('[data-test="paletteItem-3"]').trigger("click");
           cy.get('[data-test="question-header-text"]').should(
             "have.text",
-            "Question Set 0 / Q.4  Subjective Numerical" // {Question Set Title / Q.{Question Number} {Question Type}}
+            "Question Set 0 / Q.4  Numerical Integer" // {Question Set Title / Q.{Question Number} {Question Type}}
           );
         });
       });

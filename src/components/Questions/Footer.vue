@@ -13,7 +13,7 @@
         :buttonClass="assessmentNavigationButtonClass"
         :class="{
           hidden: !isPreviousButtonShown && !isQuizAssessment,
-          invisible: !isPreviousButtonShown && isQuizAssessment,
+          invisible: (!isPreviousButtonShown && isQuizAssessment) || isOmrMode,
         }"
         ariaLabel="Previous Question"
         @click="goToPreviousQuestion"
@@ -27,6 +27,9 @@
     >
       <!-- clear button - assessment -->
       <icon-button
+        :class="{
+          hidden: isOmrMode
+        }"
         :titleConfig="clearButtonTitleConfig"
         :buttonClass="clearButtonClass"
         :isDisabled="!isSubmitEnabled"
@@ -36,6 +39,9 @@
 
       <!-- save & next button - assessment -->
       <icon-button
+        :class="{
+          hidden: isOmrMode
+        }"
         :titleConfig="saveAndNextButtonTitleConfig"
         :buttonClass="saveAndNextButtonClass"
         :isDisabled="!isAnswerSubmitted && !isSubmitEnabled"
@@ -56,6 +62,9 @@
       ></icon-button>
       <!-- forward button - assessment -->
       <icon-button
+        :class="{
+          hidden: isOmrMode
+        }"
         v-if="isQuizAssessment && isNextButtonShown"
         :iconConfig="nextQuestionButtonIconConfig"
         :buttonClass="assessmentNavigationButtonClass"
@@ -110,9 +119,13 @@ export default defineComponent({
       type: String as PropType<quizType>,
       default: "homework",
     },
+    isOmrMode: {
+      default: false,
+      type: Boolean,
+    }
   },
   setup(props, context) {
-    const isQuizAssessment = computed(() => props.quizType == "assessment");
+    const isQuizAssessment = computed(() => props.quizType == "assessment" || props.quizType == "omr-assessment");
     const state = reactive({
       assessmentNavigationButtonIconClass: [
         {

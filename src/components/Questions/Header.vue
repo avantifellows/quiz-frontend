@@ -2,6 +2,7 @@
   <div class="flex w-full justify-between bg-gray-100 p-4">
     <!-- hamburger for question palette -->
     <icon-button
+      :class="{invisible: isOmrMode}"
       :iconConfig="togglePaletteButtonIconConfig"
       :buttonClass="togglePaletteButtonClass"
       @click="togglePalette"
@@ -57,6 +58,10 @@ export default defineComponent({
     timeRemaining: {
       type: Number,
       default: 0 // time remaining for quiz to complete
+    },
+    isOmrMode: {
+      type: Boolean,
+      default: false,
     }
   },
   setup(props, context) {

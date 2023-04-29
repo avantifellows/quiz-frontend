@@ -559,7 +559,7 @@
         ]
       }
     ],
-    "title": "cypress assessment",
+    "title": "cypress omr assessment",
     "max_marks": 48,
     "num_graded_questions": 24,
     "shuffle": false,
@@ -569,7 +569,7 @@
     "instructions": null,
     "language": "en",
     "metadata": {
-      "quiz_type": "assessment",
+      "quiz_type": "omr-assessment",
       "grade": "8",
       "subject": "Maths",
       "chapter": null,
