@@ -485,7 +485,6 @@ export default defineComponent({
       if (!answerEvaluation.valid) {
         return;
       }
-      console.log("answer eval", answerEvaluation);
       if (answerEvaluation.answered) {
         state.numSkipped -= 1;
         if (answerEvaluation.isCorrect != null) {
@@ -494,7 +493,6 @@ export default defineComponent({
           } else if (answerEvaluation.isPartiallyCorrect != null && answerEvaluation.isPartiallyCorrect == true) {
             updateMetricsForPartiallyCorrectAnswer();
           } else {
-            console.log("wrong!")
             updateMetricsForWrongAnswer();
           }
         }
