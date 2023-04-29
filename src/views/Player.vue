@@ -169,6 +169,7 @@ export default defineComponent({
       isFirstSession: null as boolean | null,
       numCorrect: 0, // number of correctly answered questions
       numWrong: 0, // number of wrongly answered questions
+      numPartiallyCorrect: 0, // number of partially correct questions
       numSkipped: 0, // number of skipped questions
       marksScored: 0,
       maxMarks: 0, // maximum marks that can be scored
@@ -228,7 +229,7 @@ export default defineComponent({
     function getQsetLimits(questionIndex : number) : [number, QuestionSetIndexLimits] {
       // returns the question set index a question belongs to
       // and the limits of that question set (low and high)
-      const qsetIndex = state.qsetCumulativeLengths.findIndex(
+      let qsetIndex = state.qsetCumulativeLengths.findIndex(
         cumulativeLength => cumulativeLength > questionIndex
       )
 
@@ -237,6 +238,8 @@ export default defineComponent({
         qsetIndexLimits.low = state.qsetCumulativeLengths[qsetIndex - 1]
       } else qsetIndexLimits.low = 0
       qsetIndexLimits.high = state.qsetCumulativeLengths[qsetIndex]
+
+      if (qsetIndex == -1) qsetIndex = 0; // set to default question set index
 
       return [qsetIndex, qsetIndexLimits];
     }
@@ -377,7 +380,7 @@ export default defineComponent({
             class:
               "text-red-500 h-8 bp-500:h-10 lg:h-12 w-6 bp-500:w-8 lg:w-10 place-self-center flex justify-center",
           },
-          value: state.numWrong,
+          value: state.numWrong + state.numPartiallyCorrect,
         },
       ];
 
@@ -417,7 +420,7 @@ export default defineComponent({
      * number of questions that have been answered
      */
     const numQuestionsAnswered = computed(() => {
-      return state.numCorrect + state.numWrong;
+      return state.numCorrect + state.numWrong + state.numPartiallyCorrect;
     });
 
     const numNonGradedQuestions = computed(() => {
@@ -443,6 +446,7 @@ export default defineComponent({
       state.numSkipped = numGradedQuestions.value;
       state.numCorrect = 0;
       state.numWrong = 0;
+      state.numPartiallyCorrect = 0;
       state.marksScored = 0;
 
       state.questions.forEach((questionDetail) => {
@@ -469,6 +473,14 @@ export default defineComponent({
         state.marksScored += markingScheme?.wrong || 0;
       }
 
+      function updateMetricsForPartiallyCorrectAnswer() {
+        // for now, just considering length of user's answer in multi answer questions
+        state.numPartiallyCorrect += 1;
+        if (questionDetail.type == "multi-choice" && Array.isArray(userAnswer)) {
+          state.marksScored += userAnswer.length;
+        }
+      }
+
       const answerEvaluation = isQuestionAnswerCorrect(questionDetail, userAnswer);
       if (!answerEvaluation.valid) {
         return;
@@ -476,9 +488,13 @@ export default defineComponent({
       if (answerEvaluation.answered) {
         state.numSkipped -= 1;
         if (answerEvaluation.isCorrect != null) {
-          answerEvaluation.isCorrect
-            ? updateMetricsForCorrectAnswer()
-            : updateMetricsForWrongAnswer();
+          if (answerEvaluation.isCorrect == true) {
+            updateMetricsForCorrectAnswer();
+          } else if (answerEvaluation.isPartiallyCorrect != null && answerEvaluation.isPartiallyCorrect == true) {
+            updateMetricsForPartiallyCorrectAnswer();
+          } else {
+            updateMetricsForWrongAnswer();
+          }
         }
       } else {
         // default marks for skipped questions = 0
@@ -633,6 +649,8 @@ export default defineComponent({
       scorecardProgress,
       numQuestionsAnswered,
       hasGradedQuestions,
+      numNonGradedQuestions,
+      numGradedQuestions,
       isQuizLoaded,
       scorecardResult,
       startQuiz,
