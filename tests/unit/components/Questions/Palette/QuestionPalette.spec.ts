@@ -55,11 +55,13 @@ describe("QuestionPalette.vue", () => {
           title: "Question Set 0",
           paletteItems: questionStates0,
           instructionText: "You may attempt all questions",
+          maxQuestionsAllowedToAttempt: 3,
         },
         {
           title: "Question Set 1",
           paletteItems: questionStates1,
           instructionText: "You may attempt all questions",
+          maxQuestionsAllowedToAttempt: 3,
         },
       ];
       const currentQuestionIndex = 1;

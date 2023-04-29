@@ -1,7 +1,7 @@
 // contains all the custom types that we want to use
 
 type language = "en" | "hi";
-export type quizType = "assessment" | "homework";
+export type quizType = "assessment" | "homework" | "omr-assessment";
 export type quizTitleType = string | null;
 export type textAreaValueType = string | number | null;
 export type isFirstSessionType = boolean | null;
@@ -26,9 +26,9 @@ export enum questionType {
 
 export enum questionTypeHeaderText {
     SINGLE_CHOICE = "Single Choice",
-    MULTI_CHOICE = "Multiple Choice",
-    NUMERICAL_INTEGER = "Subjective Numerical",
-    NUMERICAL_FLOAT = "Subjective Numerical",
+    MULTI_CHOICE = "Multiple Answer",
+    NUMERICAL_INTEGER = "Numerical Integer",
+    NUMERICAL_FLOAT = "Numerical",
  }
 
 export interface IconButtonTitleConfig {
@@ -75,6 +75,7 @@ export interface QuizMetadata {
   subject: string;
   chapter?: string;
   topic?: string;
+  omr_mode: boolean;
 }
 
 export interface QuestionBucket {
@@ -142,6 +143,7 @@ export interface QuestionSet {
   questions: Question[];
   max_questions_allowed_to_attempt: number;
   title: string | null;
+  marking_scheme: MarkingScheme;
 }
 
 export interface QuestionSetIndexLimits {
@@ -210,6 +212,7 @@ export interface questionSetPalette {
   title: string | null;
   paletteItems: paletteItemState[];
   instructionText: string;
+  maxQuestionsAllowedToAttempt: number;
 }
 
 export interface OrganizationAPIResponse {

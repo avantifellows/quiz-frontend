@@ -1,6 +1,6 @@
 <template>
   <InputText :title="title" :inputValidation="inputValidation">
-    <div class="flex relative mt-1">
+    <div class="flex mt-1">
       <!-- input text area -->
       <textarea
         class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white disabled:bg-gray-200 rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200 disabled:cursor-not-allowed"

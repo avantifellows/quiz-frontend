@@ -35,11 +35,38 @@ describe("Player for Assessment quizzes", () => {
     describe("Quiz Started", () => {
       beforeEach(() => {
         cy.get("@startQuizButton").trigger("click");
+        // jump to question index 12
+        cy.get('[data-test="togglePaletteButton"]').trigger("click");
+        cy.get('[data-test="paletteItem-12"]').trigger("click");
+
+        // question 12
+        cy.get('[data-test="modal"]')
+          .get('[data-test="optionSelector-0"]')
+          .trigger("click");
+        cy.get('[data-test="modal"]')
+          .get('[data-test="saveAndNextButton"]')
+          .trigger("click");
+
+        // question 13
+        cy.get('[data-test="modal"]')
+          .get('[data-test="optionSelector-0"]')
+          .trigger("click");
+        cy.get('[data-test="modal"]')
+          .get('[data-test="saveAndNextButton"]')
+          .trigger("click");
+
+        // question 14
+        cy.get('[data-test="modal"]')
+          .get('[data-test="optionSelector-0"]')
+          .trigger("click");
+        cy.get('[data-test="modal"]')
+          .get('[data-test="saveAndNextButton"]')
+          .trigger("click");
       });
 
       it("cannot select answer for question once optional limit reached", () => {
         cy.get('[data-test="togglePaletteButton"]').trigger("click");
-        cy.get('[data-test="paletteItem-15"]').trigger("click"); // 12, 13, 14 answered in 2nd qset
+        cy.get('[data-test="paletteItem-15"]').trigger("click");
 
         cy.get('[data-test="modal"]')
           .get('[data-test="optionSelector-0"]')
@@ -91,7 +118,7 @@ describe("Player for Assessment quizzes", () => {
         cy.get('[data-test="paletteInstruction-1"').should("exist");
         cy.get('[data-test="paletteInstruction-1"').should(
           "have.text",
-          "You may attempt only up to 3 questions in this section."
+          "You may attempt only up to 3 questions in this section. Correct Answer: +4, Wrong Answer: -2, Skipped: -1"
         );
       });
 

@@ -21,8 +21,35 @@
         data-test="splash"
       ></Splash>
 
+      <OmrModal
+        :questions="questions"
+        class="absolute z-10"
+        :class="{
+          hidden: !isOmrMode,
+        }"
+        :quizType="metadata.quiz_type"
+        :hasQuizEnded="hasQuizEnded"
+        :isOmrMode="isOmrMode"
+        :numQuestions="maxQuestionsAllowedToAttempt"
+        :maxQuestionsAllowedToAttempt="currentMaxQuestionsAllowedToAttempt"
+        :questionSetStates="questionSetStates"
+        :qsetIndex="currentQsetIndex"
+        :qsetIndexLimits="currentQsetIndexLimits"
+        :quizTimeLimit="quizTimeLimit"
+        :timeRemaining="timeRemaining"
+        v-model:currentQuestionIndex="currentQuestionIndex"
+        v-model:responses="responses"
+        @submit-omr-question="submitOmrQuestion"
+        @end-test="endTest"
+        data-test="omr-modal"
+        v-if="isQuestionShown && isOmrMode"
+      ></OmrModal>
+
       <QuestionModal
         :questions="questions"
+        :class="{
+          hidden: isOmrMode,
+        }"
         :quizType="metadata.quiz_type"
         :hasQuizEnded="hasQuizEnded"
         :numQuestions="maxQuestionsAllowedToAttempt"
@@ -37,7 +64,7 @@
         @submit-question="submitQuestion"
         @end-test="endTest"
         @fetch-question-bucket="fetchQuestionBucket"
-        v-if="isQuestionShown"
+        v-if="isQuestionShown && !isOmrMode"
         data-test="modal"
       ></QuestionModal>
 
@@ -64,6 +91,7 @@
 
 <script lang="ts">
 import QuestionModal from "../components/Questions/QuestionModal.vue";
+import OmrModal from "../components/Omr/OmrModal.vue"
 import Splash from "../components/Splash.vue";
 import Scorecard from "../components/Scorecard.vue";
 import { resetConfetti, isQuestionAnswerCorrect, isQuestionFetched, createQuestionBuckets } from "../services/Functional/Utilities";
@@ -100,6 +128,7 @@ export default defineComponent({
     QuestionModal,
     Scorecard,
     BaseIcon,
+    OmrModal
   },
   props: {
     quizId: {
@@ -154,7 +183,9 @@ export default defineComponent({
       });
     });
 
-    const isQuizAssessment = computed(() => state.metadata.quiz_type == "assessment");
+    const isQuizAssessment = computed(() => (state.metadata.quiz_type == "assessment" || state.metadata.quiz_type == "omr-assessment"));
+
+    const isOmrMode = computed(() => state.metadata.quiz_type == "omr-assessment");
 
     const isSplashShown = computed(() => state.currentQuestionIndex == -1);
     const numQuestions = computed(() => state.questions.length);
@@ -226,7 +257,7 @@ export default defineComponent({
     onMounted(() => {
       window.setInterval(() => {
         timerUpdates();
-      }, 8000);
+      }, 60000);
     });
 
     async function startQuiz() {
@@ -297,6 +328,17 @@ export default defineComponent({
       SessionAPIService.updateSessionAnswer(
         state.sessionId,
         state.currentQuestionIndex,
+        {
+          answer: itemResponse.answer,
+        }
+      );
+    }
+
+    function submitOmrQuestion(newQuestionIndex: number) {
+      const itemResponse = state.responses[newQuestionIndex];
+      SessionAPIService.updateSessionAnswer(
+        state.sessionId,
+        newQuestionIndex,
         {
           answer: itemResponse.answer,
         }
@@ -505,10 +547,12 @@ export default defineComponent({
           } else {
             paletteInstructionText = `You may attempt all questions in this section.`
           }
+          paletteInstructionText += ` Correct Answer: +${state.questionSets[index].marking_scheme.correct}, Wrong Answer: ${state.questionSets[index].marking_scheme.wrong}, Skipped: ${state.questionSets[index].marking_scheme.skipped}`
           qsetStates.push({
             title: state.questionSets[index].title,
             paletteItems: states,
-            instructionText: paletteInstructionText
+            instructionText: paletteInstructionText,
+            maxQuestionsAllowedToAttempt: state.questionSets[index].max_questions_allowed_to_attempt
           })
         }
       } else {
@@ -536,10 +580,12 @@ export default defineComponent({
           } else {
             paletteInstructionText = `You may attempt all questions in this section.`
           }
+          paletteInstructionText += ` Correct Answer: +${state.questionSets[index].marking_scheme.correct}, Wrong Answer: ${state.questionSets[index].marking_scheme.wrong}, Skipped: ${state.questionSets[index].marking_scheme.skipped}`
           qsetStates.push({
             title: state.questionSets[index].title,
             paletteItems: states,
-            instructionText: paletteInstructionText
+            instructionText: paletteInstructionText,
+            maxQuestionsAllowedToAttempt: state.questionSets[index].max_questions_allowed_to_attempt
           })
         }
       }
@@ -582,6 +628,7 @@ export default defineComponent({
       ...toRefs(state),
       isQuestionShown,
       isSplashShown,
+      isQuizAssessment,
       scorecardMetrics,
       scorecardProgress,
       numQuestionsAnswered,
@@ -591,13 +638,15 @@ export default defineComponent({
       startQuiz,
       getQsetLimits,
       submitQuestion,
+      submitOmrQuestion,
       goToPreviousQuestion,
       endTest,
       currentMaxQuestionsAllowedToAttempt,
       currentQsetTitle,
       questionSetStates,
       fetchQuestionBucket,
-      timerUpdates
+      timerUpdates,
+      isOmrMode
     };
   },
 });
