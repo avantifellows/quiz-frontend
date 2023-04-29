@@ -200,6 +200,7 @@ export interface answerEvaluation {
   valid: boolean; // whether the evaluation of the question is valid in the first place (invalid for ungraded questions)
   answered: boolean; // whether the question has been answered
   isCorrect?: boolean;
+  isPartiallyCorrect?: boolean; // whether question has been partially answered for multi answer
 }
 
 export type questionState = "success" | "error" | "neutral";
