@@ -10,6 +10,11 @@
       :hasQuizEnded="hasQuizEnded"
       data-test="error"
     ></Error>
+    <PartialSuccess
+      v-else-if="state == 'partial-success'"
+      :hasQuizEnded="hasQuizEnded"
+      data-test="error"
+    ></PartialSuccess>
     <Neutral
       v-else-if="state == 'neutral'"
       :hasQuizEnded="hasQuizEnded"
@@ -31,6 +36,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
 import Success from "./Success.vue";
+import PartialSuccess from "./PartialSuccess.vue"
 import Error from "./Error.vue";
 import Neutral from "./Neutral.vue";
 import { questionState } from "../../../types";
@@ -39,6 +45,7 @@ export default defineComponent({
   name: "Item",
   components: {
     Success,
+    PartialSuccess,
     Error,
     Neutral,
   },

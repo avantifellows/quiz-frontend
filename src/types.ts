@@ -31,6 +31,13 @@ export enum questionTypeHeaderText {
     NUMERICAL_FLOAT = "Numerical",
  }
 
+export enum questionSetTypeInstructionText {
+  SINGLE_CHOICE = "MCQs with SINGLE correct option",
+  MULTI_CHOICE = "MCQs with ONE or MORE correct options",
+  NUMERICAL_INTEGER = "Non-Negative Integer answer",
+  NUMERICAL_FLOAT = "Numerical Answer (rounded off to TWO decinal places)",
+}
+
 export interface IconButtonTitleConfig {
   value: string;
   class?: string | string[];
@@ -114,6 +121,7 @@ interface MarkingScheme {
   correct: number;
   wrong: number;
   skipped: number;
+  partial: { [numCorrectSelected: string]: number } | null;
 }
 
 interface Option {
@@ -203,7 +211,7 @@ export interface answerEvaluation {
   isPartiallyCorrect?: boolean; // whether question has been partially answered for multi answer
 }
 
-export type questionState = "success" | "error" | "neutral";
+export type questionState = "success" | "error" | "neutral" | "partial-success";
 export interface paletteItemState {
   index: number; // index of the corresponding question in the list of questions
   value: questionState;

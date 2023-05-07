@@ -116,7 +116,9 @@ import {
   paletteItemState,
   questionSetPalette,
   TimeLimit,
-  eventType
+  eventType,
+  questionType,
+  questionSetTypeInstructionText
 } from "../types";
 import BaseIcon from "../components/UI/Icons/BaseIcon.vue";
 import OrganizationAPIService from "../services/API/Organization";
@@ -183,6 +185,13 @@ export default defineComponent({
         name: "403",
       });
     });
+
+    const questionSetTypeInstructionMapping = new Map<string, string>([
+      [questionType.SINGLE_CHOICE, questionSetTypeInstructionText.SINGLE_CHOICE],
+      [questionType.MULTI_CHOICE, questionSetTypeInstructionText.MULTI_CHOICE],
+      [questionType.NUMERICAL_INTEGER, questionSetTypeInstructionText.NUMERICAL_INTEGER],
+      [questionType.NUMERICAL_FLOAT, questionSetTypeInstructionText.NUMERICAL_FLOAT]
+    ]);
 
     const isQuizAssessment = computed(() => (state.metadata.quiz_type == "assessment" || state.metadata.quiz_type == "omr-assessment"));
 
@@ -363,6 +372,7 @@ export default defineComponent({
      * defines all the metrics to show in the scorecard here
      */
     const scorecardMetrics = computed(() => {
+      console.log('reached here')
       const metrics = [
         {
           name: "Correct",
@@ -380,9 +390,21 @@ export default defineComponent({
             class:
               "text-red-500 h-8 bp-500:h-10 lg:h-12 w-6 bp-500:w-8 lg:w-10 place-self-center flex justify-center",
           },
-          value: state.numWrong + state.numPartiallyCorrect,
+          value: state.numWrong,
         },
       ];
+
+      if (state.numPartiallyCorrect) {
+        metrics.push({
+          name: "Partially Correct",
+          icon: {
+            source: "partially-correct",
+            class:
+              "h-10 bp-500:h-12 lg:h-14 w-8 bp-500:w-10 lg:w-12 place-self-center flex justify-center",
+          },
+          value: state.numPartiallyCorrect
+        })
+      };
 
       if (isQuizAssessment.value) {
         metrics.push({
@@ -460,6 +482,7 @@ export default defineComponent({
       userAnswer: submittedAnswer
     ) {
       const markingScheme = questionDetail.marking_scheme;
+      const doesPartialMarkingExist = markingScheme?.partial != null;
 
       function updateMetricsForCorrectAnswer() {
         state.numCorrect += 1;
@@ -474,14 +497,13 @@ export default defineComponent({
       }
 
       function updateMetricsForPartiallyCorrectAnswer() {
-        // for now, just considering length of user's answer in multi answer questions
         state.numPartiallyCorrect += 1;
-        if (questionDetail.type == "multi-choice" && Array.isArray(userAnswer)) {
-          state.marksScored += userAnswer.length;
+        if (questionDetail.type == "multi-choice" && Array.isArray(userAnswer) && markingScheme?.partial != null) {
+          state.marksScored += markingScheme.partial[userAnswer.length.toString()] // numCorrectSelected = userAnswer.length
         }
       }
 
-      const answerEvaluation = isQuestionAnswerCorrect(questionDetail, userAnswer);
+      const answerEvaluation = isQuestionAnswerCorrect(questionDetail, userAnswer, doesPartialMarkingExist);
       if (!answerEvaluation.valid) {
         return;
       }
@@ -529,83 +551,70 @@ export default defineComponent({
      */
     const questionSetStates = computed(() => {
       const qsetStates = [] as questionSetPalette[]
-
-      if (state.hasQuizEnded) {
-        for (let index = 0; index < state.questionSets.length; index++) {
-          const states = [] as paletteItemState[]
-          let startIndex = 0
-          if (index > 0) startIndex = state.qsetCumulativeLengths[index - 1]
-          for (let qindex = startIndex; qindex < state.qsetCumulativeLengths[index]; qindex++) {
+      for (let index = 0; index < state.questionSets.length; index++) {
+        const states = [] as paletteItemState[]
+        let startIndex = 0
+        if (index > 0) startIndex = state.qsetCumulativeLengths[index - 1]
+        for (let qindex = startIndex; qindex < state.qsetCumulativeLengths[index]; qindex++) {
+          let qstate: questionState
+          if (state.hasQuizEnded) {
             const questionAnswerEvaluation = isQuestionAnswerCorrect(
               state.questions[qindex],
-              state.responses[qindex].answer
+              state.responses[qindex].answer,
+              state.questions[qindex].marking_scheme?.partial != null // doesPartialMarkingExist
             )
             if (!questionAnswerEvaluation.valid) continue
-            let qstate: questionState
             if (
               !questionAnswerEvaluation.answered ||
-              questionAnswerEvaluation.isCorrect == null
+          questionAnswerEvaluation.isCorrect == null
             ) {
               qstate = "neutral"
             } else {
-              questionAnswerEvaluation.isCorrect
-                ? (qstate = "success")
-                : (qstate = "error")
+              if (questionAnswerEvaluation.isCorrect) {
+                qstate = "success"
+              } else if (questionAnswerEvaluation.isPartiallyCorrect) {
+                qstate = "partial-success"
+              } else qstate = "error"
             }
-            states.push({
-              index: qindex,
-              value: qstate
-            })
-          }
-          let paletteInstructionText: string = "";
-          if (state.questionSets[index].max_questions_allowed_to_attempt < state.questionSets[index].questions.length) {
-            paletteInstructionText = `You may attempt only up to ${state.questionSets[index].max_questions_allowed_to_attempt} questions in this section.`
           } else {
-            paletteInstructionText = `You may attempt all questions in this section.`
-          }
-          paletteInstructionText += ` Correct Answer: +${state.questionSets[index].marking_scheme.correct}, Wrong Answer: ${state.questionSets[index].marking_scheme.wrong}, Skipped: ${state.questionSets[index].marking_scheme.skipped}`
-          qsetStates.push({
-            title: state.questionSets[index].title,
-            paletteItems: states,
-            instructionText: paletteInstructionText,
-            maxQuestionsAllowedToAttempt: state.questionSets[index].max_questions_allowed_to_attempt
-          })
-        }
-      } else {
-        for (let index = 0; index < state.questionSets.length; index++) {
-          const states = [] as paletteItemState[]
-          let startIndex = 0
-          if (index > 0) startIndex = state.qsetCumulativeLengths[index - 1]
-          for (let qindex = startIndex; qindex < state.qsetCumulativeLengths[index]; qindex++) {
             if (!state.questions[qindex].graded) continue
-            let qstate: questionState
             if (!state.responses[qindex].visited) {
               qstate = "neutral"
             } else {
               if (state.responses[qindex].answer != null) qstate = "success"
               else qstate = "error"
             }
-            states.push({
-              index: qindex,
-              value: qstate
-            })
           }
-          let paletteInstructionText: string = "";
-          if (state.questionSets[index].max_questions_allowed_to_attempt < state.questionSets[index].questions.length) {
-            paletteInstructionText = `You may attempt only up to ${state.questionSets[index].max_questions_allowed_to_attempt} questions in this section.`
-          } else {
-            paletteInstructionText = `You may attempt all questions in this section.`
-          }
-          paletteInstructionText += ` Correct Answer: +${state.questionSets[index].marking_scheme.correct}, Wrong Answer: ${state.questionSets[index].marking_scheme.wrong}, Skipped: ${state.questionSets[index].marking_scheme.skipped}`
-          qsetStates.push({
-            title: state.questionSets[index].title,
-            paletteItems: states,
-            instructionText: paletteInstructionText,
-            maxQuestionsAllowedToAttempt: state.questionSets[index].max_questions_allowed_to_attempt
+          states.push({
+            index: qindex,
+            value: qstate
           })
         }
-      }
+        // the below instruction assumes all questions within a set are of the same type
+        let paletteInstructionText: string = `<u>${questionSetTypeInstructionMapping.get(state.questionSets[index].questions[0].type)}</u>\n`;
+        if (state.questionSets[index].max_questions_allowed_to_attempt < state.questionSets[index].questions.length) {
+          paletteInstructionText += `You may attempt only up to ${state.questionSets[index].max_questions_allowed_to_attempt} questions in this section.`
+        } else {
+          paletteInstructionText += `You may attempt all questions in this section.`
+        }
 
+        if (state.questionSets[index].marking_scheme.partial != null && state.questionSets[index].questions[0].type == "multi-choice") {
+          paletteInstructionText += `\nALL correct options are selected: <span style="color: green; font-weight: bold;">+${state.questionSets[index].marking_scheme.correct}</span>,\nPartial marks awarded if no wrong option is selected and: `
+          for (const numCorrectSelected in state.questionSets[index].marking_scheme.partial) {
+            const marks = state.questionSets[index].marking_scheme.partial?.[numCorrectSelected];
+            paletteInstructionText += `<span style="color: blue; font-weight: bold;">+${marks}</span> if ${numCorrectSelected} correct, `
+          }
+          paletteInstructionText += `\nIf ANY wrong option selected: <span style="color: red; font-weight: bold;">${state.questionSets[index].marking_scheme.wrong}</span>,\nSkipped: ${state.questionSets[index].marking_scheme.skipped}`;
+        } else {
+          paletteInstructionText += `\nCorrect: <span style="color: green; font-weight: bold;">+${state.questionSets[index].marking_scheme.correct}</span>, Wrong: <span style="color: red; font-weight: bold;">${state.questionSets[index].marking_scheme.wrong}</span>, Skipped: ${state.questionSets[index].marking_scheme.skipped}`;
+        }
+        qsetStates.push({
+          title: state.questionSets[index].title,
+          paletteItems: states,
+          instructionText: paletteInstructionText,
+          maxQuestionsAllowedToAttempt: state.questionSets[index].max_questions_allowed_to_attempt
+        })
+      }
       return qsetStates
     })
 
@@ -642,6 +651,7 @@ export default defineComponent({
 
     return {
       ...toRefs(state),
+      questionSetTypeInstructionMapping,
       isQuestionShown,
       isSplashShown,
       isQuizAssessment,

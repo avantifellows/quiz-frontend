@@ -80,7 +80,8 @@ export function resetConfetti() {
  */
 export function isQuestionAnswerCorrect(
   questionDetail: Question,
-  userAnswer: submittedAnswer
+  userAnswer: submittedAnswer,
+  doesPartialMarkingExist: Boolean
 ): answerEvaluation {
   const answerEvaluation = {
     valid: false,
@@ -102,7 +103,7 @@ export function isQuestionAnswerCorrect(
         const correctAnswer = questionDetail.correct_answer;
         if (isEqual(userAnswer, correctAnswer)) {
           answerEvaluation.isCorrect = true;
-        } else if (Array.isArray(userAnswer) && Array.isArray(correctAnswer) && userAnswer.length > 0) {
+        } else if (doesPartialMarkingExist && Array.isArray(userAnswer) && Array.isArray(correctAnswer) && userAnswer.length > 0) {
           // check if user answer is a subset of correct answer
           const isSubset = userAnswer.every((option) =>
             correctAnswer.includes(option)
