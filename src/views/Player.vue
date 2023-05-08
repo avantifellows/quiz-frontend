@@ -117,8 +117,6 @@ import {
   questionSetPalette,
   TimeLimit,
   eventType,
-  questionType,
-  questionSetTypeInstructionText
 } from "../types";
 import BaseIcon from "../components/UI/Icons/BaseIcon.vue";
 import OrganizationAPIService from "../services/API/Organization";
@@ -185,13 +183,6 @@ export default defineComponent({
         name: "403",
       });
     });
-
-    const questionSetTypeInstructionMapping = new Map<string, string>([
-      [questionType.SINGLE_CHOICE, questionSetTypeInstructionText.SINGLE_CHOICE],
-      [questionType.MULTI_CHOICE, questionSetTypeInstructionText.MULTI_CHOICE],
-      [questionType.NUMERICAL_INTEGER, questionSetTypeInstructionText.NUMERICAL_INTEGER],
-      [questionType.NUMERICAL_FLOAT, questionSetTypeInstructionText.NUMERICAL_FLOAT]
-    ]);
 
     const isQuizAssessment = computed(() => (state.metadata.quiz_type == "assessment" || state.metadata.quiz_type == "omr-assessment"));
 
@@ -269,7 +260,7 @@ export default defineComponent({
     onMounted(() => {
       window.setInterval(() => {
         timerUpdates();
-      }, 60000);
+      }, 8000);
     });
 
     async function startQuiz() {
@@ -499,7 +490,17 @@ export default defineComponent({
       function updateMetricsForPartiallyCorrectAnswer() {
         state.numPartiallyCorrect += 1;
         if (questionDetail.type == "multi-choice" && Array.isArray(userAnswer) && markingScheme?.partial != null) {
-          state.marksScored += markingScheme.partial[userAnswer.length.toString()] // numCorrectSelected = userAnswer.length
+          let conditionMatched = false;
+          for (const partialMarkRule of markingScheme.partial) {
+            for (const condition of partialMarkRule.conditions) {
+              if (userAnswer.length === condition.num_correct_selected) {
+                conditionMatched = true;
+                state.marksScored += partialMarkRule.marks;
+                break;
+              }
+            }
+            if (conditionMatched) break;
+          }
         }
       }
 
@@ -591,23 +592,14 @@ export default defineComponent({
           })
         }
         // the below instruction assumes all questions within a set are of the same type
-        let paletteInstructionText: string = `<u>${questionSetTypeInstructionMapping.get(state.questionSets[index].questions[0].type)}</u>\n`;
+        let paletteInstructionText: string = state.questionSets[index].description ?? "";
+
         if (state.questionSets[index].max_questions_allowed_to_attempt < state.questionSets[index].questions.length) {
-          paletteInstructionText += `You may attempt only up to ${state.questionSets[index].max_questions_allowed_to_attempt} questions in this section.`
+          paletteInstructionText += `\nYou may attempt only up to ${state.questionSets[index].max_questions_allowed_to_attempt} questions in this section.`
         } else {
-          paletteInstructionText += `You may attempt all questions in this section.`
+          paletteInstructionText += `\nYou may attempt all questions in this section.`
         }
 
-        if (state.questionSets[index].marking_scheme.partial != null && state.questionSets[index].questions[0].type == "multi-choice") {
-          paletteInstructionText += `\nALL correct options are selected: <span style="color: green; font-weight: bold;">+${state.questionSets[index].marking_scheme.correct}</span>,\nPartial marks awarded if no wrong option is selected and: `
-          for (const numCorrectSelected in state.questionSets[index].marking_scheme.partial) {
-            const marks = state.questionSets[index].marking_scheme.partial?.[numCorrectSelected];
-            paletteInstructionText += `<span style="color: blue; font-weight: bold;">+${marks}</span> if ${numCorrectSelected} correct, `
-          }
-          paletteInstructionText += `\nIf ANY wrong option selected: <span style="color: red; font-weight: bold;">${state.questionSets[index].marking_scheme.wrong}</span>,\nSkipped: ${state.questionSets[index].marking_scheme.skipped}`;
-        } else {
-          paletteInstructionText += `\nCorrect: <span style="color: green; font-weight: bold;">+${state.questionSets[index].marking_scheme.correct}</span>, Wrong: <span style="color: red; font-weight: bold;">${state.questionSets[index].marking_scheme.wrong}</span>, Skipped: ${state.questionSets[index].marking_scheme.skipped}`;
-        }
         qsetStates.push({
           title: state.questionSets[index].title,
           paletteItems: states,
@@ -651,7 +643,6 @@ export default defineComponent({
 
     return {
       ...toRefs(state),
-      questionSetTypeInstructionMapping,
       isQuestionShown,
       isSplashShown,
       isQuizAssessment,

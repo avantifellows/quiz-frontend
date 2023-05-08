@@ -31,13 +31,6 @@ export enum questionTypeHeaderText {
     NUMERICAL_FLOAT = "Numerical",
  }
 
-export enum questionSetTypeInstructionText {
-  SINGLE_CHOICE = "MCQs with SINGLE correct option",
-  MULTI_CHOICE = "MCQs with ONE or MORE correct options",
-  NUMERICAL_INTEGER = "Non-Negative Integer answer",
-  NUMERICAL_FLOAT = "Numerical Answer (rounded off to TWO decinal places)",
-}
-
 export interface IconButtonTitleConfig {
   value: string;
   class?: string | string[];
@@ -117,11 +110,20 @@ interface Image {
   alt_text: string;
 }
 
+interface PartialMarkCondition {
+  num_correct_selected: number;
+}
+
+interface PartialMarkRule {
+  conditions: PartialMarkCondition[];
+  marks: number;
+}
+
 interface MarkingScheme {
   correct: number;
   wrong: number;
   skipped: number;
-  partial: { [numCorrectSelected: string]: number } | null;
+  partial: PartialMarkRule[] | null;
 }
 
 interface Option {
@@ -151,6 +153,7 @@ export interface QuestionSet {
   questions: Question[];
   max_questions_allowed_to_attempt: number;
   title: string | null;
+  description: string | null;
   marking_scheme: MarkingScheme;
 }
 
