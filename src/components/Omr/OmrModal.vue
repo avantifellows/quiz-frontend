@@ -23,7 +23,7 @@
           <div
           v-for="(questionSetState, index) in questionSetStates" :key="index" class="space-y-2">
               <p :class="titleTextClass" :data-test="`questionSetTitle-${index}`">{{ questionSetState.title }}</p>
-              <p :class="instructionTextClass" :data-test="`questionSetInstruction-${index}`">{{ questionSetState.instructionText }}</p>
+              <p :class="instructionTextClass" :data-test="`questionSetInstruction-${index}`" v-html="`{{ questionSetState.instructionText }}`"></p>
               <div class="mt-4 space-y-4">
               <OmrItem
                   v-for="(questionState, qindex) in questionSetState.paletteItems"
