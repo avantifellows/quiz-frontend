@@ -1,3 +1,4 @@
+<!-- eslint-disable import/no-duplicates -->
 <template>
   <div
     class="flex relative h-full overflow-y-auto"
@@ -15,9 +16,26 @@
     </QuestionPalette>
 
     <div class="overflow-y-auto flex flex-col w-full">
-      <!-- question number and type information-->
+        <div class="grid grid-rows-1 grid-flow-col gap-2">
+          <div class="row-span-1 text-left h-10 mx-4 py-3 text-xl">
+            <!-- Content for the left row -->
+            "Test_Name"
+          </div>
+          <div class="col-span-2 text-right mx-4">
+            <div>
+            <!-- Content for the first right row -->
+            Student Name: "Student_Name"
+            </div>
+            <div class="row-span-2 col-span-2 text-right">
+            <!-- Content for the second right row -->
+            Student ID: "Student_ID"
+            </div>
+          </div>
+        </div>
       <div class="bg-gray-300">
-      <p :class="questionHeaderTextClass" data-test="question-header-text" v-html="questionHeaderText"></p>
+      <!-- <p :class="questionHeaderTextClass" data-test="question-header-text" v-html="questionHeaderText"></p> -->
+      <p :class="questionHeaderPrefixClass" data-test="question-header-text" v-html="questionHeaderPrefix"></p>
+      <p :class="questionHeaderSuffixClass" data-test="question-header-text" v-html="questionHeaderSuffix"></p>
       </div>
       <!-- question text -->
       <div class="mx-6 md:mx-10">
@@ -267,6 +285,10 @@ export default defineComponent({
       wrongOptionClass: "text-white bg-red-500",
       questionHeaderTextClass:
         "text-lg md:text-xl lg:text-2xl mx-4 m-2 text-center leading-tight whitespace-pre-wrap",
+      questionHeaderPrefixClass:
+        "float-left text-lg md:text-xl lg:text-2xl mx-4 m-2 text-left leading-tight whitespace-pre-wrap",
+      questionHeaderSuffixClass:
+        "float-right text-lg md:text-xl lg:text-2xl mx-4 m-2 text-right leading-tight whitespace-pre-wrap",
       questionTextClass:
         "text-lg md:text-xl lg:text-2xl mx-4 mt-6 m-2 font-bold leading-tight whitespace-pre-wrap",
       optionTextClass:
@@ -397,9 +419,25 @@ export default defineComponent({
       context.emit("navigate", questionIndex)
     }
 
-    const questionHeaderText = computed(() => {
-      return `${props.questionSetTitle} / Q.${props.currentQuestionIndex + 1}  ${questionTypeHeaderMapping.get(props.questionType)}`
-    })
+    const questionHeaderPrefix = computed(() => {
+      return `Question ${props.currentQuestionIndex + 1} | ${questionTypeHeaderMapping.get(props.questionType)}`;
+    });
+
+    const questionHeaderSuffix = computed(() => {
+      return props.questionSetTitle;
+    });
+
+    // const questionHeaderPrefix = computed(() => {
+    //   return `${props.questionSetTitle} | Question ${props.currentQuestionIndex + 1}`;
+    // });
+
+    // const questionHeaderSuffix = computed(() => {
+    //   return questionTypeHeaderMapping.get(props.questionType);
+    // });
+
+    // const questionHeaderText = computed(() => {
+    //   return `${props.questionSetTitle} / Q.${props.currentQuestionIndex + 1}  ${questionTypeHeaderMapping.get(props.questionType)}`
+    // })
 
     // styling class for the question image and loading spinner containers
     const questionImageAreaClass = computed(() => ({
@@ -626,7 +664,9 @@ export default defineComponent({
 
     return {
       ...toRefs(state),
-      questionHeaderText,
+      // questionHeaderText,
+      questionHeaderPrefix,
+      questionHeaderSuffix,
       stopImageLoading,
       optionBackgroundClass,
       isOptionMarked,
