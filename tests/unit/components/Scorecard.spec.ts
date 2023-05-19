@@ -46,6 +46,14 @@ describe("Scorecard.vue", () => {
             class: "",
           },
         },
+        {
+          name: "partially correct",
+          value: 2,
+          icon: {
+            source: "partially-correct",
+            class: "",
+          },
+        },
       ],
       result: {
         title: "Accuracy",

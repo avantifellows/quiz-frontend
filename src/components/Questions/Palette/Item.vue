@@ -13,7 +13,7 @@
     <PartialSuccess
       v-else-if="state == 'partial-success'"
       :hasQuizEnded="hasQuizEnded"
-      data-test="error"
+      data-test="partial-success"
     ></PartialSuccess>
     <Neutral
       v-else-if="state == 'neutral'"
