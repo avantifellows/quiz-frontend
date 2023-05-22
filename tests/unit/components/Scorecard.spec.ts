@@ -91,10 +91,11 @@ describe("Scorecard.vue", () => {
     expect(wrapper.vm.circularProgressStroke).toBe(15);
   });
 
-  it("should emit a signal when watch again is clicked", async () => {
-    await wrapper.find('[data-test="backButton"]').trigger("click");
-    expect(wrapper.emitted()).toHaveProperty("go-back");
-  });
+  // commenting out because back button is removed for now
+  // it("should emit a signal when watch again is clicked", async () => {
+  //   await wrapper.find('[data-test="backButton"]').trigger("click");
+  //   expect(wrapper.emitted()).toHaveProperty("go-back");
+  // });
 
   it("triggers sharing text on whatsapp upon clicking share button", async () => {
     await wrapper.find('[data-test="share"]').trigger("click");
