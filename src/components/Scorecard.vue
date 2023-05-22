@@ -72,7 +72,7 @@
             <div
               class="text-center text-xs bp-500:text-sm md:text-base px-1 h-full flex items-center w-full"
             >
-              <p class="break-words">
+              <p class="break-words text-left">
                 {{ metric.name }}
               </p>
             </div>
