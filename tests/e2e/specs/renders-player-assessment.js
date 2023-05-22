@@ -228,7 +228,7 @@ describe("Player for Assessment quizzes", () => {
           cy.get('[data-test="paletteInstruction-0"').should("exist");
           cy.get('[data-test="paletteInstruction-0"').should(
             "have.text",
-            "You may attempt all questions in this section. Correct Answer: +4, Wrong Answer: -2, Skipped: -1"
+            "Question Set 0 Description\nYou may attempt all questions in this section."
           );
         });
 

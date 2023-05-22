@@ -116,7 +116,7 @@ import {
   paletteItemState,
   questionSetPalette,
   TimeLimit,
-  eventType
+  eventType,
 } from "../types";
 import BaseIcon from "../components/UI/Icons/BaseIcon.vue";
 import OrganizationAPIService from "../services/API/Organization";
@@ -260,7 +260,7 @@ export default defineComponent({
     onMounted(() => {
       window.setInterval(() => {
         timerUpdates();
-      }, 60000);
+      }, 8000);
     });
 
     async function startQuiz() {
@@ -363,6 +363,7 @@ export default defineComponent({
      * defines all the metrics to show in the scorecard here
      */
     const scorecardMetrics = computed(() => {
+      console.log('reached here')
       const metrics = [
         {
           name: "Correct",
@@ -380,9 +381,21 @@ export default defineComponent({
             class:
               "text-red-500 h-8 bp-500:h-10 lg:h-12 w-6 bp-500:w-8 lg:w-10 place-self-center flex justify-center",
           },
-          value: state.numWrong + state.numPartiallyCorrect,
+          value: state.numWrong,
         },
       ];
+
+      if (state.numPartiallyCorrect) {
+        metrics.push({
+          name: "Partially Correct",
+          icon: {
+            source: "partially-correct",
+            class:
+              "h-10 bp-500:h-12 lg:h-14 w-8 bp-500:w-10 lg:w-12 place-self-center flex justify-center",
+          },
+          value: state.numPartiallyCorrect
+        })
+      };
 
       if (isQuizAssessment.value) {
         metrics.push({
@@ -460,6 +473,7 @@ export default defineComponent({
       userAnswer: submittedAnswer
     ) {
       const markingScheme = questionDetail.marking_scheme;
+      const doesPartialMarkingExist = markingScheme?.partial != null;
 
       function updateMetricsForCorrectAnswer() {
         state.numCorrect += 1;
@@ -474,14 +488,23 @@ export default defineComponent({
       }
 
       function updateMetricsForPartiallyCorrectAnswer() {
-        // for now, just considering length of user's answer in multi answer questions
         state.numPartiallyCorrect += 1;
-        if (questionDetail.type == "multi-choice" && Array.isArray(userAnswer)) {
-          state.marksScored += userAnswer.length;
+        if (questionDetail.type == "multi-choice" && Array.isArray(userAnswer) && markingScheme?.partial != null) {
+          let conditionMatched = false;
+          for (const partialMarkRule of markingScheme.partial) {
+            for (const condition of partialMarkRule.conditions) {
+              if (userAnswer.length === condition.num_correct_selected) {
+                conditionMatched = true;
+                state.marksScored += partialMarkRule.marks;
+                break;
+              }
+            }
+            if (conditionMatched) break;
+          }
         }
       }
 
-      const answerEvaluation = isQuestionAnswerCorrect(questionDetail, userAnswer);
+      const answerEvaluation = isQuestionAnswerCorrect(questionDetail, userAnswer, doesPartialMarkingExist);
       if (!answerEvaluation.valid) {
         return;
       }
@@ -529,83 +552,61 @@ export default defineComponent({
      */
     const questionSetStates = computed(() => {
       const qsetStates = [] as questionSetPalette[]
-
-      if (state.hasQuizEnded) {
-        for (let index = 0; index < state.questionSets.length; index++) {
-          const states = [] as paletteItemState[]
-          let startIndex = 0
-          if (index > 0) startIndex = state.qsetCumulativeLengths[index - 1]
-          for (let qindex = startIndex; qindex < state.qsetCumulativeLengths[index]; qindex++) {
+      for (let index = 0; index < state.questionSets.length; index++) {
+        const states = [] as paletteItemState[]
+        let startIndex = 0
+        if (index > 0) startIndex = state.qsetCumulativeLengths[index - 1]
+        for (let qindex = startIndex; qindex < state.qsetCumulativeLengths[index]; qindex++) {
+          let qstate: questionState
+          if (state.hasQuizEnded) {
             const questionAnswerEvaluation = isQuestionAnswerCorrect(
               state.questions[qindex],
-              state.responses[qindex].answer
+              state.responses[qindex].answer,
+              state.questions[qindex].marking_scheme?.partial != null // doesPartialMarkingExist
             )
             if (!questionAnswerEvaluation.valid) continue
-            let qstate: questionState
             if (
               !questionAnswerEvaluation.answered ||
-              questionAnswerEvaluation.isCorrect == null
+          questionAnswerEvaluation.isCorrect == null
             ) {
               qstate = "neutral"
             } else {
-              questionAnswerEvaluation.isCorrect
-                ? (qstate = "success")
-                : (qstate = "error")
+              if (questionAnswerEvaluation.isCorrect) {
+                qstate = "success"
+              } else if (questionAnswerEvaluation.isPartiallyCorrect) {
+                qstate = "partial-success"
+              } else qstate = "error"
             }
-            states.push({
-              index: qindex,
-              value: qstate
-            })
-          }
-          let paletteInstructionText: string = "";
-          if (state.questionSets[index].max_questions_allowed_to_attempt < state.questionSets[index].questions.length) {
-            paletteInstructionText = `You may attempt only up to ${state.questionSets[index].max_questions_allowed_to_attempt} questions in this section.`
           } else {
-            paletteInstructionText = `You may attempt all questions in this section.`
-          }
-          paletteInstructionText += ` Correct Answer: +${state.questionSets[index].marking_scheme.correct}, Wrong Answer: ${state.questionSets[index].marking_scheme.wrong}, Skipped: ${state.questionSets[index].marking_scheme.skipped}`
-          qsetStates.push({
-            title: state.questionSets[index].title,
-            paletteItems: states,
-            instructionText: paletteInstructionText,
-            maxQuestionsAllowedToAttempt: state.questionSets[index].max_questions_allowed_to_attempt
-          })
-        }
-      } else {
-        for (let index = 0; index < state.questionSets.length; index++) {
-          const states = [] as paletteItemState[]
-          let startIndex = 0
-          if (index > 0) startIndex = state.qsetCumulativeLengths[index - 1]
-          for (let qindex = startIndex; qindex < state.qsetCumulativeLengths[index]; qindex++) {
             if (!state.questions[qindex].graded) continue
-            let qstate: questionState
             if (!state.responses[qindex].visited) {
               qstate = "neutral"
             } else {
               if (state.responses[qindex].answer != null) qstate = "success"
               else qstate = "error"
             }
-            states.push({
-              index: qindex,
-              value: qstate
-            })
           }
-          let paletteInstructionText: string = "";
-          if (state.questionSets[index].max_questions_allowed_to_attempt < state.questionSets[index].questions.length) {
-            paletteInstructionText = `You may attempt only up to ${state.questionSets[index].max_questions_allowed_to_attempt} questions in this section.`
-          } else {
-            paletteInstructionText = `You may attempt all questions in this section.`
-          }
-          paletteInstructionText += ` Correct Answer: +${state.questionSets[index].marking_scheme.correct}, Wrong Answer: ${state.questionSets[index].marking_scheme.wrong}, Skipped: ${state.questionSets[index].marking_scheme.skipped}`
-          qsetStates.push({
-            title: state.questionSets[index].title,
-            paletteItems: states,
-            instructionText: paletteInstructionText,
-            maxQuestionsAllowedToAttempt: state.questionSets[index].max_questions_allowed_to_attempt
+          states.push({
+            index: qindex,
+            value: qstate
           })
         }
-      }
+        // the below instruction assumes all questions within a set are of the same type
+        let paletteInstructionText: string = state.questionSets[index].description ?? "";
 
+        if (state.questionSets[index].max_questions_allowed_to_attempt < state.questionSets[index].questions.length) {
+          paletteInstructionText += `\nYou may attempt only up to ${state.questionSets[index].max_questions_allowed_to_attempt} questions in this section.`
+        } else {
+          paletteInstructionText += `\nYou may attempt all questions in this section.`
+        }
+
+        qsetStates.push({
+          title: state.questionSets[index].title,
+          paletteItems: states,
+          instructionText: paletteInstructionText,
+          maxQuestionsAllowedToAttempt: state.questionSets[index].max_questions_allowed_to_attempt
+        })
+      }
       return qsetStates
     })
 

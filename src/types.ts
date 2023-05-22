@@ -110,10 +110,20 @@ interface Image {
   alt_text: string;
 }
 
+interface PartialMarkCondition {
+  num_correct_selected: number;
+}
+
+interface PartialMarkRule {
+  conditions: PartialMarkCondition[];
+  marks: number;
+}
+
 interface MarkingScheme {
   correct: number;
   wrong: number;
   skipped: number;
+  partial: PartialMarkRule[] | null;
 }
 
 interface Option {
@@ -143,6 +153,7 @@ export interface QuestionSet {
   questions: Question[];
   max_questions_allowed_to_attempt: number;
   title: string | null;
+  description: string | null;
   marking_scheme: MarkingScheme;
 }
 
@@ -203,7 +214,7 @@ export interface answerEvaluation {
   isPartiallyCorrect?: boolean; // whether question has been partially answered for multi answer
 }
 
-export type questionState = "success" | "error" | "neutral";
+export type questionState = "success" | "error" | "neutral" | "partial-success";
 export interface paletteItemState {
   index: number; // index of the corresponding question in the list of questions
   value: questionState;

@@ -35,18 +35,22 @@ describe("QuestionPalette.vue", () => {
           index: 2,
           value: "neutral",
         },
+        {
+          index: 3,
+          value: "partial-success"
+        },
       ];
       const questionStates1 = [
         {
-          index: 3,
+          index: 4,
           value: "success",
         },
         {
-          index: 4,
+          index: 5,
           value: "error",
         },
         {
-          index: 5,
+          index: 6,
           value: "neutral",
         },
       ];
@@ -55,7 +59,7 @@ describe("QuestionPalette.vue", () => {
           title: "Question Set 0",
           paletteItems: questionStates0,
           instructionText: "You may attempt all questions",
-          maxQuestionsAllowedToAttempt: 3,
+          maxQuestionsAllowedToAttempt: 4,
         },
         {
           title: "Question Set 1",
@@ -77,24 +81,27 @@ describe("QuestionPalette.vue", () => {
       expect(paletteItem.find('[data-test="success"]').exists()).toBeTruthy();
       expect(paletteItem.find('[data-test="error"]').exists()).toBeFalsy();
       expect(paletteItem.find('[data-test="neutral"]').exists()).toBeFalsy();
+      expect(paletteItem.find('[data-test="partial-success"]').exists()).toBeFalsy();
       expect(paletteItem.find('[data-test="index"]').classes()).toContain(
         "bg-gray-200"
       );
 
-      // palette item 2
-      paletteItem = wrapper.find('[data-test="paletteItem-1"]');
+      // palette item 4
+      paletteItem = wrapper.find('[data-test="paletteItem-3"]');
       expect(paletteItem.find('[data-test="success"]').exists()).toBeFalsy();
-      expect(paletteItem.find('[data-test="error"]').exists()).toBeTruthy();
+      expect(paletteItem.find('[data-test="partial-success"]').exists()).toBeTruthy();
       expect(paletteItem.find('[data-test="neutral"]').exists()).toBeFalsy();
+      expect(paletteItem.find('[data-test="error"]').exists()).toBeFalsy();
       expect(paletteItem.find('[data-test="index"]').classes()).toContain(
-        "bg-yellow-200"
+        "bg-gray-200"
       );
 
-      // palette item 6
-      paletteItem = wrapper.find('[data-test="paletteItem-5"]');
+      // palette item 7
+      paletteItem = wrapper.find('[data-test="paletteItem-6"]');
       expect(paletteItem.find('[data-test="success"]').exists()).toBeFalsy();
       expect(paletteItem.find('[data-test="error"]').exists()).toBeFalsy();
       expect(paletteItem.find('[data-test="neutral"]').exists()).toBeTruthy();
+      expect(paletteItem.find('[data-test="partial-success"]').exists()).toBeFalsy();
       expect(paletteItem.find('[data-test="index"]').classes()).toContain(
         "bg-gray-200"
       );
