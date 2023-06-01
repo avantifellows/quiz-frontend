@@ -1,5 +1,6 @@
 <template>
-  <div class="flex flex-col justify-center h-full" @wheel="preventScrolling">
+  <!-- <div class="flex flex-col justify-center h-full" @wheel="preventScrolling"> -->
+  <div class="flex flex-col justify-center h-full" @wheel="scrollContent">
     <BaseIcon
       name="splash"
       iconClass="w-11/12 bp-500:w-9/12 md:w-6/12 lg:w-5/12 mt-24 sm:mt-16 place-self-center"
@@ -146,10 +147,6 @@ export default defineComponent({
       };
     });
 
-    function preventScrolling(event: Event) {
-      event.preventDefault();
-    }
-
     function start() {
       context.emit("start");
     }
@@ -160,13 +157,24 @@ export default defineComponent({
       startButtonTextConfig,
       isSessionDataFetched,
       startButtonIconConfig,
-      preventScrolling,
       start,
     };
   },
   emits: ["start"],
 });
 </script>
+
+methods: {
+  scrollContent(event) {
+    event.stopPropagation();
+    event.preventDefault();
+    const delta = Math.sign(event.deltaY);
+    const element = event.currentTarget;
+    // Adjust the scroll speed to your preference
+    const scrollSpeed = 5;
+    element.scrollTop += scrollSpeed * delta;
+  }
+}
 
 <style>
 @import url("https://fonts.googleapis.com/css2?family=Londrina+Solid&family=Poppins:wght@400;700&display=swap");

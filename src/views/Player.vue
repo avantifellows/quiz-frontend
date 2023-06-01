@@ -59,6 +59,8 @@
         :qsetIndexLimits="currentQsetIndexLimits"
         :quizTimeLimit="quizTimeLimit"
         :timeRemaining="timeRemaining"
+        :userId="userId"
+        :title="title"
         v-model:currentQuestionIndex="currentQuestionIndex"
         v-model:responses="responses"
         @submit-question="submitQuestion"

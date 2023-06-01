@@ -1,4 +1,4 @@
-import { flushPromises, mount } from "@vue/test-utils";
+import { flushPromises, mount, shallowMount } from "@vue/test-utils";
 import Body from "@/components/Questions/Body.vue";
 
 describe("Body.vue", () => {
@@ -30,6 +30,16 @@ describe("Body.vue", () => {
       });
       await flushPromises();
       expect(wrapper.vm.isImageLoading).toBeTruthy();
+    });
+
+    it("Check if the Question Index and type is visible", () => {
+      const wrapper = mount(Body)
+      expect(wrapper.find('[data-test="question-index-type"]').isVisible())
+    });
+
+    it("Check if the Question subject and section is visible", () => {
+      const wrapper = mount(Body)
+      expect(wrapper.find('[data-test="question-subject-section"]').isVisible())
     });
   });
 
