@@ -16,12 +16,12 @@
       class="flex flex-col grow bg-white w-full justify-between overflow-hidden"
     >
     <div class="grid grid-rows-1 grid-flow-col gap-2 ">
-          <div class="row-span-1 text-left h-10 mx-4 py-3 text-xl text-base sm:text-xs md:text-base lg:text-lg xl:text-xl 2xl:text-2xl" style = "@media (max-width: 870px){font-size: 0.75rem; line-height: 1rem;}">
+            <div class="row-span-1 text-left h-5 mx-4 py-3 text-xl text-base sm:text-xs md:text-base lg:text-lg xl:text-xl 2xl:text-2xl custom:text-md">
             <!-- Content for the left column -->
             <p class="truncate" data-test="test-name">{{ $props.title }}</p>
           </div>
           <div class="col-span-2 text-right mx-4">
-            <div class="row-span-2 col-span-2 text-right text-xs sm:text-xs md:text-sm lg:text-base xl:text-lg 2xl:text-2xl py-3" style = "@media (max-width: 870px){font-size: 0.75rem; line-height: 1.2rem;}">
+            <div class="row-span-2 col-span-2 text-right text-xs sm:text-xs md:text-sm lg:text-base xl:text-lg 2xl:text-2xl py-3 custom:text-md">
             <!-- Content for the right column -->
            <div data-test="user-id">Id: {{ $props.userId }}</div>
             </div>

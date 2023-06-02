@@ -1,4 +1,3 @@
-<!-- eslint-disable import/no-duplicates -->
 <template>
   <div
     class="flex relative h-full overflow-y-auto"
@@ -17,8 +16,9 @@
 
     <div class="overflow-y-auto flex flex-col w-full">
       <div class="bg-gray-300">
-      <!-- <p :class="questionHeaderTextClass" data-test="question-header-text" v-html="questionHeaderText"></p> -->
+      <!-- questionHeaderPrefix shows the question index no. and the type of question -->
       <p :class="questionHeaderPrefixClass" data-test="question-index-type" v-html="questionHeaderPrefix"></p>
+      <!-- questionHeaderSuffix shows the subject and section no. of question -->
       <p :class="questionHeaderSuffixClass" data-test="question-subject-section" v-html="questionHeaderSuffix"></p>
       </div>
       <!-- question text -->
@@ -269,8 +269,10 @@ export default defineComponent({
       wrongOptionClass: "text-white bg-red-500",
       questionHeaderTextClass:
         "text-lg md:text-xl lg:text-2xl mx-4 m-2 text-center leading-tight whitespace-pre-wrap",
+      // <!-- questionHeaderPrefix shows the question index no. and the type of question -->
       questionHeaderPrefixClass:
         "float-left text-lg md:text-xl lg:text-2xl mx-4 m-2 text-left leading-tight whitespace-pre-wrap text-base sm:text-sm",
+      // <!-- questionHeaderSuffix shows the subject and section no. of question -->
       questionHeaderSuffixClass:
         "float-right text-lg md:text-xl lg:text-2xl mx-4 m-2 text-right leading-tight whitespace-pre-wrap text-base sm:text-sm",
       questionTextClass:
@@ -410,18 +412,6 @@ export default defineComponent({
     const questionHeaderSuffix = computed(() => {
       return props.questionSetTitle;
     });
-
-    // const questionHeaderPrefix = computed(() => {
-    //   return `${props.questionSetTitle} | Question ${props.currentQuestionIndex + 1}`;
-    // });
-
-    // const questionHeaderSuffix = computed(() => {
-    //   return questionTypeHeaderMapping.get(props.questionType);
-    // });
-
-    // const questionHeaderText = computed(() => {
-    //   return `${props.questionSetTitle} / Q.${props.currentQuestionIndex + 1}  ${questionTypeHeaderMapping.get(props.questionType)}`
-    // })
 
     // styling class for the question image and loading spinner containers
     const questionImageAreaClass = computed(() => ({

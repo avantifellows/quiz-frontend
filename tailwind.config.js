@@ -17,6 +17,12 @@ module.exports = {
       "bp-360": "360px",
       "bp-420": "420px",
       "bp-500": "500px",
+      sm: "640px",
+      md: "768px",
+      lg: "1024px",
+      xl: "1280px",
+      "2xl": "1536px",
+      custom: "870px", // Custom breakpoint at 870px
       ...defaultTheme.screens,
     },
   },
