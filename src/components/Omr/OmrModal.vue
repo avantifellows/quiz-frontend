@@ -1,6 +1,5 @@
 <template>
   <div class="flex flex-col bg-white w-full justify-between">
-  </div>
       <Header
         class="fixed top-0"
         v-if="isQuizAssessment"
@@ -19,8 +18,6 @@
         class="flex flex-col grow space-y-10"
       >
         <div class="mt-20 mb-20">
-          <div
-          v-for="(questionSetState, index) in questionSetStates" :key="index" class="space-y-2">
           <div class="grid grid-rows-1 grid-flow-col gap-2 h-10">
             <div
               class="row-span-1 text-left mx-4 text-xl text-base sm:text-xs md:text-base lg:text-lg xl:text-xl 2xl:text-2xl custom:text-md py-2 ">
@@ -34,6 +31,8 @@
               </div>
             </div>
           </div>
+          <div
+          v-for="(questionSetState, index) in questionSetStates" :key="index" class="space-y-2">
               <div class="bg-gray-300"><p :class="titleTextClass" :data-test="`questionSetTitle-${index}`">{{ questionSetState.title }}</p></div>
               <p :class="instructionTextClass" :data-test="`questionSetInstruction-${index}`">{{ questionSetState.instructionText }}</p>
               <div class="mt-4 space-y-4">
@@ -70,6 +69,7 @@
             'bg-gray-200 py-2 px-2': isQuizAssessment,
           }"
         ></div>
+      </div>
   </div>
 </template>
 
