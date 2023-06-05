@@ -20,12 +20,12 @@
         <div class="mt-20 mb-20">
           <div class="grid grid-rows-1 grid-flow-col gap-2 h-10">
             <div
-              class="row-span-1 text-left mx-4 text-xl text-base sm:text-xs md:text-base lg:text-lg xl:text-xl 2xl:text-2xl custom:text-md py-2 ">
+              class="row-span-1 text-left mx-4 text-xl text-base sm:text-xs md:text-base lg:text-lg xl:text-xl 2xl:text-2xl custom:text-md py-2 font-semibold">
                 <!-- Content for the left column -->
                 <p class="truncate my-2" data-test="test-name-omr">{{ $props.title }}</p>
             </div>
             <div class="col-span-2 text-right mx-4">
-              <div class="row-span-2 col-span-2 text-right text-xs sm:text-xs md:text-sm lg:text-base xl:text-lg 2xl:text-2xl custom:text-md py-4">
+              <div class="row-span-2 col-span-2 text-right text-xs sm:text-xs md:text-sm lg:text-base xl:text-lg 2xl:text-2xl custom:text-md py-4 font-semibold">
                 <!-- Content for the right column -->
               <div data-test="user-id-omr">Id: {{ $props.userId }}</div>
               </div>
@@ -188,7 +188,7 @@ export default defineComponent({
       instructionTextClass:
         "text-lg md:text-xl lg:text-2xl mx-4 m-2 leading-tight whitespace-pre-wrap text-slate-500",
       titleTextClass:
-        "text-lg md:text-xl lg:text-2xl mx-4 m-2 py-2 font-bold leading-tight whitespace-pre-wrap bg-gray-300",
+        "text-lg md:text-xl lg:text-2xl mx-4 m-2 py-2 font-medium leading-tight whitespace-pre-wrap bg-gray-300",
     })
 
     // display warning when time remaining goes below this threshold (in minutes)
