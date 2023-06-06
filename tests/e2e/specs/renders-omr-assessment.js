@@ -374,85 +374,85 @@ describe("Player for OMR quizzes", () => {
   });
 
   // check if resume session data is flowing well to OmrModal and OmrItem
-  // describe("Resume Session", () => {
-  //   beforeEach(() => {
-  //     // stub the response to /sessions
-  //     cy.intercept("POST", "/sessions/", {
-  //       fixture: "resume_session_for_multiset_quiz.json",
-  //     });
+  describe("Resume Session", () => {
+    beforeEach(() => {
+      // stub the response to /sessions
+      cy.intercept("POST", "/sessions/", {
+        fixture: "resume_session_for_multiset_quiz.json",
+      });
 
-  //     cy.intercept("PATCH", "/session_answers/**", {});
-  //     cy.intercept("PATCH", "/sessions/*", {});
+      cy.intercept("PATCH", "/session_answers/**", {});
+      cy.intercept("PATCH", "/sessions/*", {});
 
-  //     cy.intercept(
-  //       "GET",
-  //       Cypress.env("backend") + "/organizations/authenticate/*",
-  //       {
-  //         fixture: "org_authentication.json",
-  //       }
-  //     );
-  //     cy.visit("/quiz/abcd?userId=1&apiKey=pqr");
+      cy.intercept(
+        "GET",
+        Cypress.env("backend") + "/organizations/authenticate/*",
+        {
+          fixture: "org_authentication.json",
+        }
+      );
+      cy.visit("/quiz/abcd?userId=1&apiKey=pqr");
 
-  //     // define aliasas
-  //     cy.get('[data-test="startQuiz"]').as("startQuizButton");
-  //   });
+      // define aliasas
+      cy.get('[data-test="startQuiz"]').as("startQuizButton");
+    });
 
-  //   describe("updating answers of questions", () => {
-  //     beforeEach(() => {
-  //       cy.get("@startQuizButton").trigger("click");
-  //       cy.get('[data-test="omr-modal"]').as("omr-modal");
-  //     });
+    describe("updating answers of questions", () => {
+      beforeEach(() => {
+        cy.get("@startQuizButton").trigger("click");
+        cy.get('[data-test="omr-modal"]').as("omr-modal");
+      });
 
-  //     it("answers from previous session should be reflected accordingly", () => {
-  //       // only option 1 should be checked, option-2 shouldn't be checked
-  //       cy.get("@omr-modal")
-  //         .get('[data-test="OmrItem-0"]')
-  //         .within(() => {
-  //           cy.get('[data-test="optionSelector-0"]').should("be.checked");
-  //         });
+      it("answers from previous session should be reflected accordingly", () => {
+        // only option 1 should be checked, option-2 shouldn't be checked
+        cy.get("@omr-modal")
+          .get('[data-test="OmrItem-0"]')
+          .within(() => {
+            cy.get('[data-test="optionSelector-0"]').should("be.checked");
+          });
 
-  //       cy.get("@omr-modal")
-  //         .get('[data-test="OmrItem-0"]')
-  //         .within(() => {
-  //           cy.get('[data-test="optionSelector-1"]').should("not.be.checked");
-  //         });
+        cy.get("@omr-modal")
+          .get('[data-test="OmrItem-0"]')
+          .within(() => {
+            cy.get('[data-test="optionSelector-1"]').should("not.be.checked");
+          });
 
-  //       // answer is [0, 1] for 2nd question
-  //       cy.get("@omr-modal")
-  //         .get('[data-test="OmrItem-1"]')
-  //         .within(() => {
-  //           cy.get('[data-test="optionSelector-0"]').should("be.checked");
+        // answer is [0, 1] for 2nd question
+        cy.get("@omr-modal")
+          .get('[data-test="OmrItem-1"]')
+          .within(() => {
+            cy.get('[data-test="optionSelector-0"]').should("be.checked");
 
-  //           cy.get('[data-test="optionSelector-1"]').should("be.checked");
-  //         });
+            cy.get('[data-test="optionSelector-1"]').should("be.checked");
+          });
 
-  //       // answer is 3 for 4th question numerical
-  //       cy.get('[data-test="omr-modal"]')
-  //         .get('[data-test="OmrItem-3"]')
-  //         .within(() => {
-  //           cy.get('textarea[data-test="input"]').should("have.value", "3");
-  //         });
-  //     });
+        // answer is 3 for 4th question numerical
+        cy.get('[data-test="omr-modal"]')
+          .get('[data-test="OmrItem-3"]')
+          .within(() => {
+            cy.get('textarea[data-test="input"]').should("have.value", "3");
+          });
+      });
 
-  //     it("updates answer when new option is checked", () => {
-  //       cy.get("@omr-modal")
-  //         .get('[data-test="OmrItem-0"]')
-  //         .within(() => {
-  //           cy.get('[data-test="optionSelector-1"]').trigger("click");
-  //         });
+      it("updates answer when new option is checked", () => {
+        cy.get("@omr-modal")
+          .get('[data-test="OmrItem-0"]')
+          .within(() => {
+            cy.get('[data-test="optionSelector-1"]').trigger("click");
+          });
 
-  //       cy.get("@omr-modal")
-  //         .get('[data-test="OmrItem-0"]')
-  //         .within(() => {
-  //           cy.get('[data-test="optionSelector-1"]').should("be.checked");
-  //         });
+        cy.get("@omr-modal")
+          .get('[data-test="OmrItem-0"]')
+          .within(() => {
+            cy.get('[data-test="optionSelector-1"]').should("be.checked");
+          });
 
-  //       cy.get("@omr-modal")
-  //         .get('[data-test="OmrItem-0"]')
-  //         .within(() => {
-  //           cy.get('[data-test="optionSelector-0"]').should("not.be.checked");
-  //         });
-  //     });
-  //   });
-  // });
+        cy.get("@omr-modal")
+          .get('[data-test="OmrItem-0"]')
+          .within(() => {
+            cy.get('[data-test="optionSelector-0"]').should("not.be.checked");
+          });
+      });
+    });
+  });
 });

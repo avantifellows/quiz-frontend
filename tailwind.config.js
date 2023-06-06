@@ -7,6 +7,8 @@ module.exports = {
       colors: {
         primary: "#F78000",
         "primary-hover": "#db7506",
+        "back-color": "#F78000",
+        "share-color": "#10B981",
       },
       borderWidth: {
         1: "1px",
