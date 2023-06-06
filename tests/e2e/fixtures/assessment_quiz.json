@@ -5,6 +5,7 @@
       "_id": "62540adb0f748c8e206c1613",
       "max_questions_allowed_to_attempt": 24,
       "title": "Question Set 0",
+      "description": "Question Set 0 Description",
       "marking_scheme": {
         "correct": 4,
         "wrong": -2,

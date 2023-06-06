@@ -80,7 +80,8 @@ export function resetConfetti() {
  */
 export function isQuestionAnswerCorrect(
   questionDetail: Question,
-  userAnswer: submittedAnswer
+  userAnswer: submittedAnswer,
+  doesPartialMarkingExist: Boolean
 ): answerEvaluation {
   const answerEvaluation = {
     valid: false,
@@ -93,15 +94,27 @@ export function isQuestionAnswerCorrect(
     if (userAnswer != null && typeof userAnswer != "number") {
       answerEvaluation.answered = true;
 
-      if (
-        (questionDetail.type == "single-choice" ||
-          questionDetail.type == "multi-choice") &&
-        userAnswer.length > 0
-      ) {
+      if (questionDetail.type == "single-choice") {
         const correctAnswer = questionDetail.correct_answer;
         if (isEqual(userAnswer, correctAnswer)) {
           answerEvaluation.isCorrect = true;
         } else answerEvaluation.isCorrect = false;
+      } else if (questionDetail.type == "multi-choice") {
+        const correctAnswer = questionDetail.correct_answer;
+        if (isEqual(userAnswer, correctAnswer)) {
+          answerEvaluation.isCorrect = true;
+        } else if (doesPartialMarkingExist && Array.isArray(userAnswer) && Array.isArray(correctAnswer) && userAnswer.length > 0) {
+          // check if user answer is a subset of correct answer
+          const isSubset = userAnswer.every((option) =>
+            correctAnswer.includes(option)
+          );
+          if (isSubset) {
+            answerEvaluation.isCorrect = false;
+            answerEvaluation.isPartiallyCorrect = true;
+          } else answerEvaluation.isCorrect = false;
+        } else {
+          answerEvaluation.isCorrect = false;
+        }
       } else if (
         questionDetail.type == "subjective" &&
         typeof userAnswer == "string" &&

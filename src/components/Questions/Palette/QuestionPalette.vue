@@ -11,16 +11,21 @@
         <Error :title="legendErrorText" :hasQuizEnded="hasQuizEnded"></Error>
       </div>
 
-      <Neutral
+      <div class="grid grid-cols-2">
+        <Neutral
         :title="legendNeutralText"
         :hasQuizEnded="hasQuizEnded"
       ></Neutral>
+        <div v-if="hasQuizEnded">
+          <PartialSuccess :title="legendPartialSuccessText" :hasQuizEnded="hasQuizEnded"></PartialSuccess>
+        </div>
+      </div>
     </div>
 
     <div
       v-for="(questionSetState, index) in questionSetStates" :key="index" class="space-y-2">
         <p :class="titleTextClass" :data-test="`paletteTitle-${index}`">{{ questionSetState.title }}</p>
-        <p :class="instructionTextClass" :data-test="`paletteInstruction-${index}`">{{ questionSetState.instructionText }}</p>
+        <div :class="instructionTextClass" :data-test="`paletteInstruction-${index}`" v-html="questionSetState.instructionText"></div>
         <div class="grid grid-cols-5 bp-500:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 mt-4 space-y-4">
           <PaletteItem
             v-for="(questionState, qindex) in questionSetState.paletteItems"
@@ -42,6 +47,7 @@
 
 <script lang="ts">
 import Success from "./Success.vue";
+import PartialSuccess from "./PartialSuccess.vue";
 import Error from "./Error.vue";
 import Neutral from "./Neutral.vue";
 import PaletteItem from "./Item.vue";
@@ -51,6 +57,7 @@ import { defineComponent, computed, PropType } from "vue";
 export default defineComponent({
   components: {
     Success,
+    PartialSuccess,
     Error,
     Neutral,
     PaletteItem,
@@ -84,6 +91,8 @@ export default defineComponent({
       props.hasQuizEnded ? "Skipped" : "Not Visited"
     );
 
+    const legendPartialSuccessText = "Partially Correct"
+
     const state = {
       instructionTextClass:
         "text-lg md:text-xl lg:text-2xl mx-4 m-2 leading-tight whitespace-pre-wrap text-slate-500",
@@ -95,6 +104,7 @@ export default defineComponent({
       ...state,
       navigateToQuestion,
       legendSuccessText,
+      legendPartialSuccessText,
       legendErrorText,
       legendNeutralText,
     };

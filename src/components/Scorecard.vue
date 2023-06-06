@@ -45,15 +45,15 @@
         <!-- metric boxes -->
         <div
           v-if="hasGradedQuestions"
-          class="flex flex-col bp-500:flex-row justify-center space-y-1 bp-500:space-x-1 bp-500:space-y-0 px-4 bp-500:px-10 max-w-4xl place-self-center"
+          class="flex flex-col bp-500:flex-row justify-center space-y-1 bp-500:space-x-1 bp-500:space-y-0 px-4 bp-500:px-10 place-self-center items-stretch"
         >
           <div
             v-for="(metric, metricIndex) in metrics"
-            class="rounded-md bp-500:rounded-2xl bg-amber-400 grid grid-cols-2 bp-500:grid-rows-2 bp-500:grid-cols-none lg:grid-cols-2 lg:grid-rows-none border-2 px-4 lg:px-6 w-full h-14 bp-500:h-20 min-w-max"
+            class="rounded-md bp-500:rounded-2xl bg-amber-400 flex flex-row bp-500:flex-col lg:flex-row border-2 px-4 lg:px-6 lg:h-20 space-x-4 w-full md:w-2/3 lg:w-1/2 h-full"
             :key="metric"
           >
             <div
-              class="w-full h-full flex flex-row justify-center space-x-2 bp-500:mt-2 lg:mt-0"
+              class="w-full h-full flex flex-row justify-center space-x-2 bp-500:mt-2 lg:mt-0 "
             >
               <!-- metric icon -->
               <BaseIcon
@@ -62,7 +62,7 @@
               ></BaseIcon>
               <!-- numeric value of the metric -->
               <p
-                class="text-xl bp-360:text-2xl md:text-3xl lg:text-4xl font-bold my-auto"
+                class="text-xl bp-360:text-2xl md:text-3xl lg:text-4xl font-bold my-auto text-left"
                 :data-test="`metricValue-${metricIndex}`"
               >
                 {{ metric.value }}
@@ -70,9 +70,9 @@
             </div>
             <!-- name of the metric -->
             <div
-              class="text-center text-xs bp-500:text-sm md:text-base mt-1 lg:mt-2 bp-500:whitespace-nowrap px-1 h-full flex place-self-center items-center"
+              class="text-center text-xs bp-500:text-sm md:text-base px-1 h-full flex items-center w-full"
             >
-              <p>
+              <p class="break-words text-left">
                 {{ metric.name }}
               </p>
             </div>
@@ -98,12 +98,14 @@
           ></icon-button>
 
           <!-- back button -->
-          <icon-button
+          <!-- commenting this as it's not being used right now, so it should not take
+          up space in the DOM -->
+          <!-- <icon-button
             :titleConfig="backButtonTitleConfig"
             :buttonClass="backButtonClass"
             @click="goBack"
             data-test="backButton"
-          ></icon-button>
+          ></icon-button> -->
         </div>
       </div>
     </div>
