@@ -54,29 +54,6 @@ describe("Player for OMR quizzes", () => {
         cy.get('[data-test="modal"]').should("not.exist");
       });
 
-      it("Check if the test name is visible", () => {
-        cy.get('[data-test="test-name-omr"]').should(
-          "have.text",
-          "cypress omr assessment" // test name
-        );
-      });
-
-      it("Check if the user-id is visible", () => {
-        cy.get('[data-test="user-id-omr"]').should(
-          "have.text",
-          "Id: 1" // Id of the student
-        );
-      });
-
-      it("testName is truncating or not", () => {
-        cy.get('[data-test="test-name-omr"]').then(($element) => {
-          const testNameElement = $element.text();
-          const maxCharacterWidth = 12.6; // Maximum width in characters
-          const expectedTruncatedText =
-            testNameElement.slice(0, maxCharacterWidth) + "...";
-          expect(expectedTruncatedText).to.contain("...");
-        });
-      });
       it("omr modal does not contain clear and save&next buttons", () => {
         cy.get('[data-test="omr-modal"]')
           .should("exist")

@@ -49,6 +49,32 @@ describe("Player for Assessment Timed quizzes", () => {
         cy.get("@startQuizButton").trigger("click");
       });
 
+      describe("Quiz Started", () => {
+        it("Check if the test name is visible", () => {
+          cy.get('[data-test="test-name"]').should(
+            "have.text",
+            "cypress assessment 1 by Avanti Fellows" // test name
+          );
+        });
+
+        it("Check if the user-id is visible", () => {
+          cy.get('[data-test="user-id"]').should(
+            "have.text",
+            " Id: 1" // Id of the student
+          );
+        });
+
+        it("testName is truncating or not", () => {
+          cy.get('[data-test="test-name"]').then(($element) => {
+            const testNameElement = $element.text();
+            const maxCharacterWidth = 12.6; // Maximum width in characters
+            const expectedTruncatedText =
+              testNameElement.slice(0, maxCharacterWidth) + "...";
+            expect(expectedTruncatedText).to.contain("...");
+          });
+        });
+      });
+
       it("patch session payload should have START_QUIZ event", () => {
         // wait for patch session to happen
         cy.wait("@patch_session");

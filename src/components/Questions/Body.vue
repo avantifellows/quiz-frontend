@@ -271,14 +271,14 @@ export default defineComponent({
         "text-lg md:text-xl lg:text-2xl mx-4 m-2 text-center leading-tight whitespace-pre-wrap",
       // <!-- questionHeaderPrefix shows the question index no. and the type of question -->
       questionHeaderPrefixClass:
-        "float-left text-lg md:text-xl lg:text-2xl mx-4 m-2 text-left leading-tight whitespace-pre-wrap text-base sm:text-sm",
+        "float-left text-lg sm:text-xl mx-4 m-2 text-left leading-tight whitespace-pre-wrap text-base",
       // <!-- questionHeaderSuffix shows the subject and section no. of question -->
       questionHeaderSuffixClass:
-        "float-right text-lg md:text-xl lg:text-2xl mx-4 m-2 text-right leading-tight whitespace-pre-wrap text-base sm:text-sm",
+        "float-right text-lg sm:text-xl mx-4 m-2 text-right leading-tight whitespace-pre-wrap text-base",
       questionTextClass:
-        "text-lg md:text-xl lg:text-2xl mx-4 mt-6 m-2 font-bold leading-tight whitespace-pre-wrap",
+        "text-lg base:text-lg lg:text-xl mx-4 mt-6 m-2 font-bold leading-tight whitespace-pre-wrap",
       optionTextClass:
-        "p-2 text-lg md:text-xl lg:text-2xl border rounded-md mx-2 whitespace-pre-wrap",
+        "p-2 text-base base:text-lg lg:text-xl border rounded-md mx-2 whitespace-pre-wrap",
       subjectiveAnswer: null as string | null, // holds the answer to the subjective question
       numericalAnswer: null as number | null // holds the answer to the numerical question
     })

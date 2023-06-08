@@ -7,28 +7,18 @@
       v-model:isPaletteVisible="isPaletteVisible"
       :timeRemaining="timeRemaining"
       :warningTimeLimit="timeLimitWarningThreshold"
+      :title="title"
+      :userId="userId"
       @time-limit-warning="displayTimeLimitWarning"
       @end-test="endTest"
       @end-test-by-time="endTestByTime"
       data-test="header"
     ></Header>
     <div
-      class="flex flex-col grow bg-white w-full justify-between overflow-hidden"
+      class="flex flex-col grow bg-white w-full justify-between overflow-hidden mt-20"
     >
-      <div class="grid grid-rows-1 grid-flow-col gap-2 ">
-        <div
-          class="row-span-1 text-left h-5 mx-4 py-3 text-xl text-base sm:text-xs md:text-base lg:text-lg xl:text-xl 2xl:text-2xl custom:text-md">
-            <!-- Content for the left column -->
-            <p class="truncate" data-test="test-name">{{ $props.title }}</p>
-        </div>
-        <div class="col-span-2 text-right mx-4">
-          <div class="row-span-2 col-span-2 text-right text-xs sm:text-xs md:text-sm lg:text-base xl:text-lg 2xl:text-2xl py-3 custom:text-md">
-            <!-- Content for the right column -->
-           <div data-test="user-id">Id: {{ $props.userId }}</div>
-          </div>
-        </div>
-      </div>
       <Body
+        class="mt-16"
         :text="currentQuestion.text"
         :options="currentQuestion.options"
         :correctAnswer="questionCorrectAnswer"
@@ -517,6 +507,6 @@ To attempt this question, unselect an answer to another question in this section
 <style>
 .truncate {
   @apply whitespace-nowrap overflow-hidden overflow-ellipsis;
-  max-width: 12.6em; /*(12.60em) Adjust this value to determine the maximum width in characters */
+  max-width: 10em; /*(10em) Adjust this value to determine the maximum width in characters */
 }
 </style>

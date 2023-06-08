@@ -7,6 +7,31 @@ describe("Basic tests on Header", () => {
     expect(wrapper).toBeTruthy();
   });
 
+  describe("Title and ID Header",  () => {
+    it("Student ID Visible", () => {
+      const wrapper = mount (Header, {
+        props: {userId:12345}
+      })
+      const userIdText = wrapper.find('[data-test="user-id"]').text()
+      expect(userIdText).toEqual("Id: 12345")
+    })
+
+    it("testname Visible", () => {
+      const wrapper = mount (Header, {
+        props: {title:"Mock Test series 1 for All over India for Government school Students by Avanti Fellows NGO"}
+      })
+      const testNameElement = wrapper.find('[data-test="test-name"]').text();
+      expect(testNameElement).toEqual("Mock Test series 1 for All over India for Government school Students by Avanti Fellows NGO");
+    })
+
+    it("testName is truncating or not", () => {
+      const testNameElement = wrapper.find('[data-test="test-name"]').text();
+      const maxCharacterWidth = 12.6; // Maximum width in characters
+      const expectedTruncatedText = testNameElement.slice(0, maxCharacterWidth) + '...'
+      expect(expectedTruncatedText).toContain("...")
+    })
+  })
+
   it("emits end-test upon clicking End Test button", () => {
     wrapper.find('[data-test="endTestButton"]').trigger("click");
     expect(wrapper.emitted()).toHaveProperty("end-test");

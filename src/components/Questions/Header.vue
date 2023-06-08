@@ -1,40 +1,64 @@
 <template>
-  <div class="flex w-full justify-between bg-gray-200 p-4">
-    <!-- hamburger for question palette -->
-    <icon-button
-      :class="{invisible: isOmrMode}"
-      :iconConfig="togglePaletteButtonIconConfig"
-      :buttonClass="togglePaletteButtonClass"
-      @click="togglePalette"
-      data-test="togglePaletteButton"
-    ></icon-button>
-    <div class="flex space-x-3">
-      <!-- countdown timer / can't click -->
-      <icon-button
-      v-if="!hasQuizEnded && hasTimeLimit"
-      :titleConfig="countdownTimerTitleConfig"
-      :buttonClass="countdownTimerClass"
-      data-test="countdownTimer"
-    ></icon-button>
+  <div>
+    <div class="fixed top-0 left-0 w-full  ">
+      <div class="flex w-full justify-between bg-gray-200 p-4">
+        <!-- hamburger for question palette -->
+        <icon-button
+          :class="{invisible: isOmrMode}"
+          :iconConfig="togglePaletteButtonIconConfig"
+          :buttonClass="togglePaletteButtonClass"
+          @click="togglePalette"
+          data-test="togglePaletteButton"
+        ></icon-button>
+        <div class="flex space-x-3">
+          <!-- countdown timer / can't click -->
+          <icon-button
+            v-if="!hasQuizEnded && hasTimeLimit"
+            :titleConfig="countdownTimerTitleConfig"
+            :buttonClass="countdownTimerClass"
+            data-test="countdownTimer"
+          ></icon-button>
 
-    <!-- end-test button -->
-    <icon-button
-      :titleConfig="endTestButtonTitleConfig"
-      :buttonClass="endTestButtonClass"
-      @click="endTest"
-      data-test="endTestButton"
-    ></icon-button>
+          <!-- end-test button -->
+          <icon-button
+            :titleConfig="endTestButtonTitleConfig"
+            :buttonClass="endTestButtonClass"
+            @click="endTest"
+            data-test="endTestButton"
+          ></icon-button>
+        </div>
+      </div>
+      <div
+        class="bg-white-400 w-full justify between">
+        <div class="py-4 h-12 bg-white px-4">
+          <div class="float-left text-lg sm:text-xl text-base truncate" data-test="test-name">
+          {{ $props.title }}
+          </div>
+          <div class="float-right text-lg sm:text-xl text-base mx-1 px-1" data-test="user-id">
+          Id: {{ $props.userId }}
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import IconButton from "../UI/Buttons/IconButton.vue";
-import { defineComponent, reactive, toRefs, computed, watch, onMounted } from "vue";
+import { defineComponent, reactive, toRefs, computed, watch, onMounted, PropType } from "vue";
+import { quizTitleType } from "../../types";
 
 export default defineComponent({
   name: "Header",
   props: {
+    title: {
+      type: [null, String] as PropType<quizTitleType>,
+      required: true,
+    },
+    userId: {
+      type: String,
+      default: ""
+    },
     hasQuizEnded: {
       type: Boolean,
       default: false,

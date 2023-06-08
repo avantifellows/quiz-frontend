@@ -1,7 +1,7 @@
 <template>
   <div class="bg-white p-4 sm:p-6 lg:p-8 overflow-auto">
     <div
-      class="bg-gray-200 border-gray-500 border-1 rounded-md p-4 grid grid-rows-2 space-y-2"
+      class="bg-gray-200 rounded-md p-4 grid grid-rows-2 space-y-2"
     >
       <div class="grid grid-cols-2">
         <Success
@@ -95,9 +95,9 @@ export default defineComponent({
 
     const state = {
       instructionTextClass:
-        "text-lg md:text-xl lg:text-2xl mx-4 m-2 leading-tight whitespace-pre-wrap text-slate-500",
+        "text-lg md:text-xl lg:text-2xl mx-4 mt-2 leading-none text-slate-500",
       titleTextClass:
-        "text-lg md:text-xl lg:text-2xl mx-4 mt-10 m-2 font-bold leading-tight whitespace-pre-wrap",
+        "text-lg md:text-xl lg:text-2xl mx-4 mt-10 font-bold leading-tight whitespace-pre-wrap",
     }
 
     return {

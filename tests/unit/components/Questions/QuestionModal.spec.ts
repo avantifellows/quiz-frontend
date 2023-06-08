@@ -244,8 +244,6 @@ describe("QuestionModal.vue", () => {
         currentQuestionIndex: params.currentQuestionIndex,
         maxQuestionsAllowedToAttempt: params.maxQuestionsAllowedToAttempt,
         qsetIndexLimits: qsetTestIndexLimits,
-        userId: "12345",
-        title: "Mock Test series 1 for All over India for Government school Students by Avanti Fellows NGO",
       },
     });
   };
@@ -255,25 +253,6 @@ describe("QuestionModal.vue", () => {
   it("should render with required values", () => {
     expect(wrapper).toBeTruthy();
   });
-
-  describe("QuestionModal",  () => {
-    it("Student ID Visible", () => {
-      const userIdText = wrapper.find('[data-test="user-id"]').text()
-      expect(userIdText).toEqual("Id: 12345")
-    })
-
-    it("testname Visible", () => {
-      const testNameElement = wrapper.find('[data-test="test-name"]').text();
-      expect(testNameElement).toEqual("Mock Test series 1 for All over India for Government school Students by Avanti Fellows NGO");
-    })
-
-    it("testName is truncating or not", () => {
-      const testNameElement = wrapper.find('[data-test="test-name"]').text();
-      const maxCharacterWidth = 12.6; // Maximum width in characters
-      const expectedTruncatedText = testNameElement.slice(0, maxCharacterWidth) + '...'
-      expect(expectedTruncatedText).toContain("...")
-    })
-  })
 
   describe("basic checks", () => {
     it("should prepare draft responses for each question", () => {
