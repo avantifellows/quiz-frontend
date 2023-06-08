@@ -14,9 +14,53 @@
       @end-test-by-time="endTestByTime"
       data-test="header"
     ></Header>
+    <div v-if="!isQuizAssessment">
+      <div
+        class="bg-white-400 w-full justify between">
+        <div class="p-4 h-14 bg-white">
+          <div class="float-left text-lg sm:text-xl text-base truncate" data-test="test-name">
+          {{ $props.title }}
+          </div>
+          <div class="float-right text-lg sm:text-xl text-base mx-1 px-1 " data-test="user-id">
+          Id: {{ $props.userId }}
+          </div>
+        </div>
+      </div>
+    </div>
     <div
-      class="flex flex-col grow bg-white w-full justify-between overflow-hidden mt-20"
+      class="scroll-container flex flex-col grow bg-white w-full justify-between overflow-hidden"
     >
+    <div v-if="!isQuizAssessment">
+      <Body
+        :text="currentQuestion.text"
+        :options="currentQuestion.options"
+        :correctAnswer="questionCorrectAnswer"
+        :questionType="questionType"
+        :isGradedQuestion="isGradedQuestion"
+        :maxCharLimit="currentQuestion.max_char_limit"
+        :isPortrait="isPortrait"
+        :imageData="currentQuestion?.image"
+        :draftAnswer="draftResponses[currentQuestionIndex]"
+        :submittedAnswer="currentQuestionResponseAnswer"
+        :isAnswerSubmitted="isAnswerSubmitted"
+        :isPaletteVisible="isPaletteVisible"
+        :isDraftAnswerCleared="isDraftAnswerCleared"
+        :quizType="quizType"
+        :hasQuizEnded="hasQuizEnded"
+        :optionalLimitReached="optionalLimitReached"
+        :questionSetTitle="questionSetTitle"
+        :currentQuestionIndex="currentQuestionIndex"
+        :questionSetStates="questionSetStates"
+        @option-selected="questionOptionSelected"
+        @subjective-answer-entered="subjectiveAnswerUpdated"
+        @numerical-answer-entered="numericalAnswerUpdated"
+        @navigate="navigateToQuestion"
+        :key="reRenderKey"
+        data-test="body"
+        ref="body"
+      ></Body>
+    </div>
+    <div v-if="isQuizAssessment" class="mt-20 w-full justify between overflow-hidden ">
       <Body
         class="mt-16"
         :text="currentQuestion.text"
@@ -46,6 +90,7 @@
         data-test="body"
         ref="body"
       ></Body>
+    </div>
       <Footer
         :isAnswerSubmitted="isAnswerSubmitted"
         :isPreviousButtonShown="currentQuestionIndex > 0"
@@ -508,5 +553,9 @@ To attempt this question, unselect an answer to another question in this section
 .truncate {
   @apply whitespace-nowrap overflow-hidden overflow-ellipsis;
   max-width: 10em; /*(10em) Adjust this value to determine the maximum width in characters */
+}
+.scroll-container {
+  height: 100vh; /* Adjust the height as per your needs */
+  overflow: auto;
 }
 </style>
