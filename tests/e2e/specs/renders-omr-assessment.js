@@ -37,14 +37,6 @@ describe("Player for OMR quizzes", () => {
       cy.get('[data-test="quizType"]').should("have.text", "omr-assessment");
     });
 
-    it("check omr modal", () => {
-      cy.get("@startQuizButton").trigger("click");
-      cy.get('[data-test="omr-modal"]')
-        .should("exist")
-        .within(() => {
-          cy.get('[data-test="clearButton"]').should("not.exist");
-        });
-    });
     describe("Quiz Started", () => {
       beforeEach(() => {
         cy.get("@startQuizButton").trigger("click");

@@ -81,7 +81,7 @@
 
         <!-- action buttons -->
         <div
-          class=" place-self-center flex h-20"
+          class="place-self-center flex h-20"
           :class="{
             'mt-5': isCircularProgressShown,
             'flex-row space-x-8 w-100 mt-12': !isPortrait,
