@@ -56,7 +56,7 @@
           data-test="optionContainer"
         >
           <ul class="w-full">
-            <li class="mb-20 list-none space-y-1 flex flex-col">
+            <li class="mb-20 md:mb-40 lg: mb-60 list-none space-y-1 flex flex-col">
               <div
                 v-for="(option, optionIndex) in options"
                 :key="optionIndex"

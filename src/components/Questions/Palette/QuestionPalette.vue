@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white p-4 sm:p-6 lg:p-8 overflow-auto">
+  <div class="bg-white p-4 sm:p-6 lg:p-8 overflow-auto sm:w-1/3 lg:w-1/3 xl:w-1/3">
     <div
       class="bg-gray-200 rounded-md p-4 grid grid-rows-2 space-y-2"
     >
@@ -29,7 +29,7 @@
         <div class="grid grid-cols-5 bp-500:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 mt-4 space-y-4">
           <PaletteItem
             v-for="(questionState, qindex) in questionSetState.paletteItems"
-            class="hover:cursor-pointer"
+            class="hover:cursor-pointer mb-12"
             :class="{ 'mt-4': qindex == 0 }"
             :key="qindex"
             :index="questionState.index"
