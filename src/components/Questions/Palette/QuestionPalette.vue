@@ -29,7 +29,7 @@
         <div class="grid grid-cols-5 bp-500:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 mt-4 space-y-4">
           <PaletteItem
             v-for="(questionState, qindex) in questionSetState.paletteItems"
-            class="hover:cursor-pointer mb-12"
+            class="hover:cursor-pointer"
             :class="{ 'mt-4': qindex == 0 }"
             :key="qindex"
             :index="questionState.index"

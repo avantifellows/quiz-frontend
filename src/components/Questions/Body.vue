@@ -132,7 +132,7 @@
           <!-- input area for the answer -->
           <Textarea
             v-model:value="numericalAnswer"
-            class="px-2 w-full mb-20"
+            class="px-2 w-full"
             :boxStyling="numericalAnswerBoxStyling"
             placeholder="Enter your answer here. Only numbers are allowed"
             :inputMode="getInputMode"

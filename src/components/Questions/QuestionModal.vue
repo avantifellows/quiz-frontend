@@ -18,10 +18,10 @@
       <div
         class="bg-white-400 w-full justify between">
         <div class="p-4 h-14 bg-white">
-          <div class="float-left text-lg sm:text-xl text-base truncate" data-test="test-name">
+          <div class="float-left text-lg sm:text-xl truncate" data-test="test-name">
           {{ $props.title }}
           </div>
-          <div class="float-right text-lg sm:text-xl text-base mx-1 px-1 " data-test="user-id">
+          <div class="float-right text-lg sm:text-xl mx-1 px-1 " data-test="user-id">
           Id: {{ $props.userId }}
           </div>
         </div>
@@ -30,9 +30,9 @@
     <div
       class="scroll-container flex flex-col grow bg-white w-full justify-between overflow-hidden"
     >
-    <div v-if="!isQuizAssessment">
       <Body
         :text="currentQuestion.text"
+        :class="bodyContainerClass"
         :options="currentQuestion.options"
         :correctAnswer="questionCorrectAnswer"
         :questionType="questionType"
@@ -59,37 +59,6 @@
         data-test="body"
         ref="body"
       ></Body>
-    </div>
-    <div v-if="isQuizAssessment" class="mt-36 w-full justify between overflow-hidden ">
-      <Body
-        :text="currentQuestion.text"
-        :options="currentQuestion.options"
-        :correctAnswer="questionCorrectAnswer"
-        :questionType="questionType"
-        :isGradedQuestion="isGradedQuestion"
-        :maxCharLimit="currentQuestion.max_char_limit"
-        :isPortrait="isPortrait"
-        :imageData="currentQuestion?.image"
-        :draftAnswer="draftResponses[currentQuestionIndex]"
-        :submittedAnswer="currentQuestionResponseAnswer"
-        :isAnswerSubmitted="isAnswerSubmitted"
-        :isPaletteVisible="isPaletteVisible"
-        :isDraftAnswerCleared="isDraftAnswerCleared"
-        :quizType="quizType"
-        :hasQuizEnded="hasQuizEnded"
-        :optionalLimitReached="optionalLimitReached"
-        :questionSetTitle="questionSetTitle"
-        :currentQuestionIndex="currentQuestionIndex"
-        :questionSetStates="questionSetStates"
-        @option-selected="questionOptionSelected"
-        @subjective-answer-entered="subjectiveAnswerUpdated"
-        @numerical-answer-entered="numericalAnswerUpdated"
-        @navigate="navigateToQuestion"
-        :key="reRenderKey"
-        data-test="body"
-        ref="body"
-      ></Body>
-    </div>
       <Footer
         :isAnswerSubmitted="isAnswerSubmitted"
         :isPreviousButtonShown="currentQuestionIndex > 0"
@@ -408,6 +377,10 @@ To attempt this question, unselect an answer to another question in this section
       window.removeEventListener("resize", checkScreenOrientation)
     })
 
+    const bodyContainerClass = computed(() => ({
+      "mt-36": isQuizAssessment.value
+    }))
+
     const currentQuestion = computed(
       () => props.questions[props.currentQuestionIndex]
     )
@@ -523,6 +496,7 @@ To attempt this question, unselect an answer to another question in this section
       endTestByTime,
       navigateToQuestion,
       currentQuestion,
+      bodyContainerClass,
       questionType,
       questionCorrectAnswer,
       isGradedQuestion,
