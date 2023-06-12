@@ -60,9 +60,8 @@
         ref="body"
       ></Body>
     </div>
-    <div v-if="isQuizAssessment" class="mt-20 w-full justify between overflow-hidden ">
+    <div v-if="isQuizAssessment" class="mt-36 w-full justify between overflow-hidden ">
       <Body
-        class="mt-16"
         :text="currentQuestion.text"
         :options="currentQuestion.options"
         :correctAnswer="questionCorrectAnswer"
