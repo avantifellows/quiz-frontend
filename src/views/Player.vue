@@ -83,6 +83,7 @@
         :progressPercentage="scorecardProgress"
         :isShown="isScorecardShown"
         :title="title"
+        :userId="userId"
         greeting="Hooray! Congrats on completing the quiz! 🎉"
         :numQuestionsAnswered="numQuestionsAnswered"
         :hasGradedQuestions="hasGradedQuestions"

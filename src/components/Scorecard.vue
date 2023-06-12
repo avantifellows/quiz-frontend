@@ -25,6 +25,12 @@
         >
           {{ title }}
         </div>
+        <!-- student's userId -->
+        <div
+          class="text-center text-lg md:text-lg lg:text-xl pt-5 leading-tight" data-test="user-id"
+        >
+          Id: {{ userId }}
+        </div>
 
         <!-- canvas element for drawing the confetti -->
         <canvas id="confetticanvas" class="fixed z-50"></canvas>
@@ -181,6 +187,10 @@ export default defineComponent({
     title: {
       required: true,
       type: [null, String] as PropType<quizTitleType>,
+    },
+    userId: {
+      type: String,
+      default: ""
     },
     result: {
       type: Object as PropType<CircularProgressResult>,

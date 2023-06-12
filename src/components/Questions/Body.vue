@@ -56,7 +56,7 @@
           data-test="optionContainer"
         >
           <ul class="w-full">
-            <li class="list-none space-y-1 flex flex-col">
+            <li class="mb-20 list-none space-y-1 flex flex-col">
               <div
                 v-for="(option, optionIndex) in options"
                 :key="optionIndex"
@@ -132,7 +132,7 @@
           <!-- input area for the answer -->
           <Textarea
             v-model:value="numericalAnswer"
-            class="px-2 w-full"
+            class="px-2 w-full mb-20"
             :boxStyling="numericalAnswerBoxStyling"
             placeholder="Enter your answer here. Only numbers are allowed"
             :inputMode="getInputMode"

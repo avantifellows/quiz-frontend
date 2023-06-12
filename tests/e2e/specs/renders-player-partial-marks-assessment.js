@@ -151,6 +151,13 @@ describe("Player for Assessment quizzes with partial marks", () => {
           cy.get('[data-test="scorecard"]').should("exist");
         });
 
+        it("Check if the user-id is visible", () => {
+          cy.get('[data-test="user-id"]').should(
+            "have.text",
+            " Id: 1" // Id of the student
+          );
+        });
+
         it("shows score instead of accuracy in scorecard", () => {
           const progressBar = cy
             .get('[data-test="scorecard"]')
