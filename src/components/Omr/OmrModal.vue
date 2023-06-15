@@ -1,10 +1,12 @@
 <template>
-    <div class="flex flex-col bg-white w-full justify-between">
+  <div class="flex flex-col bg-white w-full justify-between">
       <Header
         class="fixed top-0"
         v-if="isQuizAssessment"
         :hasQuizEnded="hasQuizEnded"
         :hasTimeLimit="quizTimeLimit != null"
+        :title="title"
+        :userId="userId"
         :isOmrMode="isOmrMode"
         v-model:isPaletteVisible="isPaletteVisible"
         :timeRemaining="timeRemaining"
@@ -14,16 +16,14 @@
         @end-test-by-time="endTestByTime"
         data-test="omr-header"
       ></Header>
-
       <div
         class="flex flex-col grow space-y-10"
       >
         <div class="mt-20 mb-20">
-          <!-- to ensure that questions don't appear behind footer -->
           <div
-          v-for="(questionSetState, index) in questionSetStates" :key="index" class="space-y-2">
-              <p :class="titleTextClass" :data-test="`questionSetTitle-${index}`">{{ questionSetState.title }}</p>
-              <p :class="instructionTextClass" :data-test="`questionSetInstruction-${index}`" v-html="questionSetState.instructionText"></p>
+          v-for="(questionSetState, index) in questionSetStates" :key="index" class="space-y-2 mt-[66px]">
+              <div class="bg-gray-300"><p :class="titleTextClass" :data-test="`questionSetTitle-${index}`">{{ questionSetState.title }}</p></div>
+              <p :class="instructionTextClass" v-html="questionSetState.instructionText" :data-test="`questionSetInstruction-${index}`"></p>
               <div class="mt-4 space-y-4">
               <OmrItem
                   v-for="(questionState, qindex) in questionSetState.paletteItems"
@@ -55,12 +55,12 @@
           class="flex w-full lg:p-6 justify-between z-50 place-self-end fixed bottom-0"
           :class="{
             'bg-white p-4': !isQuizAssessment,
-            'bg-gray-200 py-4 px-2': isQuizAssessment,
+            'bg-gray-200 py-2 px-2': isQuizAssessment,
           }"
         ></div>
       </div>
-    </div>
-  </template>
+  </div>
+</template>
 
 <script lang="ts">
 import Header from "../Questions/Header.vue"
@@ -84,7 +84,8 @@ import {
   quizType,
   QuestionSetIndexLimits,
   questionSetPalette,
-  TimeLimit
+  TimeLimit,
+  quizTitleType
 } from "../../types"
 import { useToast, POSITION } from "vue-toastification"
 
@@ -152,6 +153,14 @@ export default defineComponent({
     isOmrMode: {
       type: Boolean,
       default: false,
+    },
+    userId: {
+      type: String,
+      default: ""
+    },
+    title: {
+      required: true,
+      type: [null, String] as PropType<quizTitleType>,
     }
   },
   setup(props, context) {
@@ -166,9 +175,9 @@ export default defineComponent({
       reRenderKey: false, // a key to re-render a component
       hasEndTestBeenClickedOnce: true,
       instructionTextClass:
-        "text-lg md:text-xl lg:text-2xl mx-4 m-2 leading-tight whitespace-pre-wrap text-slate-500",
+        "text-lg sm:text-xl text-base mx-4 m-2 leading-tight whitespace-pre-wrap text-slate-500",
       titleTextClass:
-        "text-lg md:text-xl lg:text-2xl mx-4 mt-10 m-2 font-bold leading-tight whitespace-pre-wrap",
+        "text-lg sm:text-xl text-base mx-4 py-2 font-medium leading-tight whitespace-pre-wrap bg-gray-300",
     })
 
     // display warning when time remaining goes below this threshold (in minutes)

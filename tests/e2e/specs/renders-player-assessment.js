@@ -289,11 +289,15 @@ describe("Player for Assessment quizzes", () => {
           cy.get('[data-test="togglePaletteButton"]').trigger("click");
         });
         // Item-3 is numerical int question
-        it("check if question number displayed is correct", () => {
+        it("check if question index type & question subject section is displayed correctly", () => {
           cy.get('[data-test="paletteItem-3"]').trigger("click");
-          cy.get('[data-test="question-header-text"]').should(
+          cy.get('[data-test="question-index-type"]').should(
             "have.text",
-            "Question Set 0 / Q.4  Numerical Integer" // {Question Set Title / Q.{Question Number} {Question Type}}
+            "Q.4 | Numerical Integer" // Q.{Question Number} | {Question Type}}
+          );
+          cy.get('[data-test="question-subject-section"]').should(
+            "have.text",
+            "Question Set 0" // {Question Set Title}
           );
         });
       });

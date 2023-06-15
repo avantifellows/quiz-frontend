@@ -7,16 +7,32 @@
       v-model:isPaletteVisible="isPaletteVisible"
       :timeRemaining="timeRemaining"
       :warningTimeLimit="timeLimitWarningThreshold"
+      :title="title"
+      :userId="userId"
       @time-limit-warning="displayTimeLimitWarning"
       @end-test="endTest"
       @end-test-by-time="endTestByTime"
       data-test="header"
     ></Header>
+    <div v-if="!isQuizAssessment">
+      <div
+        class="bg-white-400 w-full justify between">
+        <div class="p-4 h-14 bg-white">
+          <div class="float-left text-lg sm:text-xl truncate" data-test="test-name">
+          {{ $props.title }}
+          </div>
+          <div class="float-right text-lg sm:text-xl mx-1 px-1 " data-test="user-id">
+          Id: {{ $props.userId }}
+          </div>
+        </div>
+      </div>
+    </div>
     <div
-      class="flex flex-col grow bg-white w-full justify-between overflow-hidden"
+      class="scroll-container flex flex-col grow bg-white w-full justify-between overflow-hidden"
     >
       <Body
         :text="currentQuestion.text"
+        :class="bodyContainerClass"
         :options="currentQuestion.options"
         :correctAnswer="questionCorrectAnswer"
         :questionType="questionType"
@@ -83,7 +99,8 @@ import {
   quizType,
   QuestionSetIndexLimits,
   questionSetPalette,
-  TimeLimit
+  TimeLimit,
+  quizTitleType
 } from "../../types"
 import { useToast, POSITION } from "vue-toastification"
 const clonedeep = require("lodash.clonedeep");
@@ -143,6 +160,14 @@ export default defineComponent({
     timeRemaining: {
       type: Number,
       default: 0
+    },
+    userId: {
+      type: String,
+      default: ""
+    },
+    title: {
+      required: true,
+      type: [null, String] as PropType<quizTitleType>,
     }
   },
   setup(props, context) {
@@ -352,6 +377,10 @@ To attempt this question, unselect an answer to another question in this section
       window.removeEventListener("resize", checkScreenOrientation)
     })
 
+    const bodyContainerClass = computed(() => ({
+      "mt-36": isQuizAssessment.value
+    }))
+
     const currentQuestion = computed(
       () => props.questions[props.currentQuestionIndex]
     )
@@ -467,6 +496,7 @@ To attempt this question, unselect an answer to another question in this section
       endTestByTime,
       navigateToQuestion,
       currentQuestion,
+      bodyContainerClass,
       questionType,
       questionCorrectAnswer,
       isGradedQuestion,
@@ -491,3 +521,14 @@ To attempt this question, unselect an answer to another question in this section
   ],
 });
 </script>
+
+<style>
+.truncate {
+  @apply whitespace-nowrap overflow-hidden overflow-ellipsis;
+  max-width: 10em; /*(10em) Adjust this value to determine the maximum width in characters */
+}
+.scroll-container {
+  height: 100vh; /* Adjust the height as per your needs */
+  overflow: auto;
+}
+</style>

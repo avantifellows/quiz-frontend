@@ -1,5 +1,5 @@
 import { flushPromises, mount } from "@vue/test-utils";
-import { Question, QuestionSetIndexLimits, SubmittedResponse } from "@/types";
+import { Question, QuestionSetIndexLimits, SubmittedResponse} from "@/types";
 import QuestionModal from "@/components/Questions/QuestionModal.vue";
 import { createQuestionBuckets } from "@/services/Functional/Utilities";
 

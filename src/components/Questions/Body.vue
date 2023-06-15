@@ -15,9 +15,11 @@
     </QuestionPalette>
 
     <div class="overflow-y-auto flex flex-col w-full">
-      <!-- question number and type information-->
       <div class="bg-gray-300">
-      <p :class="questionHeaderTextClass" data-test="question-header-text" v-html="questionHeaderText"></p>
+      <!-- questionHeaderPrefix shows the question index no. and the type of question -->
+      <p :class="questionHeaderPrefixClass" data-test="question-index-type" v-html="questionHeaderPrefix"></p>
+      <!-- questionHeaderSuffix shows the subject and section no. of question -->
+      <p :class="questionHeaderSuffixClass" data-test="question-subject-section" v-html="questionHeaderSuffix"></p>
       </div>
       <!-- question text -->
       <div class="mx-6 md:mx-10">
@@ -267,10 +269,16 @@ export default defineComponent({
       wrongOptionClass: "text-white bg-red-500",
       questionHeaderTextClass:
         "text-lg md:text-xl lg:text-2xl mx-4 m-2 text-center leading-tight whitespace-pre-wrap",
+      // <!-- questionHeaderPrefix shows the question index no. and the type of question -->
+      questionHeaderPrefixClass:
+        "float-left text-lg sm:text-xl mx-4 m-2 text-left leading-tight whitespace-pre-wrap text-base",
+      // <!-- questionHeaderSuffix shows the subject and section no. of question -->
+      questionHeaderSuffixClass:
+        "float-right text-lg sm:text-xl mx-4 m-2 text-right leading-tight whitespace-pre-wrap text-base",
       questionTextClass:
-        "text-lg md:text-xl lg:text-2xl mx-4 mt-6 m-2 font-bold leading-tight whitespace-pre-wrap",
+        "text-lg base:text-lg lg:text-xl mx-4 mt-6 m-2 font-bold leading-tight whitespace-pre-wrap",
       optionTextClass:
-        "p-2 text-lg md:text-xl lg:text-2xl border rounded-md mx-2 whitespace-pre-wrap",
+        "p-2 text-base base:text-lg lg:text-xl border rounded-md mx-2 whitespace-pre-wrap",
       subjectiveAnswer: null as string | null, // holds the answer to the subjective question
       numericalAnswer: null as number | null // holds the answer to the numerical question
     })
@@ -397,9 +405,13 @@ export default defineComponent({
       context.emit("navigate", questionIndex)
     }
 
-    const questionHeaderText = computed(() => {
-      return `${props.questionSetTitle} / Q.${props.currentQuestionIndex + 1}  ${questionTypeHeaderMapping.get(props.questionType)}`
-    })
+    const questionHeaderPrefix = computed(() => {
+      return `Q.${props.currentQuestionIndex + 1} | ${questionTypeHeaderMapping.get(props.questionType)}`;
+    });
+
+    const questionHeaderSuffix = computed(() => {
+      return props.questionSetTitle;
+    });
 
     // styling class for the question image and loading spinner containers
     const questionImageAreaClass = computed(() => ({
@@ -626,7 +638,8 @@ export default defineComponent({
 
     return {
       ...toRefs(state),
-      questionHeaderText,
+      questionHeaderPrefix,
+      questionHeaderSuffix,
       stopImageLoading,
       optionBackgroundClass,
       isOptionMarked,
