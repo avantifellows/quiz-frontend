@@ -9,6 +9,7 @@ module.exports = {
         "primary-hover": "#db7506",
         "back-color": "#F78000",
         "share-color": "#10B981",
+        pink: "#E8ADAA",
       },
       borderWidth: {
         1: "1px",
@@ -25,6 +26,9 @@ module.exports = {
       "2xl": "1536px",
       custom: "870px", // Custom breakpoint at 870px
       ...defaultTheme.screens,
+    },
+    listStyleType: {
+      exclamation: "!",
     },
   },
   plugins: [],

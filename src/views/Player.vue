@@ -72,6 +72,18 @@
         data-test="modal"
       ></QuestionModal>
 
+      <InstructionPage
+      :title="title"
+      :quiz_type="metadata.quiz_type"
+      :quizTimeLimit="quizTimeLimit?.max"
+      :markingScheme="markingScheme"
+      :maxMarks="maxMarks"
+      :maxQuestionsAllowedToAttempt="maxQuestionsAllowedToAttempt"
+      :subject="metadata.subject"
+      :questionType="questionType"
+      :test_purpose="metadata.test_purpose"
+      ></InstructionPage>
+
       <Scorecard
         id="scorecardmodal"
         class="absolute z-10"
@@ -98,6 +110,7 @@
 import QuestionModal from "../components/Questions/QuestionModal.vue";
 import OmrModal from "../components/Omr/OmrModal.vue"
 import Splash from "../components/Splash.vue";
+import InstructionPage from "@/components/InstructionPage.vue";
 import Scorecard from "../components/Scorecard.vue";
 import { resetConfetti, isQuestionAnswerCorrect, isQuestionFetched, createQuestionBuckets } from "../services/Functional/Utilities";
 import QuizAPIService from "../services/API/Quiz";
@@ -122,6 +135,9 @@ import {
   questionSetPalette,
   TimeLimit,
   eventType,
+  questionType,
+  MarkingScheme,
+  testPurpose,
 } from "../types";
 import BaseIcon from "../components/UI/Icons/BaseIcon.vue";
 import OrganizationAPIService from "../services/API/Organization";
@@ -133,7 +149,8 @@ export default defineComponent({
     QuestionModal,
     Scorecard,
     BaseIcon,
-    OmrModal
+    OmrModal,
+    InstructionPage
   },
   props: {
     quizId: {
@@ -157,9 +174,12 @@ export default defineComponent({
       currentQuestionIndex: -1 as number,
       title: null as quizTitleType,
       metadata: {} as QuizMetadata,
+      questionType: [] as questionType[],
       questions: [] as Question[],
       responses: [] as SubmittedResponse[], // holds the responses to each item submitted by the viewer
       questionSets: [] as QuestionSet[],
+      markingScheme: [] as MarkingScheme[],
+      test_purpose: [] as testPurpose[],
       maxQuestionsAllowedToAttempt: 0,
       qsetCumulativeLengths: [] as number[],
       currentQsetIndex: 0,
