@@ -64,10 +64,10 @@ export default {
       );
       return { status: response.status };
     } catch (error: any) {
-      if (axios.isCancel(error)) {
-        return { status: 400 }; // request cancelled
-      } else if (error.code == 'ECONNABORTED') {
+      if (error.code == 'ECONNABORTED') {
         return { status: 500 }; // request timeout
+      } else {
+        return { status: 400 }; // bad request
       }
     }
     return { status: 200 }; // return statement for type checking
@@ -90,10 +90,10 @@ export default {
       );
       return { status: response.status };
     } catch (error: any) {
-      if (axios.isCancel(error)) {
-        return { status: 400 }; // request cancelled
-      } else if (error.code == 'ECONNABORTED') {
+      if (error.code == 'ECONNABORTED') {
         return { status: 500 }; // request timeout
+      } else {
+        return { status: 400 }; // bad request
       }
     }
     return { status: 200 }; // return statement for type checking
