@@ -70,7 +70,6 @@ export default {
         return { status: 400 }; // bad request
       }
     }
-    return { status: 200 }; // return statement for type checking
   },
 
   /**
@@ -96,6 +95,5 @@ export default {
         return { status: 400 }; // bad request
       }
     }
-    return { status: 200 }; // return statement for type checking
   },
 };

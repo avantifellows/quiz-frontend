@@ -401,7 +401,7 @@ export default defineComponent({
 
           if (updateResponse.status != 200) {
             state.toast.error(
-              'Answers are not submitted. Please check internet connection and click "End Test" again without refreshing the page',
+              'Answers are not submitted. Please check internet connection and click "End Test" again without refreshing the page.',
               {
                 position: POSITION.TOP_LEFT,
                 timeout: 8000,
