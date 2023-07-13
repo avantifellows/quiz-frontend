@@ -15,8 +15,10 @@ describe("Player for Assessment quizzes", () => {
         fixture: "new_session.json",
       });
 
-      cy.intercept("PATCH", "/session_answers/**", {});
-      cy.intercept("PATCH", "/sessions/*", {});
+      cy.intercept("PATCH", "/session_answers/**", { body: {} }).as(
+        "patchSessionAnswerRequest"
+      );
+      cy.intercept("PATCH", "/sessions/*", { body: { timeRemaining: 100 } });
 
       cy.intercept(
         "GET",
@@ -89,6 +91,9 @@ describe("Player for Assessment quizzes", () => {
 
           // move back to the previous question
           cy.get('[data-test="modal"]')
+            .get('[data-test="question-index-type')
+            .should("have.text", "Q.2 | Multiple Answer");
+          cy.get('[data-test="modal"]')
             .get('[data-test="previousQuestionButton"]')
             .trigger("click");
 
@@ -148,6 +153,9 @@ describe("Player for Assessment quizzes", () => {
 
         // question 2
         cy.get('[data-test="modal"]')
+          .get('[data-test="question-index-type')
+          .should("have.text", "Q.2 | Multiple Answer");
+        cy.get('[data-test="modal"]')
           .get('[data-test="optionSelector-0"]')
           .trigger("click");
         cy.get('[data-test="modal"]')
@@ -156,6 +164,9 @@ describe("Player for Assessment quizzes", () => {
 
         // question 3
         cy.get('[data-test="modal"]')
+          .get('[data-test="question-index-type')
+          .should("have.text", "Q.3 | Multiple Answer");
+        cy.get('[data-test="modal"]')
           .get('[data-test="optionSelector-0"]')
           .trigger("click");
         cy.get('[data-test="modal"]')
@@ -163,6 +174,9 @@ describe("Player for Assessment quizzes", () => {
           .trigger("click");
 
         // question 4 -- typed but not submitted!
+        cy.get('[data-test="modal"]')
+          .get('[data-test="question-index-type')
+          .should("have.text", "Q.4 | Numerical Integer");
         cy.get('[data-test="modal"]')
           .get('[data-test="numericalAnswer"]')
           .type("3");
@@ -378,8 +392,10 @@ describe("Player for Assessment quizzes", () => {
         fixture: "resume_session.json",
       });
 
-      cy.intercept("PATCH", "/session_answers/**", {});
-      cy.intercept("PATCH", "/sessions/*", {});
+      cy.intercept("PATCH", "/session_answers/**", { body: {} }).as(
+        "patchSessionAnswerRequest"
+      );
+      cy.intercept("PATCH", "/sessions/*", { body: { timeRemaining: 100 } });
 
       cy.intercept(
         "GET",
@@ -426,6 +442,9 @@ describe("Player for Assessment quizzes", () => {
 
         // move back to the previous question
         cy.get('[data-test="modal"]')
+          .get('[data-test="question-index-type')
+          .should("have.text", "Q.2 | Multiple Answer");
+        cy.get('[data-test="modal"]')
           .get('[data-test="previousQuestionButton"]')
           .trigger("click");
 
@@ -445,6 +464,9 @@ describe("Player for Assessment quizzes", () => {
           .trigger("click");
 
         // move back to the previous question
+        cy.get('[data-test="modal"]')
+          .get('[data-test="question-index-type')
+          .should("have.text", "Q.2 | Multiple Answer");
         cy.get('[data-test="modal"]')
           .get('[data-test="previousQuestionButton"]')
           .trigger("click");

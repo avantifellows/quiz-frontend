@@ -6,7 +6,9 @@ import {
   UpdateSessionAPIPayload,
   UpdateSessionAPIResponse,
   UpdateSessionAnswerAPIPayload,
+  UpdateAllSessionAnswersAPIPayload
 } from "../../types";
+import axios, { AxiosError } from "axios";
 
 export default {
   /**
@@ -48,17 +50,52 @@ export default {
    *                                 This index corresponds to the index of sessionAnswer in session
    * @param {UpdateSessionAnswerAPIPayload} payload - contains the answer {submittedAnswer} that
    * needs to be updated and a boolean variable to indicate that the question is visited
-   * @returns {Promise<SessionAnswerAPIResponse>} - the updated sessionAnswer instance
+   * @returns {Promise<SessionAnswerAPIResponse>} - response status of request
    */
   async updateSessionAnswer(
     sessionId: string,
     positionIndex: number,
     payload: UpdateSessionAnswerAPIPayload
   ): Promise<SessionAnswerAPIResponse> {
-    const response = await apiClient().patch(
-      sessionAnswersEndpoint + sessionId + "/" + positionIndex,
-      payload
-    );
-    return response.data;
+    try {
+      const response = await apiClient().patch(
+        sessionAnswersEndpoint + sessionId + "/" + positionIndex,
+        payload
+      );
+      return { status: response.status };
+    } catch (error: any) {
+      if (axios.isCancel(error)) {
+        return { status: 400 }; // request cancelled
+      } else if (error.code == 'ECONNABORTED') {
+        return { status: 500 }; // request timeout
+      }
+    }
+    return { status: 200 }; // return statement for type checking
+  },
+
+  /**
+   * @param {string} sessionId - id of the session for which the sessionAnswer is to be updated
+   * @param {UpdateAllSessionAnswersAPIPayload} payload - contains list of response objects, each object
+   * includes an answer and whether the corresponding question was visited
+   * @returns {Promise<SessionAnswerAPIResponse>} - response status of request
+   */
+  async updateAllSessionAnswers(
+    sessionId: string,
+    payload: UpdateAllSessionAnswersAPIPayload
+  ): Promise<SessionAnswerAPIResponse> {
+    try {
+      const response = await apiClient().patch(
+        sessionAnswersEndpoint + sessionId,
+        payload
+      );
+      return { status: response.status };
+    } catch (error: any) {
+      if (axios.isCancel(error)) {
+        return { status: 400 }; // request cancelled
+      } else if (error.code == 'ECONNABORTED') {
+        return { status: 500 }; // request timeout
+      }
+    }
+    return { status: 200 }; // return statement for type checking
   },
 };

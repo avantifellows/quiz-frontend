@@ -15,6 +15,7 @@
           hidden: !isPreviousButtonShown && !isQuizAssessment,
           invisible: (!isPreviousButtonShown && isQuizAssessment) || isOmrMode,
         }"
+        :isDisabled="isSessionAnswerRequestProcessing"
         ariaLabel="Previous Question"
         @click="goToPreviousQuestion"
         data-test="previousQuestionButton"
@@ -32,7 +33,7 @@
         }"
         :titleConfig="clearButtonTitleConfig"
         :buttonClass="clearButtonClass"
-        :isDisabled="!isSubmitEnabled"
+        :isDisabled="!isSubmitEnabled || isSessionAnswerRequestProcessing"
         @click="clearAnswer"
         data-test="clearButton"
       ></icon-button>
@@ -43,8 +44,9 @@
           hidden: isOmrMode
         }"
         :titleConfig="saveAndNextButtonTitleConfig"
+        :iconConfig="saveAndNextButtonIconConfig"
         :buttonClass="saveAndNextButtonClass"
-        :isDisabled="!isAnswerSubmitted && !isSubmitEnabled"
+        :isDisabled="(!isAnswerSubmitted && !isSubmitEnabled) || isSessionAnswerRequestProcessing"
         @click="saveQuestionAndProceed"
         data-test="saveAndNextButton"
       ></icon-button>
@@ -55,8 +57,9 @@
       <icon-button
         v-if="!isQuizAssessment"
         :titleConfig="submitButtonTitleConfig"
+        :iconConfig="submitButtonIconConfig"
         :buttonClass="submitButtonClass"
-        :isDisabled="!isAnswerSubmitted && !isSubmitEnabled"
+        :isDisabled="(!isAnswerSubmitted && !isSubmitEnabled) || isSessionAnswerRequestProcessing"
         @click="submitQuestion"
         data-test="submitButton"
       ></icon-button>
@@ -68,6 +71,7 @@
         v-if="isQuizAssessment && isNextButtonShown"
         :iconConfig="nextQuestionButtonIconConfig"
         :buttonClass="assessmentNavigationButtonClass"
+        :isDisabled="isSessionAnswerRequestProcessing"
         ariaLabel="Next Question"
         @click="goToNextQuestion"
         data-test="nextQuestionButton"
@@ -110,6 +114,14 @@ export default defineComponent({
     isNextButtonShown: {
       default: true,
       type: Boolean,
+    },
+    isSessionAnswerRequestProcessing: {
+      type: Boolean,
+      default: false
+    },
+    continueAfterAnswerSubmit: {
+      type: Boolean,
+      default: false
     },
     hasQuizEnded: {
       type: Boolean,
@@ -185,7 +197,16 @@ export default defineComponent({
       class: [state.assessmentTextButtonTitleClass, "text-emerald-500"],
     } as IconButtonTitleConfig);
 
+    const saveAndNextButtonIconConfig = computed(() => {
+      return {
+        enabled: props.isSessionAnswerRequestProcessing,
+        iconName: "spinner-solid",
+        iconClass: "animate-spin h-4 w-4 text-primary",
+      };
+    });
+
     function submitQuestion() {
+      // for homework ONLY
       if (props.isAnswerSubmitted) context.emit("continue");
       else context.emit("submit");
     }
@@ -203,16 +224,31 @@ export default defineComponent({
     }
 
     function saveQuestionAndProceed() {
+      // for assessment
       context.emit("submit");
-      context.emit("continue");
+      // wait for processing to be done and answer to be submitted
+      const checkProcessingDone = setInterval(() => {
+        if (!props.isSessionAnswerRequestProcessing) {
+          if (props.continueAfterAnswerSubmit) context.emit("continue");
+          clearInterval(checkProcessingDone);
+        }
+      }, 100); // check every 100ms
     }
 
     const submitButtonTitleConfig = computed(() => {
       return {
-        value: props.isAnswerSubmitted ? "Continue" : "Submit",
+        value: props.isAnswerSubmitted && !props.isSessionAnswerRequestProcessing ? "Continue" : "Submit",
         class:
           "text-white text-md bp-500:text-lg lg:text-xl xl:text-2xl font-bold",
       } as IconButtonTitleConfig;
+    });
+
+    const submitButtonIconConfig = computed(() => {
+      return {
+        enabled: props.isSessionAnswerRequestProcessing,
+        iconName: "spinner-solid",
+        iconClass: "animate-spin h-4 w-4 text-primary",
+      };
     });
 
     const submitButtonClass = computed(() => [
@@ -233,12 +269,14 @@ export default defineComponent({
       saveAndNextButtonClass,
       clearButtonTitleConfig,
       saveAndNextButtonTitleConfig,
+      saveAndNextButtonIconConfig,
       submitQuestion,
       goToPreviousQuestion,
       goToNextQuestion,
       clearAnswer,
       saveQuestionAndProceed,
       submitButtonTitleConfig,
+      submitButtonIconConfig,
       submitButtonClass,
       isQuizAssessment,
     };

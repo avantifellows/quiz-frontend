@@ -36,6 +36,7 @@
         :qsetIndex="currentQsetIndex"
         :qsetIndexLimits="currentQsetIndexLimits"
         :quizTimeLimit="quizTimeLimit"
+        :isSessionAnswerRequestProcessing="isSessionAnswerRequestProcessing"
         :userId="userId"
         :title="title"
         :timeRemaining="timeRemaining"
@@ -60,11 +61,14 @@
         :questionSetStates="questionSetStates"
         :qsetIndexLimits="currentQsetIndexLimits"
         :quizTimeLimit="quizTimeLimit"
+        :isSessionAnswerRequestProcessing="isSessionAnswerRequestProcessing"
+        :continueAfterAnswerSubmit="continueAfterAnswerSubmit"
         :timeRemaining="timeRemaining"
         :userId="userId"
         :title="title"
         v-model:currentQuestionIndex="currentQuestionIndex"
         v-model:responses="responses"
+        v-model:previousResponse="previousResponse"
         @submit-question="submitQuestion"
         @end-test="endTest"
         @fetch-question-bucket="fetchQuestionBucket"
@@ -111,6 +115,7 @@ import {
   Question,
   SubmittedResponse,
   UpdateSessionAPIPayload,
+  UpdateAllSessionAnswersAPIPayload,
   UpdateSessionAPIResponse,
   QuizMetadata,
   submittedAnswer,
@@ -123,6 +128,7 @@ import {
   TimeLimit,
   eventType,
 } from "../types";
+import { useToast, POSITION } from "vue-toastification"
 import BaseIcon from "../components/UI/Icons/BaseIcon.vue";
 import OrganizationAPIService from "../services/API/Organization";
 
@@ -159,6 +165,7 @@ export default defineComponent({
       metadata: {} as QuizMetadata,
       questions: [] as Question[],
       responses: [] as SubmittedResponse[], // holds the responses to each item submitted by the viewer
+      previousResponse: {} as SubmittedResponse, // holds previous respnose for question being submitted
       questionSets: [] as QuestionSet[],
       maxQuestionsAllowedToAttempt: 0,
       qsetCumulativeLengths: [] as number[],
@@ -181,6 +188,9 @@ export default defineComponent({
       isScorecardShown: false, // to show the scorecard or not
       hasQuizEnded: false, // whether the quiz has ended - only valid for quizType = assessment
       sessionId: "", // id of the session created for a user-quiz combination
+      isSessionAnswerRequestProcessing: false, // whether session answer api request is processing
+      continueAfterAnswerSubmit: true as boolean, // do we continue after submitting answer
+      toast: useToast(),
     });
 
     OrganizationAPIService.checkAuthToken(props.apiKey).catch(() => {
@@ -210,12 +220,14 @@ export default defineComponent({
       () => state.currentQuestionIndex,
       (newValue) => {
         if (newValue == numQuestions.value) {
-          state.isScorecardShown = true;
           if (!state.hasQuizEnded && !isQuizAssessment.value) {
             endTest() // send an end-quiz event for homeworks
           }
-          if (!hasGradedQuestions.value) return;
-          calculateScorecardMetrics();
+          if (state.hasQuizEnded) {
+            state.isScorecardShown = true;
+            if (!hasGradedQuestions.value) return;
+            calculateScorecardMetrics();
+          }
         } else if (!state.hasQuizEnded && !state.responses[newValue].visited) {
           state.responses[newValue].visited = true;
           SessionAPIService.updateSessionAnswer(
@@ -265,7 +277,7 @@ export default defineComponent({
     onMounted(() => {
       window.setInterval(() => {
         timerUpdates();
-      }, 8000);
+      }, 80000);
     });
 
     async function startQuiz() {
@@ -331,15 +343,32 @@ export default defineComponent({
     }
 
     /** updates the session answer once a response is submitted */
-    function submitQuestion() {
+    async function submitQuestion() {
+      state.isSessionAnswerRequestProcessing = true;
+      state.continueAfterAnswerSubmit = false;
       const itemResponse = state.responses[state.currentQuestionIndex];
-      SessionAPIService.updateSessionAnswer(
+      const response = await SessionAPIService.updateSessionAnswer( // response.data
         state.sessionId,
         state.currentQuestionIndex,
         {
           answer: itemResponse.answer,
         }
       );
+      if (response.status != 200) {
+        state.toast.error(
+          'Answer not saved. Please try to submit again or refresh the page.',
+          {
+            position: POSITION.TOP_LEFT,
+            timeout: 5000,
+            draggablePercent: 0.4
+          }
+        )
+        state.responses[state.currentQuestionIndex] = state.previousResponse; // previous value?!
+      } else {
+        // successful response
+        state.continueAfterAnswerSubmit = true;
+      }
+      state.isSessionAnswerRequestProcessing = false;
     }
 
     function submitOmrQuestion(newQuestionIndex: number) {
@@ -353,12 +382,49 @@ export default defineComponent({
       );
     }
 
-    function endTest() {
+    async function endTest() {
       if (!state.hasQuizEnded) {
-        SessionAPIService.updateSession(state.sessionId, {
-          event: eventType.END_QUIZ
-        });
-        state.hasQuizEnded = true;
+        if (isOmrMode.value) {
+          // update all session answers only for omr mode as of now
+          state.isSessionAnswerRequestProcessing = true;
+          const responseAnswers: UpdateAllSessionAnswersAPIPayload = [];
+          for (const response of state.responses) {
+            responseAnswers.push({
+              answer: response.answer,
+              visited: response.visited
+            });
+          }
+          const updateResponse = await SessionAPIService.updateAllSessionAnswers(
+            state.sessionId,
+            responseAnswers
+          );
+
+          if (updateResponse.status != 200) {
+            state.toast.error(
+              'Answers are not submitted. Please check internet connection and click "End Test" again without refreshing the page',
+              {
+                position: POSITION.TOP_LEFT,
+                timeout: 8000,
+                draggablePercent: 0.4
+              }
+            )
+          } else {
+            SessionAPIService.updateSession(state.sessionId, {
+              event: eventType.END_QUIZ
+            });
+            state.hasQuizEnded = true;
+            state.currentQuestionIndex = numQuestions.value;
+          }
+          state.isSessionAnswerRequestProcessing = false;
+        } else {
+          SessionAPIService.updateSession(state.sessionId, {
+            event: eventType.END_QUIZ
+          });
+          state.hasQuizEnded = true;
+          state.currentQuestionIndex = numQuestions.value;
+        }
+      } else {
+        state.currentQuestionIndex = numQuestions.value;
       }
     }
 
@@ -368,7 +434,6 @@ export default defineComponent({
      * defines all the metrics to show in the scorecard here
      */
     const scorecardMetrics = computed(() => {
-      console.log('reached here')
       const metrics = [
         {
           name: "Correct",

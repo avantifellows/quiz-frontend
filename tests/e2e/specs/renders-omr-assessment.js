@@ -17,8 +17,10 @@ describe("Player for OMR quizzes", () => {
         fixture: "new_session_for_multiset_quiz.json",
       });
 
-      cy.intercept("PATCH", "/session_answers/**", {});
-      cy.intercept("PATCH", "/sessions/*", {});
+      cy.intercept("PATCH", "/session_answers/**", { body: {} }).as(
+        "patchSessionAnswerRequest"
+      );
+      cy.intercept("PATCH", "/sessions/*", { body: { timeRemaining: 100 } });
 
       cy.intercept(
         "GET",
@@ -350,9 +352,10 @@ describe("Player for OMR quizzes", () => {
         fixture: "resume_session_for_multiset_quiz.json",
       });
 
-      cy.intercept("PATCH", "/session_answers/**", {});
-      cy.intercept("PATCH", "/sessions/*", {});
-
+      cy.intercept("PATCH", "/session_answers/**", { body: {} }).as(
+        "patchSessionAnswerRequest"
+      );
+      cy.intercept("PATCH", "/sessions/*", { body: { timeRemaining: 100 } });
       cy.intercept(
         "GET",
         Cypress.env("backend") + "/organizations/authenticate/*",

@@ -6,6 +6,7 @@
       :hasTimeLimit="quizTimeLimit != null"
       v-model:isPaletteVisible="isPaletteVisible"
       :timeRemaining="timeRemaining"
+      :isSessionAnswerRequestProcessing="$props.isSessionAnswerRequestProcessing"
       :warningTimeLimit="timeLimitWarningThreshold"
       :title="title"
       :userId="userId"
@@ -66,6 +67,8 @@
         :isSubmitEnabled="isAttemptValid"
         :quizType="quizType"
         :hasQuizEnded="hasQuizEnded"
+        :isSessionAnswerRequestProcessing="$props.isSessionAnswerRequestProcessing"
+        :continueAfterAnswerSubmit="$props.continueAfterAnswerSubmit"
         @submit="submitQuestion"
         @continue="showNextQuestion"
         @previous="showPreviousQuestion"
@@ -129,6 +132,14 @@ export default defineComponent({
       required: true,
       type: Array as PropType<SubmittedResponse[]>
     },
+    isSessionAnswerRequestProcessing: {
+      type: Boolean,
+      default: false
+    },
+    continueAfterAnswerSubmit: {
+      type: Boolean,
+      default: false
+    },
     quizType: {
       type: String as PropType<quizType>,
       default: "homework"
@@ -174,6 +185,7 @@ export default defineComponent({
     const state = reactive({
       localCurrentQuestionIndex: props.currentQuestionIndex as number, // local copy of currentQuestionIndex
       localResponses: props.responses as SubmittedResponse[], // local copy of responses
+      previousLocalResponse: {} as SubmittedResponse, // save previous answer for current question
       isPortrait: true,
       draftResponses: [] as DraftResponse[], // stores the options selected by the user but not yet submitted
       toast: useToast(),
@@ -234,6 +246,14 @@ To attempt this question, unselect an answer to another question in this section
       { deep: true }
     )
 
+    watch(
+      () => state.previousLocalResponse,
+      (newValue) => {
+        context.emit("update:previousResponse", newValue)
+      },
+      { deep: true }
+    )
+
     /**
      * triggered upon selecting an option
      */
@@ -273,6 +293,7 @@ To attempt this question, unselect an answer to another question in this section
 
     function submitQuestion() {
       if (!state.localResponses.length) return
+      state.previousLocalResponse = clonedeep(state.localResponses[props.currentQuestionIndex]);
       state.localResponses[props.currentQuestionIndex].answer =
         state.draftResponses[props.currentQuestionIndex]
       context.emit("submit-question")
@@ -304,7 +325,8 @@ To attempt this question, unselect an answer to another question in this section
         state.toast.success(
           'No more questions, please press "End Test" if you are done 👉',
           {
-            position: POSITION.TOP_LEFT
+            position: POSITION.TOP_LEFT,
+            timeout: 3000,
           }
         )
       }
@@ -359,7 +381,6 @@ To attempt this question, unselect an answer to another question in this section
         )
         state.hasEndTestBeenClickedOnce = false;
       } else {
-        state.localCurrentQuestionIndex = props.questions.length
         context.emit("end-test")
       }
     }
@@ -367,7 +388,6 @@ To attempt this question, unselect an answer to another question in this section
     function endTestByTime() {
       // same function as above -- can update later for new feature
       if (!props.hasQuizEnded && isQuizAssessment.value) {
-        state.localCurrentQuestionIndex = props.questions.length
         context.emit("end-test")
       }
     }
@@ -420,6 +440,10 @@ To attempt this question, unselect an answer to another question in this section
 
     const isAnswerSubmitted = computed(() => {
       if (currentQuestionResponseAnswer.value == null) return false
+      if (currentQuestionResponseAnswer.value != null && props.isSessionAnswerRequestProcessing) {
+        // answer is set, but session_answer request is still processing
+        return false
+      }
       if (isQuestionTypeNumericalInteger.value || isQuestionTypeNumericalFloat.value) {
         return true
       }
@@ -513,6 +537,7 @@ To attempt this question, unselect an answer to another question in this section
   emits: [
     "update:currentQuestionIndex",
     "update:responses",
+    "update:previousResponse",
     "submit-question",
     "end-test",
     "fetch-question-bucket",

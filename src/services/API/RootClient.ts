@@ -5,6 +5,9 @@ import ErrorHandling from "./ErrorHandling";
 const client = axios.create({
   baseURL: process.env.VUE_APP_BACKEND,
   withCredentials: false,
+  timeout: 4000, // cancel request after 10 sec
+  // but this works only when internet connection is active
+  // ref: https://stackoverflow.com/questions/36690451/timeout-feature-in-the-axios-library-is-not-working
 });
 
 // handle errors in responses for API requests

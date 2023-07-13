@@ -8,6 +8,7 @@
         :title="title"
         :userId="userId"
         :isOmrMode="isOmrMode"
+        :isSessionAnswerRequestProcessing="isSessionAnswerRequestProcessing"
         v-model:isPaletteVisible="isPaletteVisible"
         :timeRemaining="timeRemaining"
         :warningTimeLimit="timeLimitWarningThreshold"
@@ -113,6 +114,10 @@ export default defineComponent({
     responses: {
       required: true,
       type: Array as PropType<SubmittedResponse[]>
+    },
+    isSessionAnswerRequestProcessing: {
+      type: Boolean,
+      default: false
     },
     quizType: {
       type: String as PropType<quizType>,
@@ -276,7 +281,6 @@ export default defineComponent({
         )
         state.hasEndTestBeenClickedOnce = false;
       } else {
-        state.localCurrentQuestionIndex = props.questions.length
         context.emit("end-test")
       }
     }
@@ -284,7 +288,6 @@ export default defineComponent({
     function endTestByTime() {
       // same function as above -- can update later for new feature
       if (!props.hasQuizEnded && isQuizAssessment.value) {
-        state.localCurrentQuestionIndex = props.questions.length
         context.emit("end-test")
       }
     }

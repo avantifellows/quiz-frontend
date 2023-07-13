@@ -1,5 +1,5 @@
 import { flushPromises, mount } from "@vue/test-utils";
-import { Question, QuestionSetIndexLimits, SubmittedResponse} from "@/types";
+import { Question, QuestionSetIndexLimits, SubmittedResponse } from "@/types";
 import QuestionModal from "@/components/Questions/QuestionModal.vue";
 import { createQuestionBuckets } from "@/services/Functional/Utilities";
 
@@ -277,10 +277,10 @@ describe("QuestionModal.vue", () => {
           quizType: "assessment",
         });
       });
-      it("sets question index to number of questions upon end test", async () => {
+      it("emits end-test upon end test", async () => {
         wrapper.find('[data-test="endTestButton"]').trigger("click");
         wrapper.find('[data-test="endTestButton"]').trigger("click"); // adding additional click to protect endTest button
-        expect(wrapper.vm.localCurrentQuestionIndex).toBe(questions.length);
+        expect(wrapper.emitted()).toHaveProperty("end-test");
       });
       it("does not increment question index when save & next button is clicked for last question", () => {
         for (let index = 0; index < questions.length - 1; index++) {
