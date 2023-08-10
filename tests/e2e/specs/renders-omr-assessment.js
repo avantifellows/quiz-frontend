@@ -150,6 +150,15 @@ describe("Player for OMR quizzes", () => {
           .get('[data-test="endTestButton"]')
           .trigger("click");
 
+        // check if update all session answers request is made
+        cy.wait("@patchSessionAnswerRequest").then((interception) => {
+          const request = interception.request;
+          const response = interception.response;
+
+          expect(request.method).to.equal("PATCH");
+          expect(response.statusCode).to.equal(200);
+        });
+
         // number of skipped questions shown in scorecard
         cy.get('[data-test="scorecard"]')
           .get('[data-test="metricValue-2"]')

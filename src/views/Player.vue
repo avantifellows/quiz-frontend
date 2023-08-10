@@ -356,10 +356,10 @@ export default defineComponent({
       );
       if (response.status != 200) {
         state.toast.error(
-          'Answer not saved. Please try to submit again or refresh the page.',
+          `Answer for Q.${state.currentQuestionIndex + 1} not saved. Please try to submit again or refresh the page.`,
           {
             position: POSITION.TOP_LEFT,
-            timeout: 5000,
+            timeout: 4000,
             draggablePercent: 0.4
           }
         )
@@ -371,15 +371,25 @@ export default defineComponent({
       state.isSessionAnswerRequestProcessing = false;
     }
 
-    function submitOmrQuestion(newQuestionIndex: number) {
+    async function submitOmrQuestion(newQuestionIndex: number) {
       const itemResponse = state.responses[newQuestionIndex];
-      SessionAPIService.updateSessionAnswer(
+      const response = await SessionAPIService.updateSessionAnswer( // response.data
         state.sessionId,
         newQuestionIndex,
         {
           answer: itemResponse.answer,
         }
       );
+      if (response.status != 200) {
+        state.toast.error(
+          `Answer for Q.${newQuestionIndex + 1} not saved. Please answer again or refresh the page.`,
+          {
+            position: POSITION.TOP_LEFT,
+            timeout: 4000,
+            draggablePercent: 0.4
+          }
+        )
+      }
     }
 
     async function endTest() {
