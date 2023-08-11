@@ -10,6 +10,7 @@ module.exports = {
         "back-color": "#F78000",
         "share-color": "#10B981",
         pink: "#E8ADAA",
+        red: "#FF0000",
       },
       borderWidth: {
         1: "1px",

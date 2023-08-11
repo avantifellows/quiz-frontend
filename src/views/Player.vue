@@ -17,6 +17,13 @@
         :isFirstSession="isFirstSession"
         :numQuestions="maxQuestionsAllowedToAttempt"
         :quizType="metadata.quiz_type"
+        :quizTimeLimit="quizTimeLimit?.max"
+        :maxMarks="maxMarks"
+        :maxQuestionsAllowedToAttempt="maxQuestionsAllowedToAttempt"
+        :test_purpose="metadata.test_purpose"
+        :questions="questions"
+        :questionSetStates="questionSetStates"
+        :questionSets = "questionSets"
         @start="startQuiz"
         data-test="splash"
       ></Splash>
@@ -72,18 +79,6 @@
         data-test="modal"
       ></QuestionModal>
 
-      <InstructionPage
-      :title="title"
-      :quiz_type="metadata.quiz_type"
-      :quizTimeLimit="quizTimeLimit?.max"
-      :markingScheme="markingScheme"
-      :maxMarks="maxMarks"
-      :maxQuestionsAllowedToAttempt="maxQuestionsAllowedToAttempt"
-      :subject="metadata.subject"
-      :questionType="questionType"
-      :test_purpose="metadata.test_purpose"
-      ></InstructionPage>
-
       <Scorecard
         id="scorecardmodal"
         class="absolute z-10"
@@ -110,7 +105,6 @@
 import QuestionModal from "../components/Questions/QuestionModal.vue";
 import OmrModal from "../components/Omr/OmrModal.vue"
 import Splash from "../components/Splash.vue";
-import InstructionPage from "@/components/InstructionPage.vue";
 import Scorecard from "../components/Scorecard.vue";
 import { resetConfetti, isQuestionAnswerCorrect, isQuestionFetched, createQuestionBuckets } from "../services/Functional/Utilities";
 import QuizAPIService from "../services/API/Quiz";
@@ -149,8 +143,7 @@ export default defineComponent({
     QuestionModal,
     Scorecard,
     BaseIcon,
-    OmrModal,
-    InstructionPage
+    OmrModal
   },
   props: {
     quizId: {

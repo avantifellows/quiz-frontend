@@ -1,115 +1,92 @@
 <template>
-    <div class="">
-        <h1 class="text-3xl font-bold m-3 text-center">Instructions</h1>
+    <div class="xl:mr-20 xl:ml-10 lg:mr-24 lg:ml-24 md:mr-48 md:ml-48 sm:mr-60 sm:ml-60">
         <h4 class="text-lg font-bold m-6 ">Test Paper Overview</h4>
         <!-- Table -->
-        <div class="w-1/2 m-4 gap-0">
-            <!-- row-1 -->
-            <div class="grid grid-cols-2">
-                <div class=" font-semibold col-span-1 border-1 border-black p-1 pl-2">
-                    Test Name
+        <table class="table-auto m-4">
+            <!-- row 1 -->
+            <tr>
+                <th class="border-black border-1 text-left px-4 py-2">Test Name</th>
+                <td class="border-black border-1 px-4 py-2">{{ $props.title }}</td>
+            </tr>
+            <!-- row 2 -->
+            <tr>
+                <th class="border-black border-1 text-left px-4 py-2">Test Purpose</th>
+                <td class="border-black border-1 px-4 py-2">{{ $props.test_purpose }}</td>
+            </tr>
+            <!-- row 3 -->
+            <tr>
+                <th class="border-black border-1 text-left px-4 py-2">Duration</th>
+                <td class="border-black border-1 px-4 py-2">{{ ($props.quizTimeLimit)/60 }} min</td>
+            </tr>
+            <!-- row 4 -->
+            <tr>
+                <th class="border-black border-1 text-left px-4 py-2">Total Marks</th>
+                <td class="border-black border-1 px-4 py-2">{{ $props.maxMarks }} Marks</td>
+            </tr>
+            <!-- row 5 -->
+            <tr>
+                <th class="border-black border-1 text-left px-4 py-2">No. of Questions</th>
+                <td class="border-black border-1 px-4 py-2">{{ $props.maxQuestionsAllowedToAttempt }}</td>
+            </tr>
+            <!-- row 6 -->
+            <tr>
+                <th class="border-black border-1 text-left px-4 py-2">Subjects</th>
+                <td class="border-black border-1 px-4 py-2">{{ $props.subject }}</td>
+            </tr>
+        </table>
+        <!-- Test Paper Pattern(if FST) -->
+        <div v-if="isTestFST">
+          <h4 class="text-lg font-bold m-6">Test Paper Pattern</h4>
+            <!-- Printing subjects extracted from questionSet.title -->
+            <p class="ml-6 mr-4 mb-2 text-justify">The following are the subjects in the test: <strong>
+              <span v-for="(part, index) in uniqueFirstParts" :key="part">
+                  {{ index > 0 ? ', ' : '' }}{{ part }}
+              </span></strong>
+            </p>
+            <!-- iterating over every questionset and printing title and its description -->
+            <div
+              v-for="(questionSetState, index) in questionSetStates" :key="index">
+                <li class="text-base mt-2 ml-7 font-semibold leading-none mr-4">{{ questionSetState.title }}</li>
+                <div class="ml-12 mr-4 mt-1">
+                  There are {{ $props.questionSets[index].questions.length }} questions, out of which only {{ $props.questionSets[index].max_questions_allowed_to_attempt }} questions needs to be attempted.
                 </div>
-                <div class="col-span-1 border-1 border-l-0 border-black p-1 pl-2">
-                    {{ $props.title }}
-                </div>
-            </div>
-            <!-- row-2 -->
-            <div class="grid grid-cols-2">
-                <div class=" font-semibold col-span-1 border-1 border-t-0 border-black p-1 pl-2">
-                    Test Purpose
-                </div>
-                <div class="col-span-1 border-1 border-l-0 border-t-0 border-black p-1 pl-2">
-                   {{ $props.test_purpose }}
-                </div>
-            </div>
-            <!-- row-3 -->
-            <div class="grid grid-cols-2">
-                <div class=" font-semibold col-span-1 border-1 border-t-0 border-black p-1 pl-2">
-                    Duration
-                </div>
-                <div class="col-span-1 border-1 border-l-0 border-t-0 border-black p-1 pl-2">
-                    {{ ($props.quizTimeLimit)/60 }} min
-                </div>
-            </div>
-            <!-- row-4 -->
-            <div class="grid grid-cols-2">
-                <div class=" font-semibold col-span-1 border-1 border-t-0 border-black p-1 pl-2">
-                    Total Marks
-                </div>
-                <div class="col-span-1 border-1 border-l-0 border-t-0 border-black p-1 pl-2">
-                    {{ $props.maxMarks }}
-                </div>
-            </div>
-            <!-- row-5 -->
-            <div class="grid grid-cols-2">
-                <div class=" font-semibold col-span-1 border-1 border-t-0 border-black p-1 pl-2">
-                    No. of Questions
-                </div>
-                <div class="col-span-1 border-1 border-l-0 border-t-0 border-black p-1 pl-2">
-                    {{ $props.maxQuestionsAllowedToAttempt }}
-                </div>
-            </div>
-            <!-- row-6 -->
-            <div class="grid grid-cols-2">
-                <div class=" font-semibold col-span-1 border-1 border-t-0 border-black p-1 pl-2">
-                    Subjects
-                </div>
-                <div class="col-span-1 border-1 border-l-0 border-t-0 border-black p-1 pl-2">
-                    {{ $props.subject }}
-                </div>
-            </div>
-            <!-- row-7 -->
-            <div class="grid grid-cols-2">
-                <div class=" font-semibold col-span-1 border-1 border-t-0 border-black p-1 pl-2">
-                    Type of Questions
-                </div>
-                <div class="col-span-1 border-1 border-l-0 border-t-0 border-black p-1 pl-2">
-                    {{ $props.questionType }}
-                </div>
-            </div>
-            <!-- row-8 -->
-            <div class="grid grid-cols-2">
-                <div class=" font-semibold col-span-1 border-1 border-t-0 border-black p-1 pl-2">
-                    Marking Scheme
-                </div>
-                <div class="col-span-1 border-1 border-l-0 border-t-0 border-black p-1 pl-2">
-                    {{ $props.markingScheme }}
-                </div>
-            </div>
-            <!-- row-9 -->
-            <div class="grid grid-cols-2">
-                <div class=" font-semibold col-span-1 border-1 border-t-0 border-black p-1 pl-2">
-                    Quiz Type
-                </div>
-                <div class="col-span-1 border-1 border-l-0 border-t-0 border-black p-1 pl-2">
-                    {{ $props.quiz_type }}
-                </div>
+                <div class="text-base mx-2 mb-4 leading-tight text-slate-500 ml-12 mr-4" v-html="$props.questionSets[index].description"></div>
             </div>
         </div>
-        <!-- Test Paper Pattern(if FST) -->
+        <!-- general Instruction -->
         <h4 class="text-lg font-bold m-6">General Instructions</h4>
-        <div class="w-1/2 ml-10">
+        <div class="ml-11 mr-4">
           <ol class="text-justify">
              <li>The countdown timer in the top right corner of screen will display the remaining time available for you to complete the examination. When the timer reaches zero, the examination will end by itself. You will not be required to end or submit your examination.</li>
-             <li>You can click on the "=" button on the top left corner of the page to expand the Question Palette </li>
+             <li>You can click on the <span class="inline-flex items-baseline"><BaseIcon name ='hamburger' class="place-self-center w-4 h-4"></BaseIcon></span> button on the top left corner of the page to expand the Question Palette </li>
              <li>The Question Palette will show the status of each question using one of the following symbols:
-                <ol class="ml-7 m-2 list-[lower-alpha]">
-                <li>You have not visited the question yet.</li>
-                <li>You have not answered the question.</li>
-                <li>You have answered the question.</li>
-             </ol>
+                <div class="flex flex-wrap ml-7 mr-4 m-2">
+                    <div class="flex items-center mb-2 mr-4">
+                        <Success></Success>
+                        <span class="ml-6 mr-6">You have answered the question</span>
+                    </div>
+                    <div class="flex items-center mb-2 mr-4">
+                        <Error></Error>
+                        <span class="ml-6 mr-6">You have not visited the question yet</span>
+                    </div>
+                    <div class="flex items-center mb-2 mr-4">
+                        <Neutral></Neutral>
+                        <span class="ml-6 mr-6">You have not answered the question</span>
+                    </div>
+                </div>
              </li>
              <li>To view the Instructions again, click on the “Instructions” button at the top of the Question Palette. </li>
-             <li>You can click on the “X” button to the right of the Question Palette to collapse it.</li>
+             <li>You can click on the <span class="inline-flex items-baseline"><BaseIcon name ='hamburger' class="place-self-center w-4 h-4"></BaseIcon></span> button to the right of the Question Palette to collapse it.</li>
           </ol>
         </div>
+        <!-- Answering a question -->
         <h4 class="text-lg font-bold m-6">Answering a Question:</h4>
-        <div class="w-1/2 ml-10">
+        <div class="ml-11 mr-4">
           <ol class="text-justify">
              <li>Procedure for answering a multiple choice type question:
-                <ol class="ml-7 m-2 list-[lower-alpha] text-justify">
+                <ol class="ml-7 list-[lower-alpha] text-justify">
                 <li>To select you answer, click on the button of one of the options.</li>
-                <li>To deselect your chosen answer, click on the button of the chosen option again or click on the <span><b>Clear Response</b></span> button</li>
+                <li>To deselect your chosen answer, click on the button of the chosen option again or click on the <b>Clear Response</b> button</li>
                 <li>To change your chosen answer, click on the button of another option</li>
                 <li>To save your answer, you <b>MUST</b> click on the Save & Next button.</li>
              </ol>
@@ -117,24 +94,28 @@
              <li>To change your answer to a question that has already been answered, first select that question for answering and then follow the procedure for answering that type of question.</li>
           </ol>
         </div>
-        <div class="w-1/2 mt-5 flex items-center-top">
-            <p class="text-red-950 text-lg mt-3 ml-7">!</p>
-            <p class="list-[none] text-justify bg-pink bg-opacity-25 p-3 pt-4 ml-3">Note that selecting an option does NOT save your answer to the current question. Click on <b>Save & Next</b> to save your answer for the current question and then go to the next question.</p>
+        <div class="mt-5 ml-6 mr-4 flex border-red border-1 p-2">
+          <div class="float-left text-red pr-5 pl-3 text-xl font-bold">!</div>
+          <div class="float-right text-justify pr-2">Note that selecting an option does NOT save your answer to the current question. Click on <b>Save & Next to save your answer</b> for the current question and then go to the next question.</div>
         </div>
-        <div class="w-1/2 flex items-center-top ml-4 mt-5">
-            <input type="checkbox" class="mr-2">
-            <p class="ml-2 text-justify">I have read and understood the instructions. All computer hardware allotted to me are in proper working condition. I declare that I am not in possession of / not wearing / not carrying any prohibited gadget like mobile phone, bluetooth devices etc. /any prohibited material with me into the Examination Hall. I agree that in case of not adhering to the instructions, I shall be liable to be debarred from this Test and/or to disciplinary action, which may include ban from future Tests / Examinations. </p>
-        </div>
-
-        <button></button>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue";
-import { quizType, quizTitleType, testPurpose } from "../types";
+import { computed, defineComponent, PropType } from "vue";
+import BaseIcon from "./UI/Icons/BaseIcon.vue";
+import Success from "./Questions/Palette/Success.vue";
+import Error from "./Questions/Palette/Error.vue";
+import Neutral from "./Questions/Palette/Neutral.vue";
+import { quizTitleType, testPurpose, QuestionSet, Question, questionSetPalette } from "../types";
 export default defineComponent({
   name: "InstructionPage",
+  components: {
+    BaseIcon,
+    Success,
+    Error,
+    Neutral
+  },
   props: {
     title: {
       type: [null, String] as PropType<quizTitleType>,
@@ -148,10 +129,6 @@ export default defineComponent({
       type: Number,
       required: true,
     },
-    quiz_type: {
-      type: [null, String] as PropType<quizType>,
-      required: true
-    },
     maxMarks: {
       type: Number,
       required: true
@@ -160,22 +137,69 @@ export default defineComponent({
       type: Number,
       required: true
     },
-    markingScheme: {
+    questions: {
       required: true,
-      type: Array
+      type: Array as PropType<Question[]>
     },
-    questionType: {
+    questionSetStates: {
+      type: Array as PropType<questionSetPalette[]>,
+      default: () => [],
+    },
+    questionSets: {
       required: true,
-      type: Array
+      type: Array as PropType<QuestionSet[]>
     },
     test_purpose: {
       type: [null, String] as PropType<testPurpose>,
       required: true
-    }
+    },
   },
-  mounted() {
-    console.log(this.test_purpose)
-    console.log(this.title)
+  setup(props) {
+    const isTestFST = computed(() => props.test_purpose == "Full Syllabus Test")
+
+    // to extract the sectionTitles from questionSets (eg. Physics - Section A)
+    const sectionTitles = computed(() => {
+      return props.questionSets.map(questionSet => questionSet.title);
+    });
+
+    // to split the sectionTitles from char "-" (eg. Physics)
+    const uniqueFirstParts = computed(() => {
+      const uniqueParts = new Set();
+
+      sectionTitles.value.forEach(title => {
+        if (title !== null) {
+          const parts = title.split("-");
+          if (parts.length === 2) {
+            uniqueParts.add(parts[0].trim());
+          }
+        }
+      });
+
+      return Array.from(uniqueParts);
+    });
+
+    // to split the sectionTitles from char "-" (eg. Section A)
+    const uniqueSecondParts = computed(() => {
+      const uniqueParts = new Set();
+
+      sectionTitles.value.forEach(title => {
+        if (title !== null) {
+          const parts = title.split("-");
+          if (parts.length === 2) {
+            uniqueParts.add(parts[1].trim());
+          }
+        }
+      });
+
+      return Array.from(uniqueParts);
+    });
+
+    return {
+      isTestFST,
+      sectionTitles,
+      uniqueFirstParts,
+      uniqueSecondParts
+    }
   },
 })
 </script>
