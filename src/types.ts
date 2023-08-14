@@ -77,7 +77,7 @@ export interface QuizMetadata {
   chapter?: string;
   topic?: string;
   omr_mode: boolean;
-  test_purpose: testPurpose;
+  test_purpose?: testPurpose;
 }
 
 export interface QuestionBucket {
