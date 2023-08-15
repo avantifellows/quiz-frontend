@@ -7,6 +7,7 @@
           :class="{invisible: isOmrMode}"
           :iconConfig="togglePaletteButtonIconConfig"
           :buttonClass="togglePaletteButtonClass"
+          :isDisabled="isSessionAnswerRequestProcessing"
           @click="togglePalette"
           data-test="togglePaletteButton"
         ></icon-button>
@@ -23,6 +24,8 @@
           <icon-button
             :titleConfig="endTestButtonTitleConfig"
             :buttonClass="endTestButtonClass"
+            :iconConfig="endTestButtonIconConfig"
+            :isDisabled="isSessionAnswerRequestProcessing"
             @click="endTest"
             data-test="endTestButton"
           ></icon-button>
@@ -68,6 +71,10 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    isSessionAnswerRequestProcessing: {
+      type: Boolean,
+      default: false
+    },
     /** whether the quiz has a time limit */
     hasTimeLimit: {
       type: Boolean,
@@ -101,11 +108,11 @@ export default defineComponent({
     });
 
     onMounted(() => {
-      if (!props.hasQuizEnded && props.hasTimeLimit) {
-        window.setInterval(() => {
+      window.setInterval(() => {
+        if (!props.hasQuizEnded && props.hasTimeLimit && !props.isSessionAnswerRequestProcessing) {
           state.timeRemaining -= 1
-        }, 1000); // update every second if quiz has not ended
-      }
+        }
+      }, 1000); // update every second if quiz has not ended
     })
 
     function endTest() {
@@ -120,6 +127,14 @@ export default defineComponent({
       class:
         "text-white text-sm bp-500:text-md lg:text-lg xl:text-xl font-bold",
     }));
+
+    const endTestButtonIconConfig = computed(() => {
+      return {
+        enabled: props.isSessionAnswerRequestProcessing && props.isOmrMode,
+        iconName: "spinner-solid",
+        iconClass: "animate-spin h-4 w-4 text-primary",
+      };
+    });
 
     const countdownTimerClass = computed(() => {
       let buttonClass;
@@ -207,6 +222,7 @@ export default defineComponent({
       endTest,
       togglePalette,
       endTestButtonTitleConfig,
+      endTestButtonIconConfig,
       togglePaletteButtonIconConfig,
       togglePaletteButtonClass,
       countdownTimerClass,

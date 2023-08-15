@@ -17,8 +17,10 @@ describe("Player for OMR quizzes", () => {
         fixture: "new_session_for_multiset_quiz.json",
       });
 
-      cy.intercept("PATCH", "/session_answers/**", {});
-      cy.intercept("PATCH", "/sessions/*", {});
+      cy.intercept("PATCH", "/session_answers/**", { body: {} }).as(
+        "patchSessionAnswerRequest"
+      );
+      cy.intercept("PATCH", "/sessions/*", { body: { timeRemaining: 100 } });
 
       cy.intercept(
         "GET",
@@ -147,6 +149,15 @@ describe("Player for OMR quizzes", () => {
         cy.get('[data-test="omr-modal"]')
           .get('[data-test="endTestButton"]')
           .trigger("click");
+
+        // check if update all session answers request is made
+        cy.wait("@patchSessionAnswerRequest").then((interception) => {
+          const request = interception.request;
+          const response = interception.response;
+
+          expect(request.method).to.equal("PATCH");
+          expect(response.statusCode).to.equal(200);
+        });
 
         // number of skipped questions shown in scorecard
         cy.get('[data-test="scorecard"]')
@@ -350,9 +361,10 @@ describe("Player for OMR quizzes", () => {
         fixture: "resume_session_for_multiset_quiz.json",
       });
 
-      cy.intercept("PATCH", "/session_answers/**", {});
-      cy.intercept("PATCH", "/sessions/*", {});
-
+      cy.intercept("PATCH", "/session_answers/**", { body: {} }).as(
+        "patchSessionAnswerRequest"
+      );
+      cy.intercept("PATCH", "/sessions/*", { body: { timeRemaining: 100 } });
       cy.intercept(
         "GET",
         Cypress.env("backend") + "/organizations/authenticate/*",

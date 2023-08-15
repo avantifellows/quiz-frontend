@@ -7,18 +7,18 @@ describe("Basic tests on Header", () => {
     expect(wrapper).toBeTruthy();
   });
 
-  describe("Title and ID Header",  () => {
+  describe("Title and ID Header", () => {
     it("Student ID Visible", () => {
-      const wrapper = mount (Header, {
-        props: {userId:12345}
+      const wrapper = mount(Header, {
+        props: { userId: "12345" }
       })
       const userIdText = wrapper.find('[data-test="user-id"]').text()
       expect(userIdText).toEqual("Id: 12345")
     })
 
     it("testname Visible", () => {
-      const wrapper = mount (Header, {
-        props: {title:"Mock Test series 1 for All over India for Government school Students by Avanti Fellows NGO"}
+      const wrapper = mount(Header, {
+        props: { title: "Mock Test series 1 for All over India for Government school Students by Avanti Fellows NGO" }
       })
       const testNameElement = wrapper.find('[data-test="test-name"]').text();
       expect(testNameElement).toEqual("Mock Test series 1 for All over India for Government school Students by Avanti Fellows NGO");

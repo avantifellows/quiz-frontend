@@ -281,10 +281,10 @@ describe("OmrModal.vue", () => {
     });
 
     describe("OMR Assessments", () => {
-      it("sets question index to number of questions upon end test", async () => {
+      it("emits end-test upon end test", async () => {
         wrapper.find('[data-test="endTestButton"]').trigger("click");
         wrapper.find('[data-test="endTestButton"]').trigger("click"); // adding additional click to protect endTest button
-        expect(wrapper.vm.localCurrentQuestionIndex).toBe(questions.length);
+        expect(wrapper.emitted()).toHaveProperty("end-test");
       });
     });
   });

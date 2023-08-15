@@ -195,17 +195,15 @@ export interface UpdateSessionAPIResponse {
 }
 
 export interface SessionAnswerAPIResponse {
-  _id: string;
-  session_id: string;
-  question_id: string;
-  answer: submittedAnswer;
-  visited: boolean;
+  status: number;
 }
 
 export interface UpdateSessionAnswerAPIPayload {
   answer?: submittedAnswer;
   visited?: boolean;
 }
+
+export interface UpdateAllSessionAnswersAPIPayload extends Array<UpdateSessionAnswerAPIPayload> {}
 
 export interface answerEvaluation {
   valid: boolean; // whether the evaluation of the question is valid in the first place (invalid for ungraded questions)

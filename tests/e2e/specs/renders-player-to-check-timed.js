@@ -26,7 +26,7 @@ describe("Player for Assessment Timed quizzes", () => {
         fixture: "new_session.json",
       });
 
-      cy.intercept("PATCH", "/session_answers/**", {});
+      cy.intercept("PATCH", "/session_answers/**", { status: 200 });
       cy.intercept("PATCH", "/sessions/*", { time_remaining: 200 });
 
       cy.intercept(
@@ -166,7 +166,7 @@ describe("Player for Assessment Timed quizzes", () => {
         fixture: "new_session.json",
       });
 
-      cy.intercept("PATCH", "/session_answers/**", {});
+      cy.intercept("PATCH", "/session_answers/**", { status: 200 });
       cy.intercept("PATCH", "/sessions/*", {});
 
       cy.intercept(
@@ -200,7 +200,7 @@ describe("Player for Assessment Timed quizzes", () => {
         fixture: "resume_session.json",
       });
 
-      cy.intercept("PATCH", "/session_answers/**", {});
+      cy.intercept("PATCH", "/session_answers/**", { status: 200 });
       cy.intercept("PATCH", "/sessions/*", { time_remaining: 1 });
 
       cy.intercept(

@@ -15,8 +15,10 @@ describe("Player for Assessment quizzes with partial marks", () => {
         fixture: "new_partial_mark_session.json",
       });
 
-      cy.intercept("PATCH", "/session_answers/**", {});
-      cy.intercept("PATCH", "/sessions/*", {});
+      cy.intercept("PATCH", "/session_answers/**", { body: {} }).as(
+        "patchSessionAnswerRequest"
+      );
+      cy.intercept("PATCH", "/sessions/*", { body: { timeRemaining: 100 } });
 
       cy.intercept(
         "GET",
@@ -50,6 +52,9 @@ describe("Player for Assessment quizzes with partial marks", () => {
           .trigger("click");
 
         // question 2 - skipped; end test
+        cy.get('[data-test="modal"]')
+          .get('[data-test="question-index-type')
+          .should("have.text", "Q.2 | Multiple Answer");
         cy.get('[data-test="modal"]')
           .get('[data-test="endTestButton"]')
           .trigger("click");
@@ -112,6 +117,9 @@ describe("Player for Assessment quizzes with partial marks", () => {
           .trigger("click");
 
         // end test
+        cy.get('[data-test="modal"]')
+          .get('[data-test="question-index-type')
+          .should("have.text", "Q.2 | Multiple Answer");
         cy.get('[data-test="modal"]')
           .get('[data-test="endTestButton"]')
           .trigger("click");
