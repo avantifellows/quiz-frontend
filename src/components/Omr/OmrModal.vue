@@ -89,6 +89,7 @@ import {
   quizTitleType
 } from "../../types"
 import { useToast, POSITION } from "vue-toastification"
+const clonedeep = require("lodash.clonedeep");
 
 const { v4: uuidv4 } = require('uuid');
 
@@ -172,6 +173,7 @@ export default defineComponent({
     const state = reactive({
       localCurrentQuestionIndex: props.currentQuestionIndex as number, // local copy of currentQuestionIndex
       localResponses: props.responses as SubmittedResponse[], // local copy of responses
+      previousLocalResponses: [] as SubmittedResponse[], // local copy of previous responses to each question
       isPortrait: true,
       draftResponses: [] as DraftResponse[], // stores the options selected by the user but not yet submitted
       toast: useToast(),
@@ -236,12 +238,22 @@ export default defineComponent({
       { deep: true }
     )
 
+    watch(
+      () => state.previousLocalResponses,
+      (newValue) => {
+        context.emit("update:previousOmrResponses", newValue)
+      },
+      { deep: true }
+    )
+
     /**
        * triggered upon selecting an option
        */
     function questionOptionSelected(draftAnswer: DraftResponse, newQuestionIndex: number) {
       updateQuestionIndex(newQuestionIndex);
       if (!state.localResponses.length) return
+      const clonedLocalResponse = clonedeep(state.localResponses[state.localCurrentQuestionIndex]);
+      state.previousLocalResponses[newQuestionIndex] = clonedLocalResponse;
       state.localResponses[state.localCurrentQuestionIndex].answer = draftAnswer
       context.emit("submit-omr-question", newQuestionIndex); // submit answer whenever there is an update / option selected
     }
@@ -252,6 +264,7 @@ export default defineComponent({
 
     function numericalAnswerUpdated(answer: number | null, newQuestionIndex: number) {
       updateQuestionIndex(newQuestionIndex);
+      state.previousLocalResponses[newQuestionIndex] = clonedeep(state.localResponses[state.localCurrentQuestionIndex]);
       state.localResponses[state.localCurrentQuestionIndex].answer = answer
       context.emit("submit-omr-question", newQuestionIndex);
     }
@@ -259,6 +272,7 @@ export default defineComponent({
     /** update the attempt to the current question - valid for subjective questions */
     function subjectiveAnswerUpdated(answer: string, newQuestionIndex: number) {
       updateQuestionIndex(newQuestionIndex);
+      state.previousLocalResponses[newQuestionIndex] = clonedeep(state.localResponses[state.localCurrentQuestionIndex]);
       state.localResponses[state.localCurrentQuestionIndex].answer = answer
       context.emit("submit-omr-question", newQuestionIndex);
     }
@@ -406,6 +420,14 @@ export default defineComponent({
     // instantiating draftResponses here -- useful when quiz is resumed
     props.responses.forEach((response) => {
       state.draftResponses.push(response.answer)
+      state.previousLocalResponses.push(
+        {
+          _id: response._id,
+          question_id: response.question_id,
+          answer: response.answer,
+          visited: response.visited
+        }
+      )
     })
 
     // determine the screen orientation when the item modal is created
@@ -454,6 +476,7 @@ export default defineComponent({
   emits: [
     "update:currentQuestionIndex",
     "update:responses",
+    "update:previousOmrResponses",
     "submit-question",
     "end-test",
     "fetch-question-bucket",

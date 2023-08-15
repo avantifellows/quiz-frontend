@@ -42,6 +42,7 @@
         :timeRemaining="timeRemaining"
         v-model:currentQuestionIndex="currentQuestionIndex"
         v-model:responses="responses"
+        v-model:previousOmrResponses="previousOmrResponses"
         @submit-omr-question="submitOmrQuestion"
         @end-test="endTest"
         data-test="omr-modal"
@@ -166,6 +167,7 @@ export default defineComponent({
       questions: [] as Question[],
       responses: [] as SubmittedResponse[], // holds the responses to each item submitted by the viewer
       previousResponse: {} as SubmittedResponse, // holds previous respnose for question being submitted
+      previousOmrResponses: [] as SubmittedResponse[],
       questionSets: [] as QuestionSet[],
       maxQuestionsAllowedToAttempt: 0,
       qsetCumulativeLengths: [] as number[],
@@ -389,6 +391,7 @@ export default defineComponent({
             draggablePercent: 0.4
           }
         )
+        state.responses[newQuestionIndex] = state.previousOmrResponses[newQuestionIndex];
       }
     }
 

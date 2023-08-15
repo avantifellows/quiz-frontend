@@ -69,13 +69,13 @@ describe("Scorecard.vue", () => {
   it("should render with default values", () => {
     expect(wrapper).toBeTruthy();
   });
-    it("Student ID Visible", () => {
-      const wrapper = mount (Scorecard, {
-        props: {userId:12345}
-      })
-      const userIdText = wrapper.find('[data-test="user-id"]').text()
-      expect(userIdText).toEqual("Id: 12345")
+  it("Student ID Visible", () => {
+    const wrapper = mount(Scorecard, {
+      props: { userId: "12345" }
     })
+    const userIdText = wrapper.find('[data-test="user-id"]').text()
+    expect(userIdText).toEqual("Id: 12345")
+  })
 
   it("should adjust the radius/stroke of the progress bar according to screen size and orientation", async () => {
     expect(wrapper.vm.circularProgressRadius).toBe(120);
