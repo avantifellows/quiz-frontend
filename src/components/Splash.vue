@@ -7,7 +7,7 @@
     <div
       class="bg-primary flex flex-col space-y-16 bp-360:space-y-14 bp-420:space-y-10 lg:space-y-12 items-center rounded-2xl py-12 bp-500:py-10 md:py-11 lg:py-12"
     >
-      <p class="uppercase text-white text-lg md:text-xl lg:text-2xl font-bold justify-center text-center">Please read the instructions Carefully</p>
+      <p class="text-white text-lg md:text-xl lg:text-2xl font-bold justify-center text-center">PLEASE READ THE INSTRUCTIONS CAREFULLY</p>
     </div>
 
     <InstructionPage
@@ -15,7 +15,6 @@
         :subject="subject"
         :test_purpose="test_purpose"
         :maxMarks="maxMarks"
-        :questions="questions"
         :max-questions-allowed-to-attempt="maxQuestionsAllowedToAttempt"
         :quiz-time-limit="quizTimeLimit"
         :questionSets = "questionSets"
@@ -39,7 +38,7 @@
 import IconButton from "./UI/Buttons/IconButton.vue";
 import BaseIcon from "./UI/Icons/BaseIcon.vue";
 import { defineComponent, computed, reactive, toRefs, PropType } from "vue";
-import { IconButtonTitleConfig, quizType, quizTitleType, isFirstSessionType, QuizMetadata, Question, testPurpose, QuestionSet, questionSetPalette } from "../types";
+import { IconButtonTitleConfig, quizType, quizTitleType, isFirstSessionType, testPurpose, QuestionSet, questionSetPalette } from "../types";
 import InstructionPage from "./InstructionPage.vue";
 export default defineComponent({
   name: "Splash",
@@ -69,10 +68,6 @@ export default defineComponent({
       type: String,
       required: true,
     },
-    questionSetStates: {
-      type: Array as PropType<questionSetPalette[]>,
-      default: () => [],
-    },
     maxMarks: {
       type: Number,
       required: true
@@ -84,10 +79,6 @@ export default defineComponent({
     quizTimeLimit: {
       type: Number,
       required: true
-    },
-    questions: {
-      required: true,
-      type: Array as PropType<Question[]>
     },
     questionSets: {
       required: true,
@@ -104,7 +95,6 @@ export default defineComponent({
   },
   setup(props, context) {
     const state = reactive({
-      metadata: {} as QuizMetadata,
       metadataContainerClass:
         "grid grid-cols-2 space-x-6 bg-yellow-400 p-4 rounded-2xl w-11/12 bp-360:w-10/12 sm:w-2/3 md:w-1/2 xl:w-1/3",
       metadataCellClass:

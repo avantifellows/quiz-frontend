@@ -28,9 +28,6 @@ module.exports = {
       custom: "870px", // Custom breakpoint at 870px
       ...defaultTheme.screens,
     },
-    listStyleType: {
-      exclamation: "!",
-    },
   },
   plugins: [],
   // disabling preflight plugin because one type of default causes problems in the cms question text html code

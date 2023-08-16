@@ -13,15 +13,6 @@ const routes = [
     },
   },
   {
-    path: "/instruction",
-    name: "Instruction",
-    component: () =>
-      import(/* webpackChunkName: "about" */ "@/components/InstructionPage.vue"),
-    meta: {
-      requiresAuth: false,
-    },
-  },
-  {
     path: "/forms/jnvenablereports",
     name: "FormResults",
     component: () =>

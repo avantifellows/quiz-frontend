@@ -16,7 +16,7 @@
             <!-- row 3 -->
             <tr>
                 <th class="border-black border-1 text-left px-4 py-2">Duration</th>
-                <td class="border-black border-1 px-4 py-2">{{ ($props.quizTimeLimit)/60 }} min</td>
+                <td class="border-black border-1 px-4 py-2">{{ ($props.quizTimeLimit)/60 }} minutes</td>
             </tr>
             <!-- row 4 -->
             <tr>
@@ -39,25 +39,25 @@
           <h4 class="text-lg font-bold m-6">Test Paper Pattern</h4>
             <!-- Printing subjects extracted from questionSet.title -->
             <p class="ml-6 mr-4 mb-2 text-justify">The following are the subjects in the test: <strong>
-              <span v-for="(part, index) in uniqueFirstParts" :key="part">
+              <span v-for="(part, index) in subjectNames" :key="part">
                   {{ index > 0 ? ', ' : '' }}{{ part }}
               </span></strong>
             </p>
             <!-- iterating over every questionset and printing title and its description -->
             <div
-              v-for="(questionSetState, index) in questionSetStates" :key="index">
-                <li class="text-base mt-2 ml-7 font-semibold leading-none mr-4">{{ questionSetState.title }}</li>
+              v-for="(questionSet, index) in questionSets" :key="index">
+                <li class="text-base mt-2 ml-7 font-semibold leading-none mr-4">{{ questionSet.title }}</li>
                 <div class="ml-12 mr-4 mt-1">
-                  There are {{ $props.questionSets[index].questions.length }} questions, out of which only {{ $props.questionSets[index].max_questions_allowed_to_attempt }} questions needs to be attempted.
+                  There are {{ questionSet.questions.length }} questions, out of which only {{ questionSet.max_questions_allowed_to_attempt }} questions need to be attempted.
                 </div>
-                <div class="text-base mx-2 mb-4 leading-tight text-slate-500 ml-12 mr-4" v-html="$props.questionSets[index].description"></div>
+                <div class="text-base mx-2 mb-4 leading-tight text-slate-500 ml-12 mr-4" v-html="questionSet.description"></div>
             </div>
         </div>
         <!-- general Instruction -->
         <h4 class="text-lg font-bold m-6">General Instructions</h4>
         <div class="ml-11 mr-4">
           <ol class="text-justify">
-             <li>The countdown timer in the top right corner of screen will display the remaining time available for you to complete the examination. When the timer reaches zero, the examination will end by itself. You will not be required to end or submit your examination.</li>
+             <li>The countdown timer in the top right corner of screen will display the remaining time available for you to complete the test. When the timer reaches zero, the test will end by itself. You will not be required to end or submit your test.</li>
              <li>You can click on the <span class="inline-flex items-baseline"><BaseIcon name ='hamburger' class="place-self-center w-4 h-4"></BaseIcon></span> button on the top left corner of the page to expand the Question Palette </li>
              <li>The Question Palette will show the status of each question using one of the following symbols:
                 <div class="flex flex-wrap ml-7 mr-4 m-2">
@@ -76,7 +76,7 @@
                 </div>
              </li>
              <li>To view the Instructions again, click on the “Instructions” button at the top of the Question Palette. </li>
-             <li>You can click on the <span class="inline-flex items-baseline"><BaseIcon name ='hamburger' class="place-self-center w-4 h-4"></BaseIcon></span> button to the right of the Question Palette to collapse it.</li>
+             <li>You can click on the <span class="inline-flex items-baseline"><BaseIcon name ='hamburger' class="place-self-center w-4 h-4"></BaseIcon></span> button again to collapse the Question Palette.</li>
           </ol>
         </div>
         <!-- Answering a question -->
@@ -107,7 +107,7 @@ import BaseIcon from "./UI/Icons/BaseIcon.vue";
 import Success from "./Questions/Palette/Success.vue";
 import Error from "./Questions/Palette/Error.vue";
 import Neutral from "./Questions/Palette/Neutral.vue";
-import { quizTitleType, testPurpose, QuestionSet, Question, questionSetPalette } from "../types";
+import { quizTitleType, testPurpose, QuestionSet } from "../types";
 export default defineComponent({
   name: "InstructionPage",
   components: {
@@ -137,14 +137,6 @@ export default defineComponent({
       type: Number,
       required: true
     },
-    questions: {
-      required: true,
-      type: Array as PropType<Question[]>
-    },
-    questionSetStates: {
-      type: Array as PropType<questionSetPalette[]>,
-      default: () => [],
-    },
     questionSets: {
       required: true,
       type: Array as PropType<QuestionSet[]>
@@ -157,48 +149,48 @@ export default defineComponent({
   setup(props) {
     const isTestFST = computed(() => props.test_purpose == "Full Syllabus Test")
 
-    // to extract the sectionTitles from questionSets (eg. Physics - Section A)
-    const sectionTitles = computed(() => {
+    // to extract the questionSetTitles from questionSets (eg. Physics - Section A)
+    const questionSetTitles = computed(() => {
       return props.questionSets.map(questionSet => questionSet.title);
     });
 
-    // to split the sectionTitles from char "-" (eg. Physics)
-    const uniqueFirstParts = computed(() => {
-      const uniqueParts = new Set();
+    // to split the questionSetTitles from char "-" (eg. Physics)
+    const subjectNames = computed(() => {
+      const distinctComponents = new Set();
 
-      sectionTitles.value.forEach(title => {
+      questionSetTitles.value.forEach(title => {
         if (title !== null) {
           const parts = title.split("-");
           if (parts.length === 2) {
-            uniqueParts.add(parts[0].trim());
+            distinctComponents.add(parts[0].trim());
           }
         }
       });
 
-      return Array.from(uniqueParts);
+      return Array.from(distinctComponents);
     });
 
-    // to split the sectionTitles from char "-" (eg. Section A)
-    const uniqueSecondParts = computed(() => {
-      const uniqueParts = new Set();
+    // to split the questionSetTitles from char "-" (eg. Section A)
+    const sectionNames = computed(() => {
+      const distinctComponents = new Set();
 
-      sectionTitles.value.forEach(title => {
+      questionSetTitles.value.forEach(title => {
         if (title !== null) {
           const parts = title.split("-");
           if (parts.length === 2) {
-            uniqueParts.add(parts[1].trim());
+            distinctComponents.add(parts[1].trim());
           }
         }
       });
 
-      return Array.from(uniqueParts);
+      return Array.from(distinctComponents);
     });
 
     return {
       isTestFST,
-      sectionTitles,
-      uniqueFirstParts,
-      uniqueSecondParts
+      questionSetTitles,
+      subjectNames,
+      sectionNames
     }
   },
 })

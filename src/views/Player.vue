@@ -129,9 +129,6 @@ import {
   questionSetPalette,
   TimeLimit,
   eventType,
-  questionType,
-  MarkingScheme,
-  testPurpose,
 } from "../types";
 import BaseIcon from "../components/UI/Icons/BaseIcon.vue";
 import OrganizationAPIService from "../services/API/Organization";
@@ -167,12 +164,9 @@ export default defineComponent({
       currentQuestionIndex: -1 as number,
       title: null as quizTitleType,
       metadata: {} as QuizMetadata,
-      questionType: [] as questionType[],
       questions: [] as Question[],
       responses: [] as SubmittedResponse[], // holds the responses to each item submitted by the viewer
       questionSets: [] as QuestionSet[],
-      markingScheme: [] as MarkingScheme[],
-      test_purpose: [] as testPurpose[],
       maxQuestionsAllowedToAttempt: 0,
       qsetCumulativeLengths: [] as number[],
       currentQsetIndex: 0,
