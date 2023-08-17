@@ -18,7 +18,6 @@
         :max-questions-allowed-to-attempt="maxQuestionsAllowedToAttempt"
         :quiz-time-limit="quizTimeLimit"
         :questionSets = "questionSets"
-        :questionSetStates="questionSetStates"
     ></InstructionPage>
 
     <!-- start button -->
@@ -38,7 +37,7 @@
 import IconButton from "./UI/Buttons/IconButton.vue";
 import BaseIcon from "./UI/Icons/BaseIcon.vue";
 import { defineComponent, computed, reactive, toRefs, PropType } from "vue";
-import { IconButtonTitleConfig, quizType, quizTitleType, isFirstSessionType, testPurpose, QuestionSet, questionSetPalette } from "../types";
+import { IconButtonTitleConfig, quizType, quizTitleType, isFirstSessionType, testPurpose, QuestionSet } from "../types";
 import InstructionPage from "./InstructionPage.vue";
 export default defineComponent({
   name: "Splash",
