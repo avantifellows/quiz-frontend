@@ -168,7 +168,7 @@ export default defineComponent({
       let iconClass = "bg-white hover:bg-gray-200 rounded-lg h-14 w-40 ring-primary px-2 border-b-outset border-primary";
       if (props.hasQuizEnded && !props.reviewAnswers) {
         // only in this case, make the button larger
-        iconClass = "bg-white hover:bg-gray-200 rounded-lg h-24 w-60 ring-primary px-2 border-b-outset border-primary";
+        iconClass = "bg-white hover:bg-gray-200 rounded-lg h-28 w-64 ring-primary px-2 border-b-outset border-primary";
       }
       return iconClass;
     });
