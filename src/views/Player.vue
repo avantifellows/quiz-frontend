@@ -15,6 +15,9 @@
         :subject="metadata.subject"
         :grade="metadata.grade"
         :isFirstSession="isFirstSession"
+        :hasQuizEnded="hasQuizEnded"
+        :reviewAnswers="reviewAnswers"
+        :sessionEndTimeText="sessionEndTimeText"
         :numQuestions="maxQuestionsAllowedToAttempt"
         :quizType="metadata.quiz_type"
         @start="startQuiz"
@@ -189,6 +192,8 @@ export default defineComponent({
       maxMarks: 0, // maximum marks that can be scored
       isScorecardShown: false, // to show the scorecard or not
       hasQuizEnded: false, // whether the quiz has ended - only valid for quizType = assessment
+      reviewAnswers: true, // whether users can review answers once quiz has ended
+      sessionEndTimeText: "", // session end time in text if available
       sessionId: "", // id of the session created for a user-quiz combination
       isSessionAnswerRequestProcessing: false, // whether session answer api request is processing
       continueAfterAnswerSubmit: true as boolean, // do we continue after submitting answer
@@ -303,8 +308,11 @@ export default defineComponent({
         // show results based on submitted session's answers (if any)
           endTest()
         }
+        state.currentQuestionIndex = 0;
+      } else if (state.hasQuizEnded && state.reviewAnswers) {
+        state.currentQuestionIndex = 0;
+        // don't set currentIndex to 0 when reviewAnswers is false
       }
-      state.currentQuestionIndex = 0;
     }
 
     async function getQuiz() {
@@ -326,6 +334,20 @@ export default defineComponent({
         quizDetails.max_marks || quizDetails.num_graded_questions;
       state.title = quizDetails.title;
       createQuestionBuckets(totalQuestionsInEachSet);
+
+      if (quizDetails?.always_review_answers == false) {
+        // check if current time is beyond session end time
+        if (state.metadata.session_end_time != null) {
+          const sessionEndTime = new Date(state.metadata.session_end_time);
+          const dateOptions: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true };
+          state.sessionEndTimeText = new Intl.DateTimeFormat('en-US', dateOptions).format(sessionEndTime);
+          if (new Date() > sessionEndTime) {
+            state.reviewAnswers = true;
+          } else {
+            state.reviewAnswers = false;
+          }
+        }
+      }
     }
 
     async function createSession() {

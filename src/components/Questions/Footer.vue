@@ -69,6 +69,7 @@
           hidden: isOmrMode
         }"
         v-if="isQuizAssessment && isNextButtonShown"
+        :titleConfig="nextQuestionButtonTitleConfig"
         :iconConfig="nextQuestionButtonIconConfig"
         :buttonClass="assessmentNavigationButtonClass"
         :isDisabled="isSessionAnswerRequestProcessing"
@@ -177,6 +178,11 @@ export default defineComponent({
       iconClass: state.assessmentNavigationButtonIconClass,
     } as IconButtonIconConfig);
 
+    const nextQuestionButtonTitleConfig = ref({
+      value: "Next",
+      class: "text-gray-600",
+    } as IconButtonTitleConfig);
+
     const clearButtonClass = ref([
       state.assessmentTextButtonClass,
       "bg-white hover:bg-gray-50",
@@ -265,6 +271,7 @@ export default defineComponent({
       ...toRefs(state),
       previousQuestionButtonIconConfig,
       nextQuestionButtonIconConfig,
+      nextQuestionButtonTitleConfig,
       clearButtonClass,
       saveAndNextButtonClass,
       clearButtonTitleConfig,

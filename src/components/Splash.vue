@@ -59,7 +59,7 @@
       <icon-button
         :titleConfig="startButtonTextConfig"
         :iconConfig="startButtonIconConfig"
-        buttonClass="bg-white hover:bg-gray-200 rounded-lg h-14 w-40  ring-primary px-2 border-b-outset border-primary"
+        :buttonClass="startButtonIconClass"
         class="rounded-2xl shadow-lg mt-4 place-self-center"
         data-test="startQuiz"
         :isDisabled="!isSessionDataFetched"
@@ -105,6 +105,18 @@ export default defineComponent({
       type: Boolean as PropType<isFirstSessionType>,
       default: null,
     },
+    hasQuizEnded: {
+      type: Boolean,
+      default: false
+    },
+    reviewAnswers: {
+      type: Boolean,
+      default: false,
+    },
+    sessionEndTimeText: {
+      type: String,
+      default: ""
+    }
   },
   setup(props, context) {
     const state = reactive({
@@ -133,9 +145,32 @@ export default defineComponent({
         class: "text-lg md:text-xl text-primary font-poppins-bold",
       };
       if (isSessionDataFetched.value) {
-        config.value = props.isFirstSession ? "Let's Start" : "Resume";
+        if (props.isFirstSession) {
+          config.value = "Let's Start";
+        } else {
+          if (props.hasQuizEnded && !props.reviewAnswers) {
+            config.class = "text-sm md:text-sm text-primary font-poppins-bold";
+            config.value = "You cannot review answers now. Please come back after test ends.";
+            if (props.sessionEndTimeText != "") {
+              config.value += ` (${props.sessionEndTimeText})`
+            }
+          } else if (props.hasQuizEnded && props.reviewAnswers) {
+            config.value = "Review";
+          } else {
+            config.value = "Resume";
+          }
+        }
       }
       return config;
+    });
+
+    const startButtonIconClass = computed(() => {
+      let iconClass = "bg-white hover:bg-gray-200 rounded-lg h-14 w-40 ring-primary px-2 border-b-outset border-primary";
+      if (props.hasQuizEnded && !props.reviewAnswers) {
+        // only in this case, make the button larger
+        iconClass = "bg-white hover:bg-gray-200 rounded-lg h-24 w-60 ring-primary px-2 border-b-outset border-primary";
+      }
+      return iconClass;
     });
 
     const startButtonIconConfig = computed(() => {
@@ -154,6 +189,7 @@ export default defineComponent({
       ...toRefs(state),
       displayTitle,
       startButtonTextConfig,
+      startButtonIconClass,
       isSessionDataFetched,
       startButtonIconConfig,
       start,
