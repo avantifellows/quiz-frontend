@@ -76,6 +76,7 @@ export interface QuizMetadata {
   chapter?: string;
   topic?: string;
   omr_mode: boolean;
+  session_end_time?: string;
 }
 
 export interface QuestionBucket {
@@ -174,6 +175,7 @@ export interface QuizAPIResponse {
   num_graded_questions: number;
   shuffle: boolean;
   time_limit: TimeLimit | null;
+  always_review_answers?: boolean;
   question_sets: QuestionSet[];
 }
 
