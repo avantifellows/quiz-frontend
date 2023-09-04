@@ -335,7 +335,7 @@ export default defineComponent({
       state.title = quizDetails.title;
       createQuestionBuckets(totalQuestionsInEachSet);
 
-      if (quizDetails?.always_review_answers == false) {
+      if (quizDetails?.review_immediate == false) {
         // check if current time is beyond session end time
         if (state.metadata.session_end_time != null) {
           const sessionEndTime = new Date(state.metadata.session_end_time);

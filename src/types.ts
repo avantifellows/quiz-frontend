@@ -175,7 +175,7 @@ export interface QuizAPIResponse {
   num_graded_questions: number;
   shuffle: boolean;
   time_limit: TimeLimit | null;
-  always_review_answers?: boolean;
+  review_immediate?: boolean;
   question_sets: QuestionSet[];
 }
 
