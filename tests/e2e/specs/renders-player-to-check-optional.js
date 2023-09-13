@@ -16,8 +16,10 @@ describe("Player for Assessment quizzes", () => {
         // of which 3 are answered (first 3 questions in 2nd qset)
       });
 
-      cy.intercept("PATCH", "/session_answers/**", {});
-      cy.intercept("PATCH", "/sessions/*", {});
+      cy.intercept("PATCH", "/session_answers/**", { body: {} }).as(
+        "patchSessionAnswerRequest"
+      );
+      cy.intercept("PATCH", "/sessions/*", { body: { timeRemaining: 100 } });
 
       cy.intercept(
         "GET",
@@ -49,6 +51,9 @@ describe("Player for Assessment quizzes", () => {
 
         // question 13
         cy.get('[data-test="modal"]')
+          .get('[data-test="question-index-type')
+          .should("have.text", "Q.14 | Multiple Answer");
+        cy.get('[data-test="modal"]')
           .get('[data-test="optionSelector-0"]')
           .trigger("click");
         cy.get('[data-test="modal"]')
@@ -56,6 +61,9 @@ describe("Player for Assessment quizzes", () => {
           .trigger("click");
 
         // question 14
+        cy.get('[data-test="modal"]')
+          .get('[data-test="question-index-type')
+          .should("have.text", "Q.15 | Multiple Answer");
         cy.get('[data-test="modal"]')
           .get('[data-test="optionSelector-0"]')
           .trigger("click");
@@ -65,6 +73,9 @@ describe("Player for Assessment quizzes", () => {
       });
 
       it("cannot select answer for question once optional limit reached", () => {
+        cy.get('[data-test="modal"]')
+          .get('[data-test="question-index-type')
+          .should("have.text", "Q.16 | Single Choice");
         cy.get('[data-test="togglePaletteButton"]').trigger("click");
         cy.get('[data-test="paletteItem-15"]').trigger("click");
 
@@ -75,6 +86,9 @@ describe("Player for Assessment quizzes", () => {
 
       it("clear answer for already-answered question to attempt different question in optional set", () => {
         // pick 3rd question in 2nd qset
+        cy.get('[data-test="modal"]')
+          .get('[data-test="question-index-type')
+          .should("have.text", "Q.16 | Single Choice");
         cy.get('[data-test="togglePaletteButton"]').trigger("click");
         cy.get('[data-test="paletteItem-14"]').trigger("click");
 
@@ -88,6 +102,9 @@ describe("Player for Assessment quizzes", () => {
           .trigger("click");
 
         // now go to 4th question in 2nd qset
+        cy.get('[data-test="modal"]')
+          .get('[data-test="question-index-type')
+          .should("have.text", "Q.16 | Single Choice");
         cy.get('[data-test="togglePaletteButton"]').trigger("click");
         cy.get('[data-test="paletteItem-15"]').trigger("click");
 

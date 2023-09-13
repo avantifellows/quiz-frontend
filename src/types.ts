@@ -78,6 +78,7 @@ export interface QuizMetadata {
   topic?: string;
   omr_mode: boolean;
   test_purpose?: testPurpose;
+  session_end_time?: string;
 }
 
 export interface QuestionBucket {
@@ -176,6 +177,7 @@ export interface QuizAPIResponse {
   num_graded_questions: number;
   shuffle: boolean;
   time_limit: TimeLimit | null;
+  review_immediate?: boolean;
   question_sets: QuestionSet[];
 }
 
@@ -197,17 +199,15 @@ export interface UpdateSessionAPIResponse {
 }
 
 export interface SessionAnswerAPIResponse {
-  _id: string;
-  session_id: string;
-  question_id: string;
-  answer: submittedAnswer;
-  visited: boolean;
+  status: number;
 }
 
 export interface UpdateSessionAnswerAPIPayload {
   answer?: submittedAnswer;
   visited?: boolean;
 }
+
+export interface UpdateAllSessionAnswersAPIPayload extends Array<UpdateSessionAnswerAPIPayload> {}
 
 export interface answerEvaluation {
   valid: boolean; // whether the evaluation of the question is valid in the first place (invalid for ungraded questions)

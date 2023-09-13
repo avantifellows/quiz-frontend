@@ -84,4 +84,18 @@ describe("Splash.vue", () => {
     });
   });
 
+  it("displays 'Let's Start' when first session", async () => {
+    await wrapper.setProps({ isFirstSession: true });
+    expect(wrapper.find('[data-test="startQuiz"]').text()).toBe("Let's Start");
+  });
+
+  it("displays 'Resume' when not first session and quiz hasn't ended", async () => {
+    await wrapper.setProps({ isFirstSession: false, hasQuizEnded: false });
+    expect(wrapper.find('[data-test="startQuiz"]').text()).toBe("Resume");
+  });
+
+  it("displays 'Review' when quiz has ended and review answers is true", async () => {
+    await wrapper.setProps({ isFirstSession: false, hasQuizEnded: true, reviewAnswers: true });
+    expect(wrapper.find('[data-test="startQuiz"]').text()).toBe("Review");
+  });
 });
