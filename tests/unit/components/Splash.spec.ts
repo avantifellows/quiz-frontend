@@ -9,7 +9,7 @@ describe("Splash.vue", () => {
   const grade = "8";
   const maxMarks = 30;
   const quizTimeLimit = 3;
-  const test_purpose = "Full Syllabus Test";
+  const test_format = "full_syllabus_test";
   const wrapper = mount(Splash, {
     props: {
       title,
@@ -19,14 +19,14 @@ describe("Splash.vue", () => {
       grade,
       maxMarks,
       quizTimeLimit,
-      test_purpose
+      test_format
     },
   });
 
   it("renders props correctly", () => {
     expect(wrapper.find('[data-test="title"]').text()).toBe(title);
     expect(wrapper.find('[data-test="subject"]').text()).toBe(subject);
-    expect(wrapper.find('[data-test="test-purpose"]').text()).toBe(test_purpose);
+    expect(wrapper.find('[data-test="test-format"]').text()).toBe(test_format);
     expect(wrapper.find('[data-test="num-questions"]').text()).toContain(maxQuestionsAllowedToAttempt + "");
     expect(wrapper.find('[data-test="num-questions"]').text()).toContain(quizTimeLimit + "");
     expect(wrapper.find('[data-test="total-marks"]').text()).toContain(maxMarks + "");

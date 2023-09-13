@@ -11,7 +11,7 @@
             <!-- row 2 -->
             <tr>
                 <th class="border-black border-1 text-left px-4 py-2">Test Format</th>
-                <td class="border-black border-1 px-4 py-2" data-test="test-format">{{ $props.test_format }}</td>
+                <td class="border-black border-1 px-4 py-2" data-test="test-format">{{ testFormatMapping.get($props.test_format) }} </td>
             </tr>
             <!-- row 3 -->
             <tr>
@@ -147,7 +147,7 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const isTestFST = computed(() => props.test_format == "Full Syllabus Test")
+    const isTestFST = computed(() => props.test_format == "full_syllabus_test")
 
     // to extract the questionSetTitles from questionSets (eg. Physics - Section A)
     const questionSetTitles = computed(() => {
@@ -170,6 +170,16 @@ export default defineComponent({
       return Array.from(distinctComponents);
     });
 
+    const testFormatMapping = new Map<string, string>([
+      ["full_syllabus_test", "Full Syllabus Test"],
+      ["major_test", "Major Test"],
+      ["part_test", "Part Test"],
+      ["chapter_test", "Chapter Test"],
+      ["hiring_test", "Hiring Test"],
+      ["evaluation_test", "Evaluation Test"],
+      ["homework", "Homework"]
+    ]);
+
     // to split the questionSetTitles from char "-" (eg. Section A)
     const sectionNames = computed(() => {
       const distinctComponents = new Set();
@@ -190,7 +200,8 @@ export default defineComponent({
       isTestFST,
       questionSetTitles,
       subjectNames,
-      sectionNames
+      sectionNames,
+      testFormatMapping
     }
   },
 })
