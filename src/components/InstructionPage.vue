@@ -10,8 +10,8 @@
             </tr>
             <!-- row 2 -->
             <tr>
-                <th class="border-black border-1 text-left px-4 py-2">Test Purpose</th>
-                <td class="border-black border-1 px-4 py-2" data-test="test-purpose">{{ $props.test_purpose }}</td>
+                <th class="border-black border-1 text-left px-4 py-2">Test Format</th>
+                <td class="border-black border-1 px-4 py-2" data-test="test-format">{{ $props.test_format }}</td>
             </tr>
             <!-- row 3 -->
             <tr>
@@ -107,7 +107,7 @@ import BaseIcon from "./UI/Icons/BaseIcon.vue";
 import Success from "./Questions/Palette/Success.vue";
 import Error from "./Questions/Palette/Error.vue";
 import Neutral from "./Questions/Palette/Neutral.vue";
-import { quizTitleType, testPurpose, QuestionSet } from "../types";
+import { quizTitleType, testFormat, QuestionSet } from "../types";
 export default defineComponent({
   name: "InstructionPage",
   components: {
@@ -141,13 +141,13 @@ export default defineComponent({
       required: true,
       type: Array as PropType<QuestionSet[]>
     },
-    test_purpose: {
-      type: [null, String] as PropType<testPurpose>,
+    test_format: {
+      type: [null, String] as PropType<testFormat>,
       required: true
     },
   },
   setup(props) {
-    const isTestFST = computed(() => props.test_purpose == "Full Syllabus Test")
+    const isTestFST = computed(() => props.test_format == "Full Syllabus Test")
 
     // to extract the questionSetTitles from questionSets (eg. Physics - Section A)
     const questionSetTitles = computed(() => {

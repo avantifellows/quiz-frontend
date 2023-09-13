@@ -23,7 +23,7 @@
         :quizTimeLimit="quizTimeLimit?.max"
         :maxMarks="maxMarks"
         :maxQuestionsAllowedToAttempt="maxQuestionsAllowedToAttempt"
-        :test_purpose="metadata.test_purpose"
+        :test_format="metadata.test_format"
         :questions="questions"
         :questionSetStates="questionSetStates"
         :questionSets = "questionSets"

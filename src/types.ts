@@ -2,7 +2,7 @@
 
 type language = "en" | "hi";
 export type quizType = "assessment" | "homework" | "omr-assessment";
-export type testPurpose = "Full Syllabus Test" | "Major Test" | "Part Test" | "Chapter Test" | "Hiring Test" | "Evaluation Test";
+export type testFormat = "Full Syllabus Test" | "Major Test" | "Part Test" | "Chapter Test" | "Hiring Test" | "Evaluation Test" | "Homework";
 export type quizTitleType = string | null;
 export type textAreaValueType = string | number | null;
 export type isFirstSessionType = boolean | null;
@@ -77,7 +77,7 @@ export interface QuizMetadata {
   chapter?: string;
   topic?: string;
   omr_mode: boolean;
-  test_purpose?: testPurpose;
+  test_format?: testFormat;
   session_end_time?: string;
 }
 

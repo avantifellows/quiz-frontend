@@ -13,7 +13,7 @@
     <InstructionPage
         :title="title"
         :subject="subject"
-        :test_purpose="test_purpose"
+        :test_format="test_format"
         :maxMarks="maxMarks"
         :max-questions-allowed-to-attempt="maxQuestionsAllowedToAttempt"
         :quiz-time-limit="quizTimeLimit"
@@ -37,7 +37,7 @@
 import IconButton from "./UI/Buttons/IconButton.vue";
 import BaseIcon from "./UI/Icons/BaseIcon.vue";
 import { defineComponent, computed, reactive, toRefs, PropType } from "vue";
-import { IconButtonTitleConfig, quizType, quizTitleType, isFirstSessionType, testPurpose, QuestionSet } from "../types";
+import { IconButtonTitleConfig, quizType, quizTitleType, isFirstSessionType, QuestionSet, testFormat } from "../types";
 import InstructionPage from "./InstructionPage.vue";
 export default defineComponent({
   name: "Splash",
@@ -83,8 +83,8 @@ export default defineComponent({
       required: true,
       type: Array as PropType<QuestionSet[]>
     },
-    test_purpose: {
-      type: [null, String] as PropType<testPurpose>,
+    test_format: {
+      type: [null, String] as PropType<testFormat>,
       required: true
     },
     isFirstSession: {
