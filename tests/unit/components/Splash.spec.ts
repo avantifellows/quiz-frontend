@@ -9,7 +9,7 @@ describe("Splash.vue", () => {
   const grade = "8";
   const maxMarks = 30;
   const quizTimeLimit = 3;
-  const test_purpose = "Full Test";
+  const test_purpose = "Full Syllabus Test";
   const wrapper = mount(Splash, {
     props: {
       title,
@@ -46,7 +46,7 @@ describe("Splash.vue", () => {
 
   describe("Test Paper Pattern", () => {
     beforeEach(async () => {
-      const questionSets = [
+      const testQuestionSets = [
         {
           _id:"64bf709a8b60731c693290c1",
           title: "Question Set 0",
@@ -60,10 +60,10 @@ describe("Splash.vue", () => {
           maxQuestionsAllowedToAttempt: 4,
         },
       ];
-      const currentQuestionIndex = 1;
+      const testCurrentQuestionIndex = 1;
       await wrapper.setProps({
-        questionSets,
-        currentQuestionIndex,
+        questionSets: testQuestionSets,
+        currentQuestionIndex: testCurrentQuestionIndex,
       });
     });
 
