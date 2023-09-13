@@ -521,6 +521,7 @@
     "quiz_type": "assessment",
     "grade": "8",
     "subject": "Maths",
+    "test_purpose": "Full Syllabus Test",
     "chapter": null,
     "topic": null
   }

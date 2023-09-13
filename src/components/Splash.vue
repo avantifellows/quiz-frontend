@@ -24,7 +24,7 @@
     <icon-button
         :titleConfig="startButtonTextConfig"
         :iconConfig="startButtonIconConfig"
-        buttonClass="bg-primary hover:bg-orange-300 rounded-lg h-14 w-40  ring-primary px-2 border-b-outset border-white mb-10 mt-10"
+        :buttonClass="'bg-primary hover:bg-orange-300 rounded-lg h-14 w-40  ring-primary px-2 border-b-outset border-white mb-10 mt-10'"
         class="rounded-2xl shadow-lg mt-5 place-self-center"
         data-test="startQuiz"
         :isDisabled="!isSessionDataFetched"

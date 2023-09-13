@@ -6,37 +6,37 @@
             <!-- row 1 -->
             <tr>
                 <th class="border-black border-1 text-left px-4 py-2">Test Name</th>
-                <td class="border-black border-1 px-4 py-2">{{ $props.title }}</td>
+                <td class="border-black border-1 px-4 py-2" data-test="title">{{ $props.title }}</td>
             </tr>
             <!-- row 2 -->
             <tr>
                 <th class="border-black border-1 text-left px-4 py-2">Test Purpose</th>
-                <td class="border-black border-1 px-4 py-2">{{ $props.test_purpose }}</td>
+                <td class="border-black border-1 px-4 py-2" data-test="test-purpose">{{ $props.test_purpose }}</td>
             </tr>
             <!-- row 3 -->
             <tr>
                 <th class="border-black border-1 text-left px-4 py-2">Duration</th>
-                <td class="border-black border-1 px-4 py-2">{{ ($props.quizTimeLimit)/60 }} minutes</td>
+                <td class="border-black border-1 px-4 py-2" data-test="quiz-time-limit">{{ ($props.quizTimeLimit)/60 }} minutes</td>
             </tr>
             <!-- row 4 -->
             <tr>
                 <th class="border-black border-1 text-left px-4 py-2">Total Marks</th>
-                <td class="border-black border-1 px-4 py-2">{{ $props.maxMarks }} Marks</td>
+                <td class="border-black border-1 px-4 py-2" data-test="total-marks">{{ $props.maxMarks }} Marks</td>
             </tr>
             <!-- row 5 -->
             <tr>
                 <th class="border-black border-1 text-left px-4 py-2">No. of Questions</th>
-                <td class="border-black border-1 px-4 py-2">{{ $props.maxQuestionsAllowedToAttempt }}</td>
+                <td class="border-black border-1 px-4 py-2" data-test="num-questions">{{ $props.maxQuestionsAllowedToAttempt }}</td>
             </tr>
             <!-- row 6 -->
             <tr>
                 <th class="border-black border-1 text-left px-4 py-2">Subjects</th>
-                <td class="border-black border-1 px-4 py-2">{{ $props.subject }}</td>
+                <td class="border-black border-1 px-4 py-2" data-test="subject">{{ $props.subject }}</td>
             </tr>
         </table>
         <!-- Test Paper Pattern(if FST) -->
         <div v-if="isTestFST">
-          <h4 class="text-lg font-bold m-6">Test Paper Pattern</h4>
+          <h4 class="text-lg font-bold m-6"  data-test="test-fst">Test Paper Pattern</h4>
             <!-- Printing subjects extracted from questionSet.title -->
             <p class="ml-6 mr-4 mb-2 text-justify">The following are the subjects in the test: <strong>
               <span v-for="(part, index) in subjectNames" :key="part">
@@ -46,11 +46,11 @@
             <!-- iterating over every questionset and printing title and its description -->
             <div
               v-for="(questionSet, index) in questionSets" :key="index">
-                <li class="text-base mt-2 ml-7 font-semibold leading-none mr-4">{{ questionSet.title }}</li>
+                <li class="text-base mt-2 ml-7 font-semibold leading-none mr-4" :data-test="`questionSetTitle-${index}`">{{ questionSet.title }}</li>
                 <div class="ml-12 mr-4 mt-1">
                   There are {{ questionSet.questions.length }} questions, out of which only {{ questionSet.max_questions_allowed_to_attempt }} questions need to be attempted.
                 </div>
-                <div class="text-base mx-2 mb-4 leading-tight text-slate-500 ml-12 mr-4" v-html="questionSet.description"></div>
+                <div class="text-base mx-2 mb-4 leading-tight text-slate-500 ml-12 mr-4" :data-test="`questionSetInstruction-${index}`" v-html="questionSet.description"></div>
             </div>
         </div>
         <!-- general Instruction -->
