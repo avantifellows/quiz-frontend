@@ -2,6 +2,7 @@
 
 type language = "en" | "hi";
 export type quizType = "assessment" | "homework" | "omr-assessment";
+export type testFormat = "full_syllabus_test" | "major_test" | "part_test" | "chapter_test" | "hiring_test" | "evaluation_test" | "homework" | "";
 export type quizTitleType = string | null;
 export type textAreaValueType = string | number | null;
 export type isFirstSessionType = boolean | null;
@@ -76,6 +77,7 @@ export interface QuizMetadata {
   chapter?: string;
   topic?: string;
   omr_mode: boolean;
+  test_format?: testFormat;
   session_end_time?: string;
 }
 
@@ -120,7 +122,7 @@ interface PartialMarkRule {
   marks: number;
 }
 
-interface MarkingScheme {
+export interface MarkingScheme {
   correct: number;
   wrong: number;
   skipped: number;

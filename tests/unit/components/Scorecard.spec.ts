@@ -73,7 +73,7 @@ describe("Scorecard.vue", () => {
     const wrapper = mount(Scorecard, {
       props: { userId: "12345" }
     })
-    const userIdText = wrapper.find('[data-test="user-id"]').text()
+    const userIdText = wrapper.find('[data-test="scorecard-user-id"]').text()
     expect(userIdText).toEqual("Id: 12345")
   })
 

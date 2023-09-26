@@ -20,6 +20,13 @@
         :sessionEndTimeText="sessionEndTimeText"
         :numQuestions="maxQuestionsAllowedToAttempt"
         :quizType="metadata.quiz_type"
+        :quizTimeLimit="quizTimeLimit?.max"
+        :maxMarks="maxMarks"
+        :maxQuestionsAllowedToAttempt="maxQuestionsAllowedToAttempt"
+        :testFormat="metadata.test_format || ''"
+        :questions="questions"
+        :questionSetStates="questionSetStates"
+        :questionSets = "questionSets"
         @start="startQuiz"
         data-test="splash"
       ></Splash>
@@ -235,7 +242,7 @@ export default defineComponent({
             if (!hasGradedQuestions.value) return;
             calculateScorecardMetrics();
           }
-        } else if (!state.hasQuizEnded && !state.responses[newValue].visited) {
+        } else if (newValue != -1 && !state.hasQuizEnded && !state.responses[newValue].visited) {
           state.responses[newValue].visited = true;
           SessionAPIService.updateSessionAnswer(
             state.sessionId,
@@ -313,6 +320,7 @@ export default defineComponent({
         state.currentQuestionIndex = 0;
         // don't set currentIndex to 0 when reviewAnswers is false
       }
+      window.scrollTo(0, 0); // scroll up top incase users scroll down in splash screen
     }
 
     async function getQuiz() {
@@ -684,12 +692,14 @@ export default defineComponent({
             }
           } else {
             if (!state.questions[qindex].graded) continue
-            if (!state.responses[qindex].visited) {
-              qstate = "neutral"
-            } else {
-              if (state.responses[qindex].answer != null) qstate = "success"
-              else qstate = "error"
-            }
+            if (state.responses.length > 0) {
+              if (!state.responses[qindex].visited) { // initially responses empty
+                qstate = "neutral"
+              } else {
+                if (state.responses[qindex].answer != null) qstate = "success"
+                else qstate = "error"
+              }
+            } else qstate = "error"
           }
           states.push({
             index: qindex,

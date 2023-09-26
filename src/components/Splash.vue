@@ -4,15 +4,13 @@
       name="splash"
       iconClass="w-11/12 bp-500:w-9/12 md:w-6/12 lg:w-5/12 mt-24 sm:mt-16 place-self-center"
     />
-
     <div
       class="bg-primary flex flex-col space-y-16 bp-360:space-y-14 bp-420:space-y-10 lg:space-y-12 items-center rounded-2xl py-12 bp-500:py-10 md:py-11 lg:py-12"
     >
-      <!-- title -->
-      <p class="font-poppins font-semibold text-white text-center text-3xl md:text-4xl lg:text-5xl" data-test="title">
+    <!-- title -->
+    <p class="font-poppins font-semibold text-white text-center text-3xl md:text-4xl lg:text-5xl" data-test="metadata-title">
         {{ displayTitle }}
       </p>
-
       <!-- metadata -->
       <div class="flex flex-col space-y-4 w-full items-center">
         <div :class="metadataContainerClass">
@@ -54,18 +52,29 @@
           </div>
         </div>
       </div>
+      <p class="text-white text-xl md:text-2xl lg:text-3xl font-bold justify-center text-center">PLEASE READ THE INSTRUCTIONS CAREFULLY</p>
+    </div>
 
-      <!-- start button -->
-      <icon-button
+    <InstructionPage
+        :title="title"
+        :subject="subject"
+        :testFormat="testFormat"
+        :maxMarks="maxMarks"
+        :max-questions-allowed-to-attempt="maxQuestionsAllowedToAttempt"
+        :quiz-time-limit="quizTimeLimit"
+        :questionSets = "questionSets"
+    ></InstructionPage>
+
+    <!-- start button -->
+    <icon-button
         :titleConfig="startButtonTextConfig"
         :iconConfig="startButtonIconConfig"
         :buttonClass="startButtonIconClass"
-        class="rounded-2xl shadow-lg mt-4 place-self-center"
+        class="rounded-2xl shadow-lg mt-5 place-self-center"
         data-test="startQuiz"
         :isDisabled="!isSessionDataFetched"
         @click="start"
       ></icon-button>
-    </div>
   </div>
 </template>
 
@@ -73,12 +82,14 @@
 import IconButton from "./UI/Buttons/IconButton.vue";
 import BaseIcon from "./UI/Icons/BaseIcon.vue";
 import { defineComponent, computed, reactive, toRefs, PropType } from "vue";
-import { IconButtonTitleConfig, quizType, quizTitleType, isFirstSessionType } from "../types";
+import { IconButtonTitleConfig, quizType, quizTitleType, isFirstSessionType, QuestionSet, testFormat } from "../types";
+import InstructionPage from "./InstructionPage.vue";
 export default defineComponent({
   name: "Splash",
   components: {
     IconButton,
     BaseIcon,
+    InstructionPage
   },
   props: {
     title: {
@@ -100,6 +111,26 @@ export default defineComponent({
     grade: {
       type: String,
       required: true,
+    },
+    maxMarks: {
+      type: Number,
+      required: true
+    },
+    maxQuestionsAllowedToAttempt: {
+      type: Number,
+      required: true,
+    },
+    quizTimeLimit: {
+      type: Number,
+      required: true
+    },
+    questionSets: {
+      required: true,
+      type: Array as PropType<QuestionSet[]>
+    },
+    testFormat: {
+      type: [null, String] as PropType<testFormat>,
+      required: true
     },
     isFirstSession: {
       type: Boolean as PropType<isFirstSessionType>,
@@ -142,7 +173,7 @@ export default defineComponent({
     const startButtonTextConfig = computed(() => {
       const config: IconButtonTitleConfig = {
         value: "",
-        class: "text-lg md:text-xl text-primary font-poppins-bold",
+        class: "text-lg md:text-xl text-white font-poppins-bold",
       };
       if (isSessionDataFetched.value) {
         if (props.isFirstSession) {
@@ -165,10 +196,10 @@ export default defineComponent({
     });
 
     const startButtonIconClass = computed(() => {
-      let iconClass = "bg-white hover:bg-gray-200 rounded-lg h-14 w-40 ring-primary px-2 border-b-outset border-primary";
+      let iconClass = "bg-primary hover:bg-orange-300 rounded-lg h-14 w-40  ring-primary px-2 border-b-outset border-white mb-10 mt-10";
       if (props.hasQuizEnded && !props.reviewAnswers) {
         // only in this case, make the button larger
-        iconClass = "bg-white hover:bg-gray-200 rounded-lg h-28 w-64 ring-primary px-2 border-b-outset border-primary";
+        iconClass = "bg-primary hover:bg-orange-300 rounded-lg h-28 w-64 ring-primary px-2 border-b-outset border-primary";
       }
       return iconClass;
     });
@@ -177,14 +208,13 @@ export default defineComponent({
       return {
         enabled: !isSessionDataFetched.value,
         iconName: "spinner-solid",
-        iconClass: "animate-spin h-4 w-4 text-primary",
+        iconClass: "animate-spin h-4 w-4 text-white",
       };
     });
 
     function start() {
       context.emit("start");
     }
-
     return {
       ...toRefs(state),
       displayTitle,
