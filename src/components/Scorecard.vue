@@ -27,7 +27,7 @@
         </div>
         <!-- student's userId -->
         <div
-          class="text-center text-lg md:text-lg lg:text-xl pt-5 leading-tight" data-test="user-id"
+          class="text-center text-lg md:text-lg lg:text-xl pt-5 leading-tight" data-test="scorecard-user-id"
         >
           Id: {{ userId }}
         </div>
