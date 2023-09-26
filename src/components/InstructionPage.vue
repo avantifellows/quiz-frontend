@@ -58,7 +58,7 @@
         <div class="ml-11 mr-4">
           <ol class="text-justify">
              <li>The countdown timer in the top right corner of screen will display the remaining time available for you to complete the test. When the timer reaches zero, the test will end by itself. You will not be required to end or submit your test.</li>
-             <li>You can click on the <span class="inline-flex items-baseline"><BaseIcon name ='hamburger' class="place-self-center w-4 h-4"></BaseIcon></span> button on the top left corner of the page to expand the Question Palette </li>
+             <li>You can click on the <span class="inline-flex items-baseline"><BaseIcon name ='hamburger' class="place-self-center w-4 h-4"></BaseIcon></span> button on the top left corner of the page to expand the Question Palette.</li>
              <li>The Question Palette will show the status of each question using one of the following symbols:
                 <div class="flex flex-wrap ml-7 mr-4 m-2">
                     <div class="flex items-center mb-2 mr-4">
@@ -75,7 +75,6 @@
                     </div>
                 </div>
              </li>
-             <li>To view the Instructions again, click on the “Instructions” button at the top of the Question Palette. </li>
              <li>You can click on the <span class="inline-flex items-baseline"><BaseIcon name ='hamburger' class="place-self-center w-4 h-4"></BaseIcon></span> button again to collapse the Question Palette.</li>
           </ol>
         </div>
@@ -86,8 +85,8 @@
              <li>Procedure for answering a multiple choice type question:
                 <ol class="ml-7 list-[lower-alpha] text-justify">
                 <li>To select you answer, click on the button of one of the options.</li>
-                <li>To deselect your chosen answer, click on the button of the chosen option again or click on the <b>Clear Response</b> button</li>
-                <li>To change your chosen answer, click on the button of another option</li>
+                <li>To deselect your chosen answer, click on the button of the chosen option again or click on the <b>Clear</b> button.</li>
+                <li>To change your chosen answer, click on the button of another option.</li>
                 <li>To save your answer, you <b>MUST</b> click on the Save & Next button.</li>
              </ol>
              </li>

@@ -8,7 +8,7 @@
       class="bg-primary flex flex-col space-y-16 bp-360:space-y-14 bp-420:space-y-10 lg:space-y-12 items-center rounded-2xl py-12 bp-500:py-10 md:py-11 lg:py-12"
     >
     <!-- title -->
-    <p class="font-poppins font-semibold text-white text-center text-3xl md:text-4xl lg:text-5xl" data-test="title">
+    <p class="font-poppins font-semibold text-white text-center text-3xl md:text-4xl lg:text-5xl" data-test="metadata-title">
         {{ displayTitle }}
       </p>
       <!-- metadata -->

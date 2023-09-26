@@ -18,7 +18,7 @@ describe("Splash.vue", () => {
   });
 
   it("renders props correctly", () => {
-    expect(wrapper.find('[data-test="title"]').text()).toBe(title);
+    expect(wrapper.find('[data-test="metadata-title"]').text()).toBe(title);
     expect(wrapper.find('[data-test="subject"]').text()).toBe(subject);
     expect(wrapper.find('[data-test="quizType"]').text()).toBe(quizType);
     expect(wrapper.find('[data-test="numQuestions"]').text()).toContain(numQuestions + "");

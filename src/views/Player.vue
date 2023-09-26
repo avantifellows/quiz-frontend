@@ -691,12 +691,16 @@ export default defineComponent({
             }
           } else {
             if (!state.questions[qindex].graded) continue
-            if (!state.responses[qindex].visited) {
-              qstate = "neutral"
-            } else {
-              if (state.responses[qindex].answer != null) qstate = "success"
-              else qstate = "error"
-            }
+            console.log(state.responses.length)
+            if (state.responses.length > 0) {
+              if (!state.responses[qindex].visited) { // initially responses empty
+                console.log("inside")
+                qstate = "neutral"
+              } else {
+                if (state.responses[qindex].answer != null) qstate = "success"
+                else qstate = "error"
+              }
+            } else qstate = "error"
           }
           states.push({
             index: qindex,

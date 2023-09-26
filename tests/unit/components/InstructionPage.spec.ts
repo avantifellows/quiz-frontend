@@ -4,32 +4,32 @@ import InstructionPage from '@/components/InstructionPage.vue';
 describe('InstructionPage', () => {
   // When test_format is not 'full_syllabus_test'
   describe('when test_format is not FST', () => {
-    const testQuestionSets =  [
+    const testQuestionSets = [
       {
-        _id:"64bf709a8b60731c693290c1",
+        _id: "64bf709a8b60731c693290c1",
         title: "Maths - Set 0",
         description: "You may attempt all questions",
         max_questions_allowed_to_attempt: 2,
         questions: [
           {
-            _id:"64bf709a8b60731c693290c1",
+            _id: "64bf709a8b60731c693290c1",
           },
           {
-            _id:"64bf709a8b60731c693290c1",
+            _id: "64bf709a8b60731c693290c1",
           },
         ]
       },
       {
-        _id:"64bf709a8b60731c693290c8",
+        _id: "64bf709a8b60731c693290c8",
         title: "Maths - Set 1",
         description: "You may attempt all questions",
         max_questions_allowed_to_attempt: 2,
         questions: [
           {
-            _id:"64bf709a8b60731c693290c1",
+            _id: "64bf709a8b60731c693290c1",
           },
           {
-            _id:"64bf709a8b60731c693290c1",
+            _id: "64bf709a8b60731c693290c1",
           },
         ]
       },
@@ -49,7 +49,6 @@ describe('InstructionPage', () => {
       },
     });
 
-
     it("renders props correctly", () => {
       expect(wrapper.find('[data-test="title"]').text()).toBe("Geometry Quiz");
       expect(wrapper.find('[data-test="test-format"]').text()).toContain("Major Test");
@@ -62,36 +61,35 @@ describe('InstructionPage', () => {
     it("Test Paper Pattern should not be Visible", async () => {
       expect(wrapper.find('[data-test="test-fst"]').exists()).toBe(false);
     });
-
   });
 
   describe('when test_format is FST', () => {
-    const testQuestionSets =  [
+    const testQuestionSets = [
       {
-        _id:"64bf709a8b60731c693290c1",
+        _id: "64bf709a8b60731c693290c1",
         title: "Maths - Set 0",
         description: "You may attempt all questions",
         max_questions_allowed_to_attempt: 2,
         questions: [
           {
-            _id:"64bf709a8b60731c693290c1",
+            _id: "64bf709a8b60731c693290c1",
           },
           {
-            _id:"64bf709a8b60731c693290c1",
+            _id: "64bf709a8b60731c693290c1",
           },
         ]
       },
       {
-        _id:"64bf709a8b60731c693290c8",
+        _id: "64bf709a8b60731c693290c8",
         title: "Maths - Set 1",
         description: "You may attempt all questions",
         max_questions_allowed_to_attempt: 2,
         questions: [
           {
-            _id:"64bf709a8b60731c693290c1",
+            _id: "64bf709a8b60731c693290c1",
           },
           {
-            _id:"64bf709a8b60731c693290c1",
+            _id: "64bf709a8b60731c693290c1",
           },
         ]
       },
@@ -110,7 +108,6 @@ describe('InstructionPage', () => {
         questionSets: testQuestionSets,
       },
     });
-
 
     it("renders props correctly", () => {
       expect(wrapper.find('[data-test="title"]').text()).toBe("Geometry Quiz");

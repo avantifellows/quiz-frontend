@@ -34,7 +34,7 @@ describe("Player for Assessment quizzes", () => {
     });
 
     it("shows splash screen", () => {
-      cy.get('[data-test="title"]').should(
+      cy.get('[data-test="metadata-title"]').should(
         "have.text",
         "cypress assessment 1 by Avanti Fellows"
       );

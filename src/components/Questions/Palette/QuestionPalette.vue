@@ -62,9 +62,6 @@ export default defineComponent({
     Neutral,
     PaletteItem,
   },
-  mounted() {
-    console.log(this.$props.questionSetStates[0].instructionText);
-  },
   props: {
     hasQuizEnded: {
       type: Boolean,
