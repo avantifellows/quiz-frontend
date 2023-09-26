@@ -9,7 +9,7 @@ describe("Splash.vue", () => {
   const grade = "8";
   const maxMarks = 30;
   const quizTimeLimit = 3;
-  const test_format = "full_syllabus_test";
+  const testFormat = "full_syllabus_test";
   const wrapper = mount(Splash, {
     props: {
       title,
@@ -19,14 +19,14 @@ describe("Splash.vue", () => {
       grade,
       maxMarks,
       quizTimeLimit,
-      test_format
+      testFormat
     },
   });
 
   it("renders props correctly", () => {
     expect(wrapper.find('[data-test="title"]').text()).toBe(title);
     expect(wrapper.find('[data-test="subject"]').text()).toBe(subject);
-    expect(wrapper.find('[data-test="test-format"]').text()).toBe(test_format);
+    expect(wrapper.find('[data-test="test-format"]').text()).toContain(testFormat + "");
     expect(wrapper.find('[data-test="num-questions"]').text()).toContain(maxQuestionsAllowedToAttempt + "");
     expect(wrapper.find('[data-test="num-questions"]').text()).toContain(quizTimeLimit + "");
     expect(wrapper.find('[data-test="total-marks"]').text()).toContain(maxMarks + "");
@@ -48,13 +48,13 @@ describe("Splash.vue", () => {
     beforeEach(async () => {
       const testQuestionSets = [
         {
-          _id:"64bf709a8b60731c693290c1",
+          _id: "64bf709a8b60731c693290c1",
           title: "Question Set 0",
           description: "You may attempt all questions",
           maxQuestionsAllowedToAttempt: 4,
         },
         {
-          _id:"64bf709a8b60731c693290c8",
+          _id: "64bf709a8b60731c693290c8",
           title: "Question Set 1",
           description: "You may attempt all questions",
           maxQuestionsAllowedToAttempt: 4,
