@@ -1,27 +1,41 @@
-import { mount, VueWrapper } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import InstructionPage from '@/components/InstructionPage.vue';
 
 describe('InstructionPage', () => {
-  // When test_format is 'full_syllabus_test'
-  describe('when test_format is full_syllabus_test', () => {
-    const wrapper = mount(InstructionPage, {
-      propsData: {
-        questionSets: [
+  // When test_format is not 'full_syllabus_test'
+  describe('when test_format is not FST', () => {
+    const testQuestionSets =  [
+      {
+        _id:"64bf709a8b60731c693290c1",
+        title: "Maths - Set 0",
+        description: "You may attempt all questions",
+        max_questions_allowed_to_attempt: 2,
+        questions: [
           {
             _id:"64bf709a8b60731c693290c1",
-            title: "Question Set 0",
-            description: "You may attempt all questions",
-            maxQuestionsAllowedToAttempt: 4,
           },
           {
-            _id:"64bf709a8b60731c693290c8",
-            title: "Question Set 1",
-            description: "You may attempt all questions",
-            maxQuestionsAllowedToAttempt: 4,
+            _id:"64bf709a8b60731c693290c1",
           },
-          // Add more questionSets as needed
-        ],
+        ]
       },
+      {
+        _id:"64bf709a8b60731c693290c8",
+        title: "Maths - Set 1",
+        description: "You may attempt all questions",
+        max_questions_allowed_to_attempt: 2,
+        questions: [
+          {
+            _id:"64bf709a8b60731c693290c1",
+          },
+          {
+            _id:"64bf709a8b60731c693290c1",
+          },
+        ]
+      },
+      // Add more questionSets as needed
+    ]
+    const wrapper = mount(InstructionPage, {
       props: {
         title: "Geometry Quiz",
         subject: "Maths",
@@ -29,121 +43,110 @@ describe('InstructionPage', () => {
         maxQuestionsAllowedToAttempt: 3,
         grade: "8",
         maxMarks: 30,
-        quizTimeLimit: 3,
-        test_format: "major_test",
+        quizTimeLimit: 10800,
+        testFormat: "major_test",
+        questionSets: testQuestionSets,
       },
     });
 
+
     it("renders props correctly", () => {
       expect(wrapper.find('[data-test="title"]').text()).toBe("Geometry Quiz");
+      expect(wrapper.find('[data-test="test-format"]').text()).toContain("Major Test");
+      expect(wrapper.find('[data-test="quiz-time-limit"]').text()).toContain("180 minutes");
+      expect(wrapper.find('[data-test="total-marks"]').text()).toContain("30 Marks");
+      expect(wrapper.find('[data-test="num-questions"]').text()).toContain("3");
       expect(wrapper.find('[data-test="subject"]').text()).toBe("Maths");
-      expect(wrapper.find('[data-test="test-format"]').text()).toContain("major_test");
-      expect(wrapper.find('[data-test="num-questions"]').text()).toContain(3);
-      expect(wrapper.find('[data-test="num-questions"]').text()).toContain(3);
-      expect(wrapper.find('[data-test="total-marks"]').text()).toContain(30);
     });
 
-    // afterEach(() => {
-    //   (wrapper as VueWrapper<InstanceType<typeof InstructionPage>>).unmount();
-    // });
+    it("Test Paper Pattern should not be Visible", async () => {
+      expect(wrapper.find('[data-test="test-fst"]').exists()).toBe(false);
+    });
+
   });
 
-  // When test_format is not 'full_syllabus_test'
-  // describe('when test_format is not full_syllabus_test', () => {
-  //   const wrapper = mount(InstructionPage, {
-  //     propsData: {
-  //       test_format: 'major_test', // Change this to the appropriate format
-  //       questionSets: [
-  //       {
-  //         _id:"64bf709a8b60731c693290c1",
-  //         title: "Question Set 0",
-  //         description: "You may attempt all questions",
-  //         maxQuestionsAllowedToAttempt: 4,
-  //       },
-  //       {
-  //         _id:"64bf709a8b60731c693290c8",
-  //         title: "Question Set 1",
-  //         description: "You may attempt all questions",
-  //         maxQuestionsAllowedToAttempt: 4,
-  //       },
-  //         // Add more questionSets as needed
-  //       ],
-  //     },
-  //   });
+  describe('when test_format is FST', () => {
+    const testQuestionSets =  [
+      {
+        _id:"64bf709a8b60731c693290c1",
+        title: "Maths - Set 0",
+        description: "You may attempt all questions",
+        max_questions_allowed_to_attempt: 2,
+        questions: [
+          {
+            _id:"64bf709a8b60731c693290c1",
+          },
+          {
+            _id:"64bf709a8b60731c693290c1",
+          },
+        ]
+      },
+      {
+        _id:"64bf709a8b60731c693290c8",
+        title: "Maths - Set 1",
+        description: "You may attempt all questions",
+        max_questions_allowed_to_attempt: 2,
+        questions: [
+          {
+            _id:"64bf709a8b60731c693290c1",
+          },
+          {
+            _id:"64bf709a8b60731c693290c1",
+          },
+        ]
+      },
+      // Add more questionSets as needed
+    ]
+    const wrapper = mount(InstructionPage, {
+      props: {
+        title: "Geometry Quiz",
+        subject: "Maths",
+        quizType: "assessment",
+        maxQuestionsAllowedToAttempt: 3,
+        grade: "8",
+        maxMarks: 30,
+        quizTimeLimit: 10800,
+        testFormat: "full_syllabus_test",
+        questionSets: testQuestionSets,
+      },
+    });
 
-  //   it('should run the other tests', () => {
-  //     // Your other tests here
-  //   });
 
-  //   afterEach(() => {
-  //     (wrapper as VueWrapper<InstanceType<typeof InstructionPage>>).unmount();
-  //   });
-  // });
+    it("renders props correctly", () => {
+      expect(wrapper.find('[data-test="title"]').text()).toBe("Geometry Quiz");
+      expect(wrapper.find('[data-test="test-format"]').text()).toContain("Full Syllabus Test");
+      expect(wrapper.find('[data-test="quiz-time-limit"]').text()).toContain("180 minutes");
+      expect(wrapper.find('[data-test="total-marks"]').text()).toContain("30 Marks");
+      expect(wrapper.find('[data-test="num-questions"]').text()).toContain("3");
+      expect(wrapper.find('[data-test="subject"]').text()).toBe("Maths");
+    });
 
+    it("Test Paper Pattern should be Visible", async () => {
+      expect(wrapper.find('[data-test="test-fst"]').exists()).toBe(true);
+    });
 
+    it("displays question set title", () => {
+      let questionSetIndex = 0;
+      expect(wrapper.find(`[data-test="questionSetTitle-${questionSetIndex}"]`).text()).toBe("Maths - Set 0");
+
+      questionSetIndex = 1;
+      expect(wrapper.find(`[data-test="questionSetTitle-${questionSetIndex}"]`).text()).toBe("Maths - Set 1");
+    });
+
+    it("displays instruction text for each set", () => {
+      let questionSetIndex = 0;
+      expect(wrapper.find(`[data-test="questionSetInstruction-${questionSetIndex}"]`).text()).toBe("You may attempt all questions");
+
+      questionSetIndex = 1;
+      expect(wrapper.find(`[data-test="questionSetInstruction-${questionSetIndex}"]`).text()).toBe("You may attempt all questions");
+    });
+
+    it("No. of questions need to be attempted for each set", () => {
+      let questionSetIndex = 0;
+      expect(wrapper.find(`[data-test="no-of-questions-${questionSetIndex}"]`).text()).toBe("There are 2 questions, out of which only 2 questions need to be attempted.");
+
+      questionSetIndex = 1;
+      expect(wrapper.find(`[data-test="no-of-questions-${questionSetIndex}"]`).text()).toBe("There are 2 questions, out of which only 2 questions need to be attempted.");
+    })
+  });
 });
-
-
-// import { mount } from "@vue/test-utils";
-// import InstructionPage from "@/components/InstructionPage.vue";
-
-// describe("InstructionPage.vue", () => {
-//     const title = "Geometry Quiz";
-//     const subject = "Maths";
-//     const quizType = "assessment";
-//     const maxQuestionsAllowedToAttempt = 3;
-//     const grade = "8";
-//     const maxMarks = 30;
-//     const quizTimeLimit = 3;
-//     const test_format = "full_syllabus_test";
-//     const wrapper = mount(InstructionPage, {
-//       props: {
-//         title,
-//         subject,
-//         quizType,
-//         maxQuestionsAllowedToAttempt,
-//         grade,
-//         maxMarks,
-//         quizTimeLimit
-//       },
-//     });
-
-//     const testFormatMapping = new Map<string, string>([
-//         ["full_syllabus_test", "Full Syllabus Test"],
-//         ["major_test", "Major Test"],
-//         ["part_test", "Part Test"],
-//         ["chapter_test", "Chapter Test"],
-//         ["hiring_test", "Hiring Test"],
-//         ["evaluation_test", "Evaluation Test"],
-//         ["homework", "Homework"]
-//     ]);
-
-//     it("renders props correctly", async () => {
-//         const testCurrentQuestionIndex = 1;
-//         const testQuestionSets = [
-//         {
-//           _id:"64bf709a8b60731c693290c1",
-//           title: "Question Set 0",
-//           description: "You may attempt all questions",
-//           maxQuestionsAllowedToAttempt: 4,
-//         },
-//         {
-//           _id:"64bf709a8b60731c693290c8",
-//           title: "Question Set 1",
-//           description: "You may attempt all questions",
-//           maxQuestionsAllowedToAttempt: 4,
-//         },
-//       ];
-//         await wrapper.setProps({
-//         questionSets: testQuestionSets,
-//         currentQuestionIndex: testCurrentQuestionIndex,
-//         test_format: test_format
-//       });
-        // expect(wrapper.find('[data-test="title"]').text()).toBe(title);
-        // expect(wrapper.find('[data-test="subject"]').text()).toBe(subject);
-        // expect(wrapper.find('[data-test="test-format"]').text()).toBe(testFormatMapping.get(test_format));
-        // expect(wrapper.find('[data-test="num-questions"]').text()).toContain(maxQuestionsAllowedToAttempt + "");
-        // expect(wrapper.find('[data-test="num-questions"]').text()).toContain(quizTimeLimit + "");
-        // expect(wrapper.find('[data-test="total-marks"]').text()).toContain(maxMarks + "");
-//     });
-// });

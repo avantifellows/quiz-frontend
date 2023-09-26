@@ -23,7 +23,7 @@
         :quizTimeLimit="quizTimeLimit?.max"
         :maxMarks="maxMarks"
         :maxQuestionsAllowedToAttempt="maxQuestionsAllowedToAttempt"
-        :test_format="metadata.test_format"
+        :testFormat="metadata.test_format || ''"
         :questions="questions"
         :questionSetStates="questionSetStates"
         :questionSets = "questionSets"
@@ -242,7 +242,7 @@ export default defineComponent({
             if (!hasGradedQuestions.value) return;
             calculateScorecardMetrics();
           }
-        } else if (!state.hasQuizEnded && !state.responses[newValue].visited) {
+        } else if (newValue != -1 && !state.hasQuizEnded && !state.responses[newValue].visited) {
           state.responses[newValue].visited = true;
           SessionAPIService.updateSessionAnswer(
             state.sessionId,

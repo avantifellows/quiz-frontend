@@ -7,13 +7,58 @@
     <div
       class="bg-primary flex flex-col space-y-16 bp-360:space-y-14 bp-420:space-y-10 lg:space-y-12 items-center rounded-2xl py-12 bp-500:py-10 md:py-11 lg:py-12"
     >
-      <p class="text-white text-lg md:text-xl lg:text-2xl font-bold justify-center text-center">PLEASE READ THE INSTRUCTIONS CAREFULLY</p>
+    <!-- title -->
+    <p class="font-poppins font-semibold text-white text-center text-3xl md:text-4xl lg:text-5xl" data-test="title">
+        {{ displayTitle }}
+      </p>
+      <!-- metadata -->
+      <div class="flex flex-col space-y-4 w-full items-center">
+        <div :class="metadataContainerClass">
+          <div :class="metadataCellClass" class="border-r-2">
+            <BaseIcon
+              name="question-mark-round"
+              :iconClass="metadataIconClass"
+            ></BaseIcon>
+            <div class="flex items-center" data-test="numQuestions">
+              <p :class="metadataTitleClass">{{ numQuestions }} questions</p>
+            </div>
+          </div>
+          <div :class="metadataCellClass">
+            <BaseIcon
+              name="student-in-class"
+              :iconClass="metadataIconClass"
+            ></BaseIcon>
+
+            <div class="flex items-center" data-test="grade">
+              <p :class="metadataTitleClass">Class {{ grade }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div :class="metadataContainerClass">
+          <div :class="metadataCellClass" class="border-r-2">
+            <BaseIcon name="math" :iconClass="metadataIconClass"></BaseIcon>
+            <div class="flex items-center" data-test="subject">
+              <p :class="metadataTitleClass">{{ subject }}</p>
+            </div>
+          </div>
+          <div :class="metadataCellClass">
+            <BaseIcon name="notepad" :iconClass="metadataIconClass"></BaseIcon>
+            <div class="flex items-center" data-test="quizType">
+              <p class="capitalize" :class="metadataTitleClass">
+                {{ quizType }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="text-white text-xl md:text-2xl lg:text-3xl font-bold justify-center text-center">PLEASE READ THE INSTRUCTIONS CAREFULLY</p>
     </div>
 
     <InstructionPage
         :title="title"
         :subject="subject"
-        :test_format="test_format"
+        :testFormat="testFormat"
         :maxMarks="maxMarks"
         :max-questions-allowed-to-attempt="maxQuestionsAllowedToAttempt"
         :quiz-time-limit="quizTimeLimit"
@@ -83,7 +128,7 @@ export default defineComponent({
       required: true,
       type: Array as PropType<QuestionSet[]>
     },
-    test_format: {
+    testFormat: {
       type: [null, String] as PropType<testFormat>,
       required: true
     },

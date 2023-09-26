@@ -11,7 +11,7 @@
             <!-- row 2 -->
             <tr>
                 <th class="border-black border-1 text-left px-4 py-2">Test Format</th>
-                <td class="border-black border-1 px-4 py-2" data-test="test-format">{{ testFormatMapping.get($props.test_format) }} </td>
+                <td class="border-black border-1 px-4 py-2" data-test="test-format">{{ testFormatMapping.get($props.testFormat) }} </td>
             </tr>
             <!-- row 3 -->
             <tr>
@@ -35,8 +35,8 @@
             </tr>
         </table>
         <!-- Test Paper Pattern(if FST) -->
-        <div v-if="isTestFST">
-          <h4 class="text-lg font-bold m-6"  data-test="test-fst">Test Paper Pattern</h4>
+        <div v-if="isTestFST" data-test="test-fst">
+          <h4 class="text-lg font-bold m-6">Test Paper Pattern</h4>
             <!-- Printing subjects extracted from questionSet.title -->
             <p class="ml-6 mr-4 mb-2 text-justify">The following are the subjects in the test: <strong>
               <span v-for="(part, index) in subjectNames" :key="part">
@@ -47,7 +47,7 @@
             <div
               v-for="(questionSet, index) in questionSets" :key="index">
                 <li class="text-base mt-2 ml-7 font-semibold leading-none mr-4" :data-test="`questionSetTitle-${index}`">{{ questionSet.title }}</li>
-                <div class="ml-12 mr-4 mt-1">
+                <div class="ml-12 mr-4 mt-1" :data-test="`no-of-questions-${index}`">
                   There are {{ questionSet.questions.length }} questions, out of which only {{ questionSet.max_questions_allowed_to_attempt }} questions need to be attempted.
                 </div>
                 <div class="text-base mx-2 mb-4 leading-tight text-slate-500 ml-12 mr-4" :data-test="`questionSetInstruction-${index}`" v-html="questionSet.description"></div>
@@ -141,13 +141,13 @@ export default defineComponent({
       required: true,
       type: Array as PropType<QuestionSet[]>
     },
-    test_format: {
+    testFormat: {
       type: [null, String] as PropType<testFormat>,
       required: true
     },
   },
   setup(props) {
-    const isTestFST = computed(() => props.test_format == "full_syllabus_test")
+    const isTestFST = computed(() => props.testFormat == "full_syllabus_test")
 
     // to extract the questionSetTitles from questionSets (eg. Physics - Section A)
     const questionSetTitles = computed(() => {
