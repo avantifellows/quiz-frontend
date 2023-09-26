@@ -93,8 +93,8 @@
              <li>To change your answer to a question that has already been answered, first select that question for answering and then follow the procedure for answering that type of question.</li>
           </ol>
         </div>
-        <div class="mt-5 ml-6 mr-4 flex border-red border-1 p-2">
-          <div class="float-left text-red pr-5 pl-3 text-xl font-bold">!</div>
+        <div class="mt-5 ml-6 mr-4 flex border-red-400 border-1 p-2">
+          <div class="float-left text-red-400 pr-5 pl-3 text-xl font-bold">!</div>
           <div class="float-right text-justify pr-2">Note that selecting an option does NOT save your answer to the current question. Click on <b>Save & Next to save your answer</b> for the current question and then go to the next question.</div>
         </div>
     </div>
