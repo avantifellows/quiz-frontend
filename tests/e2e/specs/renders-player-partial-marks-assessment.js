@@ -160,7 +160,7 @@ describe("Player for Assessment quizzes with partial marks", () => {
         });
 
         it("Check if the user-id is visible", () => {
-          cy.get('[data-test="user-id"]').should(
+          cy.get('[data-test="scorecard-user-id"]').should(
             "have.text",
             " Id: 1" // Id of the student
           );
