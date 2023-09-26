@@ -691,10 +691,8 @@ export default defineComponent({
             }
           } else {
             if (!state.questions[qindex].graded) continue
-            console.log(state.responses.length)
             if (state.responses.length > 0) {
               if (!state.responses[qindex].visited) { // initially responses empty
-                console.log("inside")
                 qstate = "neutral"
               } else {
                 if (state.responses[qindex].answer != null) qstate = "success"
