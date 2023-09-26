@@ -320,6 +320,7 @@ export default defineComponent({
         state.currentQuestionIndex = 0;
         // don't set currentIndex to 0 when reviewAnswers is false
       }
+      window.scrollTo(0, 0); // scroll up top incase users scroll down in splash screen
     }
 
     async function getQuiz() {
