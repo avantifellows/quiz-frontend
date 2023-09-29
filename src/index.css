@@ -154,6 +154,13 @@ table {
   text-indent: 0; /* 1 */
   border-color: inherit; /* 2 */
   border-collapse: collapse; /* 3 */
+  width: 100%;
+  table-layout: fixed;
+}
+
+th, td {
+  word-wrap: break-word;
+  max-width: 100%;
 }
 
 /*
