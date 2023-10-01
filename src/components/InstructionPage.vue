@@ -1,6 +1,6 @@
 <template>
-    <div class="xl:mr-20 xl:ml-10 lg:mr-24 lg:ml-24 md:mr-48 md:ml-48 sm:mr-60 sm:ml-60">
-        <h4 class="text-lg font-bold m-6 ">Test Paper Overview</h4>
+    <div>
+        <h4 class="text-lg font-bold m-6">Test Paper Overview</h4>
         <!-- Table -->
         <table class="table-auto m-4">
             <!-- row 1 -->

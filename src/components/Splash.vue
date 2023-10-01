@@ -63,6 +63,7 @@
         :max-questions-allowed-to-attempt="maxQuestionsAllowedToAttempt"
         :quiz-time-limit="quizTimeLimit"
         :questionSets = "questionSets"
+        class="xl:mr-20 xl:ml-10 lg:mr-24 lg:ml-24 md:mr-48 md:ml-48 sm:mr-60 sm:ml-60"
     ></InstructionPage>
 
     <!-- start button -->
