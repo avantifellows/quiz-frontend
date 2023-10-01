@@ -253,10 +253,6 @@ export default defineComponent({
       type: Boolean,
       default: false
     },
-    isInstructionsVisible: {
-      type: Boolean,
-      default: false
-    },
     questionSetStates: {
       type: Array as PropType<questionSetPalette[]>,
       default: () => []
