@@ -58,6 +58,12 @@ const routes = [
       query: {}
     },
   },
+  {
+    path: "/",
+    name: "LandingPage",
+    component: () =>
+      import("@/components/LandingPage.vue")
+  }
 ];
 
 const router = createRouter({
