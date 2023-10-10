@@ -1,10 +1,19 @@
 <template>
   <div class="bg-white p-4 sm:p-6 lg:p-8 overflow-auto sm:w-1/3 lg:w-1/3 xl:w-1/3">
-    <button
-      :class="toggleInstructionsButtonClass"
-      @click="toggleInstructions"
-    >INSTRUCTIONS</button>
-
+    <div class="inline-flex rounded-md w-full" role="group">
+      <button
+        :class="togglePaletteButtonClass"
+        class="mr-1"
+        type="button"
+        @click="togglePalette"
+      >PALETTE</button>
+      <button
+        :class="toggleInstructionsButtonClass"
+        class="ml-1"
+        type="button"
+        @click="toggleInstructions"
+      >INSTRUCTIONS</button>
+    </div>
       <InstructionPage
       v-if="showInstructionButton"
       :title="title"
@@ -15,7 +24,7 @@
       :quiz-time-limit="quizTimeLimit"
       :questionSets = "questionSets"
     />
-    <div v-if="!showInstructionButton">
+    <div v-if="showPaletteButton">
       <div
         class="bg-gray-200 rounded-md p-4 grid grid-rows-2 space-y-2 mt-6"
       >
@@ -128,7 +137,17 @@ export default defineComponent({
     }
 
     function toggleInstructions() {
-      state.showInstructions = !state.showInstructions;
+      if (state.showInstructions == false) {
+        state.showInstructions = !state.showInstructions;
+        state.showPalette = !state.showPalette
+      }
+    };
+
+    function togglePalette() {
+      if (state.showPalette == false) {
+        state.showPalette = !state.showPalette;
+        state.showInstructions = !state.showInstructions;
+      }
     }
 
     const legendSuccessText = computed(() =>
@@ -144,13 +163,22 @@ export default defineComponent({
     const legendPartialSuccessText = "Partially Correct"
 
     const showInstructionButton = computed(() => state.showInstructions == true)
+    const showPaletteButton = computed(() => state.showPalette == true)
 
     const toggleInstructionsButtonClass = computed(() => [
       {
-        "bg-gray-200": !showInstructionButton.value,
-        "bg-gray-500 text-white": showInstructionButton.value,
+        "bg-primary": !showInstructionButton.value,
+        "bg-orange-300": showInstructionButton.value,
       },
-      `w-full font-bold ring-gray-500 p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl`,
+      `w-1/2 font-bold text-white p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl border shadow-lg ring-primary`,
+    ]);
+
+    const togglePaletteButtonClass = computed(() => [
+      {
+        "bg-primary": !showPaletteButton.value,
+        "bg-orange-300": showPaletteButton.value,
+      },
+      `w-1/2 font-bold text-white p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl border shadow-lg ring-primary`,
     ]);
 
     const state = reactive({
@@ -161,16 +189,20 @@ export default defineComponent({
       instructionsButtonClass:
         "bg-gray-300 w-full font-bold ring-gray-500 p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl",
       showInstructions: false,
+      showPalette: true,
     });
 
     return {
       ...state,
       navigateToQuestion,
       toggleInstructions,
+      togglePalette,
       legendSuccessText,
       legendPartialSuccessText,
       showInstructionButton,
+      showPaletteButton,
       toggleInstructionsButtonClass,
+      togglePaletteButtonClass,
       legendErrorText,
       legendNeutralText,
     };
