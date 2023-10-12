@@ -23,6 +23,8 @@
       :max-questions-allowed-to-attempt="numQuestions"
       :quiz-time-limit="quizTimeLimit"
       :questionSets = "questionSets"
+      :questionSetStates = "questionSetStates"
+
     />
     <div v-if="showPaletteButton">
       <div

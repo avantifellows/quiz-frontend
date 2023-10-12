@@ -62,6 +62,7 @@
         :maxMarks="maxMarks"
         :max-questions-allowed-to-attempt="maxQuestionsAllowedToAttempt"
         :quiz-time-limit="quizTimeLimit"
+        :questionSetStates = "questionSetStates"
         :questionSets = "questionSets"
         class="xl:mr-20 xl:ml-10 lg:mr-24 lg:ml-24 md:mr-48 md:ml-48 sm:mr-60 sm:ml-60"
     ></InstructionPage>
@@ -83,7 +84,7 @@
 import IconButton from "./UI/Buttons/IconButton.vue";
 import BaseIcon from "./UI/Icons/BaseIcon.vue";
 import { defineComponent, computed, reactive, toRefs, PropType } from "vue";
-import { IconButtonTitleConfig, quizType, quizTitleType, isFirstSessionType, QuestionSet, testFormat } from "../types";
+import { IconButtonTitleConfig, quizType, quizTitleType, isFirstSessionType, QuestionSet, testFormat, questionSetPalette } from "../types";
 import InstructionPage from "./InstructionPage.vue";
 export default defineComponent({
   name: "Splash",
@@ -128,6 +129,10 @@ export default defineComponent({
     questionSets: {
       required: true,
       type: Array as PropType<QuestionSet[]>
+    },
+    questionSetStates: {
+      type: Array as PropType<questionSetPalette[]>,
+      default: () => []
     },
     testFormat: {
       type: [null, String] as PropType<testFormat>,
