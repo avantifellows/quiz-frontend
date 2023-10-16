@@ -1,6 +1,6 @@
 <template>
-    <div class="xl:mr-20 xl:ml-10 lg:mr-24 lg:ml-24 md:mr-48 md:ml-48 sm:mr-60 sm:ml-60">
-        <h4 class="text-lg font-bold m-6 ">Test Paper Overview</h4>
+    <div>
+        <h4 class="text-lg font-bold m-6">Test Paper Overview</h4>
         <!-- Table -->
         <table class="table-auto m-4">
             <!-- row 1 -->
@@ -45,12 +45,12 @@
             </p>
             <!-- iterating over every questionset and printing title and its description -->
             <div
-              v-for="(questionSet, index) in questionSets" :key="index">
-                <li class="text-base mt-2 ml-7 font-semibold leading-none mr-4" :data-test="`questionSetTitle-${index}`">{{ questionSet.title }}</li>
+              v-for="(questionSetState, index) in questionSetStates" :key="index">
+                <li class="text-base mt-2 ml-7 font-semibold leading-none mr-4" :data-test="`questionSetTitle-${index}`">{{ questionSetState.title }}</li>
                 <div class="ml-12 mr-4 mt-1" :data-test="`no-of-questions-${index}`">
-                  There are {{ questionSet.questions.length }} questions, out of which only {{ questionSet.max_questions_allowed_to_attempt }} questions need to be attempted.
+                  There are {{ questionSetState.paletteItems.length }} questions, out of which only {{ questionSetState.maxQuestionsAllowedToAttempt }} questions need to be attempted.
                 </div>
-                <div class="text-base mx-2 mb-4 leading-tight text-slate-500 ml-12 mr-4" :data-test="`questionSetInstruction-${index}`" v-html="questionSet.description"></div>
+                <div class="text-base mx-2 mb-4 leading-tight text-slate-500 ml-12 mr-4" :data-test="`questionSetInstruction-${index}`" v-html="questionSetState.instructionPageText"></div>
             </div>
         </div>
         <!-- general Instruction -->
@@ -106,7 +106,7 @@ import BaseIcon from "./UI/Icons/BaseIcon.vue";
 import Success from "./Questions/Palette/Success.vue";
 import Error from "./Questions/Palette/Error.vue";
 import Neutral from "./Questions/Palette/Neutral.vue";
-import { quizTitleType, testFormat, QuestionSet } from "../types";
+import { quizTitleType, testFormat, questionSetPalette } from "../types";
 export default defineComponent({
   name: "InstructionPage",
   components: {
@@ -136,9 +136,9 @@ export default defineComponent({
       type: Number,
       required: true
     },
-    questionSets: {
-      required: true,
-      type: Array as PropType<QuestionSet[]>
+    questionSetStates: {
+      type: Array as PropType<questionSetPalette[]>,
+      default: () => []
     },
     testFormat: {
       type: [null, String] as PropType<testFormat>,
@@ -150,7 +150,7 @@ export default defineComponent({
 
     // to extract the questionSetTitles from questionSets (eg. Physics - Section A)
     const questionSetTitles = computed(() => {
-      return props.questionSets.map(questionSet => questionSet.title);
+      return props.questionSetStates.map(questionSetState => questionSetState.title);
     });
 
     // to split the questionSetTitles from char "-" (eg. Physics)

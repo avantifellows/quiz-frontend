@@ -4,34 +4,38 @@ import InstructionPage from '@/components/InstructionPage.vue';
 describe('InstructionPage', () => {
   // When test_format is not 'full_syllabus_test'
   describe('when test_format is not FST', () => {
-    const testQuestionSets = [
+    const testQuestionSetStates = [
       {
-        _id: "64bf709a8b60731c693290c1",
+        instructionPageText: "You may attempt 2 question out of 5 questions",
+        instructionTest: "You may attempt all the questions",
+        maxQuestionsAllowedToAttempt: 2,
+        paletteItems: [
+          {
+            index: 0,
+            value: "error"
+          },
+          {
+            index: 1,
+            value: "error"
+          },
+        ],
         title: "Maths - Set 0",
-        description: "You may attempt all questions",
-        max_questions_allowed_to_attempt: 2,
-        questions: [
-          {
-            _id: "64bf709a8b60731c693290c1",
-          },
-          {
-            _id: "64bf709a8b60731c693290c1",
-          },
-        ]
       },
       {
-        _id: "64bf709a8b60731c693290c8",
+        instructionPageText: "You may attempt 2 question out of 5 questions",
+        instructionTest: "You may attempt all the questions",
+        maxQuestionsAllowedToAttempt: 2,
+        paletteItems: [
+          {
+            index: 0,
+            value: "error"
+          },
+          {
+            index: 1,
+            value: "error"
+          },
+        ],
         title: "Maths - Set 1",
-        description: "You may attempt all questions",
-        max_questions_allowed_to_attempt: 2,
-        questions: [
-          {
-            _id: "64bf709a8b60731c693290c1",
-          },
-          {
-            _id: "64bf709a8b60731c693290c1",
-          },
-        ]
       },
       // Add more questionSets as needed
     ]
@@ -45,7 +49,7 @@ describe('InstructionPage', () => {
         maxMarks: 30,
         quizTimeLimit: 10800,
         testFormat: "major_test",
-        questionSets: testQuestionSets,
+        questionSetStates: testQuestionSetStates,
       },
     });
 
@@ -64,34 +68,38 @@ describe('InstructionPage', () => {
   });
 
   describe('when test_format is FST', () => {
-    const testQuestionSets = [
+    const testQuestionSetStates = [
       {
-        _id: "64bf709a8b60731c693290c1",
+        instructionPageText: "You may attempt 2 question out of 5 questions",
+        instructionTest: "You may attempt all the questions",
+        maxQuestionsAllowedToAttempt: 2,
+        paletteItems: [
+          {
+            index: 0,
+            value: "error"
+          },
+          {
+            index: 1,
+            value: "error"
+          },
+        ],
         title: "Maths - Set 0",
-        description: "You may attempt all questions",
-        max_questions_allowed_to_attempt: 2,
-        questions: [
-          {
-            _id: "64bf709a8b60731c693290c1",
-          },
-          {
-            _id: "64bf709a8b60731c693290c1",
-          },
-        ]
       },
       {
-        _id: "64bf709a8b60731c693290c8",
+        instructionPageText: "You may attempt 2 question out of 5 questions",
+        instructionTest: "You may attempt all the questions",
+        maxQuestionsAllowedToAttempt: 2,
+        paletteItems: [
+          {
+            index: 0,
+            value: "error"
+          },
+          {
+            index: 1,
+            value: "error"
+          },
+        ],
         title: "Maths - Set 1",
-        description: "You may attempt all questions",
-        max_questions_allowed_to_attempt: 2,
-        questions: [
-          {
-            _id: "64bf709a8b60731c693290c1",
-          },
-          {
-            _id: "64bf709a8b60731c693290c1",
-          },
-        ]
       },
       // Add more questionSets as needed
     ]
@@ -105,7 +113,7 @@ describe('InstructionPage', () => {
         maxMarks: 30,
         quizTimeLimit: 10800,
         testFormat: "full_syllabus_test",
-        questionSets: testQuestionSets,
+        questionSetStates: testQuestionSetStates,
       },
     });
 
@@ -132,10 +140,10 @@ describe('InstructionPage', () => {
 
     it("displays instruction text for each set", () => {
       let questionSetIndex = 0;
-      expect(wrapper.find(`[data-test="questionSetInstruction-${questionSetIndex}"]`).text()).toBe("You may attempt all questions");
+      expect(wrapper.find(`[data-test="questionSetInstruction-${questionSetIndex}"]`).text()).toBe("You may attempt 2 question out of 5 questions");
 
       questionSetIndex = 1;
-      expect(wrapper.find(`[data-test="questionSetInstruction-${questionSetIndex}"]`).text()).toBe("You may attempt all questions");
+      expect(wrapper.find(`[data-test="questionSetInstruction-${questionSetIndex}"]`).text()).toBe("You may attempt 2 question out of 5 questions");
     });
 
     it("No. of questions need to be attempted for each set", () => {

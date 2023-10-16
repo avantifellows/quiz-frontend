@@ -1,6 +1,55 @@
 import { mount } from "@vue/test-utils";
 import QuestionPalette from "@/components/Questions/Palette/QuestionPalette.vue";
 
+describe("New buttons in question palette", () => {
+  const wrapper = mount(QuestionPalette);
+  it("Buttons are visible or not", () => {
+    expect(wrapper.find('[data-test="toggleInstructions"]').exists()).toBeTruthy();
+    expect(wrapper.find('[data-test="togglePalette"]').exists()).toBeTruthy();
+  })
+
+  it("By default palette should be visible", async () => {
+    expect(wrapper.find('[data-test="instruction-page"]').exists()).toBe(false);
+    expect(wrapper.find('[data-test="question-palette"]').exists()).toBe(true);
+  })
+
+  it("when instruction button is clicked", async () => {
+    await wrapper.find('[data-test="toggleInstructions"]').trigger("click");
+    expect(wrapper.find('[data-test="instruction-page"]').exists()).toBe(true);
+    expect(wrapper.find('[data-test="question-palette"]').exists()).toBe(false);
+  });
+
+  it("when instructions is visible and instruction button is clicked again", async () => {
+    const showInstructions = true;
+    const showPalette = false;
+      await wrapper.setProps({
+        showInstructions,
+        showPalette
+      });
+    await wrapper.find('[data-test="toggleInstructions"]').trigger("click");
+    expect(wrapper.find('[data-test="instruction-page"]').exists()).toBe(true);
+    expect(wrapper.find('[data-test="question-palette"]').exists()).toBe(false);
+  });
+
+  it("when palette button is clicked", async () => {
+    await wrapper.find('[data-test="togglePalette"]').trigger("click");
+    expect(wrapper.find('[data-test="question-palette"]').exists()).toBe(true);
+    expect(wrapper.find('[data-test="instruction-page"]').exists()).toBe(false);
+  });
+
+  it("when palette is visible and palette button is clicked again", async () => {
+    const showInstructions = false;
+    const showPalette = true;
+      await wrapper.setProps({
+        showInstructions,
+        showPalette
+      });
+    await wrapper.find('[data-test="toggleInstructions"]').trigger("click");
+    expect(wrapper.find('[data-test="instruction-page"]').exists()).toBe(true);
+    expect(wrapper.find('[data-test="question-palette"]').exists()).toBe(false);
+  });
+})
+
 describe("QuestionPalette.vue", () => {
   const wrapper = mount(QuestionPalette);
   it("renders div for quiz in progress", () => {
