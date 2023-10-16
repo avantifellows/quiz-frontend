@@ -123,7 +123,7 @@ export default defineComponent({
     },
     quizTimeLimit: {
       type: Object as PropType<TimeLimit> || null,
-      required: true
+      default: null
     },
     questionSetStates: {
       type: Array as PropType<questionSetPalette[]>,
