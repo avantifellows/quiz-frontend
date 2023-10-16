@@ -5,8 +5,8 @@ describe('InstructionPage', () => {
   // When test_format is not 'full_syllabus_test'
   describe('when test_format is not FST', () => {
     const testTimeLimit = {
-      max:10800,
-      min:0
+      max: 10800,
+      min: 0
     };
     const testQuestionSetStates = [
       {
@@ -73,8 +73,8 @@ describe('InstructionPage', () => {
 
   describe('when test_format is FST', () => {
     const testTimeLimit = {
-      max:10800,
-      min:0
+      max: 10800,
+      min: 0
     };
     const testQuestionSetStates = [
       {

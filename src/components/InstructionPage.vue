@@ -16,7 +16,7 @@
             <!-- row 3 -->
             <tr>
                 <th class="border-black border-1 text-left px-4 py-2">Duration</th>
-                <td class="border-black border-1 px-4 py-2" data-test="quiz-time-limit">{{ ($props.quizTimeLimit.max)/60 }} minutes</td>
+                <td class="border-black border-1 px-4 py-2" data-test="quiz-time-limit">{{ ($props.quizTimeLimit?.max || 0)/60 }} minutes</td>
             </tr>
             <!-- row 4 -->
             <tr>
@@ -134,7 +134,7 @@ export default defineComponent({
     },
     quizTimeLimit: {
       type: Object as PropType<TimeLimit> || null,
-      required: true
+      default: {}
     },
     questionSetStates: {
       type: Array as PropType<questionSetPalette[]>,
