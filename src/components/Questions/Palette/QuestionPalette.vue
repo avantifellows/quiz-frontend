@@ -23,7 +23,7 @@
       :testFormat="testFormat"
       :maxMarks="maxMarks"
       :max-questions-allowed-to-attempt="numQuestions"
-      :quiz-time-limit="quizTimeLimit"
+      :quizTimeLimit="quizTimeLimit"
       :questionSetStates = "questionSetStates"
       data-test="instruction-page"
     />
@@ -80,7 +80,7 @@ import Error from "./Error.vue";
 import Neutral from "./Neutral.vue";
 import PaletteItem from "./Item.vue";
 import InstructionPage from "@/components/InstructionPage.vue";
-import { QuestionSet, questionSetPalette, quizTitleType, testFormat } from "../../../types";
+import { QuestionSet, TimeLimit, questionSetPalette, quizTitleType, testFormat } from "../../../types";
 import { defineComponent, computed, PropType, reactive } from "vue";
 
 export default defineComponent({
@@ -122,8 +122,8 @@ export default defineComponent({
       required: true
     },
     quizTimeLimit: {
-      type: Number,
-      required: true
+      type: Object as PropType<TimeLimit> || null,
+      default: null
     },
     questionSets: {
       required: true,

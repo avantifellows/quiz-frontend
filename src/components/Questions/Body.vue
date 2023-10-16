@@ -13,7 +13,7 @@
       :testFormat="testFormat"
       :maxMarks="maxMarks"
       :numQuestions="numQuestions"
-      :quiz-time-limit="quizTimeLimit"
+      :quizTimeLimit="quizTimeLimit"
       class="absolute w-full h-full sm:w-2/3 lg:w-1/2 xl:w-1/3 z-10"
       @navigate="navigateToQuestion"
       data-test="questionPalette"
@@ -166,7 +166,7 @@ import {
   onUpdated
 } from "vue"
 import BaseIcon from "../UI/Icons/BaseIcon.vue"
-import { quizType, questionSetPalette, questionType, questionTypeHeaderText, quizTitleType, testFormat } from "../../types"
+import { quizType, questionSetPalette, questionType, questionTypeHeaderText, quizTitleType, testFormat, TimeLimit } from "../../types"
 import QuestionPalette from "./Palette/QuestionPalette.vue"
 
 const MAX_LENGTH_NUMERICAL_CHARACTERS: number = 10 // max length of characters in numerical answer textbox
@@ -280,8 +280,8 @@ export default defineComponent({
       required: true
     },
     quizTimeLimit: {
-      type: Number,
-      required: true
+      type: Object as PropType<TimeLimit> || null,
+      default: null
     },
     testFormat: {
       type: [null, String] as PropType<testFormat>,
