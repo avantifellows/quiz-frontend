@@ -166,7 +166,7 @@ import {
   onUpdated
 } from "vue"
 import BaseIcon from "../UI/Icons/BaseIcon.vue"
-import { quizType, questionSetPalette, questionType, questionTypeHeaderText, QuestionSet, quizTitleType, testFormat } from "../../types"
+import { quizType, questionSetPalette, questionType, questionTypeHeaderText, quizTitleType, testFormat } from "../../types"
 import QuestionPalette from "./Palette/QuestionPalette.vue"
 
 const MAX_LENGTH_NUMERICAL_CHARACTERS: number = 10 // max length of characters in numerical answer textbox
@@ -282,10 +282,6 @@ export default defineComponent({
     quizTimeLimit: {
       type: Number,
       required: true
-    },
-    questionSets: {
-      required: true,
-      type: Array as PropType<QuestionSet[]>
     },
     testFormat: {
       type: [null, String] as PropType<testFormat>,

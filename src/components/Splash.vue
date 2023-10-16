@@ -83,7 +83,7 @@
 import IconButton from "./UI/Buttons/IconButton.vue";
 import BaseIcon from "./UI/Icons/BaseIcon.vue";
 import { defineComponent, computed, reactive, toRefs, PropType } from "vue";
-import { IconButtonTitleConfig, quizType, quizTitleType, isFirstSessionType, QuestionSet, testFormat, questionSetPalette } from "../types";
+import { IconButtonTitleConfig, quizType, quizTitleType, isFirstSessionType, testFormat, questionSetPalette } from "../types";
 import InstructionPage from "./InstructionPage.vue";
 export default defineComponent({
   name: "Splash",
@@ -124,10 +124,6 @@ export default defineComponent({
     quizTimeLimit: {
       type: Number,
       required: true
-    },
-    questionSets: {
-      required: true,
-      type: Array as PropType<QuestionSet[]>
     },
     questionSetStates: {
       type: Array as PropType<questionSetPalette[]>,

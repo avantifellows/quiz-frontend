@@ -7,7 +7,6 @@
         type="button"
         @click="togglePalette"
         data-test="togglePalette"
-
       >PALETTE</button>
       <button
         :class="toggleInstructionsButtonClass"
@@ -153,7 +152,6 @@ export default defineComponent({
         state.showInstructions = !state.showInstructions;
       }
     }
-
     const legendSuccessText = computed(() =>
       props.hasQuizEnded ? "Correct" : "Answered"
     );
@@ -172,7 +170,7 @@ export default defineComponent({
     const toggleInstructionsButtonClass = computed(() => [
       {
         "bg-primary": !showInstructionButton.value,
-        "bg-orange-300": showInstructionButton.value,
+        "bg-orange-300 hover:cursor-not-allowed": showInstructionButton.value,
       },
       `w-1/2 font-bold text-white p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl border shadow-lg ring-primary`,
     ]);
@@ -180,7 +178,7 @@ export default defineComponent({
     const togglePaletteButtonClass = computed(() => [
       {
         "bg-primary": !showPaletteButton.value,
-        "bg-orange-300": showPaletteButton.value,
+        "bg-orange-300 hover:cursor-not-allowed": showPaletteButton.value,
       },
       `w-1/2 font-bold text-white p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl border shadow-lg ring-primary`,
     ]);

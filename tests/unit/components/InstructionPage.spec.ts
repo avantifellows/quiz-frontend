@@ -4,7 +4,7 @@ import InstructionPage from '@/components/InstructionPage.vue';
 describe('InstructionPage', () => {
   // When test_format is not 'full_syllabus_test'
   describe('when test_format is not FST', () => {
-    const testQuestionSets = [
+    const testQuestionSetStates = [
       {
         instructionPageText: "You may attempt 2 question out of 5 questions",
         instructionTest: "You may attempt all the questions",
@@ -49,7 +49,7 @@ describe('InstructionPage', () => {
         maxMarks: 30,
         quizTimeLimit: 10800,
         testFormat: "major_test",
-        questionSetStates: testQuestionSets,
+        questionSetStates: testQuestionSetStates,
       },
     });
 
@@ -68,7 +68,7 @@ describe('InstructionPage', () => {
   });
 
   describe('when test_format is FST', () => {
-    const testQuestionSets = [
+    const testQuestionSetStates = [
       {
         instructionPageText: "You may attempt 2 question out of 5 questions",
         instructionTest: "You may attempt all the questions",
@@ -113,7 +113,7 @@ describe('InstructionPage', () => {
         maxMarks: 30,
         quizTimeLimit: 10800,
         testFormat: "full_syllabus_test",
-        questionSetStates: testQuestionSets,
+        questionSetStates: testQuestionSetStates,
       },
     });
 
