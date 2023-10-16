@@ -6,7 +6,7 @@ describe('InstructionPage', () => {
   describe('when test_format is not FST', () => {
     const testQuestionSetStates = [
       {
-        instructionPageText: "You may attempt 2 question out of 5 questions",
+        instructionPageText: "You may attempt 2 out of 5 questions",
         instructionTest: "You may attempt all the questions",
         maxQuestionsAllowedToAttempt: 2,
         paletteItems: [
@@ -22,7 +22,7 @@ describe('InstructionPage', () => {
         title: "Maths - Set 0",
       },
       {
-        instructionPageText: "You may attempt 2 question out of 5 questions",
+        instructionPageText: "You may attempt 2 out of 5 questions",
         instructionTest: "You may attempt all the questions",
         maxQuestionsAllowedToAttempt: 2,
         paletteItems: [
@@ -70,7 +70,7 @@ describe('InstructionPage', () => {
   describe('when test_format is FST', () => {
     const testQuestionSetStates = [
       {
-        instructionPageText: "You may attempt 2 question out of 5 questions",
+        instructionPageText: "You may attempt 2 out of 5 questions",
         instructionTest: "You may attempt all the questions",
         maxQuestionsAllowedToAttempt: 2,
         paletteItems: [
@@ -86,7 +86,7 @@ describe('InstructionPage', () => {
         title: "Maths - Set 0",
       },
       {
-        instructionPageText: "You may attempt 2 question out of 5 questions",
+        instructionPageText: "You may attempt 2 out of 5 questions",
         instructionTest: "You may attempt all the questions",
         maxQuestionsAllowedToAttempt: 2,
         paletteItems: [
@@ -140,10 +140,10 @@ describe('InstructionPage', () => {
 
     it("displays instruction text for each set", () => {
       let questionSetIndex = 0;
-      expect(wrapper.find(`[data-test="questionSetInstruction-${questionSetIndex}"]`).text()).toBe("You may attempt 2 question out of 5 questions");
+      expect(wrapper.find(`[data-test="questionSetInstruction-${questionSetIndex}"]`).text()).toBe("You may attempt 2 out of 5 questions");
 
       questionSetIndex = 1;
-      expect(wrapper.find(`[data-test="questionSetInstruction-${questionSetIndex}"]`).text()).toBe("You may attempt 2 question out of 5 questions");
+      expect(wrapper.find(`[data-test="questionSetInstruction-${questionSetIndex}"]`).text()).toBe("You may attempt 2 out of 5 questions");
     });
 
     it("No. of questions need to be attempted for each set", () => {

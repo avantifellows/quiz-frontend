@@ -16,7 +16,7 @@
             <!-- row 3 -->
             <tr>
                 <th class="border-black border-1 text-left px-4 py-2">Duration</th>
-                <td class="border-black border-1 px-4 py-2" data-test="quiz-time-limit">{{ ($props.quizTimeLimit)/60 }} minutes</td>
+                <td class="border-black border-1 px-4 py-2" data-test="quiz-time-limit">{{ ($props.quizTimeLimit.max)/60 }} minutes</td>
             </tr>
             <!-- row 4 -->
             <tr>
@@ -50,7 +50,7 @@
                 <div class="ml-12 mr-4 mt-1" :data-test="`no-of-questions-${index}`">
                   There are {{ questionSetState.paletteItems.length }} questions, out of which only {{ questionSetState.maxQuestionsAllowedToAttempt }} questions need to be attempted.
                 </div>
-                <div class="text-base mx-2 mb-4 leading-tight text-slate-500 ml-12 mr-4" :data-test="`questionSetInstruction-${index}`" v-html="questionSetState.instructionPageText"></div>
+                <div class="text-base mx-2 mb-4 leading-tight text-slate-500 ml-12 mr-4" :data-test="`questionSetInstruction-${index}`" v-html="questionSetState.localInstructionPageText"></div>
             </div>
         </div>
         <!-- general Instruction -->
@@ -106,7 +106,7 @@ import BaseIcon from "./UI/Icons/BaseIcon.vue";
 import Success from "./Questions/Palette/Success.vue";
 import Error from "./Questions/Palette/Error.vue";
 import Neutral from "./Questions/Palette/Neutral.vue";
-import { quizTitleType, testFormat, questionSetPalette } from "../types";
+import { quizTitleType, testFormat, questionSetPalette, TimeLimit } from "../types";
 export default defineComponent({
   name: "InstructionPage",
   components: {
@@ -133,7 +133,7 @@ export default defineComponent({
       required: true
     },
     quizTimeLimit: {
-      type: Number,
+      type: Object as PropType<TimeLimit> || null,
       required: true
     },
     questionSetStates: {

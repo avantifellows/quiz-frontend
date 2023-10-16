@@ -1,7 +1,7 @@
 import { mount } from "@vue/test-utils";
 import QuestionPalette from "@/components/Questions/Palette/QuestionPalette.vue";
 
-describe("New buttons in question palette", () => {
+describe("Buttons in palette", () => {
   const wrapper = mount(QuestionPalette);
   it("Buttons are visible or not", () => {
     expect(wrapper.find('[data-test="toggleInstructions"]').exists()).toBeTruthy();
@@ -13,13 +13,13 @@ describe("New buttons in question palette", () => {
     expect(wrapper.find('[data-test="question-palette"]').exists()).toBe(true);
   })
 
-  it("when instruction button is clicked", async () => {
+  it("instructions are visible when instruction button is clicked", async () => {
     await wrapper.find('[data-test="toggleInstructions"]').trigger("click");
     expect(wrapper.find('[data-test="instruction-page"]').exists()).toBe(true);
     expect(wrapper.find('[data-test="question-palette"]').exists()).toBe(false);
   });
 
-  it("when instructions is visible and instruction button is clicked again", async () => {
+  it("when instructions are visible and instruction button is clicked again", async () => {
     const showInstructions = true;
     const showPalette = false;
       await wrapper.setProps({
@@ -31,7 +31,7 @@ describe("New buttons in question palette", () => {
     expect(wrapper.find('[data-test="question-palette"]').exists()).toBe(false);
   });
 
-  it("when palette button is clicked", async () => {
+  it("palette is visible when palette button is clicked", async () => {
     await wrapper.find('[data-test="togglePalette"]').trigger("click");
     expect(wrapper.find('[data-test="question-palette"]').exists()).toBe(true);
     expect(wrapper.find('[data-test="instruction-page"]').exists()).toBe(false);

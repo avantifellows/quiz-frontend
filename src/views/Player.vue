@@ -20,7 +20,7 @@
         :sessionEndTimeText="sessionEndTimeText"
         :numQuestions="maxQuestionsAllowedToAttempt"
         :quizType="metadata.quiz_type"
-        :quizTimeLimit="quizTimeLimit?.max"
+        :quizTimeLimit="quizTimeLimit"
         :maxMarks="maxMarks"
         :maxQuestionsAllowedToAttempt="maxQuestionsAllowedToAttempt"
         :testFormat="metadata.test_format || ''"
@@ -70,7 +70,7 @@
         :questionSetTitle="currentQsetTitle"
         :questionSetStates="questionSetStates"
         :qsetIndexLimits="currentQsetIndexLimits"
-        :quizTimeLimit="quizTimeLimit?.max"
+        :quizTimeLimit="quizTimeLimit"
         :isSessionAnswerRequestProcessing="isSessionAnswerRequestProcessing"
         :continueAfterAnswerSubmit="continueAfterAnswerSubmit"
         :timeRemaining="timeRemaining"
@@ -711,7 +711,7 @@ export default defineComponent({
         // the below instruction assumes all questions within a set are of the same type
         let paletteInstructionText: string = state.questionSets[index].description ?? "";
         // added instructionPageText variable for instructionPage component to not print extra information that is present in paletteInstructionText
-        const instructionPageText: string = state.questionSets[index].description ?? "";
+        const localInstructionPageText: string = state.questionSets[index].description ?? "";
 
         if (state.questionSets[index].max_questions_allowed_to_attempt < state.questionSets[index].questions.length) {
           paletteInstructionText += `\nYou may attempt only up to ${state.questionSets[index].max_questions_allowed_to_attempt} questions in this section.`
@@ -723,7 +723,7 @@ export default defineComponent({
           title: state.questionSets[index].title,
           paletteItems: states,
           instructionText: paletteInstructionText,
-          instructionPageText: instructionPageText,
+          localInstructionPageText: localInstructionPageText,
           maxQuestionsAllowedToAttempt: state.questionSets[index].max_questions_allowed_to_attempt,
         })
       }
