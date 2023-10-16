@@ -26,7 +26,6 @@
         :testFormat="metadata.test_format || ''"
         :questions="questions"
         :questionSetStates="questionSetStates"
-        :questionSets = "questionSets"
         @start="startQuiz"
         data-test="splash"
       ></Splash>
@@ -80,7 +79,6 @@
         :subject="metadata.subject"
         :testFormat="metadata.test_format || ''"
         :maxMarks="maxMarks"
-        :questionSets = "questionSets"
         v-model:currentQuestionIndex="currentQuestionIndex"
         v-model:responses="responses"
         v-model:previousResponse="previousResponse"

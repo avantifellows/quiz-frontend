@@ -58,7 +58,6 @@
         :maxMarks="maxMarks"
         :max-questions-allowed-to-attempt="maxQuestionsAllowedToAttempt"
         :quiz-time-limit="quizTimeLimit"
-        :questionSets = "questionSets"
         :numQuestions = "numQuestions"
         @option-selected="questionOptionSelected"
         @subjective-answer-entered="subjectiveAnswerUpdated"
@@ -112,7 +111,6 @@ import {
   questionSetPalette,
   TimeLimit,
   quizTitleType,
-  QuestionSet,
   testFormat
 } from "../../types"
 import { useToast, POSITION } from "vue-toastification"
@@ -197,10 +195,6 @@ export default defineComponent({
     maxMarks: {
       type: Number,
       required: true
-    },
-    questionSets: {
-      required: true,
-      type: Array as PropType<QuestionSet[]>
     },
     testFormat: {
       type: [null, String] as PropType<testFormat>,

@@ -6,12 +6,15 @@
         class="mr-1"
         type="button"
         @click="togglePalette"
+        data-test="togglePalette"
+
       >PALETTE</button>
       <button
         :class="toggleInstructionsButtonClass"
         class="ml-1"
         type="button"
         @click="toggleInstructions"
+        data-test="toggleInstructions"
       >INSTRUCTIONS</button>
     </div>
       <InstructionPage
@@ -22,11 +25,10 @@
       :maxMarks="maxMarks"
       :max-questions-allowed-to-attempt="numQuestions"
       :quiz-time-limit="quizTimeLimit"
-      :questionSets = "questionSets"
       :questionSetStates = "questionSetStates"
-
+      data-test="instruction-page"
     />
-    <div v-if="showPaletteButton">
+    <div v-if="showPaletteButton" data-test="question-palette">
       <div
         class="bg-gray-200 rounded-md p-4 grid grid-rows-2 space-y-2 mt-6"
       >

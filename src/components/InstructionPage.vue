@@ -106,7 +106,7 @@ import BaseIcon from "./UI/Icons/BaseIcon.vue";
 import Success from "./Questions/Palette/Success.vue";
 import Error from "./Questions/Palette/Error.vue";
 import Neutral from "./Questions/Palette/Neutral.vue";
-import { quizTitleType, testFormat, QuestionSet, questionSetPalette } from "../types";
+import { quizTitleType, testFormat, questionSetPalette } from "../types";
 export default defineComponent({
   name: "InstructionPage",
   components: {
@@ -135,10 +135,6 @@ export default defineComponent({
     quizTimeLimit: {
       type: Number,
       required: true
-    },
-    questionSets: {
-      required: true,
-      type: Array as PropType<QuestionSet[]>
     },
     questionSetStates: {
       type: Array as PropType<questionSetPalette[]>,
