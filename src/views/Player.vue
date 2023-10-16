@@ -723,7 +723,7 @@ export default defineComponent({
           title: state.questionSets[index].title,
           paletteItems: states,
           instructionText: paletteInstructionText,
-          localInstructionPageText: localInstructionPageText,
+          instructionPageText: localInstructionPageText,
           maxQuestionsAllowedToAttempt: state.questionSets[index].max_questions_allowed_to_attempt,
         })
       }

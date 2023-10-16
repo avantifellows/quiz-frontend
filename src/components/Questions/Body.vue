@@ -285,7 +285,7 @@ export default defineComponent({
     },
     testFormat: {
       type: [null, String] as PropType<testFormat>,
-      required: true
+      default: null
     },
   },
   setup(props, context) {

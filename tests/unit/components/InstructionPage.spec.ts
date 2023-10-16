@@ -10,7 +10,7 @@ describe('InstructionPage', () => {
     };
     const testQuestionSetStates = [
       {
-        localInstructionPageText: "You may attempt 2 out of 5 questions",
+        instructionPageText: "You may attempt 2 out of 5 questions",
         instructionTest: "You may attempt all the questions",
         maxQuestionsAllowedToAttempt: 2,
         paletteItems: [
@@ -26,7 +26,7 @@ describe('InstructionPage', () => {
         title: "Maths - Set 0",
       },
       {
-        localInstructionPageText: "You may attempt 2 out of 5 questions",
+        instructionPageText: "You may attempt 2 out of 5 questions",
         instructionTest: "You may attempt all the questions",
         maxQuestionsAllowedToAttempt: 2,
         paletteItems: [
@@ -78,7 +78,7 @@ describe('InstructionPage', () => {
     };
     const testQuestionSetStates = [
       {
-        localInstructionPageText: "You may attempt 2 out of 5 questions",
+        instructionPageText: "You may attempt 2 out of 5 questions",
         instructionTest: "You may attempt all the questions",
         maxQuestionsAllowedToAttempt: 2,
         paletteItems: [
@@ -94,7 +94,7 @@ describe('InstructionPage', () => {
         title: "Maths - Set 0",
       },
       {
-        localInstructionPageText: "You may attempt 2 out of 5 questions",
+        instructionPageText: "You may attempt 2 out of 5 questions",
         instructionTest: "You may attempt all the questions",
         maxQuestionsAllowedToAttempt: 2,
         paletteItems: [

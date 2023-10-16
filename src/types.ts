@@ -226,7 +226,7 @@ export interface questionSetPalette {
   title: string | null;
   paletteItems: paletteItemState[];
   instructionText: string;
-  localInstructionPageText?: string;
+  instructionPageText?: string;
   maxQuestionsAllowedToAttempt: number;
 }
 

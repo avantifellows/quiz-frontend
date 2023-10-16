@@ -80,7 +80,7 @@ import Error from "./Error.vue";
 import Neutral from "./Neutral.vue";
 import PaletteItem from "./Item.vue";
 import InstructionPage from "@/components/InstructionPage.vue";
-import { QuestionSet, TimeLimit, questionSetPalette, quizTitleType, testFormat } from "../../../types";
+import { TimeLimit, questionSetPalette, quizTitleType, testFormat } from "../../../types";
 import { defineComponent, computed, PropType, reactive } from "vue";
 
 export default defineComponent({
@@ -125,13 +125,9 @@ export default defineComponent({
       type: Object as PropType<TimeLimit> || null,
       default: null
     },
-    questionSets: {
-      required: true,
-      type: Array as PropType<QuestionSet[]>
-    },
     testFormat: {
       type: [null, String] as PropType<testFormat>,
-      required: true
+      default: null
     },
   },
   setup(props, context) {

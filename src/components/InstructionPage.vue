@@ -11,7 +11,7 @@
             <!-- row 2 -->
             <tr>
                 <th class="border-black border-1 text-left px-4 py-2">Test Format</th>
-                <td class="border-black border-1 px-4 py-2" data-test="test-format">{{ testFormatMapping.get($props.testFormat) }} </td>
+                <td class="border-black border-1 px-4 py-2" data-test="test-format">{{ testFormatMapping.get($props.testFormat || "") }} </td>
             </tr>
             <!-- row 3 -->
             <tr>
@@ -50,7 +50,7 @@
                 <div class="ml-12 mr-4 mt-1" :data-test="`no-of-questions-${index}`">
                   There are {{ questionSetState.paletteItems.length }} questions, out of which only {{ questionSetState.maxQuestionsAllowedToAttempt }} questions need to be attempted.
                 </div>
-                <div class="text-base mx-2 mb-4 leading-tight text-slate-500 ml-12 mr-4" :data-test="`questionSetInstruction-${index}`" v-html="questionSetState.localInstructionPageText"></div>
+                <div class="text-base mx-2 mb-4 leading-tight text-slate-500 ml-12 mr-4" :data-test="`questionSetInstruction-${index}`" v-html="questionSetState.instructionPageText"></div>
             </div>
         </div>
         <!-- general Instruction -->
@@ -142,7 +142,7 @@ export default defineComponent({
     },
     testFormat: {
       type: [null, String] as PropType<testFormat>,
-      required: true
+      default: null
     },
   },
   setup(props) {
