@@ -20,13 +20,12 @@
         :sessionEndTimeText="sessionEndTimeText"
         :numQuestions="maxQuestionsAllowedToAttempt"
         :quizType="metadata.quiz_type"
-        :quizTimeLimit="quizTimeLimit?.max"
+        :quizTimeLimit="quizTimeLimit"
         :maxMarks="maxMarks"
         :maxQuestionsAllowedToAttempt="maxQuestionsAllowedToAttempt"
         :testFormat="metadata.test_format || ''"
         :questions="questions"
         :questionSetStates="questionSetStates"
-        :questionSets = "questionSets"
         @start="startQuiz"
         data-test="splash"
       ></Splash>
@@ -77,6 +76,9 @@
         :timeRemaining="timeRemaining"
         :userId="userId"
         :title="title"
+        :subject="metadata.subject"
+        :testFormat="metadata.test_format || ''"
+        :maxMarks="maxMarks"
         v-model:currentQuestionIndex="currentQuestionIndex"
         v-model:responses="responses"
         v-model:previousResponse="previousResponse"
@@ -708,6 +710,8 @@ export default defineComponent({
         }
         // the below instruction assumes all questions within a set are of the same type
         let paletteInstructionText: string = state.questionSets[index].description ?? "";
+        // added instructionPageText variable for instructionPage component to not print extra information that is present in paletteInstructionText
+        const localInstructionPageText: string = state.questionSets[index].description ?? "";
 
         if (state.questionSets[index].max_questions_allowed_to_attempt < state.questionSets[index].questions.length) {
           paletteInstructionText += `\nYou may attempt only up to ${state.questionSets[index].max_questions_allowed_to_attempt} questions in this section.`
@@ -719,7 +723,8 @@ export default defineComponent({
           title: state.questionSets[index].title,
           paletteItems: states,
           instructionText: paletteInstructionText,
-          maxQuestionsAllowedToAttempt: state.questionSets[index].max_questions_allowed_to_attempt
+          instructionPageText: localInstructionPageText,
+          maxQuestionsAllowedToAttempt: state.questionSets[index].max_questions_allowed_to_attempt,
         })
       }
       return qsetStates
