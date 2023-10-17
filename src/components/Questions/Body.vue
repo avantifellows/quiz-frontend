@@ -8,6 +8,12 @@
       :hasQuizEnded="hasQuizEnded"
       :questionSetStates="questionSetStates"
       :currentQuestionIndex="currentQuestionIndex"
+      :title="title"
+      :subject="subject"
+      :testFormat="testFormat"
+      :maxMarks="maxMarks"
+      :numQuestions="numQuestions"
+      :quizTimeLimit="quizTimeLimit"
       class="absolute w-full h-full sm:w-2/3 lg:w-1/2 xl:w-1/3 z-10"
       @navigate="navigateToQuestion"
       data-test="questionPalette"
@@ -160,7 +166,7 @@ import {
   onUpdated
 } from "vue"
 import BaseIcon from "../UI/Icons/BaseIcon.vue"
-import { quizType, questionSetPalette, questionType, questionTypeHeaderText } from "../../types"
+import { quizType, questionSetPalette, questionType, questionTypeHeaderText, quizTitleType, testFormat, TimeLimit } from "../../types"
 import QuestionPalette from "./Palette/QuestionPalette.vue"
 
 const MAX_LENGTH_NUMERICAL_CHARACTERS: number = 10 // max length of characters in numerical answer textbox
@@ -256,7 +262,31 @@ export default defineComponent({
     questionSetTitle: {
       type: String,
       default: ""
-    }
+    },
+    title: {
+      type: [null, String] as PropType<quizTitleType>,
+      required: true,
+    },
+    subject: {
+      type: String,
+      required: true,
+    },
+    numQuestions: {
+      type: Number,
+      required: true,
+    },
+    maxMarks: {
+      type: Number,
+      required: true
+    },
+    quizTimeLimit: {
+      type: Object as PropType<TimeLimit> || null,
+      default: null
+    },
+    testFormat: {
+      type: [null, String] as PropType<testFormat>,
+      default: null
+    },
   },
   setup(props, context) {
     const isQuizAssessment = computed(() => props.quizType == "assessment")

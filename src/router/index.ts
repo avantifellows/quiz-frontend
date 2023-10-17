@@ -51,6 +51,12 @@ const routes = [
     props: { type: "403" },
   },
   {
+    path: "/",
+    name: "LandingPage",
+    component: () =>
+      import("@/components/LandingPage.vue")
+  },
+  {
     // refer to: https://stackoverflow.com/a/64186073/7870587
     path: "/:pathMatch(.*)*",
     redirect: {

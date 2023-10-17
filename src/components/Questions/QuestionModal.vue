@@ -52,6 +52,13 @@
         :questionSetTitle="questionSetTitle"
         :currentQuestionIndex="currentQuestionIndex"
         :questionSetStates="questionSetStates"
+        :title="title"
+        :subject="subject"
+        :testFormat="testFormat"
+        :maxMarks="maxMarks"
+        :maxQuestionsAllowedToAttempt="maxQuestionsAllowedToAttempt"
+        :quizTimeLimit="quizTimeLimit"
+        :numQuestions = "numQuestions"
         @option-selected="questionOptionSelected"
         @subjective-answer-entered="subjectiveAnswerUpdated"
         @numerical-answer-entered="numericalAnswerUpdated"
@@ -103,7 +110,8 @@ import {
   QuestionSetIndexLimits,
   questionSetPalette,
   TimeLimit,
-  quizTitleType
+  quizTitleType,
+  testFormat
 } from "../../types"
 import { useToast, POSITION } from "vue-toastification"
 const clonedeep = require("lodash.clonedeep");
@@ -179,7 +187,19 @@ export default defineComponent({
     title: {
       required: true,
       type: [null, String] as PropType<quizTitleType>,
-    }
+    },
+    subject: {
+      type: String,
+      required: true,
+    },
+    maxMarks: {
+      type: Number,
+      required: true
+    },
+    testFormat: {
+      type: [null, String] as PropType<testFormat>,
+      required: true
+    },
   },
   setup(props, context) {
     const state = reactive({
