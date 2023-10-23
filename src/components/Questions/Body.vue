@@ -127,6 +127,14 @@
               {{ charactersLeft }}
             </p>
           </div>
+          <!-- answer display -->
+          <div
+            v-if="hasQuizEnded"
+            class="px-2 text-lg mt-2"
+            data-test="subjectiveCorrectAnswer"
+          >
+            Correct Answer: {{ correctAnswer }}
+          </div>
         </div>
         <!-- Numerical question answer -->
         <div
@@ -147,6 +155,14 @@
             @beforeinput="preventKeypressIfApplicable"
             data-test="numericalAnswer"
           ></Textarea>
+          <!-- answer display -->
+          <div
+            v-if="hasQuizEnded"
+            class="px-2 text-lg mt-2"
+            data-test="numericalCorrectAnswer"
+          >
+            Correct Answer: {{ correctAnswer }}
+          </div>
         </div>
       </div>
     </div>
@@ -296,6 +312,7 @@ export default defineComponent({
       questionTypesWithOptions: new Set([questionType.SINGLE_CHOICE, questionType.MULTI_CHOICE]),
       nonGradedAnswerClass: "bg-gray-200",
       correctOptionClass: "text-white bg-green-500",
+      skippedCorrectOptionClass: "border-4 border-green-500",
       wrongOptionClass: "text-white bg-red-500",
       questionHeaderTextClass:
         "text-lg md:text-xl lg:text-2xl mx-4 m-2 text-center leading-tight whitespace-pre-wrap",
@@ -328,10 +345,11 @@ export default defineComponent({
     /**
      * returns the background class for an option
      *
-     * handles the 4 different cases:
+     * handles the 5 different cases:
      * - the given option has not been selected
      * - question is graded and given option is the right answer
      * - question is graded and given option is the wrong answer
+     * - question is graded and no option is given (skipped)
      * - question is non-graded and the given option has been selected
      * @param {Number} optionIndex - index of the option
      */
@@ -351,7 +369,13 @@ export default defineComponent({
         props.isGradedQuestion &&
         props.correctAnswer.indexOf(optionIndex) != -1
       ) {
-        return state.correctOptionClass
+        if (props.submittedAnswer != null &&
+            props.submittedAnswer.indexOf(optionIndex) != -1) {
+          // if both correct and submitted option
+          return state.correctOptionClass
+        }
+        // if correct but not in submitted option
+        return state.skippedCorrectOptionClass
       }
       if (
         (!isQuizAssessment.value || props.hasQuizEnded) &&
