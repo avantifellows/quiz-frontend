@@ -63,7 +63,7 @@
         :maxQuestionsAllowedToAttempt="maxQuestionsAllowedToAttempt"
         :quizTimeLimit="quizTimeLimit"
         :questionSetStates = "questionSetStates"
-        class="xl:mr-20 xl:ml-10 lg:mr-24 lg:ml-24 md:mr-48 md:ml-48 sm:mr-60 sm:ml-60"
+        class="mx-4 md:mx-40"
     ></InstructionPage>
 
     <!-- start button -->
@@ -181,7 +181,7 @@ export default defineComponent({
           config.value = "Let's Start";
         } else {
           if (props.hasQuizEnded && !props.reviewAnswers) {
-            config.class = "text-sm md:text-sm text-primary font-poppins-bold";
+            config.class = "text-sm md:text-sm text-white font-poppins-bold";
             config.value = "You cannot review answers now. Please come back after test ends.";
             if (props.sessionEndTimeText != "") {
               config.value += ` (${props.sessionEndTimeText})`

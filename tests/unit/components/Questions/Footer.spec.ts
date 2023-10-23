@@ -10,8 +10,8 @@ describe("Footer.vue", () => {
     });
     it("shows disabled submit button only by default", () => {
       expect(
-        wrapper.get('[data-test="previousQuestionButton"]').classes()
-      ).toContain("hidden");
+        wrapper.get('[data-test="previousQuestionButton"]').attributes().disabled
+      ).toBeDefined();
       const submitButton = wrapper.find('[data-test="submitButton"]');
       expect(submitButton.exists()).toBeTruthy();
       expect(submitButton.text()).toBe("Submit");
@@ -83,8 +83,8 @@ describe("Footer.vue", () => {
     });
     it("shows next, disabled save & next and disabled clear buttons by default", () => {
       expect(
-        wrapper.get('[data-test="previousQuestionButton"]').classes()
-      ).toContain("invisible");
+        wrapper.get('[data-test="previousQuestionButton"]').attributes().disabled
+      ).toBeDefined();
       expect(wrapper.find('[data-test="submitButton"]').exists()).toBeFalsy();
       expect(
         wrapper.find('[data-test="saveAndNextButton"]').exists()

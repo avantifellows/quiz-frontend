@@ -55,14 +55,14 @@
           <!-- subjective question answer -->
           <div
             v-if="isQuestionTypeSubjective"
-            class="flex flex-row"
+            class="flex flex-col"
             :class="answerContainerClass"
             data-test="subjectiveAnswerContainer"
           >
             <!-- input area for the answer -->
             <Textarea
               v-model:value="subjectiveAnswer"
-              class="px-2 w-full"
+              class="px-1 w-full"
               :boxStyling="subjectiveAnswerBoxStyling"
               placeholder="Enter your answer here"
               :isDisabled="isAnswerDisabled"
@@ -84,18 +84,26 @@
                 {{ charactersLeft }}
               </p>
             </div>
+             <!-- answer display -->
+            <div
+              v-if="hasQuizEnded"
+              class="px-1 text-lg mt-2"
+              data-test="subjectiveCorrectAnswer"
+            >
+              Correct Answer: {{ correctAnswer }}
+            </div>
           </div>
           <!-- Numerical question answer -->
           <div
             v-if="isQuestionTypeNumericalFloat || isQuestionTypeNumericalInteger"
-            class="flex flex-row"
+            class="flex flex-col"
             :class="answerContainerClass"
             data-test="numericalAnswerContainer"
           >
             <!-- input area for the answer -->
             <Textarea
               v-model:value="numericalAnswer"
-              class="px-2 w-full"
+              class="px-1 w-full"
               :boxStyling="numericalAnswerBoxStyling"
               placeholder="Only numbers are allowed"
               :inputMode="getInputMode"
@@ -104,6 +112,14 @@
               @beforeinput="preventKeypressIfApplicable"
               data-test="numericalAnswer"
             ></Textarea>
+            <!-- answer display -->
+            <div
+              v-if="hasQuizEnded"
+              class="px-1 text-lg mt-2"
+              data-test="numericalCorrectAnswer"
+            >
+              Correct Answer: {{ correctAnswer }}
+            </div>
           </div>
         </div>
       </div>
@@ -192,6 +208,7 @@ export default defineComponent({
       draftAnswer: props.submittedAnswer as DraftResponse, // answer for the current question
       nonGradedAnswerClass: "bg-gray-200",
       correctOptionClass: "text-white bg-green-500",
+      skippedCorrectOptionClass: "border-4 border-green-500",
       wrongOptionClass: "text-white bg-red-500",
       disabledOptionClass: "bg-gray-200",
       questionHeaderTextClass:
@@ -242,7 +259,13 @@ export default defineComponent({
           props.isGradedQuestion &&
           props.correctAnswer.indexOf(optionIndex) != -1
       ) {
-        return state.correctOptionClass
+        if (state.draftAnswer != null &&
+            state.draftAnswer.indexOf(optionIndex) != -1) {
+          // if both correct and submitted option
+          return state.correctOptionClass
+        }
+        // if correct but not in submitted option
+        return state.skippedCorrectOptionClass
       }
       if (
         (!isQuizAssessment.value || props.hasQuizEnded) &&

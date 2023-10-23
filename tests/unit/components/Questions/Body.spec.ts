@@ -99,7 +99,7 @@ describe("Body.vue", () => {
 
       expect(
         wrapper.find(`[data-test="optionContainer-1"]`).classes()
-      ).toContain("bg-green-500");
+      ).toContain("border-green-500");
       expect(
         wrapper.find(`[data-test="optionContainer-0"]`).classes()
       ).toContain("bg-red-500");
@@ -202,7 +202,7 @@ describe("Body.vue", () => {
 
       expect(
         wrapper.find('[data-test="optionContainer-0"]').classes()
-      ).toContain("bg-green-500");
+      ).toContain("border-green-500");
       expect(
         wrapper.find('[data-test="optionContainer-1"]').classes()
       ).toContain("bg-green-500");
@@ -239,7 +239,7 @@ describe("Body.vue", () => {
 
       expect(
         wrapper.find('[data-test="optionContainer-0"]').classes()
-      ).not.toContain("bg-green-500");
+      ).not.toContain("border-green-500");
       expect(
         wrapper.find('[data-test="optionContainer-1"]').classes()
       ).not.toContain("bg-green-500");
@@ -391,6 +391,17 @@ describe("Body.vue", () => {
         .setValue(value);
       expect(wrapper.vm.subjectiveAnswer).toBe(value.slice(0, maxCharLimit));
     });
+
+    it("shows correct answer when quiz has ended", async () => {
+      await wrapper.setProps({
+        isAnswerSubmitted: true,
+        correctAnswer: "Answer",
+        hasQuizEnded: true
+      });
+
+      expect(wrapper.find('[data-test="subjectiveCorrectAnswer"').text())
+        .toBe("Correct Answer: Answer")
+    })
   });
   describe("numerical integer questions", () => {
     const wrapper = mount(Body, {
@@ -496,6 +507,17 @@ describe("Body.vue", () => {
       const emitted = wrapper.emitted()
       expect(emitted["numerical-answer-entered"].length).toBe(2) // accounts for previous emit of value 9 to be removed
       expect(emitted["numerical-answer-entered"][1]).toEqual([null])
+    })
+
+    it("shows correct answer when quiz has ended", async () => {
+      await wrapper.setProps({
+        isAnswerSubmitted: true,
+        correctAnswer: 10,
+        hasQuizEnded: true
+      });
+
+      expect(wrapper.find('[data-test="numericalCorrectAnswer"').text())
+        .toBe("Correct Answer: 10")
     })
 
     it("highlights correct/wrong answer for homework quizzes", async () => {

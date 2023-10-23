@@ -6,19 +6,33 @@
       'bg-gray-200 py-4 px-2': isQuizAssessment,
     }"
   >
-    <div class="place-self-start flex h-full">
+    <div :class="[
+      !hasQuizEnded ? 'place-self-start flex h-full space-x-1': 'flex h-full w-full justify-between'
+    ]">
       <!-- back button - assessment and homework -->
       <icon-button
         :iconConfig="previousQuestionButtonIconConfig"
         :buttonClass="assessmentNavigationButtonClass"
-        :class="{
-          hidden: !isPreviousButtonShown && !isQuizAssessment,
-          invisible: (!isPreviousButtonShown && isQuizAssessment) || isOmrMode,
-        }"
-        :isDisabled="isSessionAnswerRequestProcessing"
+        :class="[
+          { hidden: isOmrMode },
+        ]"
+        :isDisabled="isSessionAnswerRequestProcessing || !isPreviousButtonShown"
         ariaLabel="Previous Question"
         @click="goToPreviousQuestion"
         data-test="previousQuestionButton"
+      ></icon-button>
+      <!-- forward button - assessment -->
+      <icon-button
+        :class="[
+          { hidden: isOmrMode },
+        ]"
+        v-if="isQuizAssessment && isNextButtonShown"
+        :iconConfig="nextQuestionButtonIconConfig"
+        :buttonClass="assessmentNavigationButtonClass"
+        :isDisabled="isSessionAnswerRequestProcessing"
+        ariaLabel="Next Question"
+        @click="goToNextQuestion"
+        data-test="nextQuestionButton"
       ></icon-button>
     </div>
 
@@ -37,19 +51,6 @@
         @click="clearAnswer"
         data-test="clearButton"
       ></icon-button>
-
-      <!-- save & next button - assessment -->
-      <icon-button
-        :class="{
-          hidden: isOmrMode
-        }"
-        :titleConfig="saveAndNextButtonTitleConfig"
-        :iconConfig="saveAndNextButtonIconConfig"
-        :buttonClass="saveAndNextButtonClass"
-        :isDisabled="(!isAnswerSubmitted && !isSubmitEnabled) || isSessionAnswerRequestProcessing"
-        @click="saveQuestionAndProceed"
-        data-test="saveAndNextButton"
-      ></icon-button>
     </div>
 
     <div class="place-self-end flex h-full">
@@ -63,19 +64,18 @@
         @click="submitQuestion"
         data-test="submitButton"
       ></icon-button>
-      <!-- forward button - assessment -->
+      <!-- save&next button - assessment-->
       <icon-button
         :class="{
           hidden: isOmrMode
         }"
-        v-if="isQuizAssessment && isNextButtonShown"
-        :titleConfig="nextQuestionButtonTitleConfig"
-        :iconConfig="nextQuestionButtonIconConfig"
-        :buttonClass="assessmentNavigationButtonClass"
-        :isDisabled="isSessionAnswerRequestProcessing"
-        ariaLabel="Next Question"
-        @click="goToNextQuestion"
-        data-test="nextQuestionButton"
+        v-if="isQuizAssessment && !hasQuizEnded"
+        :titleConfig="saveAndNextButtonTitleConfig"
+        :iconConfig="saveAndNextButtonIconConfig"
+        :buttonClass="saveAndNextButtonClass"
+        :isDisabled="(!isAnswerSubmitted && !isSubmitEnabled) || isSessionAnswerRequestProcessing"
+        @click="saveQuestionAndProceed"
+        data-test="saveAndNextButton"
       ></icon-button>
     </div>
   </div>
@@ -178,11 +178,6 @@ export default defineComponent({
       iconClass: state.assessmentNavigationButtonIconClass,
     } as IconButtonIconConfig);
 
-    const nextQuestionButtonTitleConfig = ref({
-      value: "Next",
-      class: "text-gray-600",
-    } as IconButtonTitleConfig);
-
     const clearButtonClass = ref([
       state.assessmentTextButtonClass,
       "bg-white hover:bg-gray-50",
@@ -271,7 +266,6 @@ export default defineComponent({
       ...toRefs(state),
       previousQuestionButtonIconConfig,
       nextQuestionButtonIconConfig,
-      nextQuestionButtonTitleConfig,
       clearButtonClass,
       saveAndNextButtonClass,
       clearButtonTitleConfig,
