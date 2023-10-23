@@ -2,7 +2,7 @@
     <div>
         <h4 class="text-lg font-bold m-6">Test Paper Overview</h4>
         <!-- Table -->
-        <table class="table-auto m-4">
+        <table class="table-auto mx-auto md:mx-0 m-4">
             <!-- row 1 -->
             <tr>
                 <th class="border-black border-1 text-left px-4 py-2">Test Name</th>
@@ -60,21 +60,21 @@
              <li>The countdown timer in the top right corner of screen will display the remaining time available for you to complete the test. When the timer reaches zero, the test will end by itself. You will not be required to end or submit your test.</li>
              <li>You can click on the <span class="inline-flex items-baseline"><BaseIcon name ='hamburger' class="place-self-center w-4 h-4"></BaseIcon></span> button on the top left corner of the page to expand the Question Palette.</li>
              <li>The Question Palette will show the status of each question using one of the following symbols:
-                <div class="flex flex-wrap ml-7 mr-4 m-2">
-                    <div class="flex items-center mb-2 mr-4">
-                        <Success></Success>
-                        <span class="ml-6 mr-6">You have answered the question</span>
-                    </div>
-                    <div class="flex items-center mb-2 mr-4">
-                        <Error></Error>
-                        <span class="ml-6 mr-6">You have not visited the question yet</span>
-                    </div>
-                    <div class="flex items-center mb-2 mr-4">
-                        <Neutral></Neutral>
-                        <span class="ml-6 mr-6">You have not answered the question</span>
-                    </div>
+              <div class="flex flex-wrap mx-2 md:mx-4 my-2">
+                <div class="flex items-center my-2 md:mx-4">
+                  <Success></Success>
+                  <span class="ml-6 mr-6">You have answered the question</span>
                 </div>
-             </li>
+                <div class="flex items-center my-2 md:mx-4">
+                  <Error></Error>
+                  <span class="ml-6 mr-6">You have not visited the question yet</span>
+                </div>
+                <div class="flex items-center my-2 md:mx-4">
+                  <Neutral></Neutral>
+                  <span class="ml-6 mr-6">You have not answered the question</span>
+                </div>
+              </div>
+            </li>
              <li>You can click on the <span class="inline-flex items-baseline"><BaseIcon name ='hamburger' class="place-self-center w-4 h-4"></BaseIcon></span> button again to collapse the Question Palette.</li>
           </ol>
         </div>
