@@ -392,7 +392,7 @@ To attempt this question, unselect an answer to another question in this section
           }
         }
         state.toast.success(
-            `You have answered ${attemptedQuestions} out of ${props.numQuestions} questions. Please verify your responses and click End Test button again to make final submission.`,
+            `You have answered ${attemptedQuestions} out of ${props.numQuestions} questions. Click on the Question Palette to review unanswered questions before submitting the test. Click the End Test button again to make the final submission.`,
             {
               position: POSITION.TOP_CENTER,
               timeout: 5000,

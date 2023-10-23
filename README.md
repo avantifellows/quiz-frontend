@@ -109,6 +109,10 @@ The actual deployment happens through Github Actions. Look at `.github/workflows
 ```
 npm run test:unit
 ```
+To run unit tests for individual spec files (say, for Header component), use:
+```
+npm run test:unit -- Header.spec.ts
+```
 
 ### Run the end-to-end tests
 
