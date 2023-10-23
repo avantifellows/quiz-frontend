@@ -181,7 +181,7 @@ export default defineComponent({
           config.value = "Let's Start";
         } else {
           if (props.hasQuizEnded && !props.reviewAnswers) {
-            config.class = "text-sm md:text-sm text-primary font-poppins-bold";
+            config.class = "text-sm md:text-sm text-primary text-white font-poppins-bold";
             config.value = "You cannot review answers now. Please come back after test ends.";
             if (props.sessionEndTimeText != "") {
               config.value += ` (${props.sessionEndTimeText})`
