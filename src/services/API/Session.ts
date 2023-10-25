@@ -50,6 +50,7 @@ export default {
    *                                 This index corresponds to the index of sessionAnswer in session
    * @param {UpdateSessionAnswerAPIPayload} payload - contains the answer {submittedAnswer} that
    * needs to be updated and a boolean variable to indicate that the question is visited
+   * Further, it contains time_spent {number} variable indicating time spent for this question
    * @returns {Promise<SessionAnswerAPIResponse>} - response status of request
    */
   async updateSessionAnswer(
@@ -75,7 +76,7 @@ export default {
   /**
    * @param {string} sessionId - id of the session for which the sessionAnswer is to be updated
    * @param {UpdateAllSessionAnswersAPIPayload} payload - contains list of response objects, each object
-   * includes an answer and whether the corresponding question was visited
+   * includes an answer, whether the corresponding question was visited, and time spent on the question
    * @returns {Promise<SessionAnswerAPIResponse>} - response status of request
    */
   async updateAllSessionAnswers(

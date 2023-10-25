@@ -57,6 +57,7 @@ export interface SubmittedResponse {
   question_id: string;
   answer: submittedAnswer;
   visited: boolean;
+  time_spent?: number; // time spent per question in seconds
 }
 
 interface ScorecardMetricIcon {
@@ -205,6 +206,7 @@ export interface SessionAnswerAPIResponse {
 export interface UpdateSessionAnswerAPIPayload {
   answer?: submittedAnswer;
   visited?: boolean;
+  time_spent?: number; // time spent per question in seconds
 }
 
 export interface UpdateAllSessionAnswersAPIPayload extends Array<UpdateSessionAnswerAPIPayload> {}
