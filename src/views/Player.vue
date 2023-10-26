@@ -258,8 +258,8 @@ export default defineComponent({
       () => state.currentQuestionIndex,
       (newValue, oldValue) => {
         stopTimeSpentPerQuestionCalc();
-        if (!state.hasQuizEnded && isQuizAssessment.value && oldValue != -1) {
-          // update time spent for previous question in assessment
+        if (!state.hasQuizEnded && isQuizAssessment.value && !isOmrMode.value && oldValue != -1) {
+          // update time spent for previous question in assessment (but not omr)
           // but not for homework
           SessionAPIService.updateSessionAnswer(
             state.sessionId,
@@ -273,7 +273,6 @@ export default defineComponent({
           if (!state.hasQuizEnded && !isQuizAssessment.value) {
             endTest() // send an end-quiz event for homeworks
           }
-          console.log(state.hasQuizEnded);
           if (state.hasQuizEnded) {
             state.isScorecardShown = true;
             if (!hasGradedQuestions.value) return;
@@ -334,13 +333,29 @@ export default defineComponent({
         if (response.time_remaining == 0) {
           endTest()
         }
+
+        // updates time spent per question for homeworks and assessments
+        // this syncs state.timeSpentPerQuestion[] array with backend periodically
+        // useful when network is off or window is closed midway during a question
+        if (!isOmrMode.value) {
+          const responseAnswers: UpdateAllSessionAnswersAPIPayload = [];
+          for (let idx = 0; idx < state.responses.length; idx++) {
+            responseAnswers.push({
+              time_spent: state.timeSpentPerQuestion[idx]
+            });
+          }
+          await SessionAPIService.updateAllSessionAnswers(
+            state.sessionId,
+            responseAnswers
+          );
+        }
       }
     };
 
     onMounted(() => {
       window.setInterval(() => {
         timerUpdates();
-      }, 80000);
+      }, 8000);
     });
 
     async function startQuiz() {
@@ -490,39 +505,46 @@ export default defineComponent({
 
     async function endTest() {
       if (!state.hasQuizEnded) {
-        // update all session answers before end test
-        state.isSessionAnswerRequestProcessing = true;
-        const responseAnswers: UpdateAllSessionAnswersAPIPayload = [];
-        for (const [idx, response] of state.responses.entries()) {
-          responseAnswers.push({
-            answer: response.answer,
-            visited: response.visited,
-            time_spent: state.timeSpentPerQuestion[idx]
-          });
-        }
-        const updateResponse = await SessionAPIService.updateAllSessionAnswers(
-          state.sessionId,
-          responseAnswers
-        );
+        if (isOmrMode.value) {
+          // update all session answers only for omr mode as of now
+          state.isSessionAnswerRequestProcessing = true;
+          const responseAnswers: UpdateAllSessionAnswersAPIPayload = [];
+          for (const response of state.responses) {
+            responseAnswers.push({
+              answer: response.answer,
+              visited: response.visited
+              // no time_spent updates for omr mode as of now
+            });
+          }
+          const updateResponse = await SessionAPIService.updateAllSessionAnswers(
+            state.sessionId,
+            responseAnswers
+          );
 
-        if (updateResponse.status != 200) {
-          state.toast.error(
-            'Answers are not submitted. Please check internet connection and click "End Test" again without refreshing the page.',
-            {
-              position: POSITION.TOP_LEFT,
-              timeout: 8000,
-              draggablePercent: 0.4
-            }
-          )
+          if (updateResponse.status != 200) {
+            state.toast.error(
+              'Answers are not submitted. Please check internet connection and click "End Test" again without refreshing the page.',
+              {
+                position: POSITION.TOP_LEFT,
+                timeout: 8000,
+                draggablePercent: 0.4
+              }
+            )
+          } else {
+            SessionAPIService.updateSession(state.sessionId, {
+              event: eventType.END_QUIZ
+            });
+            state.hasQuizEnded = true;
+            state.currentQuestionIndex = numQuestions.value;
+          }
+          state.isSessionAnswerRequestProcessing = false;
         } else {
           SessionAPIService.updateSession(state.sessionId, {
             event: eventType.END_QUIZ
           });
           state.hasQuizEnded = true;
-          console.log("in endquiz", state.hasQuizEnded)
           state.currentQuestionIndex = numQuestions.value;
         }
-        state.isSessionAnswerRequestProcessing = false;
       } else {
         state.currentQuestionIndex = numQuestions.value;
       }
