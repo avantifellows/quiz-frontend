@@ -247,3 +247,140 @@ describe("Player for Assessment Timed quizzes", () => {
     });
   });
 });
+
+describe("Player for Homework Quizzes", () => {
+  beforeEach(() => {
+    // stub the response to /quiz/{quizId}
+    cy.intercept("GET", Cypress.env("backend") + "/quiz/*", {
+      fixture: "homework_quiz.json",
+    });
+  });
+
+  describe("New Session", () => {
+    beforeEach(() => {
+      // stub the response to /sessions
+      cy.intercept("POST", "/sessions/", {
+        fixture: "new_homework_session.json",
+      });
+
+      cy.intercept("PATCH", "/session_answers/**", { status: 200 });
+      cy.intercept("PATCH", "/sessions/*", { time_remaining: 200 });
+
+      cy.intercept(
+        "GET",
+        Cypress.env("backend") + "/organizations/authenticate/*",
+        {
+          fixture: "org_authentication.json",
+        }
+      );
+      cy.visit("/quiz/abcd?userId=1&apiKey=pqr");
+
+      cy.clock();
+      cy.server();
+
+      // define aliasas
+      cy.get('[data-test="startQuiz"]').as("startQuizButton");
+      cy.route("PATCH", "/session_answers/**").as("patch_session_answers");
+    });
+
+    describe("Quiz starts", () => {
+      beforeEach(() => {
+        cy.get("@startQuizButton").trigger("click");
+      });
+
+      it("patch session answer payload should have time_spent key", () => {
+        // wait for visited patch
+        cy.wait("@patch_session_answers");
+        cy.get("@patch_session_answers")
+          .its("request.body")
+          .should("deep.equal", {
+            visited: true,
+          });
+
+        // choose an option
+        cy.get('[data-test="modal"]')
+          .get('[data-test="optionSelector-0"]')
+          .trigger("click");
+
+        // spend three more seconds on question 1 and submit
+        cy.tick(3000);
+        cy.get('[data-test="modal"]')
+          .get('[data-test="submitButton"]')
+          .trigger("click");
+
+        // wait for patch session answer to happen
+        cy.wait("@patch_session_answers");
+        // now check if the payload sent is correct
+        cy.get("@patch_session_answers")
+          .its("request.body")
+          .should("deep.equal", {
+            answer: [0],
+            time_spent: 3,
+          });
+      });
+
+      it("time spent on question 2 does not alter due to time spent on question 1", () => {
+        // choose answer for q1 and submit
+        cy.wait("@patch_session_answers");
+        cy.get("@patch_session_answers")
+          .its("request.body")
+          .should("deep.equal", {
+            visited: true,
+          });
+        cy.get('[data-test="modal"]')
+          .get('[data-test="optionSelector-0"]')
+          .trigger("click");
+        cy.get('[data-test="modal"]')
+          .get('[data-test="submitButton"]')
+          .trigger("click");
+        cy.wait("@patch_session_answers");
+        cy.get("@patch_session_answers")
+          .its("request.body")
+          .should("deep.equal", {
+            answer: [0],
+            time_spent: 0,
+          });
+        // click submit again to continue
+        cy.get('[data-test="modal"]')
+          .get('[data-test="submitButton"]')
+          .trigger("click");
+
+        // for q2, choose option spend 3 sec on it
+        cy.wait("@patch_session_answers");
+        cy.get("@patch_session_answers")
+          .its("request.body")
+          .should("deep.equal", {
+            visited: true,
+          });
+        cy.get('[data-test="modal"]')
+          .get('[data-test="optionSelector-1"]')
+          .trigger("click");
+        cy.tick(3000);
+        // click back button
+        cy.get('[data-test="modal"]')
+          .get('[data-test="previousQuestionButton"]')
+          .trigger("click");
+        // spend 3 sec on q1
+        cy.tick(3000);
+        // click Continue button
+        cy.get('[data-test="modal"]')
+          .get('[data-test="submitButton"]')
+          .trigger("click");
+        // click Submit button
+        cy.get('[data-test="modal"]')
+          .get('[data-test="submitButton"]')
+          .trigger("click");
+
+        // wait for patch session answer to happen
+        cy.wait("@patch_session_answers");
+        // now check if the payload sent is correct
+        cy.get("@patch_session_answers")
+          .its("request.body")
+          .should("deep.equal", {
+            answer: [1],
+            time_spent: 3, // not 6
+          });
+      });
+    });
+  });
+});
