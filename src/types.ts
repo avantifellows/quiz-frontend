@@ -57,7 +57,7 @@ export interface SubmittedResponse {
   question_id: string;
   answer: submittedAnswer;
   visited: boolean;
-  time_spent?: number; // time spent per question in seconds
+  time_spent?: number; // time spent on question in seconds
 }
 
 interface ScorecardMetricIcon {
@@ -206,10 +206,15 @@ export interface SessionAnswerAPIResponse {
 export interface UpdateSessionAnswerAPIPayload {
   answer?: submittedAnswer;
   visited?: boolean;
-  time_spent?: number; // time spent per question in seconds
+  time_spent?: number; // time spent on question in seconds
 }
 
-export interface UpdateAllSessionAnswersAPIPayload extends Array<UpdateSessionAnswerAPIPayload> {}
+export type TimeSpentEntry = {
+  timeSpent: number;
+  hasSynced: boolean;
+};
+
+export type UpdateSessionAnswersAtSpecificPositionsAPIPayload = [number, UpdateSessionAnswerAPIPayload][];
 
 export interface answerEvaluation {
   valid: boolean; // whether the evaluation of the question is valid in the first place (invalid for ungraded questions)

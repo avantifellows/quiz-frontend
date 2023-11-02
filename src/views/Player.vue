@@ -128,7 +128,6 @@ import {
   Question,
   SubmittedResponse,
   UpdateSessionAPIPayload,
-  UpdateAllSessionAnswersAPIPayload,
   UpdateSessionAPIResponse,
   QuizMetadata,
   submittedAnswer,
@@ -140,7 +139,9 @@ import {
   questionSetPalette,
   TimeLimit,
   eventType,
+  TimeSpentEntry,
   UpdateSessionAnswerAPIPayload,
+  UpdateSessionAnswersAtSpecificPositionsAPIPayload,
 } from "../types";
 import { useToast, POSITION } from "vue-toastification"
 import BaseIcon from "../components/UI/Icons/BaseIcon.vue";
@@ -207,8 +208,8 @@ export default defineComponent({
       sessionId: "", // id of the session created for a user-quiz combination
       isSessionAnswerRequestProcessing: false, // whether session answer api request is processing
       continueAfterAnswerSubmit: true as boolean, // do we continue after submitting answer
-      timeSpentPerQuestion: [] as number[], // stores time spent per each question
-      timerInterval: null as number | null, // variable used in computing time spent per question
+      timeSpentOnQuestion: [] as TimeSpentEntry[], // stores time spent on each question
+      timerInterval: null as number | null, // variable used in computing time spent on question
       toast: useToast(),
     });
 
@@ -235,19 +236,20 @@ export default defineComponent({
       value: scorecardResultValue.value,
     }));
 
-    function startTimeSpentPerQuestionCalc() {
+    function starttimeSpentOnQuestionCalc() {
       if (state.timerInterval) {
         clearInterval(state.timerInterval);
       }
 
       state.timerInterval = setInterval(() => {
         if (!isOmrMode.value && state.currentQuestionIndex >= 0 && state.currentQuestionIndex < numQuestions.value && !state.isSessionAnswerRequestProcessing) {
-          state.timeSpentPerQuestion[state.currentQuestionIndex] += 1;
+          state.timeSpentOnQuestion[state.currentQuestionIndex].timeSpent += 1;
+          state.timeSpentOnQuestion[state.currentQuestionIndex].hasSynced = false;
         }
       }, 1000);
     }
 
-    function stopTimeSpentPerQuestionCalc() {
+    function stoptimeSpentOnQuestionCalc() {
       if (state.timerInterval) {
         clearInterval(state.timerInterval);
         state.timerInterval = null;
@@ -257,7 +259,7 @@ export default defineComponent({
     watch(
       () => state.currentQuestionIndex,
       (newValue, oldValue) => {
-        stopTimeSpentPerQuestionCalc();
+        stoptimeSpentOnQuestionCalc();
         if (!state.hasQuizEnded && isQuizAssessment.value && !isOmrMode.value && oldValue != -1) {
           // update time spent for previous question in assessment
           // but not for homework
@@ -265,9 +267,10 @@ export default defineComponent({
             state.sessionId,
             oldValue,
             {
-              time_spent: state.timeSpentPerQuestion[oldValue]
+              time_spent: state.timeSpentOnQuestion[oldValue].timeSpent
             }
           )
+          state.timeSpentOnQuestion[oldValue].hasSynced = true;
         }
         if (newValue == numQuestions.value) {
           if (!state.hasQuizEnded && !isQuizAssessment.value) {
@@ -281,7 +284,7 @@ export default defineComponent({
         } else if (newValue != -1 && !state.hasQuizEnded) {
           if (!state.responses[newValue].visited) {
             // if not visited yet
-            startTimeSpentPerQuestionCalc(); // for homework and assessment
+            starttimeSpentOnQuestionCalc(); // for homework and assessment
             state.responses[newValue].visited = true;
             SessionAPIService.updateSessionAnswer(
               state.sessionId,
@@ -292,10 +295,14 @@ export default defineComponent({
             );
           } else {
             // for assessment, run the timer even if question was visited earlier
-            if (isQuizAssessment.value) startTimeSpentPerQuestionCalc();
+            if (isQuizAssessment.value) {
+              starttimeSpentOnQuestionCalc();
+            }
 
             // for homework, run the timer if question is visited but not submitted
-            if (!isQuizAssessment.value && state.responses[newValue].answer == null) startTimeSpentPerQuestionCalc();
+            if (!isQuizAssessment.value && state.responses[newValue].answer == null) {
+              starttimeSpentOnQuestionCalc();
+            }
           }
         }
         // the index where cumulative length first exceeds newValue
@@ -334,20 +341,30 @@ export default defineComponent({
           endTest()
         }
 
-        // updates time spent per question for homeworks and assessments
-        // this syncs state.timeSpentPerQuestion[] array with backend periodically
+        // updates time spent on question for homeworks and assessments
+        // this syncs state.timeSpentOnQuestion[] array with backend periodically
+        // for array elements that haven't been synced yet
         // useful when network is off or window is closed midway during a question
         if (!isOmrMode.value) {
-          const responseAnswers: UpdateAllSessionAnswersAPIPayload = [];
-          for (let idx = 0; idx < state.responses.length; idx++) {
-            responseAnswers.push({
-              time_spent: state.timeSpentPerQuestion[idx]
-            });
+          const responseAnswersWithPositions: UpdateSessionAnswersAtSpecificPositionsAPIPayload = [];
+          for (let idx = 0; idx < state.timeSpentOnQuestion.length; idx++) {
+            if (state.timeSpentOnQuestion[idx].hasSynced == true) continue;
+            responseAnswersWithPositions.push([
+              idx,
+              {
+                time_spent: state.timeSpentOnQuestion[idx].timeSpent
+              }
+            ]);
           }
-          await SessionAPIService.updateAllSessionAnswers(
-            state.sessionId,
-            responseAnswers
-          );
+          if (responseAnswersWithPositions.length > 0) {
+            await SessionAPIService.updateSessionAnswersAtSpecificPositions(
+              state.sessionId,
+              responseAnswersWithPositions
+            );
+            for (const [idx] of responseAnswersWithPositions) {
+              state.timeSpentOnQuestion[idx].hasSynced = true;
+            }
+          }
         }
       }
     };
@@ -431,9 +448,15 @@ export default defineComponent({
       state.responses = sessionDetails.session_answers;
       for (const response of state.responses) {
         if (response.time_spent == null) {
-          state.timeSpentPerQuestion.push(0) // init time spent with zero
+          state.timeSpentOnQuestion.push({
+            timeSpent: 0,
+            hasSynced: true
+          }) // init time spent with zero, sync true
         } else {
-          state.timeSpentPerQuestion.push(response.time_spent)
+          state.timeSpentOnQuestion.push({
+            timeSpent: response.time_spent,
+            hasSynced: true
+          })
         }
       }
       state.isFirstSession = sessionDetails.is_first;
@@ -455,14 +478,15 @@ export default defineComponent({
       }
       if (!isQuizAssessment.value) {
         // we update time spent for homework immediately when answer is submitted
-        stopTimeSpentPerQuestionCalc();
-        payload.time_spent = state.timeSpentPerQuestion[state.currentQuestionIndex]
+        stoptimeSpentOnQuestionCalc();
+        payload.time_spent = state.timeSpentOnQuestion[state.currentQuestionIndex].timeSpent;
       }
       const response = await SessionAPIService.updateSessionAnswer( // response.data
         state.sessionId,
         state.currentQuestionIndex,
         payload
       );
+      state.timeSpentOnQuestion[state.currentQuestionIndex].hasSynced = true;
       if (response.status != 200) {
         state.toast.error(
           `Answer for Q.${state.currentQuestionIndex + 1} not saved. Please try to submit again or refresh the page.`,
@@ -487,7 +511,7 @@ export default defineComponent({
         newQuestionIndex,
         {
           answer: itemResponse.answer,
-          // not sending time spent per question for omr -- cannot compute!
+          // not sending time spent on question for omr -- cannot compute!
         }
       );
       if (response.status != 200) {
@@ -508,17 +532,20 @@ export default defineComponent({
         if (isOmrMode.value) {
           // update all session answers only for omr mode as of now
           state.isSessionAnswerRequestProcessing = true;
-          const responseAnswers: UpdateAllSessionAnswersAPIPayload = [];
-          for (const response of state.responses) {
-            responseAnswers.push({
-              answer: response.answer,
-              visited: response.visited
-              // no time_spent updates for omr mode as of now
-            });
+          const responseAnswersWithPositions: UpdateSessionAnswersAtSpecificPositionsAPIPayload = [];
+          for (const [idx, response] of state.responses.entries()) {
+            responseAnswersWithPositions.push([
+              idx,
+              {
+                answer: response.answer,
+                visited: response.visited
+                // no time_spent updates for omr mode as of now
+              }
+            ]);
           }
-          const updateResponse = await SessionAPIService.updateAllSessionAnswers(
+          const updateResponse = await SessionAPIService.updateSessionAnswersAtSpecificPositions(
             state.sessionId,
-            responseAnswers
+            responseAnswersWithPositions
           );
 
           if (updateResponse.status != 200) {
@@ -860,8 +887,8 @@ export default defineComponent({
       fetchQuestionBucket,
       timerUpdates,
       isOmrMode,
-      startTimeSpentPerQuestionCalc,
-      stopTimeSpentPerQuestionCalc
+      starttimeSpentOnQuestionCalc,
+      stoptimeSpentOnQuestionCalc
     };
   },
 });
