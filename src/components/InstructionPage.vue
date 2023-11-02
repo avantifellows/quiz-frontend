@@ -47,10 +47,7 @@
             <div
               v-for="(questionSetState, index) in questionSetStates" :key="index">
                 <li class="text-base mt-2 ml-7 font-semibold leading-none mr-4" :data-test="`questionSetTitle-${index}`">{{ questionSetState.title }}</li>
-                <div class="ml-12 mr-4 mt-1" :data-test="`no-of-questions-${index}`">
-                  There are {{ questionSetState.paletteItems.length }} questions, out of which only {{ questionSetState.maxQuestionsAllowedToAttempt }} questions need to be attempted.
-                </div>
-                <div class="text-base mx-2 mb-4 leading-tight text-slate-500 ml-12 mr-4" :data-test="`questionSetInstruction-${index}`" v-html="questionSetState.instructionPageText"></div>
+                <div class="text-base mx-2 mb-4 leading-tight text-slate-500 ml-12 mr-4" :data-test="`questionSetInstruction-${index}`" v-html="questionSetState.instructionText"></div>
             </div>
         </div>
         <!-- general Instruction -->

@@ -351,7 +351,7 @@ describe("Player for OMR quizzes", () => {
           cy.get('[data-test="questionSetInstruction-1"').should("exist");
           cy.get('[data-test="questionSetInstruction-1"').should(
             "have.text",
-            "Question Set 1 Description\nYou may attempt only up to 3 questions in this section."
+            "Question Set 1 DescriptionYou may attempt only up to 3 questions in this section."
           );
         });
 

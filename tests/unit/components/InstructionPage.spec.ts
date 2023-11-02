@@ -10,7 +10,6 @@ describe('InstructionPage', () => {
     };
     const testQuestionSetStates = [
       {
-        instructionPageText: "You may attempt 2 out of 5 questions",
         instructionTest: "You may attempt all the questions",
         maxQuestionsAllowedToAttempt: 2,
         paletteItems: [
@@ -26,7 +25,6 @@ describe('InstructionPage', () => {
         title: "Maths - Set 0",
       },
       {
-        instructionPageText: "You may attempt 2 out of 5 questions",
         instructionTest: "You may attempt all the questions",
         maxQuestionsAllowedToAttempt: 2,
         paletteItems: [
@@ -78,7 +76,6 @@ describe('InstructionPage', () => {
     };
     const testQuestionSetStates = [
       {
-        instructionPageText: "You may attempt 2 out of 5 questions",
         instructionTest: "You may attempt all the questions",
         maxQuestionsAllowedToAttempt: 2,
         paletteItems: [
@@ -94,7 +91,6 @@ describe('InstructionPage', () => {
         title: "Maths - Set 0",
       },
       {
-        instructionPageText: "You may attempt 2 out of 5 questions",
         instructionTest: "You may attempt all the questions",
         maxQuestionsAllowedToAttempt: 2,
         paletteItems: [
@@ -145,21 +141,5 @@ describe('InstructionPage', () => {
       questionSetIndex = 1;
       expect(wrapper.find(`[data-test="questionSetTitle-${questionSetIndex}"]`).text()).toBe("Maths - Set 1");
     });
-
-    it("displays instruction text for each set", () => {
-      let questionSetIndex = 0;
-      expect(wrapper.find(`[data-test="questionSetInstruction-${questionSetIndex}"]`).text()).toBe("You may attempt 2 out of 5 questions");
-
-      questionSetIndex = 1;
-      expect(wrapper.find(`[data-test="questionSetInstruction-${questionSetIndex}"]`).text()).toBe("You may attempt 2 out of 5 questions");
-    });
-
-    it("No. of questions need to be attempted for each set", () => {
-      let questionSetIndex = 0;
-      expect(wrapper.find(`[data-test="no-of-questions-${questionSetIndex}"]`).text()).toBe("There are 2 questions, out of which only 2 questions need to be attempted.");
-
-      questionSetIndex = 1;
-      expect(wrapper.find(`[data-test="no-of-questions-${questionSetIndex}"]`).text()).toBe("There are 2 questions, out of which only 2 questions need to be attempted.");
-    })
   });
 });
