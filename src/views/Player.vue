@@ -710,20 +710,17 @@ export default defineComponent({
         }
         // the below instruction assumes all questions within a set are of the same type
         let paletteInstructionText: string = state.questionSets[index].description ?? "";
-        // added instructionPageText variable for instructionPage component to not print extra information that is present in paletteInstructionText
-        const localInstructionPageText: string = state.questionSets[index].description ?? "";
 
         if (state.questionSets[index].max_questions_allowed_to_attempt < state.questionSets[index].questions.length) {
-          paletteInstructionText += `\nYou may attempt only up to ${state.questionSets[index].max_questions_allowed_to_attempt} questions in this section.`
+          paletteInstructionText += `<br>You may attempt only up to ${state.questionSets[index].max_questions_allowed_to_attempt} questions in this section.`
         } else {
-          paletteInstructionText += `\nYou may attempt all questions in this section.`
+          paletteInstructionText += `<br>You may attempt all questions in this section.`
         }
 
         qsetStates.push({
           title: state.questionSets[index].title,
           paletteItems: states,
           instructionText: paletteInstructionText,
-          instructionPageText: localInstructionPageText,
           maxQuestionsAllowedToAttempt: state.questionSets[index].max_questions_allowed_to_attempt,
         })
       }
