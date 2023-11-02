@@ -259,7 +259,7 @@ export default defineComponent({
       (newValue, oldValue) => {
         stopTimeSpentPerQuestionCalc();
         if (!state.hasQuizEnded && isQuizAssessment.value && !isOmrMode.value && oldValue != -1) {
-          // update time spent for previous question in assessment (but not omr)
+          // update time spent for previous question in assessment
           // but not for homework
           SessionAPIService.updateSessionAnswer(
             state.sessionId,
