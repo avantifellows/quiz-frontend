@@ -31,8 +31,12 @@ describe("Player for OMR quizzes", () => {
       );
       cy.visit("/quiz/abcd?userId=1&apiKey=pqr");
 
+      cy.server();
+      cy.clock();
+
       // define aliasas
       cy.get('[data-test="startQuiz"]').as("startQuizButton");
+      cy.route("PATCH", "/session_answers/**").as("patch_session_answers");
     });
 
     it("shows splash screen", () => {
@@ -79,6 +83,22 @@ describe("Player for OMR quizzes", () => {
             .get('[data-test="OmrItem-0"]')
             .within(() => {
               cy.get('[data-test="optionSelector-0"]').trigger("click");
+            });
+        });
+
+        it("does not contain time_spent in patch session answer request", () => {
+          cy.wait("@patch_session_answers");
+          cy.get("@patch_session_answers")
+            .its("request.body")
+            .should("deep.equal", {
+              visited: true,
+            });
+
+          cy.wait("@patch_session_answers");
+          cy.get("@patch_session_answers")
+            .its("request.body")
+            .should("deep.equal", {
+              answer: [0],
             });
         });
 

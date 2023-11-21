@@ -387,7 +387,7 @@ export default defineComponent({
           const response = props.responses[qindex];
           if (response.answer != null) numSubmittedResponses += 1
         }
-        if (numSubmittedResponses == questionSetState.maxQuestionsAllowedToAttempt) arr[idx] = true;
+        if (numSubmittedResponses >= questionSetState.maxQuestionsAllowedToAttempt) arr[idx] = true;
       }
 
       return arr;
