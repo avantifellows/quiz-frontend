@@ -499,7 +499,7 @@ To attempt this question, unselect an answer to another question in this section
         const response = props.responses[idx]
         if (response.answer != null) numSubmittedResponses += 1
       }
-      if (numSubmittedResponses == props.maxQuestionsAllowedToAttempt) return true
+      if (numSubmittedResponses >= props.maxQuestionsAllowedToAttempt) return true
       return false
     })
 

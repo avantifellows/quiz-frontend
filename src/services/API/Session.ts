@@ -6,7 +6,7 @@ import {
   UpdateSessionAPIPayload,
   UpdateSessionAPIResponse,
   UpdateSessionAnswerAPIPayload,
-  UpdateAllSessionAnswersAPIPayload
+  UpdateSessionAnswersAtSpecificPositionsAPIPayload
 } from "../../types";
 import axios, { AxiosError } from "axios";
 
@@ -50,6 +50,7 @@ export default {
    *                                 This index corresponds to the index of sessionAnswer in session
    * @param {UpdateSessionAnswerAPIPayload} payload - contains the answer {submittedAnswer} that
    * needs to be updated and a boolean variable to indicate that the question is visited
+   * Further, it contains time_spent {number} variable indicating time spent for this question
    * @returns {Promise<SessionAnswerAPIResponse>} - response status of request
    */
   async updateSessionAnswer(
@@ -73,18 +74,18 @@ export default {
   },
 
   /**
-   * @param {string} sessionId - id of the session for which the sessionAnswer is to be updated
-   * @param {UpdateAllSessionAnswersAPIPayload} payload - contains list of response objects, each object
-   * includes an answer and whether the corresponding question was visited
-   * @returns {Promise<SessionAnswerAPIResponse>} - response status of request
-   */
-  async updateAllSessionAnswers(
+ * @param {string} sessionId - id of the session for which the sessionAnswers are to be updated at specific positions
+ * @param {UpdateSessionAnswersAtSpecificPositionsAPIPayload} payload - contains list of response objects, each object
+ * includes a position, an answer, whether the corresponding question was visited, and time spent on the question
+ * @returns {Promise<SessionAnswerAPIResponse>} - response status of request
+ */
+  async updateSessionAnswersAtSpecificPositions(
     sessionId: string,
-    payload: UpdateAllSessionAnswersAPIPayload
+    payload: UpdateSessionAnswersAtSpecificPositionsAPIPayload
   ): Promise<SessionAnswerAPIResponse> {
     try {
       const response = await apiClient().patch(
-        sessionAnswersEndpoint + sessionId,
+        `${sessionAnswersEndpoint}${sessionId}/update-multiple-answers`,
         payload
       );
       return { status: response.status };
@@ -95,5 +96,5 @@ export default {
         return { status: 400 }; // bad request
       }
     }
-  },
+  }
 };

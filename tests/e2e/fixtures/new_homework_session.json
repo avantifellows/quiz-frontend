@@ -1,0 +1,30 @@
+{
+    "_id": "62625e0f773b5fb92fde890b",
+    "user_id": "1",
+    "quiz_id": "abcd",
+    "has_quiz_ended": false,
+    "is_first": true,
+    "session_answers": [
+      {
+          "_id": "62a37b95c54e0efc5c53d4f6",
+          "question_id": "6285554a1016dc7050373fbf",
+          "answer": null,
+          "visited": false,
+          "time_spent": null
+      },
+      {
+          "_id": "62a37b95c54e0efc5c53d4f7",
+          "question_id": "6285554a1016dc7050373fc0",
+          "answer": null,
+          "visited": false,
+          "time_spent": null
+      },
+      {
+          "_id": "62a37b95c54e0efc5c53d4f8",
+          "question_id": "6285554a1016dc7050373fc1",
+          "answer": null,
+          "visited": false,
+          "time_spent": null
+      }
+    ]
+  }
