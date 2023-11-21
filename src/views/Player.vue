@@ -372,7 +372,7 @@ export default defineComponent({
     onMounted(() => {
       window.setInterval(() => {
         timerUpdates();
-      }, 8000);
+      }, 20000);
     });
 
     async function startQuiz() {
