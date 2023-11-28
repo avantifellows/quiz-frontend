@@ -98,6 +98,7 @@
         :result="scorecardResult"
         :metrics="scorecardMetrics"
         :progressPercentage="scorecardProgress"
+        :qsetMetrics="qsetMetrics"
         :isShown="isScorecardShown"
         :title="title"
         :userId="userId"
@@ -142,6 +143,7 @@ import {
   TimeSpentEntry,
   UpdateSessionAnswerAPIPayload,
   UpdateSessionAnswersAtSpecificPositionsAPIPayload,
+  QuestionSetMetric
 } from "../types";
 import { useToast, POSITION } from "vue-toastification"
 import BaseIcon from "../components/UI/Icons/BaseIcon.vue";
@@ -210,6 +212,7 @@ export default defineComponent({
       continueAfterAnswerSubmit: true as boolean, // do we continue after submitting answer
       timeSpentOnQuestion: [] as TimeSpentEntry[], // stores time spent on each question
       timerInterval: null as number | null, // variable used in computing time spent on question
+      qsetMetrics: [] as QuestionSetMetric[],
       toast: useToast(),
     });
 
@@ -681,15 +684,32 @@ export default defineComponent({
       state.numPartiallyCorrect = 0;
       state.marksScored = 0;
 
-      state.questions.forEach((questionDetail) => {
-        updateQuestionMetrics(questionDetail, state.responses[index].answer);
+      // Initialize metrics for each question set
+      state.qsetMetrics = state.questionSets.map((qset) => ({
+        name: qset.title,
+        marksScored: 0,
+        maxQuestionsAllowedToAttempt: qset.max_questions_allowed_to_attempt,
+        numAnswered: 0,
+        accuratelyAnswered: 0,
+        attemptRate: 0,
+        accuracyRate: 0
+      }));
+
+      state.questions.forEach((questionDetail, questionIndex) => {
+        const [currentQsetIndex] = getQsetLimits(questionIndex);
+        const qsetMetricsObj = state.qsetMetrics[currentQsetIndex];
+        updateQuestionMetrics(questionDetail, state.responses[index].answer, qsetMetricsObj);
+        if (qsetMetricsObj.numAnswered != 0) qsetMetricsObj.accuracyRate = qsetMetricsObj.accuratelyAnswered / qsetMetricsObj.numAnswered;
+        state.qsetMetrics[currentQsetIndex].attemptRate = qsetMetricsObj.numAnswered / qsetMetricsObj.maxQuestionsAllowedToAttempt;
+        state.qsetMetrics[currentQsetIndex] = qsetMetricsObj;
         index += 1;
       });
     }
 
     function updateQuestionMetrics(
       questionDetail: Question,
-      userAnswer: submittedAnswer
+      userAnswer: submittedAnswer,
+      qsetMetricObj: QuestionSetMetric
     ) {
       const markingScheme = questionDetail.marking_scheme;
       const doesPartialMarkingExist = markingScheme?.partial != null;
@@ -698,12 +718,17 @@ export default defineComponent({
         state.numCorrect += 1;
         // default marks for correctly answered questions = 1
         state.marksScored += markingScheme?.correct || 1;
+        qsetMetricObj.marksScored += markingScheme?.correct || 1;
+        qsetMetricObj.numAnswered += 1;
+        qsetMetricObj.accuratelyAnswered += 1;
       }
 
       function updateMetricsForWrongAnswer() {
         state.numWrong += 1;
         // default marks for wrongly answered questions = 0
         state.marksScored += markingScheme?.wrong || 0;
+        qsetMetricObj.marksScored += markingScheme?.wrong || 0;
+        qsetMetricObj.numAnswered += 1;
       }
 
       function updateMetricsForPartiallyCorrectAnswer() {
@@ -715,6 +740,9 @@ export default defineComponent({
               if (userAnswer.length === condition.num_correct_selected) {
                 conditionMatched = true;
                 state.marksScored += partialMarkRule.marks;
+                qsetMetricObj.marksScored += partialMarkRule.marks;
+                qsetMetricObj.numAnswered += 1;
+                qsetMetricObj.accuratelyAnswered += 0.5; // 0.5 weight default for partially answered
                 break;
               }
             }

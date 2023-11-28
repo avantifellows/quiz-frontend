@@ -71,6 +71,16 @@ export interface ScorecardMetric {
   value: number;
 }
 
+export interface QuestionSetMetric {
+  name: string | null,
+  marksScored: number,
+  maxQuestionsAllowedToAttempt: number,
+  numAnswered: number,
+  accuratelyAnswered: number,
+  attemptRate: number,
+  accuracyRate: number
+}
+
 export interface QuizMetadata {
   quiz_type: quizType;
   grade: string;
