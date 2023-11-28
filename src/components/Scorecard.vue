@@ -1,11 +1,11 @@
 <template>
-  <div class="flex flex-col bg-[#FFEDDA] w-full h-full overflow-hidden">
+  <div class="flex flex-col bg-[#FFEDDA] w-full">
     <div
       class="flex justify-center w-full mx-auto my-auto h-full py-4"
       ref="container"
     >
       <div
-        class="flex flex-col justify-center w-5/6"
+        class="flex flex-col justify-center w-full sm:w-5/6"
         :class="{
           'space-y-8': !isCircularProgressShown && !isMobileLandscape,
           'space-y-4': !isCircularProgressShown && isMobileLandscape,
@@ -85,6 +85,24 @@
           </div>
         </div>
 
+        <!-- question set metrics table -->
+        <div class="flex flex-col w-full mx-auto my-4 overflow-auto">
+          <div class="flex border-b-2 border-gray-400 p-2 font-bold">
+            <div :class="tableCellClass">Name</div>
+            <div :class="tableCellClass">Marks Scored</div>
+            <div v-if="!isPortrait" :class="tableCellClass">Total No. Of Questions</div>
+            <div :class="tableCellClass">Attempt Rate (%)</div>
+            <div :class="tableCellClass">Accuracy Rate (%)</div>
+          </div>
+          <div v-for="metric in $props.qsetMetrics" :key="metric.name" class="flex border-b border-gray-100 p-2">
+            <div :class="tableCellClass">{{ metric.name }}</div>
+            <div :class="tableCellClass">{{ metric.marksScored }}</div>
+            <div v-if="!isPortrait" :class="tableCellClass">{{ metric.maxQuestionsAllowedToAttempt }}</div>
+            <div :class="tableCellClass">{{ formatPercentage(metric.attemptRate) }}</div>
+            <div :class="tableCellClass">{{ formatPercentage(metric.accuracyRate) }}</div>
+          </div>
+        </div>
+
         <!-- action buttons -->
         <div
           class="place-self-center flex h-20"
@@ -138,7 +156,7 @@ import BaseIcon from "./UI/Icons/BaseIcon.vue";
 import IconButton from "./UI/Buttons/IconButton.vue";
 import domtoimage from "dom-to-image";
 import { useStore } from "vuex";
-import { ScorecardMetric, CircularProgressResult, quizTitleType } from "../types";
+import { ScorecardMetric, CircularProgressResult, quizTitleType, QuestionSetMetric } from "../types";
 
 const confetti = require("canvas-confetti");
 const PROGRESS_BAR_ANIMATION_DELAY_TIME = 500; // a time delay to be used for animating the progress bar
@@ -196,6 +214,10 @@ export default defineComponent({
       type: Object as PropType<CircularProgressResult>,
       default: () => {},
     },
+    qsetMetrics: {
+      required: true,
+      type: Array as PropType<QuestionSetMetric[]>,
+    }
   },
   setup(props, context) {
     const store = useStore();
@@ -212,6 +234,7 @@ export default defineComponent({
         "bg-back-color hover:bg-primary-hover bp-500:w-40 px-6 py-3 bp-500:p-4 bp-500:px-10 sm:p-6 rounded-2xl md:rounded-xl shadow-xl disabled:opacity-50 disabled:pointer-events-none invisible",
       shareButtonClass:
         "flex justify-center bg-share-color hover:bg-green-600 bp-500:w-40 px-6 py-3 bp-500:p-4 bp-500:px-10 sm:p-6 rounded-2xl md:rounded-xl shadow-xl disabled:opacity-50 disabled:pointer-events-none",
+      tableCellClass: "px-2 sm:px-4 flex-1 whitespace-normal break-words",
       isPortrait: true,
       isMobileLandscape: false, // whether the screen corresponds to a mobile screen in landscape mode
       confettiHandler,
@@ -319,6 +342,10 @@ export default defineComponent({
         class: "text-white text-md sm:text-lg lg:text-xl font-bold",
       };
     });
+
+    function formatPercentage(value: number) {
+      return `${(value * 100).toFixed(2)}%`;
+    }
 
     /**
      * checks whether the current screen corresponds to a mobile-sized
@@ -439,6 +466,7 @@ export default defineComponent({
       shareButtonTitleConfig,
       circularProgressRadius,
       circularProgressStroke,
+      formatPercentage
     };
   },
   emits: ["go-back"],
