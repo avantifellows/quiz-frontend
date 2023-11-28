@@ -699,7 +699,7 @@ export default defineComponent({
         const [currentQsetIndex] = getQsetLimits(questionIndex);
         const qsetMetricsObj = state.qsetMetrics[currentQsetIndex];
         updateQuestionMetrics(questionDetail, state.responses[index].answer, qsetMetricsObj);
-        qsetMetricsObj.accuracyRate = qsetMetricsObj.accuratelyAnswered / qsetMetricsObj.numAnswered;
+        if (qsetMetricsObj.numAnswered != 0) qsetMetricsObj.accuracyRate = qsetMetricsObj.accuratelyAnswered / qsetMetricsObj.numAnswered;
         state.qsetMetrics[currentQsetIndex].attemptRate = qsetMetricsObj.numAnswered / qsetMetricsObj.maxQuestionsAllowedToAttempt;
         state.qsetMetrics[currentQsetIndex] = qsetMetricsObj;
         index += 1;
