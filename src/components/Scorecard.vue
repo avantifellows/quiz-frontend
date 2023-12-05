@@ -249,6 +249,8 @@ export default defineComponent({
 
     const container = ref();
 
+    window.scrollTo(0, 0); // scroll up top incase users scroll down in modal screen
+
     onUnmounted(() => {
       window.removeEventListener("resize", checkScreenOrientation);
     });
