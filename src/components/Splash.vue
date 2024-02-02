@@ -52,10 +52,13 @@
           </div>
         </div>
       </div>
-      <p class="text-white text-xl md:text-2xl lg:text-3xl font-bold justify-center text-center">PLEASE READ THE INSTRUCTIONS CAREFULLY</p>
+      <p v-if="isQuizAssessment" class="text-white text-xl md:text-2xl lg:text-3xl font-bold justify-center text-center">
+        PLEASE READ THE INSTRUCTIONS CAREFULLY
+      </p>
     </div>
 
     <InstructionPage
+        v-if="isQuizAssessment"
         :title="title"
         :subject="subject"
         :testFormat="testFormat"
@@ -171,6 +174,10 @@ export default defineComponent({
       return props.isFirstSession != null;
     });
 
+    const isQuizAssessment = computed(() => {
+      return (props.quizType == "assessment" || props.quizType == "omr-assessment")
+    })
+
     const startButtonTextConfig = computed(() => {
       const config: IconButtonTitleConfig = {
         value: "",
@@ -219,6 +226,7 @@ export default defineComponent({
     return {
       ...toRefs(state),
       displayTitle,
+      isQuizAssessment,
       startButtonTextConfig,
       startButtonIconClass,
       isSessionDataFetched,

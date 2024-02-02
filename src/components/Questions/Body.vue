@@ -124,7 +124,7 @@
               :class="maxCharLimitClass"
               data-test="charLimit"
             >
-              {{ charactersLeft }}
+              {{ charactersLeft }} characters left
             </p>
           </div>
           <!-- answer display -->
@@ -334,7 +334,8 @@ export default defineComponent({
       [questionType.SINGLE_CHOICE, questionTypeHeaderText.SINGLE_CHOICE],
       [questionType.MULTI_CHOICE, questionTypeHeaderText.MULTI_CHOICE],
       [questionType.NUMERICAL_INTEGER, questionTypeHeaderText.NUMERICAL_INTEGER],
-      [questionType.NUMERICAL_FLOAT, questionTypeHeaderText.NUMERICAL_FLOAT]
+      [questionType.NUMERICAL_FLOAT, questionTypeHeaderText.NUMERICAL_FLOAT],
+      [questionType.SUBJECTIVE, questionTypeHeaderText.SUBJECTIVE]
     ]);
 
     /** stop the loading spinner when the image has been loaded **/

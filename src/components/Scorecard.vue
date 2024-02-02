@@ -86,7 +86,7 @@
         </div>
 
         <!-- question set metrics table -->
-        <div class="flex flex-col w-full mx-auto my-4 overflow-auto">
+        <div v-if="isQuizAssessment" class="flex flex-col w-full mx-auto my-4 overflow-auto">
           <div class="flex border-b-2 border-gray-400 p-2 font-bold">
             <div :class="tableCellClass">Name</div>
             <div :class="tableCellClass">Marks Scored</div>
@@ -156,7 +156,7 @@ import BaseIcon from "./UI/Icons/BaseIcon.vue";
 import IconButton from "./UI/Buttons/IconButton.vue";
 import domtoimage from "dom-to-image";
 import { useStore } from "vuex";
-import { ScorecardMetric, CircularProgressResult, quizTitleType, QuestionSetMetric } from "../types";
+import { ScorecardMetric, CircularProgressResult, quizTitleType, quizType, QuestionSetMetric } from "../types";
 
 const confetti = require("canvas-confetti");
 const PROGRESS_BAR_ANIMATION_DELAY_TIME = 500; // a time delay to be used for animating the progress bar
@@ -205,6 +205,10 @@ export default defineComponent({
     title: {
       required: true,
       type: [null, String] as PropType<quizTitleType>,
+    },
+    quizType: {
+      type: String as PropType<quizType>,
+      required: true,
     },
     userId: {
       type: String,
@@ -270,6 +274,10 @@ export default defineComponent({
         }
       }
     );
+
+    const isQuizAssessment = computed(() => {
+      return (props.quizType == "assessment" || props.quizType == "omr-assessment")
+    })
 
     /**
      * returns the text to be shared for showing result and number of questions answered
@@ -460,6 +468,7 @@ export default defineComponent({
 
     return {
       ...toRefs(state),
+      isQuizAssessment,
       container,
       shareScorecard,
       goBack,
