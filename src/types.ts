@@ -30,6 +30,7 @@ export enum questionTypeHeaderText {
     MULTI_CHOICE = "Multiple Answer",
     NUMERICAL_INTEGER = "Numerical Integer",
     NUMERICAL_FLOAT = "Numerical",
+    SUBJECTIVE = "Subjective Answer"
  }
 
 export interface IconButtonTitleConfig {
