@@ -277,33 +277,33 @@ To attempt this question, unselect an answer to another question in this section
     /**
      * triggered upon selecting an option
      */
-    function questionOptionSelected(optionIndex: number) {
-      if (isQuestionTypeSingleChoice.value) {
+    function questionOptionSelected(answer: number | string) {
+      if (isQuestionTypeSingleChoice.value && typeof answer == "number") {
         // for MCQ, simply set the option as the current response
-        state.draftResponses[props.currentQuestionIndex] = [optionIndex]
+        state.draftResponses[props.currentQuestionIndex] = [answer]
         return
       }
 
-      if (isQuestionTypeMultiChoice.value) {
+      if (isQuestionTypeMultiChoice.value || isQuestionTypeMatrixMatch.value) {
+        // example for matrixmatch: currentResponse = [AQ, BR, CS]
+        // answer: CT
+        // updated answer -> [AQ, BR, CS, CT]
+        // if answer: CS, updated answer -> [AQ, BR]
         if (state.draftResponses[props.currentQuestionIndex] == null) {
           state.draftResponses[props.currentQuestionIndex] = []
         }
 
-        // if the selection option was already in the response
-        // remove it from the response (uncheck it); otherwise add it (check it)
-        // lodash clonedeep clones the array (which may contain any complex object; responses here)
-        // not cloning the array leads to update:responses -> changing currentResponse value
         let currentResponse = clonedeep(state.draftResponses[props.currentQuestionIndex])
         if (Array.isArray(currentResponse)) {
-          const optionPositionInResponse = currentResponse.indexOf(optionIndex)
-          if (optionPositionInResponse != -1) {
-            currentResponse.splice(optionPositionInResponse, 1)
+          const answerPositionInResponse = currentResponse.indexOf(answer)
+          if (answerPositionInResponse != -1) {
+            currentResponse.splice(answerPositionInResponse, 1)
             if (currentResponse.length == 0) {
-              // if all options unselected, set answer to null
+            // if all options unselected, set answer to null
               currentResponse = null;
             }
           } else {
-            currentResponse.push(optionIndex)
+            currentResponse.push(answer)
             currentResponse.sort()
           }
         }
@@ -448,6 +448,9 @@ To attempt this question, unselect an answer to another question in this section
     )
     const isQuestionTypeNumericalFloat = computed(
       () => questionType.value == "numerical-float"
+    )
+    const isQuestionTypeMatrixMatch = computed(
+      () => questionType.value == "matrix-match"
     )
 
     const currentQuestionResponse = computed(

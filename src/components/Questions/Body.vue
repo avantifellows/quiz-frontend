@@ -164,6 +164,59 @@
             Correct Answer: {{ correctAnswer }}
           </div>
         </div>
+        <!-- Matrix match answer -->
+        <div
+          v-if="isQuestionTypeMatrixMatch"
+          class="flex flex-col items-center"
+          :class="answerContainerClass"
+          data-test="matrixMatchContainer"
+        >
+        <ul class="max-w-screen-md w-full">
+          <li class="list-none space-y-1 flex flex-col">
+            <!-- Create the matrix match table -->
+            <table class="border-collapse border border-gray-200 mx-auto">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th v-for="(column, columnIndex) in 5" :key="columnIndex" class="border border-gray-200 text-center">{{ "PQRST"[columnIndex] }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(row, rowIndex) in 4" :key="rowIndex">
+                  <td class="border border-gray-200 text-center">{{ "ABCD"[rowIndex] }}</td>
+                  <td v-for="(column, columnIndex) in 5" :key="columnIndex" class="border border-gray-200 text-center">
+                    <div
+                      :class="optionBackgroundClass(convertMatrixMatchOptionToString(rowIndex, columnIndex))"
+                    >
+                      <input
+                        type="checkbox"
+                        :id="`${rowIndex}-${columnIndex}`"
+                        :name="`${rowIndex}-${columnIndex}`"
+                        :value="`${columnIndex}`"
+                        class="mx-auto text-primary focus:ring-0 disabled:cursor-not-allowed"
+                        :disabled="isAnswerDisabled"
+                        :class="optionBackgroundClass(convertMatrixMatchOptionToString(rowIndex, columnIndex))"
+                        style="box-shadow: none"
+                        @click="selectOption(convertMatrixMatchOptionToString(rowIndex, columnIndex))"
+                        :checked="isMatrixMatchOptionMarked(convertMatrixMatchOptionToString(rowIndex, columnIndex))"
+                        :data-test="`matrixMatchSelector-${rowIndex}-${columnIndex}`"
+                      />
+                  </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </li>
+        </ul>
+        <!-- answer display -->
+        <div
+            v-if="hasQuizEnded"
+            class="px-2 text-lg mt-2"
+            data-test="matrixMatchCorrectAnswer"
+          >
+            Correct Answer: {{ correctAnswer }}
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -311,9 +364,9 @@ export default defineComponent({
       // set containing the question types in which options are present
       questionTypesWithOptions: new Set([questionType.SINGLE_CHOICE, questionType.MULTI_CHOICE]),
       nonGradedAnswerClass: "bg-gray-200",
-      correctOptionClass: "text-white bg-green-500",
-      skippedCorrectOptionClass: "border-4 border-green-500",
-      wrongOptionClass: "text-white bg-red-500",
+      correctOptionClass: "text-white bg-green-500 border rounded-md",
+      skippedCorrectOptionClass: "border-4 border-green-500 rounded-md",
+      wrongOptionClass: "text-white bg-red-500 border rounded-md",
       questionHeaderTextClass:
         "text-lg md:text-xl lg:text-2xl mx-4 m-2 text-center leading-tight whitespace-pre-wrap",
       // <!-- questionHeaderPrefix shows the question index no. and the type of question -->
@@ -335,7 +388,8 @@ export default defineComponent({
       [questionType.MULTI_CHOICE, questionTypeHeaderText.MULTI_CHOICE],
       [questionType.NUMERICAL_INTEGER, questionTypeHeaderText.NUMERICAL_INTEGER],
       [questionType.NUMERICAL_FLOAT, questionTypeHeaderText.NUMERICAL_FLOAT],
-      [questionType.SUBJECTIVE, questionTypeHeaderText.SUBJECTIVE]
+      [questionType.SUBJECTIVE, questionTypeHeaderText.SUBJECTIVE],
+      [questionType.MATRIX_MATCH, questionTypeHeaderText.MATRIX_MATCH]
     ]);
 
     /** stop the loading spinner when the image has been loaded **/
@@ -352,9 +406,10 @@ export default defineComponent({
      * - question is graded and given option is the wrong answer
      * - question is graded and no option is given (skipped)
      * - question is non-graded and the given option has been selected
-     * @param {Number} optionIndex - index of the option
+     * @param {Number | String} answer - index of the option or string (in case of matrix match)
      */
-    function optionBackgroundClass(optionIndex: Number) {
+    function optionBackgroundClass(answer: number | string) {
+      // note that, for single/multi choice, option's index is the answer
       if (
         (!props.isAnswerSubmitted && !props.hasQuizEnded) || // before quiz has ended, if answer isn't submitted
         props.isDraftAnswerCleared ||
@@ -368,10 +423,10 @@ export default defineComponent({
       if (
         (!isQuizAssessment.value || props.hasQuizEnded) && // display colors if its a homework or if its assessment and quiz ended
         props.isGradedQuestion &&
-        props.correctAnswer.indexOf(optionIndex) != -1
+        props.correctAnswer.indexOf(answer) != -1
       ) {
         if (props.submittedAnswer != null &&
-            props.submittedAnswer.indexOf(optionIndex) != -1) {
+            props.submittedAnswer.indexOf(answer) != -1) {
           // if both correct and submitted option
           return state.correctOptionClass
         }
@@ -381,7 +436,7 @@ export default defineComponent({
       if (
         (!isQuizAssessment.value || props.hasQuizEnded) &&
         props.submittedAnswer != null &&
-        props.submittedAnswer.indexOf(optionIndex) != -1) {
+        props.submittedAnswer.indexOf(answer) != -1) {
         if (!props.isGradedQuestion) return state.nonGradedAnswerClass
         return state.wrongOptionClass
       }
@@ -397,8 +452,23 @@ export default defineComponent({
       )
     }
 
-    function selectOption(optionIndex: Number) {
-      context.emit("option-selected", optionIndex)
+    function convertMatrixMatchOptionToString(rowIndex: number, columnIndex: number) {
+      const rowLetter = "ABCD"[rowIndex];
+      const colLetter = "PQRST"[columnIndex];
+      return rowLetter + colLetter;
+    }
+
+    function isMatrixMatchOptionMarked(matrixMatchAnswer: string) {
+      return (
+        props.draftAnswer != null &&
+        typeof props.draftAnswer != "string" &&
+        typeof props.draftAnswer != "number" &&
+        props.draftAnswer.indexOf(matrixMatchAnswer) != -1
+      )
+    }
+
+    function selectOption(answer: number | string) {
+      context.emit("option-selected", answer)
     }
 
     function labelClass(optionText: String) {
@@ -503,6 +573,9 @@ export default defineComponent({
     )
     const isQuestionTypeNumericalFloat = computed(
       () => props.questionType == questionType.NUMERICAL_FLOAT
+    )
+    const isQuestionTypeMatrixMatch = computed(
+      () => props.questionType == questionType.MATRIX_MATCH
     )
 
     // styling class to decide orientation of image + options
@@ -699,6 +772,8 @@ export default defineComponent({
       optionBackgroundClass,
       isOptionMarked,
       selectOption,
+      convertMatrixMatchOptionToString,
+      isMatrixMatchOptionMarked,
       labelClass,
       preventKeypressIfApplicable,
       navigateToQuestion,
@@ -709,6 +784,7 @@ export default defineComponent({
       isQuestionTypeSubjective,
       isQuestionTypeMultiChoice,
       isQuestionTypeSingleChoice,
+      isQuestionTypeMatrixMatch,
       orientationClass,
       optionInputType,
       answerContainerClass,

@@ -7,8 +7,8 @@ export type quizTitleType = string | null;
 export type textAreaValueType = string | number | null;
 export type isFirstSessionType = boolean | null;
 type quizNavigationMode = "linear" | "non-linear";
-export type submittedAnswer = number[] | string | number | null;
-type correctAnswer = number[] | number | null;
+export type submittedAnswer = number[] | string[] | string | number | null;
+export type CorrectAnswerType = number[] | string[] | string | number | null;
 
 export enum eventType {
   START_QUIZ = "start-quiz",
@@ -22,7 +22,8 @@ export enum questionType {
   MULTI_CHOICE = "multi-choice",
   NUMERICAL_INTEGER = "numerical-integer",
   NUMERICAL_FLOAT = "numerical-float",
-  SUBJECTIVE = "subjective"
+  SUBJECTIVE = "subjective",
+  MATRIX_MATCH = "matrix-match"
 }
 
 export enum questionTypeHeaderText {
@@ -30,7 +31,8 @@ export enum questionTypeHeaderText {
     MULTI_CHOICE = "Multiple Answer",
     NUMERICAL_INTEGER = "Numerical Integer",
     NUMERICAL_FLOAT = "Numerical",
-    SUBJECTIVE = "Subjective Answer"
+    SUBJECTIVE = "Subjective Answer",
+    MATRIX_MATCH = "Matrix Matching"
  }
 
 export interface IconButtonTitleConfig {
@@ -51,7 +53,7 @@ export interface InputTextValidationConfig {
   invalidMessage: String;
 }
 
-export type DraftResponse = number[] | number | string | null;
+export type DraftResponse = number[] | string[] | number | string | null;
 
 export interface SubmittedResponse {
   _id: string;
@@ -150,7 +152,7 @@ export interface Question {
   type: questionType;
   text: string;
   options: Option[] | null;
-  correct_answer: correctAnswer;
+  correct_answer: CorrectAnswerType;
   image: Image | null;
   max_char_limit: number | null;
   graded: boolean;

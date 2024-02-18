@@ -247,7 +247,7 @@ export default defineComponent({
     )
 
     /**
-       * triggered upon selecting an option
+       * triggered upon selecting an option in single-choice / multi-choice / matrix match
        */
     function questionOptionSelected(draftAnswer: DraftResponse, newQuestionIndex: number) {
       updateQuestionIndex(newQuestionIndex);
