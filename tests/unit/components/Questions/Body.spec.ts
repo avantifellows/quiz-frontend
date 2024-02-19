@@ -287,7 +287,7 @@ describe("Body.vue", () => {
         wrapper.find('[data-test="charLimitContainer"]').exists()
       ).toBeTruthy();
       expect(wrapper.find('[data-test="charLimit"]').text()).toBe(
-        String(maxCharLimit)
+        `${String(maxCharLimit)} characters left`
       );
 
       // add input such that chars left = > 0.2 * maxCharLimit

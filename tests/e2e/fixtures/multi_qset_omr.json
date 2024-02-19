@@ -118,12 +118,12 @@
           },
           {
             "_id": "62540adb0f748c8e206c1618",
-            "text": "Enter an float value?",
-            "type": "numerical-float",
+            "text": "Match the answers",
+            "type": "matrix-match",
             "instructions": null,
             "image": null,
             "max_char_limit": null,
-            "correct_answer": 33.3,
+            "correct_answer": ["AP"],
             "graded": true,
             "marking_scheme": {
               "correct": 3,

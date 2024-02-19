@@ -153,6 +153,12 @@ describe("Player for OMR quizzes", () => {
             cy.get('[data-test="numericalAnswer"]').type("3");
           });
 
+        // question 5 -- match chosen and thus submitted
+        cy.get('[data-test="omr-modal"]')
+          .get('[data-test="OmrItem-4"]')
+          .find('[data-test="matrixMatchSelector-2-4"]')
+          .trigger("click");
+
         // question 18 - answered!
         cy.get('[data-test="omr-modal"]')
           .get('[data-test="OmrItem-18"]')
@@ -182,7 +188,7 @@ describe("Player for OMR quizzes", () => {
         // number of skipped questions shown in scorecard
         cy.get('[data-test="scorecard"]')
           .get('[data-test="metricValue-2"]')
-          .should("have.text", 10);
+          .should("have.text", 9);
       });
 
       describe("End test", () => {
