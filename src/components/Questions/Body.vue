@@ -178,13 +178,13 @@
               <thead>
                 <tr>
                   <th></th>
-                  <th v-for="(column, columnIndex) in 5" :key="columnIndex" class="border border-gray-200 text-center">{{ "PQRST"[columnIndex] }}</th>
+                  <th v-for="(column, columnIndex) in $props.matrixSize?.[1] || 5" :key="columnIndex" class="border border-gray-200 text-center">{{ getColumnLabel(columnIndex) }}</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(row, rowIndex) in 4" :key="rowIndex">
-                  <td class="border border-gray-200 text-center">{{ "ABCD"[rowIndex] }}</td>
-                  <td v-for="(column, columnIndex) in 5" :key="columnIndex" class="border border-gray-200 text-center">
+                <tr v-for="(row, rowIndex) in $props.matrixSize?.[0] || 4" :key="rowIndex">
+                  <td class="border border-gray-200 text-center">{{ getRowLabel(rowIndex) }}</td>
+                  <td v-for="(column, columnIndex) in $props.matrixSize?.[1] || 5" :key="columnIndex" class="border border-gray-200 text-center">
                     <div
                       :class="optionBackgroundClass(convertMatrixMatchOptionToString(rowIndex, columnIndex))"
                     >
@@ -281,6 +281,11 @@ export default defineComponent({
     maxCharLimit: {
       default: -1,
       type: Number
+    },
+    /** matrix size for matrix match question */
+    matrixSize: {
+      default: () => [4, 5],
+      type: Array
     },
     /** data of the image to be shown on a question. Contains URL and alt_text */
     imageData: {
@@ -452,9 +457,17 @@ export default defineComponent({
       )
     }
 
+    function getRowLabel(rowIndex: number) {
+      return "ABCDEFGHIJ"[rowIndex]; // assume max rows = 10
+    }
+
+    function getColumnLabel(columnIndex: number) {
+      return "PQRSTUVWXYZ"[columnIndex]; // assume max cols = 11
+    }
+
     function convertMatrixMatchOptionToString(rowIndex: number, columnIndex: number) {
-      const rowLetter = "ABCD"[rowIndex];
-      const colLetter = "PQRST"[columnIndex];
+      const rowLetter = getRowLabel(rowIndex);
+      const colLetter = getColumnLabel(columnIndex);
       return rowLetter + colLetter;
     }
 
@@ -772,6 +785,8 @@ export default defineComponent({
       optionBackgroundClass,
       isOptionMarked,
       selectOption,
+      getRowLabel,
+      getColumnLabel,
       convertMatrixMatchOptionToString,
       isMatrixMatchOptionMarked,
       labelClass,

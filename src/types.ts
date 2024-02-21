@@ -155,6 +155,7 @@ export interface Question {
   correct_answer: CorrectAnswerType;
   image: Image | null;
   max_char_limit: number | null;
+  matrix_size: number[] | null;
   graded: boolean;
   instructions: string | null;
   marking_scheme: MarkingScheme | null;

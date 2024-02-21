@@ -233,6 +233,7 @@
           "_id": "6285554a1016dc7050373fc6",
           "text": "Q8",
           "type": "matrix-match",
+          "matrix_size": [4, 5],
           "instructions": null,
           "image": null,
           "options": [],

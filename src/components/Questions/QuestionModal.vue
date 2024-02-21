@@ -39,6 +39,7 @@
         :questionType="questionType"
         :isGradedQuestion="isGradedQuestion"
         :maxCharLimit="currentQuestion.max_char_limit"
+        :matrixSize="currentQuestion.matrix_size"
         :isPortrait="isPortrait"
         :imageData="currentQuestion?.image"
         :draftAnswer="draftResponses[currentQuestionIndex]"
