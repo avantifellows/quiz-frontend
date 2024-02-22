@@ -96,6 +96,7 @@
           hidden: !isScorecardShown,
         }"
         :result="scorecardResult"
+        :quizType="metadata.quiz_type"
         :metrics="scorecardMetrics"
         :progressPercentage="scorecardProgress"
         :qsetMetrics="qsetMetrics"
@@ -733,7 +734,7 @@ export default defineComponent({
 
       function updateMetricsForPartiallyCorrectAnswer() {
         state.numPartiallyCorrect += 1;
-        if (questionDetail.type == "multi-choice" && Array.isArray(userAnswer) && markingScheme?.partial != null) {
+        if (["multi-choice", "matrix-match"].includes(questionDetail.type) && Array.isArray(userAnswer) && markingScheme?.partial != null) {
           let conditionMatched = false;
           for (const partialMarkRule of markingScheme.partial) {
             for (const condition of partialMarkRule.conditions) {
