@@ -211,18 +211,18 @@
         {
           "_id": "6285554a1016dc7050373fc5",
           "text": "Q7",
-          "type": "single-choice",
+          "type": "matrix-match",
           "instructions": null,
           "image": null,
-          "options": [
-            { "text": "Option 1", "image": null },
-            { "text": "Option 2", "image": null },
-            { "text": "Option 3", "image": null }
-          ],
+          "options": [],
           "max_char_limit": null,
-          "correct_answer": [0],
+          "correct_answer": ["AP", "BR", "CS"],
           "graded": true,
-          "marking_scheme": null,
+          "marking_scheme": {
+            "correct": 3,
+            "wrong": -1,
+            "skipped": 0
+          },
           "solution": [],
           "metadata": null,
           "source": null,
@@ -232,27 +232,19 @@
         {
           "_id": "6285554a1016dc7050373fc6",
           "text": "Q8",
-          "type": "multi-choice",
+          "type": "matrix-match",
+          "matrix_size": [4, 5],
           "instructions": null,
-          "image": {
-            "url": "https://plio-prod-assets.s3.ap-south-1.amazonaws.com/images/afbxudrmbl.png",
-            "alt_text": "Image"
-          },
-          "options": [
-            { "text": "Option 1", "image": null },
-            {
-              "text": "Option 2",
-              "image": {
-                "url": "https://plio-prod-assets.s3.ap-south-1.amazonaws.com/images/afbxudrmbl.png",
-                "alt_text": null
-              }
-            },
-            { "text": "Option 3", "image": null }
-          ],
+          "image": null,
+          "options": [],
           "max_char_limit": null,
-          "correct_answer": [0, 2],
+          "correct_answer": ["AP", "BR", "CS"],
           "graded": true,
-          "marking_scheme": null,
+          "marking_scheme": {
+            "correct": 3,
+            "wrong": -1,
+            "skipped": 0
+          },
           "solution": [],
           "metadata": null,
           "source": null,
@@ -265,15 +257,15 @@
           "type": "multi-choice",
           "instructions": null,
           "image": null,
-          "options": [
-            { "text": "Option 1", "image": null },
-            { "text": "Option 2", "image": null },
-            { "text": "Option 3", "image": null }
-          ],
+          "options": [],
           "max_char_limit": null,
-          "correct_answer": [0, 2],
-          "graded": false,
-          "marking_scheme": null,
+          "correct_answer": [0, 1],
+          "graded": true,
+          "marking_scheme": {
+            "correct": 3,
+            "wrong": -1,
+            "skipped": 0
+          },
           "solution": [],
           "metadata": null,
           "source": null,
@@ -327,7 +319,7 @@
           "options": [],
           "max_char_limit": null,
           "correct_answer": [0, 2],
-          "graded": false,
+          "graded": true,
           "marking_scheme": null,
           "solution": [],
           "metadata": null,
@@ -361,7 +353,7 @@
           "options": [],
           "max_char_limit": null,
           "correct_answer": null,
-          "graded": false,
+          "graded": true,
           "marking_scheme": null,
           "solution": [],
           "metadata": null,
@@ -412,7 +404,7 @@
           "options": [],
           "max_char_limit": null,
           "correct_answer": [0, 2],
-          "graded": false,
+          "graded": true,
           "marking_scheme": null,
           "solution": [],
           "metadata": null,
@@ -446,7 +438,7 @@
           "options": [],
           "max_char_limit": null,
           "correct_answer": null,
-          "graded": false,
+          "graded": true,
           "marking_scheme": null,
           "solution": [],
           "metadata": null,
@@ -497,7 +489,7 @@
           "options": [],
           "max_char_limit": null,
           "correct_answer": [0, 2],
-          "graded": false,
+          "graded": true,
           "marking_scheme": null,
           "solution": [],
           "metadata": null,
@@ -509,8 +501,8 @@
     }
   ],
   "title": "cypress assessment 1 by Avanti Fellows",
-  "max_marks": 16,
-  "num_graded_questions": 5,
+  "max_marks": 72,
+  "num_graded_questions": 24,
   "shuffle": false,
   "num_attempts_allowed": 1,
   "time_limit": {"min": 0, "max": 200},

@@ -1,5 +1,5 @@
 import store from "../../store/index";
-import { Question, submittedAnswer, answerEvaluation, QuestionBucketingMap, QuestionBucket } from "../../types";
+import { Question, submittedAnswer, CorrectAnswerType, answerEvaluation, QuestionBucketingMap } from "../../types";
 const isEqual = require("deep-eql");
 
 /**
@@ -95,18 +95,35 @@ export function isQuestionAnswerCorrect(
       answerEvaluation.answered = true;
 
       if (questionDetail.type == "single-choice") {
-        const correctAnswer = questionDetail.correct_answer;
+        const correctAnswer: CorrectAnswerType = questionDetail.correct_answer;
         if (isEqual(userAnswer, correctAnswer)) {
           answerEvaluation.isCorrect = true;
         } else answerEvaluation.isCorrect = false;
       } else if (questionDetail.type == "multi-choice") {
-        const correctAnswer = questionDetail.correct_answer;
+        const correctAnswer: CorrectAnswerType = questionDetail.correct_answer;
         if (isEqual(userAnswer, correctAnswer)) {
           answerEvaluation.isCorrect = true;
         } else if (doesPartialMarkingExist && Array.isArray(userAnswer) && Array.isArray(correctAnswer) && userAnswer.length > 0) {
           // check if user answer is a subset of correct answer
-          const isSubset = userAnswer.every((option) =>
-            correctAnswer.includes(option)
+          // ensure userAnswer and correctAnswer are treated as array of numbers here
+          const isSubset = (userAnswer as number[]).every((option) =>
+            (correctAnswer as number[]).includes(option)
+          );
+          if (isSubset) {
+            answerEvaluation.isCorrect = false;
+            answerEvaluation.isPartiallyCorrect = true;
+          } else answerEvaluation.isCorrect = false;
+        } else {
+          answerEvaluation.isCorrect = false;
+        }
+      } else if (questionDetail.type == "matrix-match") {
+        const correctAnswer: CorrectAnswerType = questionDetail.correct_answer;
+        if (isEqual(userAnswer, correctAnswer)) {
+          answerEvaluation.isCorrect = true;
+        } else if (doesPartialMarkingExist && Array.isArray(userAnswer) && Array.isArray(correctAnswer) && userAnswer.length > 0) {
+          // check if user answer is a subset of correct answer
+          const isSubset = (userAnswer as string[]).every((option) =>
+            (correctAnswer as string[]).includes(option)
           );
           if (isSubset) {
             answerEvaluation.isCorrect = false;
@@ -131,7 +148,7 @@ export function isQuestionAnswerCorrect(
       userAnswer != null
     ) {
       answerEvaluation.answered = true;
-      const correctAnswer = questionDetail.correct_answer;
+      const correctAnswer: CorrectAnswerType = questionDetail.correct_answer;
       if (userAnswer == correctAnswer) {
         answerEvaluation.isCorrect = true;
       } else answerEvaluation.isCorrect = false;

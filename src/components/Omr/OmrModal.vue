@@ -34,6 +34,7 @@
                   :questionType="$props.questions[questionState.index].type"
                   :isGradedQuestion="$props.questions[questionState.index].graded"
                   :maxCharLimit="$props.questions[questionState.index].max_char_limit"
+                  :matrixSize="$props.questions[questionState.index].matrix_size"
                   :isPortrait="isPortrait"
                   :quizType="quizType"
                   :hasQuizEnded="hasQuizEnded"
@@ -247,7 +248,7 @@ export default defineComponent({
     )
 
     /**
-       * triggered upon selecting an option
+       * triggered upon selecting an option in single-choice / multi-choice / matrix match
        */
     function questionOptionSelected(draftAnswer: DraftResponse, newQuestionIndex: number) {
       updateQuestionIndex(newQuestionIndex);

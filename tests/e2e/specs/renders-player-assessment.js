@@ -15,7 +15,7 @@ describe("Player for Assessment quizzes", () => {
         fixture: "new_session.json",
       });
 
-      cy.intercept("PATCH", "/session_answers/**", { body: {} }).as(
+      cy.intercept("PATCH", "/session_answers/**", { status: 200 }).as(
         "patchSessionAnswerRequest"
       );
       cy.intercept("PATCH", "/sessions/*", { body: { timeRemaining: 100 } });
@@ -94,7 +94,7 @@ describe("Player for Assessment quizzes", () => {
 
           // move back to the previous question
           cy.get('[data-test="modal"]')
-            .get('[data-test="question-index-type')
+            .get('[data-test="question-index-type"]')
             .should("have.text", "Q.2 | Multiple Answer");
           cy.get('[data-test="modal"]')
             .get('[data-test="previousQuestionButton"]')
@@ -156,7 +156,7 @@ describe("Player for Assessment quizzes", () => {
 
         // question 2
         cy.get('[data-test="modal"]')
-          .get('[data-test="question-index-type')
+          .get('[data-test="question-index-type"]')
           .should("have.text", "Q.2 | Multiple Answer");
         cy.get('[data-test="modal"]')
           .get('[data-test="optionSelector-0"]')
@@ -167,7 +167,7 @@ describe("Player for Assessment quizzes", () => {
 
         // question 3
         cy.get('[data-test="modal"]')
-          .get('[data-test="question-index-type')
+          .get('[data-test="question-index-type"]')
           .should("have.text", "Q.3 | Multiple Answer");
         cy.get('[data-test="modal"]')
           .get('[data-test="optionSelector-0"]')
@@ -178,7 +178,7 @@ describe("Player for Assessment quizzes", () => {
 
         // question 4 -- typed but not submitted!
         cy.get('[data-test="modal"]')
-          .get('[data-test="question-index-type')
+          .get('[data-test="question-index-type"]')
           .should("have.text", "Q.4 | Numerical Integer");
         cy.get('[data-test="modal"]')
           .get('[data-test="numericalAnswer"]')
@@ -197,7 +197,7 @@ describe("Player for Assessment quizzes", () => {
         // number of skipped questions shown in scorecard
         cy.get('[data-test="scorecard"]')
           .get('[data-test="metricValue-2"]')
-          .should("have.text", 15);
+          .should("have.text", 21); // 24 - 3 = 21
       });
 
       describe("End test", () => {
@@ -317,6 +317,14 @@ describe("Player for Assessment quizzes", () => {
             "Question Set 0" // {Question Set Title}
           );
         });
+
+        it("check if matrix match question header is displayed correctly", () => {
+          cy.get('[data-test="paletteItem-8"]').trigger("click");
+          cy.get('[data-test="question-index-type"]').should(
+            "have.text",
+            "Q.9 | Matrix Matching" // Q.{Question Number} | {Question Type}}
+          );
+        });
       });
 
       describe("Checking correctness of numerical integer inputs", () => {
@@ -385,6 +393,45 @@ describe("Player for Assessment quizzes", () => {
           cy.get('textarea[data-test="input"]').should("have.value", "1");
         });
       });
+
+      describe("Checking matrix matching answers", () => {
+        beforeEach(() => {
+          cy.get('[data-test="togglePaletteButton"]').trigger("click");
+          cy.get('[data-test="paletteItem-8"]').trigger("click");
+          // answer is ["AP", "BR", "CS"]
+        });
+
+        it("selecting correct matches should fetch points", () => {
+          cy.get('[data-test="modal"]')
+            .get('[data-test="matrixMatchSelector-0-0"]') // AP
+            .trigger("click");
+
+          cy.get('[data-test="modal"]')
+            .get('[data-test="matrixMatchSelector-1-2"]') // BR
+            .trigger("click");
+
+          cy.get('[data-test="modal"]')
+            .get('[data-test="matrixMatchSelector-2-3"]') // CS
+            .trigger("click");
+
+          cy.get('[data-test="modal"]')
+            .get('[data-test="saveAndNextButton"]')
+            .trigger("click"); // save answer
+
+          cy.get('[data-test="modal"]')
+            .get('[data-test="endTestButton"]')
+            .trigger("click");
+
+          // additional click to protect endTest button
+          cy.get('[data-test="modal"]')
+            .get('[data-test="endTestButton"]')
+            .trigger("click");
+
+          cy.get('[data-test="scorecard"]')
+            .get('[data-test="metricValue-0"]')
+            .should("have.text", 1); // one correct answer
+        });
+      });
     });
   });
 
@@ -445,7 +492,7 @@ describe("Player for Assessment quizzes", () => {
 
         // move back to the previous question
         cy.get('[data-test="modal"]')
-          .get('[data-test="question-index-type')
+          .get('[data-test="question-index-type"]')
           .should("have.text", "Q.2 | Multiple Answer");
         cy.get('[data-test="modal"]')
           .get('[data-test="previousQuestionButton"]')
@@ -468,7 +515,7 @@ describe("Player for Assessment quizzes", () => {
 
         // move back to the previous question
         cy.get('[data-test="modal"]')
-          .get('[data-test="question-index-type')
+          .get('[data-test="question-index-type"]')
           .should("have.text", "Q.2 | Multiple Answer");
         cy.get('[data-test="modal"]')
           .get('[data-test="previousQuestionButton"]')
