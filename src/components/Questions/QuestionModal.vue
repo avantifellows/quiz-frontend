@@ -33,6 +33,7 @@
     >
       <Body
         :text="currentQuestion.text"
+        :solutionText="currentQuestion.solution"
         :class="bodyContainerClass"
         :options="currentQuestion.options"
         :correctAnswer="questionCorrectAnswer"
@@ -42,6 +43,7 @@
         :matrixSize="currentQuestion.matrix_size"
         :isPortrait="isPortrait"
         :imageData="currentQuestion?.image"
+        :displaySolution="displaySolution"
         :draftAnswer="draftResponses[currentQuestionIndex]"
         :submittedAnswer="currentQuestionResponseAnswer"
         :isAnswerSubmitted="isAnswerSubmitted"
@@ -201,6 +203,10 @@ export default defineComponent({
       type: [null, String] as PropType<testFormat>,
       required: true
     },
+    displaySolution: {
+      type: Boolean,
+      default: true
+    }
   },
   setup(props, context) {
     const state = reactive({
