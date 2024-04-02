@@ -218,6 +218,14 @@
           </div>
         </div>
       </div>
+      <!-- Solution container -->
+        <div
+          v-if="hasQuizEnded && $props.displaySolution && isSolutionTextPresent"
+          class="mx-6 md:mx-10 py-4"
+        >
+          <p class="text-lg base:text-lg font-bold">Solution:</p>
+          <p :class="solutionTextClass" data-test="solution-text" v-html="solutionText"></p>
+        </div>
     </div>
   </div>
 </template>
@@ -248,6 +256,10 @@ export default defineComponent({
   },
   props: {
     text: {
+      default: "",
+      type: String
+    },
+    solutionText: {
       default: "",
       type: String
     },
@@ -291,6 +303,10 @@ export default defineComponent({
     imageData: {
       default: null,
       type: Object
+    },
+    displaySolution: {
+      default: true,
+      type: Boolean
     },
     isPortrait: {
       default: false,
@@ -382,6 +398,8 @@ export default defineComponent({
         "float-right text-lg sm:text-xl mx-4 m-2 text-right leading-tight whitespace-pre-wrap text-base",
       questionTextClass:
         "text-lg base:text-lg lg:text-xl mx-4 mt-6 m-2 font-bold leading-tight whitespace-pre-wrap",
+      solutionTextClass:
+      "p-2 text-base base:text-lg lg:text-xl border border-black mx-2 whitespace-pre-wrap",
       optionTextClass:
         "p-2 text-base base:text-lg lg:text-xl border rounded-md mx-2 whitespace-pre-wrap",
       subjectiveAnswer: null as string | null, // holds the answer to the subjective question
@@ -571,6 +589,9 @@ export default defineComponent({
     )
     const areOptionsVisible = computed(() =>
       state.questionTypesWithOptions.has(props.questionType)
+    )
+    const isSolutionTextPresent = computed(
+      () => props.solutionText != ""
     )
     const isQuestionTypeSubjective = computed(
       () => props.questionType == questionType.SUBJECTIVE
@@ -782,6 +803,7 @@ export default defineComponent({
       questionHeaderPrefix,
       questionHeaderSuffix,
       stopImageLoading,
+      isSolutionTextPresent,
       optionBackgroundClass,
       isOptionMarked,
       selectOption,

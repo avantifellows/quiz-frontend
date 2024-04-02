@@ -24,6 +24,7 @@
         :maxMarks="maxMarks"
         :maxQuestionsAllowedToAttempt="maxQuestionsAllowedToAttempt"
         :testFormat="metadata.test_format || ''"
+        :displaySolution="displaySolution"
         :questions="questions"
         :questionSetStates="questionSetStates"
         @start="startQuiz"
@@ -207,6 +208,7 @@ export default defineComponent({
       isScorecardShown: false, // to show the scorecard or not
       hasQuizEnded: false, // whether the quiz has ended - only valid for quizType = assessment
       reviewAnswers: true, // whether users can review answers once quiz has ended
+      displaySolution: true as boolean, // whether solutions to each question should be displayed
       sessionEndTimeText: "", // session end time in text if available
       sessionId: "", // id of the session created for a user-quiz combination
       isSessionAnswerRequestProcessing: false, // whether session answer api request is processing
@@ -426,6 +428,7 @@ export default defineComponent({
       state.maxMarks =
         quizDetails.max_marks || quizDetails.num_graded_questions;
       state.title = quizDetails.title;
+      state.displaySolution = quizDetails?.display_solution ?? true;
       createQuestionBuckets(totalQuestionsInEachSet);
 
       if (quizDetails?.review_immediate == false) {
