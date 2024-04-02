@@ -399,7 +399,7 @@ export default defineComponent({
       questionTextClass:
         "text-lg base:text-lg lg:text-xl mx-4 mt-6 m-2 font-bold leading-tight whitespace-pre-wrap",
       solutionTextClass:
-      "p-2 text-base base:text-lg lg:text-xl border border-black mx-2 whitespace-pre-wrap",
+      "p-2 text-base base:text-lg lg:text-xl mx-2 whitespace-pre-wrap",
       optionTextClass:
         "p-2 text-base base:text-lg lg:text-xl border rounded-md mx-2 whitespace-pre-wrap",
       subjectiveAnswer: null as string | null, // holds the answer to the subjective question
