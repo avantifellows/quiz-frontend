@@ -220,7 +220,9 @@
       </div>
       <!-- Solution container -->
         <div
-          v-if="hasQuizEnded && $props.displaySolution && isSolutionTextPresent"
+          v-if="(
+            (!isQuizAssessment && $props.isAnswerSubmitted) || hasQuizEnded)
+             && $props.displaySolution && isSolutionTextPresent"
           class="mx-6 md:mx-10 py-4"
         >
           <p class="text-lg base:text-lg font-bold">Solution:</p>
