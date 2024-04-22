@@ -157,6 +157,7 @@ describe("Player for Assessment Timed quizzes", () => {
           .should("deep.equal", {
             event: eventType.END_QUIZ,
             metrics: {
+              marksScored: 0,
               name: "Question Set 0",
               maxQuestionsAllowedToAttempt: 24,
               numAnswered: 0,
