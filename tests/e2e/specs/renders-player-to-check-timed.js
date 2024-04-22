@@ -152,9 +152,21 @@ describe("Player for Assessment Timed quizzes", () => {
         // wait for END_QUIZ patch to be called
         cy.wait("@patch_session");
         // check if payload has END_QUIZ event
-        cy.get("@patch_session").its("request.body").should("deep.equal", {
-          event: eventType.END_QUIZ,
-        });
+        cy.get("@patch_session")
+          .its("request.body")
+          .should("deep.equal", {
+            event: eventType.END_QUIZ,
+            metrics: {
+              name: "Question Set 0",
+              maxQuestionsAllowedToAttempt: 24,
+              numAnswered: 0,
+              correctlyAnswered: 0,
+              wronglyAnswered: 0,
+              partiallyAnswered: 0,
+              attemptRate: 0,
+              accuracyRate: 0,
+            },
+          });
       });
     });
   });

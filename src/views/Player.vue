@@ -702,8 +702,7 @@ export default defineComponent({
         wronglyAnswered: 0,
         partiallyAnswered: 0,
         attemptRate: 0,
-        accuracyRate: 0,
-        timeSpent: 0
+        accuracyRate: 0
       }));
 
       state.questions.forEach((questionDetail, questionIndex) => {
