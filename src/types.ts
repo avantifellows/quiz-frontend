@@ -79,7 +79,9 @@ export interface QuestionSetMetric {
   marksScored: number,
   maxQuestionsAllowedToAttempt: number,
   numAnswered: number,
-  accuratelyAnswered: number,
+  correctlyAnswered: number,
+  partiallyAnswered: number,
+  wronglyAnswered: number,
   attemptRate: number,
   accuracyRate: number
 }
@@ -209,6 +211,7 @@ export interface SessionAPIResponse {
 
 export interface UpdateSessionAPIPayload {
   event: eventType;
+  metrics?: QuestionSetMetric[];
 }
 export interface UpdateSessionAPIResponse {
   time_remaining: number; // how much time is remaining for quiz to complete
