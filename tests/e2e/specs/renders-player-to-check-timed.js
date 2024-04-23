@@ -156,17 +156,19 @@ describe("Player for Assessment Timed quizzes", () => {
           .its("request.body")
           .should("deep.equal", {
             event: eventType.END_QUIZ,
-            metrics: {
-              marksScored: 0,
-              name: "Question Set 0",
-              maxQuestionsAllowedToAttempt: 24,
-              numAnswered: 0,
-              correctlyAnswered: 0,
-              wronglyAnswered: 0,
-              partiallyAnswered: 0,
-              attemptRate: 0,
-              accuracyRate: 0,
-            },
+            metrics: [
+              {
+                name: "Question Set 0",
+                marksScored: 0,
+                maxQuestionsAllowedToAttempt: 24,
+                numAnswered: 0,
+                correctlyAnswered: 0,
+                wronglyAnswered: 0,
+                partiallyAnswered: 0,
+                attemptRate: 0,
+                accuracyRate: 0,
+              },
+            ],
           });
       });
     });
