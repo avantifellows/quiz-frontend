@@ -156,20 +156,28 @@ describe("Player for Assessment Timed quizzes", () => {
           .its("request.body")
           .should("deep.equal", {
             event: eventType.END_QUIZ,
-            metrics: [
-              {
-                name: "Question Set 0",
-                qset_id: "62540adb0f748c8e206c1613",
-                marksScored: 0,
-                maxQuestionsAllowedToAttempt: 24,
-                numAnswered: 0,
-                correctlyAnswered: 0,
-                wronglyAnswered: 0,
-                partiallyAnswered: 0,
-                attemptRate: 0,
-                accuracyRate: 0,
-              },
-            ],
+            metrics: {
+              qset_metrics: [
+                {
+                  name: "Question Set 0",
+                  qset_id: "62540adb0f748c8e206c1613",
+                  marks_scored: 0,
+                  num_answered: 0,
+                  num_skipped: 24,
+                  num_correct: 0,
+                  num_wrong: 0,
+                  num_partially_correct: 0,
+                  attempt_rate: 0,
+                  accuracy_rate: 0,
+                },
+              ],
+              total_answered: 0,
+              total_skipped: 24,
+              total_correct: 0,
+              total_wrong: 0,
+              total_partially_correct: 0,
+              total_marks: 0,
+            },
           });
       });
     });
