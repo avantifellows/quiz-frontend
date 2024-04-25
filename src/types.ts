@@ -76,10 +76,13 @@ export interface ScorecardMetric {
 
 export interface QuestionSetMetric {
   name: string | null,
+  qset_id: string,
   marksScored: number,
   maxQuestionsAllowedToAttempt: number,
   numAnswered: number,
-  accuratelyAnswered: number,
+  correctlyAnswered: number,
+  partiallyAnswered: number,
+  wronglyAnswered: number,
   attemptRate: number,
   accuracyRate: number
 }
@@ -209,6 +212,29 @@ export interface SessionAPIResponse {
 
 export interface UpdateSessionAPIPayload {
   event: eventType;
+  metrics?: QuestionSetMetric[];
+}
+export interface QuestionSetMetricPayload {
+  name: string;
+  qset_id: string;
+  marks_scored: number;
+  num_answered: number;
+  num_skipped: number;
+  num_correct: number;
+  num_wrong: number;
+  num_partially_correct: number;
+  attempt_rate: number;
+  accuracy_rate: number;
+}
+
+export interface SessionMetricsPayload {
+  qset_metrics: QuestionSetMetricPayload[];
+  total_answered: number;
+  total_skipped: number;
+  total_correct: number;
+  total_wrong: number;
+  total_partially_correct: number;
+  total_marks: number;
 }
 export interface UpdateSessionAPIResponse {
   time_remaining: number; // how much time is remaining for quiz to complete

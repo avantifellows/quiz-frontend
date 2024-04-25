@@ -588,13 +588,23 @@ export default defineComponent({
     const numericalAnswerBoxStyling = computed(() => [
       {
         "text-green-500 border-green-500":
-            state.draftAnswer == props.correctAnswer &&
+        ((state.draftAnswer == props.correctAnswer &&
+          isQuestionTypeNumericalInteger.value) ||
+          (typeof state.draftAnswer == "number" &&
+          typeof props.correctAnswer == "number" &&
+          Math.abs(state.draftAnswer - props.correctAnswer) < 0.05 &&
+          isQuestionTypeNumericalFloat.value)) &&
             isAnswerSubmitted.value &&
             props.isGradedQuestion &&
             (!isQuizAssessment.value ||
               (isQuizAssessment.value && props.hasQuizEnded)),
         "text-red-500 border-red-400":
-            state.draftAnswer != props.correctAnswer &&
+        ((state.draftAnswer != props.correctAnswer &&
+          isQuestionTypeNumericalInteger.value) ||
+          (typeof state.draftAnswer == "number" &&
+          typeof props.correctAnswer == "number" &&
+          Math.abs(state.draftAnswer - props.correctAnswer) >= 0.05 &&
+          isQuestionTypeNumericalFloat.value)) &&
             isAnswerSubmitted.value &&
             props.isGradedQuestion &&
             (!isQuizAssessment.value ||

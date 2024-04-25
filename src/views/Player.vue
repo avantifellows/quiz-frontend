@@ -565,16 +565,20 @@ export default defineComponent({
               }
             )
           } else {
+            calculateScorecardMetrics();
             SessionAPIService.updateSession(state.sessionId, {
-              event: eventType.END_QUIZ
+              event: eventType.END_QUIZ,
+              metrics: state.qsetMetrics
             });
             state.hasQuizEnded = true;
             state.currentQuestionIndex = numQuestions.value;
           }
           state.isSessionAnswerRequestProcessing = false;
         } else {
+          calculateScorecardMetrics();
           SessionAPIService.updateSession(state.sessionId, {
-            event: eventType.END_QUIZ
+            event: eventType.END_QUIZ,
+            metrics: state.qsetMetrics
           });
           state.hasQuizEnded = true;
           state.currentQuestionIndex = numQuestions.value;
@@ -691,10 +695,13 @@ export default defineComponent({
       // Initialize metrics for each question set
       state.qsetMetrics = state.questionSets.map((qset) => ({
         name: qset.title,
+        qset_id: qset._id,
         marksScored: 0,
         maxQuestionsAllowedToAttempt: qset.max_questions_allowed_to_attempt,
         numAnswered: 0,
-        accuratelyAnswered: 0,
+        correctlyAnswered: 0,
+        wronglyAnswered: 0,
+        partiallyAnswered: 0,
         attemptRate: 0,
         accuracyRate: 0
       }));
@@ -703,7 +710,7 @@ export default defineComponent({
         const [currentQsetIndex] = getQsetLimits(questionIndex);
         const qsetMetricsObj = state.qsetMetrics[currentQsetIndex];
         updateQuestionMetrics(questionDetail, state.responses[index].answer, qsetMetricsObj);
-        if (qsetMetricsObj.numAnswered != 0) qsetMetricsObj.accuracyRate = qsetMetricsObj.accuratelyAnswered / qsetMetricsObj.numAnswered;
+        if (qsetMetricsObj.numAnswered != 0) qsetMetricsObj.accuracyRate = (qsetMetricsObj.correctlyAnswered + 0.5 * qsetMetricsObj.partiallyAnswered) / qsetMetricsObj.numAnswered;
         state.qsetMetrics[currentQsetIndex].attemptRate = qsetMetricsObj.numAnswered / qsetMetricsObj.maxQuestionsAllowedToAttempt;
         state.qsetMetrics[currentQsetIndex] = qsetMetricsObj;
         index += 1;
@@ -724,7 +731,7 @@ export default defineComponent({
         state.marksScored += markingScheme?.correct || 1;
         qsetMetricObj.marksScored += markingScheme?.correct || 1;
         qsetMetricObj.numAnswered += 1;
-        qsetMetricObj.accuratelyAnswered += 1;
+        qsetMetricObj.correctlyAnswered += 1;
       }
 
       function updateMetricsForWrongAnswer() {
@@ -733,6 +740,7 @@ export default defineComponent({
         state.marksScored += markingScheme?.wrong || 0;
         qsetMetricObj.marksScored += markingScheme?.wrong || 0;
         qsetMetricObj.numAnswered += 1;
+        qsetMetricObj.wronglyAnswered += 1;
       }
 
       function updateMetricsForPartiallyCorrectAnswer() {
@@ -746,7 +754,7 @@ export default defineComponent({
                 state.marksScored += partialMarkRule.marks;
                 qsetMetricObj.marksScored += partialMarkRule.marks;
                 qsetMetricObj.numAnswered += 1;
-                qsetMetricObj.accuratelyAnswered += 0.5; // 0.5 weight default for partially answered
+                qsetMetricObj.partiallyAnswered += 1;
                 break;
               }
             }
