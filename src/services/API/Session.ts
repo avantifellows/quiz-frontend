@@ -42,10 +42,9 @@ export default {
   ): Promise<UpdateSessionAPIResponse> {
     const updatedPayload: {
       event: eventType;
-      metrics: SessionMetricsPayload | null;
+      metrics?: SessionMetricsPayload | null;
     } = {
-      event: payload.event,
-      metrics: null
+      event: payload.event
     };
     if (payload.metrics) {
       const sessionMetrics: SessionMetricsPayload = {
