@@ -695,6 +695,7 @@ export default defineComponent({
       // Initialize metrics for each question set
       state.qsetMetrics = state.questionSets.map((qset) => ({
         name: qset.title,
+        qset_id: qset._id,
         marksScored: 0,
         maxQuestionsAllowedToAttempt: qset.max_questions_allowed_to_attempt,
         numAnswered: 0,

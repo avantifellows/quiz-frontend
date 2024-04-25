@@ -6,7 +6,10 @@ import {
   UpdateSessionAPIPayload,
   UpdateSessionAPIResponse,
   UpdateSessionAnswerAPIPayload,
-  UpdateSessionAnswersAtSpecificPositionsAPIPayload
+  UpdateSessionAnswersAtSpecificPositionsAPIPayload,
+  eventType,
+  QuestionSetMetricPayload,
+  SessionMetricsPayload
 } from "../../types";
 import axios, { AxiosError } from "axios";
 
@@ -37,9 +40,52 @@ export default {
     sessionId: string,
     payload: UpdateSessionAPIPayload
   ): Promise<UpdateSessionAPIResponse> {
+    const updatedPayload: {
+      event: eventType;
+      metrics: SessionMetricsPayload | null;
+    } = {
+      event: payload.event,
+      metrics: null
+    };
+    if (payload.metrics) {
+      const sessionMetrics: SessionMetricsPayload = {
+        qset_metrics: [],
+        total_answered: 0,
+        total_skipped: 0,
+        total_correct: 0,
+        total_wrong: 0,
+        total_partially_correct: 0,
+        total_marks: 0,
+      };
+
+      payload.metrics.forEach(metric => {
+        const qsetMetric: QuestionSetMetricPayload = {
+          name: metric.name || "",
+          qset_id: metric.qset_id,
+          marks_scored: metric.marksScored,
+          num_answered: metric.numAnswered,
+          num_skipped: metric.maxQuestionsAllowedToAttempt - metric.numAnswered,
+          num_correct: metric.correctlyAnswered,
+          num_wrong: metric.wronglyAnswered,
+          num_partially_correct: metric.partiallyAnswered,
+          attempt_rate: Math.round(metric.attemptRate * 100) / 100,
+          accuracy_rate: Math.round(metric.accuracyRate * 100) / 100,
+        };
+
+        sessionMetrics.qset_metrics.push(qsetMetric);
+        sessionMetrics.total_answered += metric.numAnswered;
+        sessionMetrics.total_skipped += metric.maxQuestionsAllowedToAttempt - metric.numAnswered;
+        sessionMetrics.total_correct += metric.correctlyAnswered;
+        sessionMetrics.total_wrong += metric.wronglyAnswered;
+        sessionMetrics.total_partially_correct += metric.partiallyAnswered;
+        sessionMetrics.total_marks += metric.marksScored;
+      });
+
+      updatedPayload.metrics = sessionMetrics as SessionMetricsPayload;
+    }
     const response = await apiClient().patch(
       sessionsEndpoint + sessionId,
-      payload
+      updatedPayload
     );
     return response.data;
   },

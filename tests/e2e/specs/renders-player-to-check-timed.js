@@ -159,6 +159,7 @@ describe("Player for Assessment Timed quizzes", () => {
             metrics: [
               {
                 name: "Question Set 0",
+                qset_id: "62540adb0f748c8e206c1613",
                 marksScored: 0,
                 maxQuestionsAllowedToAttempt: 24,
                 numAnswered: 0,
