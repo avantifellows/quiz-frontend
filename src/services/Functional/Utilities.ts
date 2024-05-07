@@ -154,13 +154,16 @@ export function isQuestionAnswerCorrect(
           typeof correctAnswer == "number" &&
           Math.abs(userAnswer - correctAnswer) < 0.05
       ) {
-        console.log("we here", userAnswer, correctAnswer)
         answerEvaluation.isCorrect = true; // tolerance of error = 0.05
       } else if (questionDetail.type == "numerical-integer" &&
           userAnswer == correctAnswer
       ) {
         answerEvaluation.isCorrect = true;
       } else answerEvaluation.isCorrect = false;
+    }
+  } else {
+    if (userAnswer != null && typeof userAnswer != "number") {
+      answerEvaluation.answered = true;
     }
   }
   return answerEvaluation;

@@ -22,7 +22,7 @@
         :quizType="metadata.quiz_type"
         :quizTimeLimit="quizTimeLimit"
         :maxMarks="maxMarks"
-        :maxQuestionsAllowedToAttempt="maxQuestionsAllowedToAttempt"
+        :maxQuestionsAllowedToAttempt="numGradedQuestions"
         :testFormat="metadata.test_format || ''"
         :displaySolution="displaySolution"
         :questions="questions"
@@ -709,6 +709,7 @@ export default defineComponent({
       state.questions.forEach((questionDetail, questionIndex) => {
         const [currentQsetIndex] = getQsetLimits(questionIndex);
         const qsetMetricsObj = state.qsetMetrics[currentQsetIndex];
+        if (!questionDetail.graded) qsetMetricsObj.maxQuestionsAllowedToAttempt -= 1
         updateQuestionMetrics(questionDetail, state.responses[index].answer, qsetMetricsObj);
         if (qsetMetricsObj.numAnswered != 0) qsetMetricsObj.accuracyRate = (qsetMetricsObj.correctlyAnswered + 0.5 * qsetMetricsObj.partiallyAnswered) / qsetMetricsObj.numAnswered;
         state.qsetMetrics[currentQsetIndex].attemptRate = qsetMetricsObj.numAnswered / qsetMetricsObj.maxQuestionsAllowedToAttempt;
@@ -767,7 +768,7 @@ export default defineComponent({
       if (!answerEvaluation.valid) {
         return;
       }
-      if (answerEvaluation.answered) {
+      if (answerEvaluation.answered && questionDetail.graded) {
         state.numSkipped -= 1;
         if (answerEvaluation.isCorrect != null) {
           if (answerEvaluation.isCorrect == true) {
@@ -823,8 +824,11 @@ export default defineComponent({
               state.responses[qindex].answer,
               state.questions[qindex].marking_scheme?.partial != null // doesPartialMarkingExist
             )
-            if (!questionAnswerEvaluation.valid) continue
-            if (
+            if (!questionAnswerEvaluation.valid && state.questions[qindex].graded) continue
+
+            if (!state.questions[qindex].graded) {
+              qstate = "neutral"
+            } else if (
               !questionAnswerEvaluation.answered ||
           questionAnswerEvaluation.isCorrect == null
             ) {
@@ -837,7 +841,6 @@ export default defineComponent({
               } else qstate = "error"
             }
           } else {
-            if (!state.questions[qindex].graded) continue
             if (state.responses.length > 0) {
               if (!state.responses[qindex].visited) { // initially responses empty
                 qstate = "neutral"
