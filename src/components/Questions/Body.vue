@@ -568,7 +568,11 @@ export default defineComponent({
     });
 
     const questionHeaderSuffix = computed(() => {
-      return props.questionSetTitle;
+      if (isQuizAssessment.value) {
+        return props.questionSetTitle;
+      } else {
+        return `Total Questions: ${props.numQuestions}`
+      }
     });
 
     // styling class for the question image and loading spinner containers
