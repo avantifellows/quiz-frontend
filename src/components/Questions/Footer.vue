@@ -51,6 +51,18 @@
         @click="clearAnswer"
         data-test="clearButton"
       ></icon-button>
+
+      <!-- mark for review button - assessment -->
+      <icon-button
+      :class="{
+          hidden: isOmrMode
+      }"
+      :titleConfig="markForReviewButtonTitleConfig"
+      :buttonClass="markForReviewButtonClass"
+      :isDisabled="isAnswerSubmitted || isSessionAnswerRequestProcessing"
+      @click="toggleMarkForReview"
+      data-test="markForReviewButton"
+      ></icon-button>
     </div>
 
     <div class="place-self-end flex h-full">
@@ -105,6 +117,10 @@ export default defineComponent({
       type: Boolean,
     },
     isSubmitEnabled: {
+      default: false,
+      type: Boolean,
+    },
+    isMarkedForReview: {
       default: false,
       type: Boolean,
     },
@@ -183,6 +199,11 @@ export default defineComponent({
       "bg-white hover:bg-gray-50",
     ]);
 
+    const markForReviewButtonClass = ref([
+      state.assessmentTextButtonClass,
+      "bg-white hover:bg-gray-50",
+    ]);
+
     const saveAndNextButtonClass = ref([
       state.assessmentTextButtonClass,
       "bg-white hover:bg-gray-50",
@@ -192,6 +213,11 @@ export default defineComponent({
       value: "Clear",
       class: [state.assessmentTextButtonTitleClass, "text-gray-600"],
     } as IconButtonTitleConfig);
+
+    const markForReviewButtonTitleConfig = computed(() => ({
+      value: props.isMarkedForReview ? "Clear Review" : "Mark For Review",
+      class: [state.assessmentTextButtonTitleClass, "text-violet-500"],
+    } as IconButtonTitleConfig));
 
     const saveAndNextButtonTitleConfig = ref({
       value: "Save & Next",
@@ -214,6 +240,14 @@ export default defineComponent({
 
     function clearAnswer() {
       context.emit("clear");
+    }
+
+    function toggleMarkForReview() {
+      if (props.isMarkedForReview) {
+        context.emit("clear-review");
+      } else {
+        context.emit("mark-for-review");
+      }
     }
 
     function goToPreviousQuestion() {
@@ -267,14 +301,17 @@ export default defineComponent({
       previousQuestionButtonIconConfig,
       nextQuestionButtonIconConfig,
       clearButtonClass,
+      markForReviewButtonClass,
       saveAndNextButtonClass,
       clearButtonTitleConfig,
+      markForReviewButtonTitleConfig,
       saveAndNextButtonTitleConfig,
       saveAndNextButtonIconConfig,
       submitQuestion,
       goToPreviousQuestion,
       goToNextQuestion,
       clearAnswer,
+      toggleMarkForReview,
       saveQuestionAndProceed,
       submitButtonTitleConfig,
       submitButtonIconConfig,
@@ -282,6 +319,6 @@ export default defineComponent({
       isQuizAssessment,
     };
   },
-  emits: ["submit", "previous", "continue", "clear"],
+  emits: ["submit", "previous", "continue", "clear", "mark-for-review", "clear-review"],
 });
 </script>

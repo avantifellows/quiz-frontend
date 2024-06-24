@@ -70,6 +70,10 @@
                   <Neutral></Neutral>
                   <span class="ml-6 mr-6">You have not answered the question</span>
                 </div>
+                <div class="flex items-center my-2 md:mx-4">
+                  <Review></Review>
+                  <span class="ml-6 mr-6">You have marked the question for review</span>
+                </div>
               </div>
             </li>
              <li>You can click on the <span class="inline-flex items-baseline"><BaseIcon name ='hamburger' class="place-self-center w-4 h-4"></BaseIcon></span> button again to collapse the Question Palette.</li>
@@ -103,6 +107,7 @@ import BaseIcon from "./UI/Icons/BaseIcon.vue";
 import Success from "./Questions/Palette/Success.vue";
 import Error from "./Questions/Palette/Error.vue";
 import Neutral from "./Questions/Palette/Neutral.vue";
+import Review from "./Questions/Palette/Review.vue";
 import { quizTitleType, testFormat, questionSetPalette, TimeLimit } from "../types";
 export default defineComponent({
   name: "InstructionPage",
@@ -110,7 +115,8 @@ export default defineComponent({
     BaseIcon,
     Success,
     Error,
-    Neutral
+    Neutral,
+    Review
   },
   props: {
     title: {
