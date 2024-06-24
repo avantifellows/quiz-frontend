@@ -165,7 +165,7 @@ export default defineComponent({
         "fill-current",
       ],
       assessmentTextButtonTitleClass:
-        "text-sm bp-500:text-md lg:text-lg xl:text-xl font-bold",
+        "text-xs bp-500:text-sm lg:text-base xl:text-lg font-bold",
       assessmentNavigationButtonClass: [
         {
           "bg-yellow-500 hover:bg-yellow-600 ring-yellow-500 px-6 bp-500:px-8 rounded-2xl":
@@ -216,11 +216,11 @@ export default defineComponent({
 
     const markForReviewButtonTitleConfig = computed(() => ({
       value: props.isMarkedForReview ? "Clear Review" : "Mark For Review",
-      class: [state.assessmentTextButtonTitleClass, "text-violet-500"],
+      class: ["text-xxs bp-500:text-sm lg:text-base xl:text-lg font-bold", "text-violet-500"],
     } as IconButtonTitleConfig));
 
     const saveAndNextButtonTitleConfig = ref({
-      value: "Save & Next",
+      value: "Save >",
       class: [state.assessmentTextButtonTitleClass, "text-emerald-500"],
     } as IconButtonTitleConfig);
 
