@@ -327,10 +327,6 @@ To attempt this question, unselect an answer to another question in this section
       state.localResponses[props.currentQuestionIndex].answer =
         state.draftResponses[props.currentQuestionIndex]
       context.emit("submit-question")
-      if (isQuizAssessment.value && state.localResponses[props.currentQuestionIndex].marked_for_review) {
-        state.localResponses[props.currentQuestionIndex].marked_for_review = false
-        context.emit("update-review-status")
-      }
     }
 
     function clearAnswer() {
@@ -419,18 +415,18 @@ To attempt this question, unselect an answer to another question in this section
     function endTest() {
       if (!props.hasQuizEnded && state.hasEndTestBeenClickedOnce) {
         let attemptedQuestions = 0;
-        let markedForReviewQuestions = 0;
+        let markedForReviewAndUnansweredQuestions = 0;
         for (const response of props.responses) {
           if (response.answer != null) {
             attemptedQuestions += 1;
           }
-          if (response.marked_for_review == true) {
-            markedForReviewQuestions += 1
+          if (response.marked_for_review == true && response.answer == null) {
+            markedForReviewAndUnansweredQuestions += 1
           }
         }
         state.toast.success(
-            `You have answered ${attemptedQuestions} out of ${props.numQuestions} questions. Click on the Question Palette to review unanswered questions before submitting the test. Click the End Test button again to make the final submission.
-ALERT: ${markedForReviewQuestions} questions which are marked for review are also unanswered.`,
+            `You have answered ${attemptedQuestions} out of ${props.numQuestions} questions. ${markedForReviewAndUnansweredQuestions} questions which are marked for review are unanswered.
+Click on the Question Palette to view unanswered questions before submitting the test. Click the End Test button again to make the final submission.`,
             {
               position: POSITION.TOP_CENTER,
               timeout: 5000,
