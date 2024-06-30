@@ -426,7 +426,9 @@ export default defineComponent({
           _id: response._id,
           question_id: response.question_id,
           answer: response.answer,
-          visited: response.visited
+          visited: response.visited,
+          time_spent: response.time_spent,
+          marked_for_review: response.marked_for_review
         }
       )
     })

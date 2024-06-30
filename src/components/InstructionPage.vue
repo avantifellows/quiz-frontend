@@ -70,6 +70,10 @@
                   <Neutral></Neutral>
                   <span class="ml-6 mr-6">You have not answered the question</span>
                 </div>
+                <div class="flex items-center my-2 md:mx-4">
+                  <Review></Review>
+                  <span class="ml-6 mr-6">You have marked the question for review</span>
+                </div>
               </div>
             </li>
              <li>You can click on the <span class="inline-flex items-baseline"><BaseIcon name ='hamburger' class="place-self-center w-4 h-4"></BaseIcon></span> button again to collapse the Question Palette.</li>
@@ -84,7 +88,7 @@
                 <li>To select you answer, click on the button of one of the options.</li>
                 <li>To deselect your chosen answer, click on the button of the chosen option again or click on the <b>Clear</b> button.</li>
                 <li>To change your chosen answer, click on the button of another option.</li>
-                <li>To save your answer, you <b>MUST</b> click on the Save & Next button.</li>
+                <li>To save your answer, you <b>MUST</b> click on the "Save >" button.</li>
              </ol>
              </li>
              <li>To change your answer to a question that has already been answered, first select that question for answering and then follow the procedure for answering that type of question.</li>
@@ -92,7 +96,7 @@
         </div>
         <div class="mt-5 ml-6 mr-4 flex border-red-400 border-1 p-2">
           <div class="float-left text-red-400 pr-5 pl-3 text-xl font-bold">!</div>
-          <div class="float-right text-justify pr-2">Note that selecting an option does NOT save your answer to the current question. Click on <b>Save & Next to save your answer</b> for the current question and then go to the next question.</div>
+          <div class="float-right text-justify pr-2">Note that selecting an option does NOT save your answer to the current question. Click on <b>"Save >" to save your answer</b> for the current question and then go to the next question.</div>
         </div>
     </div>
 </template>
@@ -103,6 +107,7 @@ import BaseIcon from "./UI/Icons/BaseIcon.vue";
 import Success from "./Questions/Palette/Success.vue";
 import Error from "./Questions/Palette/Error.vue";
 import Neutral from "./Questions/Palette/Neutral.vue";
+import Review from "./Questions/Palette/Review.vue";
 import { quizTitleType, testFormat, questionSetPalette, TimeLimit } from "../types";
 export default defineComponent({
   name: "InstructionPage",
@@ -110,7 +115,8 @@ export default defineComponent({
     BaseIcon,
     Success,
     Error,
-    Neutral
+    Neutral,
+    Review
   },
   props: {
     title: {
