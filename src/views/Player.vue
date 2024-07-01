@@ -173,6 +173,10 @@ export default defineComponent({
       default: null,
       type: String,
     },
+    review: {
+      default: null,
+      type: Boolean
+    }
   },
   setup(props) {
     const router = useRouter();
@@ -411,7 +415,13 @@ export default defineComponent({
     }
 
     async function getQuiz() {
-      const quizDetails : QuizAPIResponse = await QuizAPIService.getQuiz(props.quizId);
+      let quizDetails : QuizAPIResponse;
+      if (props.review != null) {
+        quizDetails = await QuizAPIService.getReviewQuiz(props.quizId);
+      } else {
+        quizDetails = await QuizAPIService.getQuiz(props.quizId);
+      }
+
       // since we know that there is going to be only one
       // question set for now
       state.questionSets = quizDetails.question_sets;
