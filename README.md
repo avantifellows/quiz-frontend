@@ -87,7 +87,7 @@ You can access the web app at `http://localhost:8080/quiz/{quizId}?userId={userI
 - Run the following command
 
 ```
-npm run build --mode staging
+npm run build -- --mode staging
 ```
 
 #### Production
