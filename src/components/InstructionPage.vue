@@ -89,6 +89,7 @@
                 <li>To deselect your chosen answer, click on the button of the chosen option again or click on the <b>Clear</b> button.</li>
                 <li>To change your chosen answer, click on the button of another option.</li>
                 <li>To save your answer, you <b>MUST</b> click on the "Save & Next" button.</li>
+                <li>To review the question later, you can click on the "Mark For Review & Next" button.</li>
              </ol>
              </li>
              <li>To change your answer to a question that has already been answered, first select that question for answering and then follow the procedure for answering that type of question.</li>
