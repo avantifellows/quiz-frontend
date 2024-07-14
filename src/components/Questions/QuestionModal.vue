@@ -85,7 +85,6 @@
         @previous="showPreviousQuestion"
         @clear="clearAnswer"
         @mark-for-review="markForReviewQuestion"
-        @clear-review="clearReviewQuestion"
         data-test="footer"
       ></Footer>
     </div>
@@ -255,7 +254,7 @@ export default defineComponent({
           state.toast.warning(
             `You have already attempted maximum allowed (${props.maxQuestionsAllowedToAttempt}) questions in current section (Q.${props.qsetIndexLimits.low + 1} - Q.${props.qsetIndexLimits.high}).
 
-To attempt this question, unselect an answer to another question in this section.
+To attempt Q.${props.currentQuestionIndex + 1}, unselect an answer to another question in this section.
             `,
             {
               position: POSITION.TOP_CENTER,
@@ -339,18 +338,12 @@ To attempt this question, unselect an answer to another question in this section
       state.previousLocalResponse = clonedeep(state.localResponses[props.currentQuestionIndex]);
       state.localResponses[props.currentQuestionIndex].marked_for_review = true;
       state.toast.info(
-        `Question ${props.currentQuestionIndex + 1} marked for review!`,
+        `Question ${props.currentQuestionIndex + 1} is marked for review!`,
         {
           position: POSITION.TOP_LEFT,
           timeout: 2000
         }
       )
-      context.emit("update-review-status")
-    }
-
-    function clearReviewQuestion() {
-      state.previousLocalResponse = clonedeep(state.localResponses[props.currentQuestionIndex]);
-      state.localResponses[props.currentQuestionIndex].marked_for_review = false;
       context.emit("update-review-status")
     }
 
@@ -400,7 +393,7 @@ To attempt this question, unselect an answer to another question in this section
           currentQuestionResponseAnswer.value
       }
       state.isDraftAnswerCleared = false
-      state.toast.clear() // if toast exists in current state, clear when you switch state
+      // state.toast.clear() // if toast exists in current state, clear when you switch state
     }
 
     function numericalAnswerUpdated(answer: number | null) {
@@ -578,7 +571,6 @@ Click on the Question Palette to view unanswered questions before submitting the
       subjectiveAnswerUpdated,
       clearAnswer,
       markForReviewQuestion,
-      clearReviewQuestion,
       endTest,
       endTestByTime,
       navigateToQuestion,

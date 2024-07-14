@@ -3,7 +3,7 @@
       :title="title"
       :hasQuizEnded="hasQuizEnded"
       iconName="skip-rounded"
-      iconClass="bg-violet-100 border-violet-600"
+      iconClass="bg-violet-300 border-violet-600"
     ></KeyTemplate>
   </template>
 

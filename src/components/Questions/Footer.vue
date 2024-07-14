@@ -59,7 +59,7 @@
       }"
       :titleConfig="markForReviewButtonTitleConfig"
       :buttonClass="markForReviewButtonClass"
-      :isDisabled="isAnswerSubmitted || isSessionAnswerRequestProcessing"
+      :isDisabled="isAnswerSubmitted || isSessionAnswerRequestProcessing || isMarkedForReview"
       @click="toggleMarkForReview"
       data-test="markForReviewButton"
       ></icon-button>
@@ -107,6 +107,8 @@ import {
   toRefs,
   computed,
   PropType,
+  onMounted,
+  onBeforeUnmount
 } from "vue";
 
 export default defineComponent({
@@ -155,6 +157,10 @@ export default defineComponent({
   },
   setup(props, context) {
     const isQuizAssessment = computed(() => props.quizType == "assessment" || props.quizType == "omr-assessment");
+    const isSmallScreen = ref(false);
+    const updateScreenSize = () => {
+      isSmallScreen.value = window.matchMedia("(max-width: 500px)").matches;
+    };
     const state = reactive({
       assessmentNavigationButtonIconClass: [
         {
@@ -215,12 +221,12 @@ export default defineComponent({
     } as IconButtonTitleConfig);
 
     const markForReviewButtonTitleConfig = computed(() => ({
-      value: props.isMarkedForReview ? "Clear Review" : "Mark For Review",
+      value: isSmallScreen.value ? "Review >" : "Mark For Review & Next",
       class: ["text-xxs bp-500:text-sm lg:text-base xl:text-lg font-bold", "text-violet-500"],
     } as IconButtonTitleConfig));
 
     const saveAndNextButtonTitleConfig = ref({
-      value: "Save >",
+      value: "Save & Next",
       class: [state.assessmentTextButtonTitleClass, "text-emerald-500"],
     } as IconButtonTitleConfig);
 
@@ -243,10 +249,15 @@ export default defineComponent({
     }
 
     function toggleMarkForReview() {
-      if (props.isMarkedForReview) {
-        context.emit("clear-review");
-      } else {
+      if (!props.isMarkedForReview) {
         context.emit("mark-for-review");
+        // wait for processing to be done and answer to be submitted
+        const checkProcessingDone = setInterval(() => {
+          if (!props.isSessionAnswerRequestProcessing) {
+            if (props.continueAfterAnswerSubmit) context.emit("continue");
+            clearInterval(checkProcessingDone);
+          }
+        }, 100); // check every 100ms
       }
     }
 
@@ -296,6 +307,16 @@ export default defineComponent({
       "p-4 px-8 bp-500:p-6 bp-500:px-12 rounded-2xl shadow-xl disabled:opacity-50 disabled:cursor-not-allowed",
     ]);
 
+    // Setup listeners for screen size changes
+    onMounted(() => {
+      updateScreenSize();
+      window.addEventListener("resize", updateScreenSize);
+    });
+
+    onBeforeUnmount(() => {
+      window.removeEventListener("resize", updateScreenSize);
+    });
+
     return {
       ...toRefs(state),
       previousQuestionButtonIconConfig,
@@ -319,6 +340,6 @@ export default defineComponent({
       isQuizAssessment,
     };
   },
-  emits: ["submit", "previous", "continue", "clear", "mark-for-review", "clear-review"],
+  emits: ["submit", "previous", "continue", "clear", "mark-for-review"],
 });
 </script>
