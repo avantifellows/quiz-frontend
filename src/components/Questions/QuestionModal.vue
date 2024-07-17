@@ -337,8 +337,12 @@ To attempt Q.${props.currentQuestionIndex + 1}, unselect an answer to another qu
     function markForReviewQuestion() {
       state.previousLocalResponse = clonedeep(state.localResponses[props.currentQuestionIndex]);
       state.localResponses[props.currentQuestionIndex].marked_for_review = true;
+      let markForReviewInfoText = `Question ${props.currentQuestionIndex + 1} is marked for review.`
+      if (state.draftResponses[props.currentQuestionIndex] != null) {
+        markForReviewInfoText += "This action does not save your answer!"
+      }
       state.toast.info(
-        `Question ${props.currentQuestionIndex + 1} is marked for review!`,
+        markForReviewInfoText,
         {
           position: POSITION.TOP_LEFT,
           timeout: 2000
@@ -418,11 +422,13 @@ To attempt Q.${props.currentQuestionIndex + 1}, unselect an answer to another qu
           }
         }
         state.toast.success(
-            `You have answered ${attemptedQuestions} out of ${props.numQuestions} questions. ${markedForReviewAndUnansweredQuestions} questions which are marked for review are unanswered.
-Click on the Question Palette to view unanswered questions before submitting the test. Click the End Test button again to make the final submission.`,
+            `You have answered ${attemptedQuestions} out of ${props.numQuestions} questions.
+${markedForReviewAndUnansweredQuestions} questions marked for review are UNANSWERED.
+Click on the Question Palette to view unanswered questions before submitting the test.
+Click the End Test button again to make the final submission.`,
             {
               position: POSITION.TOP_CENTER,
-              timeout: 5000,
+              timeout: 6000,
               draggablePercent: 0.4
             }
         )

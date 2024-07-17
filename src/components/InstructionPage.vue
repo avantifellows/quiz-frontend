@@ -63,11 +63,11 @@
                   <span class="ml-6 mr-6">You have answered the question</span>
                 </div>
                 <div class="flex items-center my-2 md:mx-4">
-                  <Error></Error>
+                  <Neutral></Neutral>
                   <span class="ml-6 mr-6">You have not visited the question yet</span>
                 </div>
                 <div class="flex items-center my-2 md:mx-4">
-                  <Neutral></Neutral>
+                  <Error></Error>
                   <span class="ml-6 mr-6">You have not answered the question</span>
                 </div>
                 <div class="flex items-center my-2 md:mx-4">
