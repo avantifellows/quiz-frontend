@@ -54,6 +54,7 @@ export default {
         total_correct: 0,
         total_wrong: 0,
         total_partially_correct: 0,
+        total_marked_for_review: 0,
         total_marks: 0,
       };
 
@@ -67,6 +68,7 @@ export default {
           num_correct: metric.correctlyAnswered,
           num_wrong: metric.wronglyAnswered,
           num_partially_correct: metric.partiallyAnswered,
+          num_marked_for_review: metric.numQuestionsMarkedForReview,
           attempt_rate: Math.round(metric.attemptRate * 100) / 100,
           accuracy_rate: Math.round(metric.accuracyRate * 100) / 100,
         };
@@ -77,6 +79,7 @@ export default {
         sessionMetrics.total_correct += metric.correctlyAnswered;
         sessionMetrics.total_wrong += metric.wronglyAnswered;
         sessionMetrics.total_partially_correct += metric.partiallyAnswered;
+        sessionMetrics.total_marked_for_review += metric.numQuestionsMarkedForReview;
         sessionMetrics.total_marks += metric.marksScored;
       });
 

@@ -61,6 +61,7 @@ export interface SubmittedResponse {
   answer: submittedAnswer;
   visited: boolean;
   time_spent?: number; // time spent on question in seconds
+  marked_for_review: boolean;
 }
 
 interface ScorecardMetricIcon {
@@ -83,6 +84,7 @@ export interface QuestionSetMetric {
   correctlyAnswered: number,
   partiallyAnswered: number,
   wronglyAnswered: number,
+  numQuestionsMarkedForReview: number,
   attemptRate: number,
   accuracyRate: number
 }
@@ -223,6 +225,7 @@ export interface QuestionSetMetricPayload {
   num_correct: number;
   num_wrong: number;
   num_partially_correct: number;
+  num_marked_for_review: number;
   attempt_rate: number;
   accuracy_rate: number;
 }
@@ -234,6 +237,7 @@ export interface SessionMetricsPayload {
   total_correct: number;
   total_wrong: number;
   total_partially_correct: number;
+  total_marked_for_review: number;
   total_marks: number;
 }
 export interface UpdateSessionAPIResponse {
@@ -248,6 +252,7 @@ export interface UpdateSessionAnswerAPIPayload {
   answer?: submittedAnswer;
   visited?: boolean;
   time_spent?: number; // time spent on question in seconds
+  marked_for_review?: boolean;
 }
 
 export type TimeSpentEntry = {
@@ -264,7 +269,7 @@ export interface answerEvaluation {
   isPartiallyCorrect?: boolean; // whether question has been partially answered for multi answer
 }
 
-export type questionState = "success" | "error" | "neutral" | "partial-success";
+export type questionState = "success" | "error" | "neutral" | "partial-success" | "review";
 export interface paletteItemState {
   index: number; // index of the corresponding question in the list of questions
   value: questionState;

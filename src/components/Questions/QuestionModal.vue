@@ -72,6 +72,7 @@
       ></Body>
       <Footer
         :isAnswerSubmitted="isAnswerSubmitted"
+        :isMarkedForReview="isMarkedForReview"
         :isPreviousButtonShown="currentQuestionIndex > 0"
         :isNextButtonShown="currentQuestionIndex != questions.length - 1"
         :isSubmitEnabled="isAttemptValid"
@@ -83,6 +84,7 @@
         @continue="showNextQuestion"
         @previous="showPreviousQuestion"
         @clear="clearAnswer"
+        @mark-for-review="markForReviewQuestion"
         data-test="footer"
       ></Footer>
     </div>
@@ -252,7 +254,7 @@ export default defineComponent({
           state.toast.warning(
             `You have already attempted maximum allowed (${props.maxQuestionsAllowedToAttempt}) questions in current section (Q.${props.qsetIndexLimits.low + 1} - Q.${props.qsetIndexLimits.high}).
 
-To attempt this question, unselect an answer to another question in this section.
+To attempt Q.${props.currentQuestionIndex + 1}, unselect an answer to another question in this section.
             `,
             {
               position: POSITION.TOP_CENTER,
@@ -332,6 +334,23 @@ To attempt this question, unselect an answer to another question in this section
       state.isDraftAnswerCleared = true
     }
 
+    function markForReviewQuestion() {
+      state.previousLocalResponse = clonedeep(state.localResponses[props.currentQuestionIndex]);
+      state.localResponses[props.currentQuestionIndex].marked_for_review = true;
+      let markForReviewInfoText = `Question ${props.currentQuestionIndex + 1} is marked for review.`
+      if (state.draftResponses[props.currentQuestionIndex] != null) {
+        markForReviewInfoText += "This action does not save your answer!"
+      }
+      state.toast.info(
+        markForReviewInfoText,
+        {
+          position: POSITION.TOP_LEFT,
+          timeout: 2000
+        }
+      )
+      context.emit("update-review-status")
+    }
+
     function showNextQuestion() {
       // It toggles the reRenderKey from 0 to 1 or 1 to 0. And changing the reRender key, re-renders the component.
       // we reRender the whole component as textarea is holding the details which is not getting updated
@@ -378,7 +397,7 @@ To attempt this question, unselect an answer to another question in this section
           currentQuestionResponseAnswer.value
       }
       state.isDraftAnswerCleared = false
-      state.toast.clear() // if toast exists in current state, clear when you switch state
+      // state.toast.clear() // if toast exists in current state, clear when you switch state
     }
 
     function numericalAnswerUpdated(answer: number | null) {
@@ -393,16 +412,23 @@ To attempt this question, unselect an answer to another question in this section
     function endTest() {
       if (!props.hasQuizEnded && state.hasEndTestBeenClickedOnce) {
         let attemptedQuestions = 0;
+        let markedForReviewAndUnansweredQuestions = 0;
         for (const response of props.responses) {
           if (response.answer != null) {
             attemptedQuestions += 1;
           }
+          if (response.marked_for_review == true && response.answer == null) {
+            markedForReviewAndUnansweredQuestions += 1
+          }
         }
         state.toast.success(
-            `You have answered ${attemptedQuestions} out of ${props.numQuestions} questions. Click on the Question Palette to review unanswered questions before submitting the test. Click the End Test button again to make the final submission.`,
+            `You have answered ${attemptedQuestions} out of ${props.numQuestions} questions.
+${markedForReviewAndUnansweredQuestions} questions marked for review are UNANSWERED.
+Click on the Question Palette to view unanswered questions before submitting the test.
+Click the End Test button again to make the final submission.`,
             {
               position: POSITION.TOP_CENTER,
-              timeout: 5000,
+              timeout: 6000,
               draggablePercent: 0.4
             }
         )
@@ -483,6 +509,10 @@ To attempt this question, unselect an answer to another question in this section
       return true
     })
 
+    const isMarkedForReview = computed(() => {
+      return currentQuestionResponse.value.marked_for_review;
+    })
+
     const isAttemptValid = computed(() => {
       if (optionalLimitReached.value && currentQuestionResponseAnswer.value == null) {
         // this cannot be answered
@@ -546,6 +576,7 @@ To attempt this question, unselect an answer to another question in this section
       showPreviousQuestion,
       subjectiveAnswerUpdated,
       clearAnswer,
+      markForReviewQuestion,
       endTest,
       endTestByTime,
       navigateToQuestion,
@@ -556,6 +587,7 @@ To attempt this question, unselect an answer to another question in this section
       isGradedQuestion,
       currentQuestionResponseAnswer,
       isAnswerSubmitted,
+      isMarkedForReview,
       isAttemptValid,
       isQuizAssessment,
       optionalLimitReached,
@@ -572,7 +604,8 @@ To attempt this question, unselect an answer to another question in this section
     "end-test",
     "fetch-question-bucket",
     "test-warning-shown",
-    "test-optional-warning-shown"
+    "test-optional-warning-shown",
+    "update-review-status"
   ],
 });
 </script>

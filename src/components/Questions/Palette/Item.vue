@@ -20,6 +20,11 @@
       :hasQuizEnded="hasQuizEnded"
       data-test="neutral"
     ></Neutral>
+    <Review
+      v-else-if="state == 'review'"
+      :hasQuizEnded="hasQuizEnded"
+      data-test="review"
+    ></Review>
     <p
       class="mt-2 bg-gray-200 border-gray-500 border-1 rounded-md px-2 text-xs"
       :class="{
@@ -39,6 +44,7 @@ import Success from "./Success.vue";
 import PartialSuccess from "./PartialSuccess.vue"
 import Error from "./Error.vue";
 import Neutral from "./Neutral.vue";
+import Review from "./Review.vue";
 import { questionState } from "../../../types";
 
 export default defineComponent({
@@ -48,6 +54,7 @@ export default defineComponent({
     PartialSuccess,
     Error,
     Neutral,
+    Review
   },
   props: {
     state: {

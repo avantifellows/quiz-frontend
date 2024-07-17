@@ -218,6 +218,7 @@ describe("QuestionModal.vue", () => {
       question_id: question._id,
       answer: null,
       visited: false,
+      marked_for_review: false,
       time_spent: 0
     })
   );
@@ -472,6 +473,7 @@ describe("QuestionModal.vue", () => {
           question_id: questions[questionIndex]._id,
           answer: [0],
           visited: false,
+          marked_for_review: false,
           time_spent: 0
         });
         expect(wrapper.emitted()).toHaveProperty("submit-question");
@@ -574,6 +576,7 @@ describe("QuestionModal.vue", () => {
           question_id: questions[questionIndex]._id,
           answer: [0, 1],
           visited: false,
+          marked_for_review: false,
           time_spent: 0
         });
         expect(wrapper.emitted()).toHaveProperty("submit-question");
@@ -656,6 +659,7 @@ describe("QuestionModal.vue", () => {
             question_id: questions[questionIndex]._id,
             answer,
             visited: false,
+            marked_for_review: false,
             time_spent: 0
           });
           expect(wrapper.emitted()).toHaveProperty("submit-question");
@@ -758,6 +762,7 @@ describe("QuestionModal.vue", () => {
             question_id: questions[questionIndex]._id,
             answer,
             visited: false,
+            marked_for_review: false,
             time_spent: 0
           });
           expect(wrapper.emitted()).toHaveProperty("submit-question");

@@ -167,6 +167,7 @@ describe("Player for Assessment Timed quizzes", () => {
                   num_correct: 0,
                   num_wrong: 0,
                   num_partially_correct: 0,
+                  num_marked_for_review: 0,
                   attempt_rate: 0,
                   accuracy_rate: 0,
                 },
@@ -176,6 +177,7 @@ describe("Player for Assessment Timed quizzes", () => {
               total_correct: 0,
               total_wrong: 0,
               total_partially_correct: 0,
+              total_marked_for_review: 0,
               total_marks: 0,
             },
           });
