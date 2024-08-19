@@ -59,7 +59,7 @@
       }"
       :titleConfig="markForReviewButtonTitleConfig"
       :buttonClass="markForReviewButtonClass"
-      :isDisabled="isAnswerSubmitted || isSessionAnswerRequestProcessing || isMarkedForReview"
+      :isDisabled="isSessionAnswerRequestProcessing || isMarkedForReview"
       @click="toggleMarkForReview"
       data-test="markForReviewButton"
       ></icon-button>

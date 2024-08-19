@@ -325,6 +325,7 @@ To attempt Q.${props.currentQuestionIndex + 1}, unselect an answer to another qu
       state.previousLocalResponse = clonedeep(state.localResponses[props.currentQuestionIndex]);
       state.localResponses[props.currentQuestionIndex].answer =
         state.draftResponses[props.currentQuestionIndex]
+      state.localResponses[props.currentQuestionIndex].marked_for_review = false;
       context.emit("submit-question")
     }
 
@@ -338,7 +339,11 @@ To attempt Q.${props.currentQuestionIndex + 1}, unselect an answer to another qu
       state.previousLocalResponse = clonedeep(state.localResponses[props.currentQuestionIndex]);
       state.localResponses[props.currentQuestionIndex].marked_for_review = true;
       let markForReviewInfoText = `Question ${props.currentQuestionIndex + 1} is marked for review.`
-      if (state.draftResponses[props.currentQuestionIndex] != null) {
+      if (state.localResponses[props.currentQuestionIndex].answer != null) {
+        markForReviewInfoText += "This action clears your answer!"
+        clearAnswer()
+        submitQuestion()
+      } else if (state.draftResponses[props.currentQuestionIndex] != null) {
         markForReviewInfoText += "This action does not save your answer!"
       }
       state.toast.info(

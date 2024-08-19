@@ -185,7 +185,7 @@ export default defineComponent({
       };
       if (isSessionDataFetched.value) {
         if (props.isFirstSession) {
-          config.value = "Let's Start";
+          config.value = "Let's Starsldkfjsdt";
         } else {
           if (props.hasQuizEnded && !props.reviewAnswers) {
             config.class = "text-sm md:text-sm text-white font-poppins-bold";
