@@ -417,6 +417,7 @@ export default defineComponent({
     async function getQuiz() {
       let quizDetails : QuizAPIResponse;
       if (props.review != null) {
+        // review quiz mode
         quizDetails = await QuizAPIService.getReviewQuiz(props.quizId);
       } else {
         quizDetails = await QuizAPIService.getQuiz(props.quizId);
