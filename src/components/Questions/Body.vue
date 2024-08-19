@@ -521,40 +521,108 @@ export default defineComponent({
     }
 
     function preventKeypressIfApplicable(event: InputEvent) {
+      function showErrorNotification(message: string) {
+        const notification = document.createElement("div");
+        notification.className = "error-notification";
+        notification.innerText = message;
+
+        // Styling the notification
+        Object.assign(notification.style, {
+          position: "fixed",
+          bottom: "20px",
+          right: "20px",
+          backgroundColor: "#f44336",
+          color: "white",
+          padding: "10px",
+          borderRadius: "5px",
+          boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
+          zIndex: 1000,
+        });
+
+        document.body.appendChild(notification);
+
+        // Automatically remove the notification after 3 seconds
+        setTimeout(() => {
+          notification.remove();
+        }, 3000);
+      }
+
       if (event.data == null) {
         // prevent "Enter" key in android browser decimal keypad mode
-        if (event.inputType == "insertLineBreak") event.preventDefault()
+        if (event.inputType == "insertLineBreak") event.preventDefault();
         // in other cases, return to escape null type error
-        return
+        return;
       }
+
+      const isAlphabet = /[a-zA-Z]/.test(event.data); // Check if the input is an alphabet
+
+      if (isAlphabet) {
+        console.error("Alphabets are not allowed !");
+        showErrorNotification("Alphabets are not allowed !");
+        event.preventDefault();
+        return;
+      }
+
       if (isQuestionTypeSubjective.value) {
         // checks if character limit is reached in case it is set
-        if (!hasCharLimit.value) return
+        if (!hasCharLimit.value) return;
         if (!charactersLeft.value) {
-          event.preventDefault()
-          return
+          event.preventDefault();
+          return;
         }
       }
       if (isQuestionTypeNumericalFloat.value) {
-        const keysAllowed: string[] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.']
-        const keyPressed: string = event.data
+        const keysAllowed: string[] = [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          ".",
+        ];
+        const keyPressed: string = event.data;
         if (
           doNumericalCharactersExceedLimit(state.numericalAnswer) ||
           !keysAllowed.includes(keyPressed) ||
           // if key is "." but number already has a decimal point, or key "." is entered as the first character in answer, prevent
           (event.data == "." &&
-          (doesNumberContainDecimal(state.numericalAnswer) || state.numericalAnswer == null))
+            (doesNumberContainDecimal(state.numericalAnswer) ||
+              state.numericalAnswer == null))
         ) {
-          event.preventDefault()
+          if (
+            event.data == "." &&
+            doesNumberContainDecimal(state.numericalAnswer)
+          ) {
+            console.error("Decimal point is already present !");
+            showErrorNotification("You've already entered decimal point !");
+          }
+          event.preventDefault();
         }
       }
       if (isQuestionTypeNumericalInteger.value) {
-        const keysAllowed: string[] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-        const keyPressed: string = event.data
+        const keysAllowed: string[] = [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+        ];
+        const keyPressed: string = event.data;
         if (
           doNumericalCharactersExceedLimit(state.numericalAnswer) ||
-          !keysAllowed.includes(keyPressed)) {
-          event.preventDefault()
+          !keysAllowed.includes(keyPressed)
+        ) {
+          event.preventDefault();
         }
       }
     }
