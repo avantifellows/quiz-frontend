@@ -139,19 +139,27 @@ describe("Player for Assessment quizzes", () => {
         );
       });
 
-      it("once scorecard displayed, number of skipped questions should not consider optional questions", () => {
-        cy.get('[data-test="modal"]')
-          .get('[data-test="endTestButton"]')
-          .trigger("click");
+      it("check if scorecard eventually becomes visible", () => {
+        // Remove or hide any toast notifications
+        cy.get(".Vue-Toastification__toast-body").should("not.exist");
 
-        // additional click to protect endTest button
+        // Interact with the endTestButton
         cy.get('[data-test="modal"]')
-          .get('[data-test="endTestButton"]')
-          .trigger("click");
+          .find('[data-test="endTestButton"]')
+          .click();
 
+        // Additional check to ensure the button click was successful
+        cy.get('[data-test="modal"]')
+          .find('[data-test="endTestButton"]')
+          .click();
+
+        // Wait for the scorecard to become visible
+        cy.get('[data-test="scorecard"]').should("be.visible");
+
+        // Verify the text of the metricValue-2
         cy.get('[data-test="scorecard"]')
-          .get('[data-test="metricValue-2"]')
-          .should("have.text", 12); // 12 in first qset, none in 2nd qset
+          .find('[data-test="metricValue-2"]')
+          .should("have.text", "12"); // Ensure the text is a string
       });
     });
   });

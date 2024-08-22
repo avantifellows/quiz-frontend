@@ -529,7 +529,7 @@ export default defineComponent({
         // Styling the notification
         Object.assign(notification.style, {
           position: "fixed",
-          bottom: "20px",
+          bottom: "80px",
           right: "20px",
           backgroundColor: "#f44336",
           color: "white",
