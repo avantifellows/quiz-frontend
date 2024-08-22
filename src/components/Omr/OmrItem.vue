@@ -478,6 +478,12 @@ export default defineComponent({
 
     function preventKeypressIfApplicable(event: InputEvent) {
       function showErrorNotification(message: string) {
+        const existingNotification = document.querySelector(
+          ".error-notification"
+        );
+        if (existingNotification) {
+          existingNotification.remove();
+        }
         const notification = document.createElement("div");
         notification.className = "error-notification";
         notification.innerText = message;
@@ -485,14 +491,18 @@ export default defineComponent({
         // Styling the notification
         Object.assign(notification.style, {
           position: "fixed",
-          bottom: "80px",
-          right: "20px",
+          bottom: "90px", // Adjusted distance from the bottom to avoid UI elements
+          left: "50%",
+          transform: "translateX(-70%)", // Center horizontally
           backgroundColor: "#f44336",
           color: "white",
           padding: "10px",
           borderRadius: "5px",
           boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
           zIndex: 1000,
+          maxWidth: "90%", // Ensure it does not exceed screen width
+          textAlign: "center",
+          boxSizing: "border-box",
         });
 
         document.body.appendChild(notification);
@@ -500,7 +510,7 @@ export default defineComponent({
         // Automatically remove the notification after 3 seconds
         setTimeout(() => {
           notification.remove();
-        }, 3000);
+        }, 2000);
       }
 
       if (event.data == null) {

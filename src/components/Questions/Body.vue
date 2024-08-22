@@ -22,10 +22,18 @@
 
     <div class="overflow-y-auto flex flex-col w-full">
       <div class="bg-gray-300">
-      <!-- questionHeaderPrefix shows the question index no. and the type of question -->
-      <p :class="questionHeaderPrefixClass" data-test="question-index-type" v-html="questionHeaderPrefix"></p>
-      <!-- questionHeaderSuffix shows the subject and section no. of question -->
-      <p :class="questionHeaderSuffixClass" data-test="question-subject-section" v-html="questionHeaderSuffix"></p>
+        <!-- questionHeaderPrefix shows the question index no. and the type of question -->
+        <p
+          :class="questionHeaderPrefixClass"
+          data-test="question-index-type"
+          v-html="questionHeaderPrefix"
+        ></p>
+        <!-- questionHeaderSuffix shows the subject and section no. of question -->
+        <p
+          :class="questionHeaderSuffixClass"
+          data-test="question-subject-section"
+          v-html="questionHeaderSuffix"
+        ></p>
       </div>
       <!-- question text -->
       <div class="mx-6 md:mx-10">
@@ -171,45 +179,90 @@
           :class="answerContainerClass"
           data-test="matrixMatchContainer"
         >
-        <ul class="max-w-screen-md w-full">
-          <li class="list-none space-y-1 flex flex-col">
-            <!-- Create the matrix match table -->
-            <table class="border-collapse border border-gray-200 mx-auto">
-              <thead>
-                <tr>
-                  <th></th>
-                  <th v-for="(column, columnIndex) in $props.matrixSize?.[1] || 5" :key="columnIndex" class="border border-gray-200 text-center">{{ getColumnLabel(columnIndex) }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(row, rowIndex) in $props.matrixSize?.[0] || 4" :key="rowIndex">
-                  <td class="border border-gray-200 text-center">{{ getRowLabel(rowIndex) }}</td>
-                  <td v-for="(column, columnIndex) in $props.matrixSize?.[1] || 5" :key="columnIndex" class="border border-gray-200 text-center">
-                    <div
-                      :class="optionBackgroundClass(convertMatrixMatchOptionToString(rowIndex, columnIndex))"
+          <ul class="max-w-screen-md w-full">
+            <li class="list-none space-y-1 flex flex-col">
+              <!-- Create the matrix match table -->
+              <table class="border-collapse border border-gray-200 mx-auto">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th
+                      v-for="(column, columnIndex) in $props.matrixSize?.[1] ||
+                      5"
+                      :key="columnIndex"
+                      class="border border-gray-200 text-center"
                     >
-                      <input
-                        type="checkbox"
-                        :id="`${rowIndex}-${columnIndex}`"
-                        :name="`${rowIndex}-${columnIndex}`"
-                        :value="`${columnIndex}`"
-                        class="mx-auto text-primary focus:ring-0 disabled:cursor-not-allowed"
-                        :disabled="isAnswerDisabled"
-                        :class="optionBackgroundClass(convertMatrixMatchOptionToString(rowIndex, columnIndex))"
-                        style="box-shadow: none"
-                        @click="selectOption(convertMatrixMatchOptionToString(rowIndex, columnIndex))"
-                        :checked="isMatrixMatchOptionMarked(convertMatrixMatchOptionToString(rowIndex, columnIndex))"
-                        :data-test="`matrixMatchSelector-${rowIndex}-${columnIndex}`"
-                      />
-                  </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </li>
-        </ul>
-        <!-- answer display -->
-        <div
+                      {{ getColumnLabel(columnIndex) }}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="(row, rowIndex) in $props.matrixSize?.[0] || 4"
+                    :key="rowIndex"
+                  >
+                    <td class="border border-gray-200 text-center">
+                      {{ getRowLabel(rowIndex) }}
+                    </td>
+                    <td
+                      v-for="(column, columnIndex) in $props.matrixSize?.[1] ||
+                      5"
+                      :key="columnIndex"
+                      class="border border-gray-200 text-center"
+                    >
+                      <div
+                        :class="
+                          optionBackgroundClass(
+                            convertMatrixMatchOptionToString(
+                              rowIndex,
+                              columnIndex
+                            )
+                          )
+                        "
+                      >
+                        <input
+                          type="checkbox"
+                          :id="`${rowIndex}-${columnIndex}`"
+                          :name="`${rowIndex}-${columnIndex}`"
+                          :value="`${columnIndex}`"
+                          class="mx-auto text-primary focus:ring-0 disabled:cursor-not-allowed"
+                          :disabled="isAnswerDisabled"
+                          :class="
+                            optionBackgroundClass(
+                              convertMatrixMatchOptionToString(
+                                rowIndex,
+                                columnIndex
+                              )
+                            )
+                          "
+                          style="box-shadow: none"
+                          @click="
+                            selectOption(
+                              convertMatrixMatchOptionToString(
+                                rowIndex,
+                                columnIndex
+                              )
+                            )
+                          "
+                          :checked="
+                            isMatrixMatchOptionMarked(
+                              convertMatrixMatchOptionToString(
+                                rowIndex,
+                                columnIndex
+                              )
+                            )
+                          "
+                          :data-test="`matrixMatchSelector-${rowIndex}-${columnIndex}`"
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </li>
+          </ul>
+          <!-- answer display -->
+          <div
             v-if="hasQuizEnded"
             class="px-2 text-lg mt-2"
             data-test="matrixMatchCorrectAnswer"
@@ -219,21 +272,27 @@
         </div>
       </div>
       <!-- Solution container -->
-        <div
-          v-if="(
-            (!isQuizAssessment && $props.isAnswerSubmitted) || hasQuizEnded)
-             && $props.displaySolution && isSolutionTextPresent"
-          class="mx-6 md:mx-10 py-4"
-        >
-          <p class="text-lg base:text-lg font-bold">Solution:</p>
-          <p :class="solutionTextClass" data-test="solution-text" v-html="solutionText"></p>
-        </div>
+      <div
+        v-if="
+          ((!isQuizAssessment && $props.isAnswerSubmitted) || hasQuizEnded) &&
+          $props.displaySolution &&
+          isSolutionTextPresent
+        "
+        class="mx-6 md:mx-10 py-4"
+      >
+        <p class="text-lg base:text-lg font-bold">Solution:</p>
+        <p
+          :class="solutionTextClass"
+          data-test="solution-text"
+          v-html="solutionText"
+        ></p>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import Textarea from "../UI/Text/Textarea.vue"
+import Textarea from "../UI/Text/Textarea.vue";
 import {
   defineComponent,
   reactive,
@@ -242,118 +301,126 @@ import {
   watch,
   PropType,
   onMounted,
-  onUpdated
-} from "vue"
-import BaseIcon from "../UI/Icons/BaseIcon.vue"
-import { quizType, questionSetPalette, questionType, questionTypeHeaderText, quizTitleType, testFormat, TimeLimit } from "../../types"
-import QuestionPalette from "./Palette/QuestionPalette.vue"
+  onUpdated,
+} from "vue";
+import BaseIcon from "../UI/Icons/BaseIcon.vue";
+import {
+  quizType,
+  questionSetPalette,
+  questionType,
+  questionTypeHeaderText,
+  quizTitleType,
+  testFormat,
+  TimeLimit,
+} from "../../types";
+import QuestionPalette from "./Palette/QuestionPalette.vue";
 
-const MAX_LENGTH_NUMERICAL_CHARACTERS: number = 10 // max length of characters in numerical answer textbox
+const MAX_LENGTH_NUMERICAL_CHARACTERS: number = 10; // max length of characters in numerical answer textbox
 
 export default defineComponent({
   components: {
     BaseIcon,
     Textarea,
-    QuestionPalette
+    QuestionPalette,
   },
   props: {
     text: {
       default: "",
-      type: String
+      type: String,
     },
     solutionText: {
       default: "",
-      type: String
+      type: String,
     },
     options: {
       default: () => [],
-      type: Array
+      type: Array,
     },
     correctAnswer: {
       default: null,
-      type: [String, Number, Array]
+      type: [String, Number, Array],
     },
     /** answer for the question which has been submitted */
     submittedAnswer: {
       default: null,
-      type: [String, Number, Array]
+      type: [String, Number, Array],
     },
     /** answer for the question which has been entered but not submitted */
     draftAnswer: {
       default: null,
-      type: [String, Number, Array]
+      type: [String, Number, Array],
     },
     isAnswerSubmitted: {
       default: false,
-      type: Boolean
+      type: Boolean,
     },
     questionType: {
       default: questionType.SINGLE_CHOICE,
-      type: String as PropType<questionType>
+      type: String as PropType<questionType>,
     },
     /** the character limit to be used if present */
     maxCharLimit: {
       default: -1,
-      type: Number
+      type: Number,
     },
     /** matrix size for matrix match question */
     matrixSize: {
       default: () => [4, 5],
-      type: Array
+      type: Array,
     },
     /** data of the image to be shown on a question. Contains URL and alt_text */
     imageData: {
       default: null,
-      type: Object
+      type: Object,
     },
     displaySolution: {
       default: true,
-      type: Boolean
+      type: Boolean,
     },
     isPortrait: {
       default: false,
-      type: Boolean
+      type: Boolean,
     },
     isGradedQuestion: {
       default: true,
-      type: Boolean
+      type: Boolean,
     },
     quizType: {
       type: String as PropType<quizType>,
-      default: "homework"
+      default: "homework",
     },
     hasQuizEnded: {
       type: Boolean,
-      default: false
+      default: false,
     },
     /** whether the user has attempted all available questions
      * based on question set's optional limit
-    */
+     */
     optionalLimitReached: {
       type: Boolean,
-      default: false
+      default: false,
     },
     /** whether the draft answer has been cleared but not yet submitted */
     isDraftAnswerCleared: {
       default: false,
-      type: Boolean
+      type: Boolean,
     },
     /** whether the question palette is visible */
     isPaletteVisible: {
       type: Boolean,
-      default: false
+      default: false,
     },
     questionSetStates: {
       type: Array as PropType<questionSetPalette[]>,
-      default: () => []
+      default: () => [],
     },
     currentQuestionIndex: {
       type: Number,
-      default: 0
+      default: 0,
     },
     questionSetTitle: {
       type: String,
-      default: ""
+      default: "",
     },
     title: {
       type: [null, String] as PropType<quizTitleType>,
@@ -369,23 +436,26 @@ export default defineComponent({
     },
     maxMarks: {
       type: Number,
-      required: true
+      required: true,
     },
     quizTimeLimit: {
-      type: Object as PropType<TimeLimit> || null,
-      default: null
+      type: (Object as PropType<TimeLimit>) || null,
+      default: null,
     },
     testFormat: {
       type: [null, String] as PropType<testFormat>,
-      default: null
+      default: null,
     },
   },
   setup(props, context) {
-    const isQuizAssessment = computed(() => props.quizType == "assessment")
+    const isQuizAssessment = computed(() => props.quizType == "assessment");
     const state = reactive({
       isImageLoading: false,
       // set containing the question types in which options are present
-      questionTypesWithOptions: new Set([questionType.SINGLE_CHOICE, questionType.MULTI_CHOICE]),
+      questionTypesWithOptions: new Set([
+        questionType.SINGLE_CHOICE,
+        questionType.MULTI_CHOICE,
+      ]),
       nonGradedAnswerClass: "bg-gray-200",
       correctOptionClass: "text-white bg-green-500 border rounded-md",
       skippedCorrectOptionClass: "border-4 border-green-500 rounded-md",
@@ -401,25 +471,28 @@ export default defineComponent({
       questionTextClass:
         "text-lg base:text-lg lg:text-xl mx-4 mt-6 m-2 font-bold leading-tight whitespace-pre-wrap",
       solutionTextClass:
-      "p-2 text-base base:text-lg lg:text-xl mx-2 whitespace-pre-wrap",
+        "p-2 text-base base:text-lg lg:text-xl mx-2 whitespace-pre-wrap",
       optionTextClass:
         "p-2 text-base base:text-lg lg:text-xl border rounded-md mx-2 whitespace-pre-wrap",
       subjectiveAnswer: null as string | null, // holds the answer to the subjective question
-      numericalAnswer: null as number | null // holds the answer to the numerical question
-    })
+      numericalAnswer: null as number | null, // holds the answer to the numerical question
+    });
 
     const questionTypeHeaderMapping = new Map<string, string>([
       [questionType.SINGLE_CHOICE, questionTypeHeaderText.SINGLE_CHOICE],
       [questionType.MULTI_CHOICE, questionTypeHeaderText.MULTI_CHOICE],
-      [questionType.NUMERICAL_INTEGER, questionTypeHeaderText.NUMERICAL_INTEGER],
+      [
+        questionType.NUMERICAL_INTEGER,
+        questionTypeHeaderText.NUMERICAL_INTEGER,
+      ],
       [questionType.NUMERICAL_FLOAT, questionTypeHeaderText.NUMERICAL_FLOAT],
       [questionType.SUBJECTIVE, questionTypeHeaderText.SUBJECTIVE],
-      [questionType.MATRIX_MATCH, questionTypeHeaderText.MATRIX_MATCH]
+      [questionType.MATRIX_MATCH, questionTypeHeaderText.MATRIX_MATCH],
     ]);
 
     /** stop the loading spinner when the image has been loaded **/
     function stopImageLoading() {
-      state.isImageLoading = false
+      state.isImageLoading = false;
     }
 
     /**
@@ -443,27 +516,30 @@ export default defineComponent({
         typeof props.correctAnswer == "number" || // check for typescript
         typeof props.submittedAnswer == "number" // check for typescript
       ) {
-        return
+        return;
       }
       if (
         (!isQuizAssessment.value || props.hasQuizEnded) && // display colors if its a homework or if its assessment and quiz ended
         props.isGradedQuestion &&
         props.correctAnswer.indexOf(answer) != -1
       ) {
-        if (props.submittedAnswer != null &&
-            props.submittedAnswer.indexOf(answer) != -1) {
+        if (
+          props.submittedAnswer != null &&
+          props.submittedAnswer.indexOf(answer) != -1
+        ) {
           // if both correct and submitted option
-          return state.correctOptionClass
+          return state.correctOptionClass;
         }
         // if correct but not in submitted option
-        return state.skippedCorrectOptionClass
+        return state.skippedCorrectOptionClass;
       }
       if (
         (!isQuizAssessment.value || props.hasQuizEnded) &&
         props.submittedAnswer != null &&
-        props.submittedAnswer.indexOf(answer) != -1) {
-        if (!props.isGradedQuestion) return state.nonGradedAnswerClass
-        return state.wrongOptionClass
+        props.submittedAnswer.indexOf(answer) != -1
+      ) {
+        if (!props.isGradedQuestion) return state.nonGradedAnswerClass;
+        return state.wrongOptionClass;
       }
     }
 
@@ -474,7 +550,7 @@ export default defineComponent({
         typeof props.draftAnswer != "string" &&
         typeof props.draftAnswer != "number" &&
         props.draftAnswer.indexOf(optionIndex) != -1
-      )
+      );
     }
 
     function getRowLabel(rowIndex: number) {
@@ -485,7 +561,10 @@ export default defineComponent({
       return "PQRSTUVWXYZ"[columnIndex]; // assume max cols = 11
     }
 
-    function convertMatrixMatchOptionToString(rowIndex: number, columnIndex: number) {
+    function convertMatrixMatchOptionToString(
+      rowIndex: number,
+      columnIndex: number
+    ) {
       const rowLetter = getRowLabel(rowIndex);
       const colLetter = getColumnLabel(columnIndex);
       return rowLetter + colLetter;
@@ -497,31 +576,37 @@ export default defineComponent({
         typeof props.draftAnswer != "string" &&
         typeof props.draftAnswer != "number" &&
         props.draftAnswer.indexOf(matrixMatchAnswer) != -1
-      )
+      );
     }
 
     function selectOption(answer: number | string) {
-      context.emit("option-selected", answer)
+      context.emit("option-selected", answer);
     }
 
     function labelClass(optionText: String) {
-      return [{ "h-4 sm:h-5": optionText == "" }, "flex content-center"]
+      return [{ "h-4 sm:h-5": optionText == "" }, "flex content-center"];
     }
 
     function startImageLoading() {
-      state.isImageLoading = true
+      state.isImageLoading = true;
     }
 
     function doesNumberContainDecimal(x: Number | null) {
-      return String(x).includes(".")
+      return String(x).includes(".");
     }
 
     function doNumericalCharactersExceedLimit(x: Number | null) {
-      return String(x).length >= MAX_LENGTH_NUMERICAL_CHARACTERS
+      return String(x).length >= MAX_LENGTH_NUMERICAL_CHARACTERS;
     }
 
     function preventKeypressIfApplicable(event: InputEvent) {
       function showErrorNotification(message: string) {
+        const existingNotification = document.querySelector(
+          ".error-notification"
+        );
+        if (existingNotification) {
+          existingNotification.remove();
+        }
         const notification = document.createElement("div");
         notification.className = "error-notification";
         notification.innerText = message;
@@ -529,14 +614,18 @@ export default defineComponent({
         // Styling the notification
         Object.assign(notification.style, {
           position: "fixed",
-          bottom: "80px",
-          right: "20px",
+          bottom: "90px", // Adjusted distance from the bottom to avoid UI elements
+          left: "50%",
+          transform: "translateX(-70%)", // Center horizontally
           backgroundColor: "#f44336",
           color: "white",
           padding: "10px",
           borderRadius: "5px",
           boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
           zIndex: 1000,
+          maxWidth: "90%", // Ensure it does not exceed screen width
+          textAlign: "center",
+          boxSizing: "border-box",
         });
 
         document.body.appendChild(notification);
@@ -544,7 +633,7 @@ export default defineComponent({
         // Automatically remove the notification after 3 seconds
         setTimeout(() => {
           notification.remove();
-        }, 3000);
+        }, 2000);
       }
 
       if (event.data == null) {
@@ -628,63 +717,63 @@ export default defineComponent({
     }
 
     function navigateToQuestion(questionIndex: number) {
-      context.emit("navigate", questionIndex)
+      context.emit("navigate", questionIndex);
     }
 
     const questionHeaderPrefix = computed(() => {
-      return `Q.${props.currentQuestionIndex + 1} | ${questionTypeHeaderMapping.get(props.questionType)}`;
+      return `Q.${
+        props.currentQuestionIndex + 1
+      } | ${questionTypeHeaderMapping.get(props.questionType)}`;
     });
 
     const questionHeaderSuffix = computed(() => {
       if (isQuizAssessment.value) {
         return props.questionSetTitle;
       } else {
-        return `Total Questions: ${props.numQuestions}`
+        return `Total Questions: ${props.numQuestions}`;
       }
     });
 
     // styling class for the question image and loading spinner containers
     const questionImageAreaClass = computed(() => ({
       "h-56 mb-4": props.isPortrait,
-      "h-28 sm:h-36 md:h-48 lg:h-56 xl:h-80 w-1/2": !props.isPortrait
-    }))
+      "h-28 sm:h-36 md:h-48 lg:h-56 xl:h-80 w-1/2": !props.isPortrait,
+    }));
 
     // styling class for the image container
     const questionImageContainerClass = computed(() => [
       questionImageAreaClass.value,
       {
-        hidden: state.isImageLoading
+        hidden: state.isImageLoading,
       },
-      "border rounded-md"
-    ])
+      "border rounded-md",
+    ]);
 
     const isQuestionImagePresent = computed(
       () => props.imageData != null && props.imageData.url != null
-    )
+    );
     const areOptionsVisible = computed(() =>
       state.questionTypesWithOptions.has(props.questionType)
-    )
-    const isSolutionTextPresent = computed(
-      () => props.solutionText != ""
-    )
+    );
+    const isSolutionTextPresent = computed(() => props.solutionText != "");
     const isQuestionTypeSubjective = computed(
       () => props.questionType == questionType.SUBJECTIVE
-    )
+    );
     const isQuestionTypeMultiChoice = computed(
       () => props.questionType == questionType.MULTI_CHOICE
-    )
+    );
     const isQuestionTypeSingleChoice = computed(
       () => props.questionType == questionType.SINGLE_CHOICE
-    )
+    );
     const isQuestionTypeNumericalInteger = computed(
       () => props.questionType == questionType.NUMERICAL_INTEGER
-    )
+    );
     const isQuestionTypeNumericalFloat = computed(
       () => props.questionType == questionType.NUMERICAL_FLOAT
-    )
+    );
     const isQuestionTypeMatrixMatch = computed(
       () => props.questionType == questionType.MATRIX_MATCH
-    )
+    );
 
     // styling class to decide orientation of image + options
     // depending on portrait/landscape orientation
@@ -692,18 +781,18 @@ export default defineComponent({
       return [
         {
           "content-center": isQuestionImagePresent.value && !props.isPortrait,
-          "flex-col": isQuestionImagePresent.value && props.isPortrait
+          "flex-col": isQuestionImagePresent.value && props.isPortrait,
         },
-        "flex mx-6 md:mx-10 py-4"
-      ]
-    })
+        "flex mx-6 md:mx-10 py-4",
+      ];
+    });
 
     const optionInputType = computed(() => {
-      if (!areOptionsVisible.value) return null
-      if (isQuestionTypeSingleChoice.value) return "radio"
-      if (isQuestionTypeMultiChoice.value) return "checkbox"
-      return null
-    })
+      if (!areOptionsVisible.value) return null;
+      if (isQuestionTypeSingleChoice.value) return "radio";
+      if (isQuestionTypeMultiChoice.value) return "checkbox";
+      return null;
+    });
 
     /**
      * classes for the various containers corresponding to the possible types of answers
@@ -712,28 +801,29 @@ export default defineComponent({
     const answerContainerClass = computed(() => ({
       "w-1/2": !props.isPortrait && isQuestionImagePresent.value,
       "w-full":
-        props.isPortrait || (!props.isPortrait && !isQuestionImagePresent.value)
-    }))
+        props.isPortrait ||
+        (!props.isPortrait && !isQuestionImagePresent.value),
+    }));
 
-    const hasCharLimit = computed(() => props.maxCharLimit != -1)
+    const hasCharLimit = computed(() => props.maxCharLimit != -1);
 
     const maxCharLimitClass = computed(() => {
       // class for the character limit text
       if (charactersLeft.value > 0.2 * props.maxCharLimit) {
-        return "text-gray-400"
+        return "text-gray-400";
       } else if (charactersLeft.value > 0.1 * props.maxCharLimit) {
-        return "text-yellow-500"
-      } else return "text-red-400"
-    })
+        return "text-yellow-500";
+      } else return "text-red-400";
+    });
     const charactersLeft = computed(() => {
       // number of characters left for the subjective answer if a limit is given
-      return props.maxCharLimit - currentAnswerLength.value
-    })
+      return props.maxCharLimit - currentAnswerLength.value;
+    });
     const currentAnswerLength = computed(() => {
       // length of the current answer (for subjective question)
-      if (state.subjectiveAnswer == null) return 0
-      return state.subjectiveAnswer.length
-    })
+      if (state.subjectiveAnswer == null) return 0;
+      return state.subjectiveAnswer.length;
+    });
     const defaultSubjectiveAnswer = computed(() => {
       // the default answer to be shown for the subjective question
       if (
@@ -741,89 +831,92 @@ export default defineComponent({
         typeof props.submittedAnswer == "string" &&
         !props.isDraftAnswerCleared
       ) {
-        return props.submittedAnswer
+        return props.submittedAnswer;
       }
       if (typeof props.draftAnswer == "string") {
-        return props.draftAnswer
+        return props.draftAnswer;
       }
-      return ""
-    })
+      return "";
+    });
     const defaultNumericalAnswer = computed(() => {
       if (
         props.submittedAnswer != null &&
         typeof props.submittedAnswer == "number" &&
         !props.isDraftAnswerCleared
       ) {
-        return props.submittedAnswer
+        return props.submittedAnswer;
       }
       if (typeof props.draftAnswer == "number") {
-        return props.draftAnswer
+        return props.draftAnswer;
       }
-      return null
-    })
+      return null;
+    });
     const isAnswerDisabled = computed(
       () =>
         (props.isAnswerSubmitted && !isQuizAssessment.value) ||
         (props.optionalLimitReached && !props.isAnswerSubmitted) ||
         props.hasQuizEnded
-    )
+    );
     // input mode refers to keypad being displayed in mobile browsers
     const getInputMode = computed(() => {
-      if (isQuestionTypeNumericalInteger.value || isQuestionTypeNumericalFloat.value) {
-        return "decimal"
+      if (
+        isQuestionTypeNumericalInteger.value ||
+        isQuestionTypeNumericalFloat.value
+      ) {
+        return "decimal";
       }
-      return "text"
-    })
+      return "text";
+    });
 
     const subjectiveAnswerBoxStyling = computed(() => [
       {
-        "bg-gray-100": props.isAnswerSubmitted
+        "bg-gray-100": props.isAnswerSubmitted,
       },
-      "bp-420:h-20 sm:h-28 md:h-36 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed"
-    ])
+      "bp-420:h-20 sm:h-28 md:h-36 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed",
+    ]);
 
     const numericalAnswerBoxStyling = computed(() => [
       {
         "text-green-500 border-green-500":
           ((props.submittedAnswer == props.correctAnswer &&
-          isQuestionTypeNumericalInteger.value) ||
-          (typeof props.submittedAnswer == "number" &&
-          typeof props.correctAnswer == "number" &&
-          Math.abs(props.submittedAnswer - props.correctAnswer) < 0.05 &&
-          isQuestionTypeNumericalFloat.value)) &&
+            isQuestionTypeNumericalInteger.value) ||
+            (typeof props.submittedAnswer == "number" &&
+              typeof props.correctAnswer == "number" &&
+              Math.abs(props.submittedAnswer - props.correctAnswer) < 0.05 &&
+              isQuestionTypeNumericalFloat.value)) &&
           props.isAnswerSubmitted &&
           props.isGradedQuestion &&
           (!isQuizAssessment.value ||
             (isQuizAssessment.value && props.hasQuizEnded)),
         "text-red-500 border-red-400":
-        ((props.submittedAnswer != props.correctAnswer &&
-          isQuestionTypeNumericalInteger.value) ||
-          (typeof props.submittedAnswer == "number" &&
-          typeof props.correctAnswer == "number" &&
-          Math.abs(props.submittedAnswer - props.correctAnswer) >= 0.05 &&
-          isQuestionTypeNumericalFloat.value)) &&
+          ((props.submittedAnswer != props.correctAnswer &&
+            isQuestionTypeNumericalInteger.value) ||
+            (typeof props.submittedAnswer == "number" &&
+              typeof props.correctAnswer == "number" &&
+              Math.abs(props.submittedAnswer - props.correctAnswer) >= 0.05 &&
+              isQuestionTypeNumericalFloat.value)) &&
           props.isAnswerSubmitted &&
           props.isGradedQuestion &&
           (!isQuizAssessment.value ||
             (isQuizAssessment.value && props.hasQuizEnded)),
         "bg-gray-100":
           (props.isAnswerSubmitted && !props.isGradedQuestion) ||
-          (isQuizAssessment.value && !props.hasQuizEnded)
+          (isQuizAssessment.value && !props.hasQuizEnded),
       },
-      "bp-420:h-20 sm:h-28 md:h-36 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed"
-    ])
+      "bp-420:h-20 sm:h-28 md:h-36 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed",
+    ]);
 
-    state.subjectiveAnswer = defaultSubjectiveAnswer.value
-    state.numericalAnswer = defaultNumericalAnswer.value
+    state.subjectiveAnswer = defaultSubjectiveAnswer.value;
+    state.numericalAnswer = defaultNumericalAnswer.value;
 
     watch(
       () => props.imageData,
       (newValue) => {
         // invoked when another item pops up which has an image
-        if (newValue != null) startImageLoading()
+        if (newValue != null) startImageLoading();
       },
       { deep: true }
-    )
+    );
 
     watch(
       () => props.draftAnswer,
@@ -831,27 +924,36 @@ export default defineComponent({
         // specific to subjective and numerical questions
         // when the draft answer is updated,
         // update the subjective and numerical answer too
-        if (typeof newValue == "string" || (newValue == null && typeof oldValue == "string")) {
-          state.subjectiveAnswer = newValue
+        if (
+          typeof newValue == "string" ||
+          (newValue == null && typeof oldValue == "string")
+        ) {
+          state.subjectiveAnswer = newValue;
         }
-        if (typeof newValue == "number" || (newValue == null && typeof oldValue == "number")) {
+        if (
+          typeof newValue == "number" ||
+          (newValue == null && typeof oldValue == "number")
+        ) {
           if (newValue != Number(state.numericalAnswer)) {
-            state.numericalAnswer = newValue
+            state.numericalAnswer = newValue;
           }
         }
       }
-    )
+    );
 
     watch(
       () => state.numericalAnswer,
       (newValue) => {
-        if (String(newValue) == '' || newValue == null) {
-          context.emit('numerical-answer-entered', null) // when entire answer is deleted, set draftAnswer as null
+        if (String(newValue) == "" || newValue == null) {
+          context.emit("numerical-answer-entered", null); // when entire answer is deleted, set draftAnswer as null
         } else {
-          context.emit("numerical-answer-entered", Number(state.numericalAnswer))
+          context.emit(
+            "numerical-answer-entered",
+            Number(state.numericalAnswer)
+          );
         }
       }
-    )
+    );
 
     watch(
       () => state.subjectiveAnswer,
@@ -862,25 +964,25 @@ export default defineComponent({
           newValue.length > props.maxCharLimit
         ) {
           // prevent answers more than the character limit from being entered via copy pasting
-          state.subjectiveAnswer = newValue.substring(0, props.maxCharLimit)
+          state.subjectiveAnswer = newValue.substring(0, props.maxCharLimit);
         }
-        context.emit("subjective-answer-entered", state.subjectiveAnswer)
+        context.emit("subjective-answer-entered", state.subjectiveAnswer);
       }
-    )
+    );
 
-    if (isQuestionImagePresent.value) startImageLoading()
+    if (isQuestionImagePresent.value) startImageLoading();
 
     onMounted(() => {
       // Force render any math on the page when component is mounted
       // @ts-ignore
-      if ("MathJax" in window) (window.MathJax as any).typeset()
-    })
+      if ("MathJax" in window) (window.MathJax as any).typeset();
+    });
 
     onUpdated(() => {
       // Force render any math on the page when component is updated
       // @ts-ignore
-      if ("MathJax" in window) (window.MathJax as any).typeset()
-    })
+      if ("MathJax" in window) (window.MathJax as any).typeset();
+    });
 
     return {
       ...toRefs(state),
@@ -918,16 +1020,16 @@ export default defineComponent({
       subjectiveAnswerBoxStyling,
       numericalAnswerBoxStyling,
       isQuestionTypeNumericalFloat,
-      isQuestionTypeNumericalInteger
-    }
+      isQuestionTypeNumericalInteger,
+    };
   },
   emits: [
     "option-selected",
     "subjective-answer-entered",
     "numerical-answer-entered",
-    "navigate"
-  ]
-})
+    "navigate",
+  ],
+});
 </script>
 
 <style>
