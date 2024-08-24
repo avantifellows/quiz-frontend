@@ -646,7 +646,6 @@ export default defineComponent({
       const isAlphabet = /[a-zA-Z]/.test(event.data); // Check if the input is an alphabet
 
       if (isAlphabet) {
-        console.error("Alphabets are not allowed!");
         showErrorNotification("Alphabets are not allowed!");
         event.preventDefault();
         return;
@@ -687,7 +686,6 @@ export default defineComponent({
             event.data == "." &&
             doesNumberContainDecimal(state.numericalAnswer)
           ) {
-            console.error("You have already entered a decimal point!");
             showErrorNotification("You have already entered a decimal point!");
           }
           event.preventDefault();
