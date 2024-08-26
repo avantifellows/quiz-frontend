@@ -10,7 +10,7 @@ import {
   eventType,
   QuestionSetMetricPayload,
   SessionMetricsPayload
-} from "../../types";
+} from "@/types";
 import axios, { AxiosError } from "axios";
 
 export default {

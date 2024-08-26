@@ -245,7 +245,7 @@ import {
   onUpdated
 } from "vue"
 import BaseIcon from "../UI/Icons/BaseIcon.vue"
-import { quizType, questionSetPalette, questionType, questionTypeHeaderText, quizTitleType, testFormat, TimeLimit } from "../../types"
+import { quizType, questionSetPalette, questionType, questionTypeHeaderText, quizTitleType, testFormat, TimeLimit } from "@/types"
 import QuestionPalette from "./Palette/QuestionPalette.vue"
 
 const MAX_LENGTH_NUMERICAL_CHARACTERS: number = 10 // max length of characters in numerical answer textbox

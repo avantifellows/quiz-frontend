@@ -31,7 +31,7 @@
 
 <script lang="ts">
 import { computed, PropType, defineComponent } from "vue";
-import { InputTextValidationConfig } from "../../../types";
+import { InputTextValidationConfig } from "@/types";
 import BaseIcon from "../Icons/BaseIcon.vue";
 
 export default defineComponent({

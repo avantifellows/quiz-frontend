@@ -24,7 +24,7 @@
 
 <script lang="ts">
 import { defineComponent, reactive, toRefs, computed, PropType } from "vue";
-import { IconButtonTitleConfig, IconButtonIconConfig } from "../../../types";
+import { IconButtonTitleConfig, IconButtonIconConfig } from "@/types";
 import BaseIcon from "../Icons/BaseIcon.vue";
 
 export default defineComponent({
