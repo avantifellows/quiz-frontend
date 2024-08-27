@@ -47,6 +47,8 @@
         :draftAnswer="draftResponses[currentQuestionIndex]"
         :submittedAnswer="currentQuestionResponseAnswer"
         :isAnswerSubmitted="isAnswerSubmitted"
+        :isMarkedForReview="isMarkedForReview"
+        :isSessionAnswerRequestProcessing="$props.isSessionAnswerRequestProcessing"
         :isPaletteVisible="isPaletteVisible"
         :isDraftAnswerCleared="isDraftAnswerCleared"
         :quizType="quizType"
@@ -249,6 +251,7 @@ export default defineComponent({
     watch(
       () => props.currentQuestionIndex,
       (newValue: Number) => {
+        console.log(state.localResponses[props.currentQuestionIndex].answer, state.localResponses[props.currentQuestionIndex].marked_for_review)
         state.localCurrentQuestionIndex = newValue.valueOf()
         if (!props.hasQuizEnded && optionalLimitReached.value && currentQuestionResponseAnswer.value == null) {
           state.toast.warning(
@@ -322,10 +325,12 @@ To attempt Q.${props.currentQuestionIndex + 1}, unselect an answer to another qu
 
     function submitQuestion() {
       if (!state.localResponses.length) return
-      state.previousLocalResponse = clonedeep(state.localResponses[props.currentQuestionIndex]);
       state.localResponses[props.currentQuestionIndex].answer =
         state.draftResponses[props.currentQuestionIndex]
-      state.localResponses[props.currentQuestionIndex].marked_for_review = false;
+      if (state.draftResponses[props.currentQuestionIndex] != null) {
+        // question is answered => set review to false
+        state.localResponses[props.currentQuestionIndex].marked_for_review = false;
+      }
       context.emit("submit-question")
     }
 
@@ -340,17 +345,17 @@ To attempt Q.${props.currentQuestionIndex + 1}, unselect an answer to another qu
       state.localResponses[props.currentQuestionIndex].marked_for_review = true;
       let markForReviewInfoText = `Question ${props.currentQuestionIndex + 1} is marked for review.`
       if (state.localResponses[props.currentQuestionIndex].answer != null) {
-        markForReviewInfoText += "This action clears your answer!"
+        markForReviewInfoText += `\nAnswer to Question ${props.currentQuestionIndex + 1} is cleared!`
         clearAnswer()
         submitQuestion()
       } else if (state.draftResponses[props.currentQuestionIndex] != null) {
-        markForReviewInfoText += "This action does not save your answer!"
+        markForReviewInfoText += "\nThis action does not save your answer!"
       }
       state.toast.info(
         markForReviewInfoText,
         {
           position: POSITION.TOP_LEFT,
-          timeout: 2000
+          timeout: 3000,
         }
       )
       context.emit("update-review-status")
@@ -427,10 +432,11 @@ To attempt Q.${props.currentQuestionIndex + 1}, unselect an answer to another qu
           }
         }
         state.toast.success(
-            `You have answered ${attemptedQuestions} out of ${props.numQuestions} questions.
-${markedForReviewAndUnansweredQuestions} questions marked for review are UNANSWERED.
-Click on the Question Palette to view unanswered questions before submitting the test.
-Click the End Test button again to make the final submission.`,
+            `Total Questions: ${props.numQuestions}
+Questions Answered: ${attemptedQuestions}
+Questions Marked for Review and Unanswered: ${markedForReviewAndUnansweredQuestions}
+\nUse the Question Palette to review all questions.
+For final submission, click the End Test button again.`,
             {
               position: POSITION.TOP_CENTER,
               timeout: 6000,

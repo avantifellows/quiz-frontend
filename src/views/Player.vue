@@ -240,7 +240,7 @@ export default defineComponent({
     });
     const isQuizLoaded = computed(() => numQuestions.value > 0);
     const scorecardResult = computed(() => ({
-      title: isQuizAssessment.value ? "Score" : "Accuracy",
+      title: isQuizAssessment.value ? "Score" : "Score %",
       value: scorecardResultValue.value,
     }));
 
@@ -513,7 +513,8 @@ export default defineComponent({
       state.continueAfterAnswerSubmit = false;
       const itemResponse = state.responses[state.currentQuestionIndex];
       const payload: UpdateSessionAnswerAPIPayload = {
-        answer: itemResponse.answer
+        answer: itemResponse.answer,
+        marked_for_review: itemResponse.marked_for_review
       }
       if (!isQuizAssessment.value) {
         // we update time spent for homework immediately when answer is submitted

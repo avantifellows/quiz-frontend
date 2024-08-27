@@ -342,6 +342,7 @@ describe("Player for Homework Quizzes", () => {
           .should("deep.equal", {
             answer: [0],
             time_spent: 3,
+            marked_for_review: false,
           });
       });
 
@@ -365,6 +366,7 @@ describe("Player for Homework Quizzes", () => {
           .should("deep.equal", {
             answer: [0],
             time_spent: 0,
+            marked_for_review: false,
           });
         // click submit again to continue
         cy.get('[data-test="modal"]')
@@ -405,6 +407,7 @@ describe("Player for Homework Quizzes", () => {
           .should("deep.equal", {
             answer: [1],
             time_spent: 3, // not 6
+            marked_for_review: false,
           });
       });
     });

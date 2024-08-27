@@ -54,31 +54,48 @@
         <h4 class="text-lg font-bold m-6">General Instructions</h4>
         <div class="ml-11 mr-4">
           <ol class="text-justify">
-             <li>The countdown timer in the top right corner of screen will display the remaining time available for you to complete the test. When the timer reaches zero, the test will end by itself. You will not be required to end or submit your test.</li>
-             <li>You can click on the <span class="inline-flex items-baseline"><BaseIcon name ='hamburger' class="place-self-center w-4 h-4"></BaseIcon></span> button on the top left corner of the page to expand the Question Palette.</li>
-             <li>The Question Palette will show the status of each question using one of the following symbols:
+            <li>
+              The countdown timer in the top right corner of the screen will display the remaining time available for you to complete the test. When the timer reaches zero, the test will end by itself. You will not be required to end or submit your test.
+            </li>
+            <li>
+              You can click on the
+              <span class="inline-flex items-baseline">
+                <BaseIcon name='hamburger' class="place-self-center w-4 h-4 border border-gray-300 rounded bg-gray-100"></BaseIcon>
+              </span>
+              button on the top left corner of the page to expand the Question Palette.
+            </li>
+            <li>
+              The Question Palette will show the status of each question using one of the following symbols:
               <div class="flex flex-wrap mx-2 md:mx-4 my-2">
                 <div class="flex items-center my-2 md:mx-4">
-                  <Success></Success>
+                  <Success class="mr-2"></Success>
                   <span class="ml-6 mr-6">You have answered the question</span>
                 </div>
                 <div class="flex items-center my-2 md:mx-4">
-                  <Neutral></Neutral>
+                  <Neutral class="mr-2"></Neutral>
                   <span class="ml-6 mr-6">You have not visited the question yet</span>
                 </div>
                 <div class="flex items-center my-2 md:mx-4">
-                  <Error></Error>
+                  <Error class="mr-2"></Error>
                   <span class="ml-6 mr-6">You have not answered the question</span>
                 </div>
-                <div class="flex items-center my-2 md:mx-4">
-                  <Review></Review>
-                  <span class="ml-6 mr-6">You have marked the question for review</span>
+                <div class="relative flex items-center border border-violet-600 p-2 rounded-md my-2 md:mx-4 w-full">
+                  <Review class="mr-2"></Review>
+                  <span class="mr-2">You have marked the question for review</span>
+                  <span class="bg-violet-800 text-white text-xs font-bold py-0.5 px-2 rounded-full">NEW</span>
                 </div>
               </div>
             </li>
-             <li>You can click on the <span class="inline-flex items-baseline"><BaseIcon name ='hamburger' class="place-self-center w-4 h-4"></BaseIcon></span> button again to collapse the Question Palette.</li>
+            <li>
+              You can click on the
+              <span class="inline-flex items-baseline">
+                <BaseIcon name='hamburger' class="place-self-center w-4 h-4"></BaseIcon>
+              </span>
+              button again to collapse the Question Palette.
+            </li>
           </ol>
         </div>
+
         <!-- Answering a question -->
         <h4 class="text-lg font-bold m-6">Answering a Question:</h4>
         <div class="ml-11 mr-4">
@@ -89,7 +106,10 @@
                 <li>To deselect your chosen answer, click on the button of the chosen option again or click on the <b>Clear</b> button.</li>
                 <li>To change your chosen answer, click on the button of another option.</li>
                 <li>To save your answer, you <b>MUST</b> click on the "Save & Next" button.</li>
-                <li>To review the question later, you can click on the "Mark For Review & Next" button.</li>
+                <li class="relative border border-violet-600 p-2 rounded-md">
+                    To review a question later, you can click on the "Mark For Review & Next" button. This action <b>will not</b> change your answer.
+                    <span class="bg-violet-800 text-white text-xs font-bold py-0.5 px-2 rounded-full">NEW</span>
+                </li>
              </ol>
              </li>
              <li>To change your answer to a question that has already been answered, first select that question for answering and then follow the procedure for answering that type of question.</li>
@@ -97,7 +117,7 @@
         </div>
         <div class="mt-5 ml-6 mr-4 flex border-red-400 border-1 p-2">
           <div class="float-left text-red-400 pr-5 pl-3 text-xl font-bold">!</div>
-          <div class="float-right text-justify pr-2">Note that selecting an option does NOT save your answer to the current question. Click on <b>"Save & Next" to save your answer</b> for the current question and then go to the next question.</div>
+          <div class="float-right text-justify pr-2">Note that selecting an option DOES NOT save your answer to the current question. Click on <b>"Save & Next" to save your answer</b> for the current question and then go to the next question.</div>
         </div>
     </div>
 </template>
