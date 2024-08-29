@@ -107,7 +107,7 @@
                 <li>To change your chosen answer, click on the button of another option.</li>
                 <li>To save your answer, you <b>MUST</b> click on the "Save & Next" button.</li>
                 <li class="relative border border-violet-600 p-2 rounded-md">
-                    To review a question later, you can click on the "Mark For Review & Next" button. This action <b>will not</b> change your answer.
+                    To review a question later, you can click on the "Review >" button. This action <b>will not</b> save your answer.
                     <span class="bg-violet-800 text-white text-xs font-bold py-0.5 px-2 rounded-full">NEW</span>
                 </li>
              </ol>

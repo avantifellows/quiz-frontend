@@ -355,7 +355,7 @@ To attempt Q.${props.currentQuestionIndex + 1}, unselect an answer to another qu
         markForReviewInfoText,
         {
           position: POSITION.TOP_LEFT,
-          timeout: 3000,
+          timeout: 3500,
         }
       )
       context.emit("update-review-status")
