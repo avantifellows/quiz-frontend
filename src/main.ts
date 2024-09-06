@@ -1,4 +1,5 @@
 import { createApp } from "vue";
+import { createI18n } from 'vue-i18n';
 import App from "./App.vue";
 import router from "./router";
 import store from "./store";
@@ -9,6 +10,20 @@ import VueClickAway from "vue3-click-away";
 
 import "./index.css";
 import "vue-toastification/dist/index.css";
+
+import en from './locales/en.json';
+import hi from './locales/hi.json';
+
+// Create i18n instance
+const i18n = createI18n({
+  legacy: false,
+  locale: store.getters.locale || 'en',
+  fallbackLocale: 'en',
+  messages: {
+    en,
+    hi
+  }
+});
 
 const app = createApp(App).use(store).use(router);
 
@@ -27,6 +42,8 @@ const filterBeforeCreate = (
   return toast;
 };
 
+app.use(store);
+app.use(i18n);
 app.use(Toast, { filterBeforeCreate });
 app.use(VueClickAway);
 app.use(plugin, defaultConfig);
