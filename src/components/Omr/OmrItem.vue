@@ -231,7 +231,7 @@ import {
   onUpdated,
 } from "vue";
 
-import { quizType, questionType, DraftResponse } from "../../types";
+import { quizType, questionType, DraftResponse } from "@/types"
 
 const MAX_LENGTH_NUMERICAL_CHARACTERS: number = 10; // max length of characters in numerical answer textbox
 

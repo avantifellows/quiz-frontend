@@ -1,6 +1,6 @@
 import {
   FormResultResponse
-} from "../../types";
+} from "@/types";
 
 export default {
   async submitFormData(formData : any, resultsQuery: boolean = false): Promise<FormResultResponse> {

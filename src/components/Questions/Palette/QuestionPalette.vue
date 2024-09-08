@@ -87,7 +87,7 @@ import Neutral from "./Neutral.vue";
 import Review from "./Review.vue";
 import PaletteItem from "./Item.vue";
 import InstructionPage from "@/components/InstructionPage.vue";
-import { TimeLimit, questionSetPalette, quizTitleType, testFormat } from "../../../types";
+import { TimeLimit, questionSetPalette, quizTitleType, testFormat } from "@/types";
 import { defineComponent, computed, PropType, reactive } from "vue";
 
 export default defineComponent({

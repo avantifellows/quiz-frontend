@@ -1,9 +1,14 @@
+const path = require("path");
+
 module.exports = {
   publicPath: "/",
   transpileDependencies: [/@vue\/*/, "vue-router", "vuex"],
   chainWebpack(config) {
     // reference: https://github.com/vuejs/vue-cli/issues/979#issuecomment-372990631
     config.plugins.delete("prefetch");
+
+    // Adding alias configuration for absolute imports
+    config.resolve.alias.set("@", path.resolve(__dirname, "src"));
   },
   parallel: false,
   // https://www.npmjs.com/package/@vue/cli-plugin-babel
