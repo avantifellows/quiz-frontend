@@ -87,7 +87,7 @@ import {
   IconButtonIconConfig,
   IconButtonTitleConfig,
   quizType,
-} from "../../types";
+} from "@/types";
 import {
   defineComponent,
   ref,

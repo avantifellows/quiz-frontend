@@ -312,7 +312,7 @@ import {
   quizTitleType,
   testFormat,
   TimeLimit,
-} from "../../types";
+} from "@/types";
 import QuestionPalette from "./Palette/QuestionPalette.vue";
 
 const MAX_LENGTH_NUMERICAL_CHARACTERS: number = 10; // max length of characters in numerical answer textbox
