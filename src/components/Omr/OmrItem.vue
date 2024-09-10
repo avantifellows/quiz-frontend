@@ -107,7 +107,7 @@
             v-model:value="numericalAnswer"
             class="px-1 w-full text-lg"
             :boxStyling="numericalAnswerBoxStyling"
-            placeholder="Only numbers are allowed"
+            placeholder="Numbers only."
             :inputMode="getInputMode"
             :isDisabled="isAnswerDisabled"
             :maxHeightLimit="50"
