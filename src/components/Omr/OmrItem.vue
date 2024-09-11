@@ -105,12 +105,12 @@
           <!-- input area for the answer -->
           <Textarea
             v-model:value="numericalAnswer"
-            class="px-1 w-full"
+            class="px-1 w-full text-lg"
             :boxStyling="numericalAnswerBoxStyling"
-            placeholder="Only numbers are allowed"
+            placeholder="Numbers only."
             :inputMode="getInputMode"
             :isDisabled="isAnswerDisabled"
-            :maxHeightLimit="250"
+            :maxHeightLimit="50"
             @beforeinput="preventKeypressIfApplicable"
             data-test="numericalAnswer"
           ></Textarea>
@@ -749,7 +749,7 @@ export default defineComponent({
           (isAnswerSubmitted.value && !props.isGradedQuestion) ||
           (isQuizAssessment.value && !props.hasQuizEnded),
       },
-      "bp-420:h-12 sm:h-12 md:h-12 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed",
+      "h-12 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed",
     ]);
 
     state.subjectiveAnswer = defaultSubjectiveAnswer.value;
