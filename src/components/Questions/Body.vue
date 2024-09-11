@@ -156,7 +156,7 @@
             v-model:value="numericalAnswer"
             class="px-2 w-full text-base"
             :boxStyling="numericalAnswerBoxStyling"
-            placeholder="Enter your answer here. Numbers only"
+            placeholder="Enter your answer here. Numbers only."
             :inputMode="getInputMode"
             :isDisabled="isAnswerDisabled"
             :maxHeightLimit="50"
