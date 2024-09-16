@@ -1,5 +1,5 @@
 <template>
-    <div class="h-full">z
+    <div class="h-full">
         <!-- Header -->
         <div class="flex w-full justify-center  bg-white p-4">
             <img src="../assets/images/jnvEnableLogo.png"/>
