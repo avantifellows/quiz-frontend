@@ -6,12 +6,11 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "build-staging": "vue-cli-service build --mode staging",
-    "test:unit": "vue-cli-service test:unit --coverageProvider=v8",
+    "test:unit": "vue-cli-service test:unit --coverageProvider=v8 --silent",
     "lint": "vue-cli-service lint",
     "lint:fix": "vue-cli-service lint --fix"
   },
   "dependencies": {
-    "@formkit/vue": "^1.0.0-beta.10",
     "@types/mathjax": "^0.0.37",
     "axios": "^0.26.1",
     "canvas-confetti": "^1.5.1",

@@ -76,15 +76,15 @@
       </div>
     </div>
     <!-- general Instruction -->
-    <!-- Locale Picker -->
-    <div class="flex justify-center p-4">
+    <!-- Language Toggle Button next to General Instructions -->
+    <div class="flex justify-between items-center m-6">
+      <h4 class="text-lg font-bold">{{ $t("generalInstructions.header") }}</h4>
       <LocalePicker
         :options="localeOptions"
         :currentLocale="currentLocale"
         @update:locale="handleLocaleChange"
       />
     </div>
-    <h4 class="text-lg font-bold m-6">{{ $t("generalInstructions.header") }}</h4>
     <div class="ml-11 mr-4">
       <ol class="text-justify">
         <li>{{ $t("generalInstructions.timerInfo") }}</li>
