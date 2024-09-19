@@ -1,0 +1,25 @@
+{
+  "generalInstructions": {
+    "header": "General Instructions",
+    "timerInfo": "The countdown timer in the top right corner of the screen will display the remaining time available for you to complete the test. When the timer reaches zero, the test will end automatically. You will not be required to end or submit your test.",
+    "paletteInfo": "You can click on the",
+    "expandPalette": "button on the top left corner of the page to expand the Question Palette.",
+    "paletteSymbols": "The Question Palette will show the status of each question using one of the following symbols:",
+    "answered": "You have answered the question.",
+    "notVisited": "You have not visited the question yet.",
+    "notAnswered": "You have not answered the question.",
+    "collapsePalette": "You can click on the",
+    "collapseButton": "button again to collapse the Question Palette."
+  },
+
+  "answeringQuestion": {
+    "title": "Answering a Question:",
+    "procedureForMCQ": "Procedure for answering a multiple-choice type question:",
+    "selectAnswer": "To select your answer, click on the button of one of the options.",
+    "deselectAnswer": "To deselect your chosen answer, click on the button of the chosen option again or click on the Clear button.",
+    "changeAnswer": "To change your chosen answer, click on the button of another option.",
+    "saveAnswer": "To save your answer, you MUST click on the Save & Next button.",
+    "changeAnsweredQuestion": "To change your answer to a question that has already been answered, first select that question for answering and then follow the procedure for answering that type of question.",
+    "noteSaveAnswer": "Note that selecting an option does NOT save your answer to the current question. Click on Save & Next to save your answer for the current question and then go to the next question."
+  }
+}
