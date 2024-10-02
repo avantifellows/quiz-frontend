@@ -104,7 +104,7 @@ import {
 } from "vue"
 import {
   isScreenPortrait
-} from "../../services/Functional/Utilities";
+} from "@/services/Functional/Utilities";
 import {
   Question,
   SubmittedResponse,
@@ -115,7 +115,7 @@ import {
   TimeLimit,
   quizTitleType,
   testFormat
-} from "../../types"
+} from "@/types"
 import { useToast, POSITION } from "vue-toastification"
 const clonedeep = require("lodash.clonedeep");
 

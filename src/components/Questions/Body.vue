@@ -154,12 +154,12 @@
           <!-- input area for the answer -->
           <Textarea
             v-model:value="numericalAnswer"
-            class="px-2 w-full"
+            class="px-2 w-full text-base"
             :boxStyling="numericalAnswerBoxStyling"
-            placeholder="Enter your answer here. Only numbers are allowed"
+            placeholder="Enter your answer here. Numbers only."
             :inputMode="getInputMode"
             :isDisabled="isAnswerDisabled"
-            :maxHeightLimit="250"
+            :maxHeightLimit="50"
             @beforeinput="preventKeypressIfApplicable"
             data-test="numericalAnswer"
           ></Textarea>
@@ -312,7 +312,7 @@ import {
   quizTitleType,
   testFormat,
   TimeLimit,
-} from "../../types";
+} from "@/types";
 import QuestionPalette from "./Palette/QuestionPalette.vue";
 
 const MAX_LENGTH_NUMERICAL_CHARACTERS: number = 10; // max length of characters in numerical answer textbox
@@ -901,7 +901,7 @@ export default defineComponent({
           (props.isAnswerSubmitted && !props.isGradedQuestion) ||
           (isQuizAssessment.value && !props.hasQuizEnded),
       },
-      "bp-420:h-20 sm:h-28 md:h-36 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed",
+      "h-12 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed",
     ]);
 
     state.subjectiveAnswer = defaultSubjectiveAnswer.value;

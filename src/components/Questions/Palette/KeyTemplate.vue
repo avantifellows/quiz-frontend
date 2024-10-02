@@ -22,7 +22,7 @@ import {
   legendKeyTextClass,
   legendKeyContainerClass,
 } from "./Utils";
-import BaseIcon from "../../../components/UI/Icons/BaseIcon.vue";
+import BaseIcon from "@/components/UI/Icons/BaseIcon.vue";
 import { defineComponent, computed } from "vue";
 
 export default defineComponent({

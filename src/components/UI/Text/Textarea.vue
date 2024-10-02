@@ -24,7 +24,7 @@
 
 <script lang="ts">
 import InputText from "./InputText.vue";
-import { InputTextValidationConfig, textAreaValueType } from "../../../types";
+import { InputTextValidationConfig, textAreaValueType } from "@/types";
 import { PropType, defineComponent, reactive, toRefs, watch } from "vue";
 
 export default defineComponent({

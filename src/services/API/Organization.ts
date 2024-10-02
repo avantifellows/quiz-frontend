@@ -2,7 +2,7 @@ import { apiClient } from "./RootClient";
 import { authenticationEndpoint } from "./Endpoints";
 import {
   OrganizationAPIResponse
-} from "../../types";
+} from "@/types";
 
 export default {
   /**

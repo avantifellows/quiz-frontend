@@ -39,7 +39,7 @@ import Success from "./Success.vue";
 import PartialSuccess from "./PartialSuccess.vue"
 import Error from "./Error.vue";
 import Neutral from "./Neutral.vue";
-import { questionState } from "../../../types";
+import { questionState } from "@/types";
 
 export default defineComponent({
   name: "Item",

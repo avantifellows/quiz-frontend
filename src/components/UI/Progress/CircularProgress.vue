@@ -51,7 +51,7 @@
 
 <script lang="ts">
 import { defineComponent, reactive, toRefs, computed, PropType } from "vue";
-import { CircularProgressResult } from "../../../types";
+import { CircularProgressResult } from "@/types";
 
 export default defineComponent({
   name: "CircularProgress",
