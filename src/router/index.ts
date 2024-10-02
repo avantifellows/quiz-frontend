@@ -22,15 +22,6 @@ const routes = [
     },
   },
   {
-    path: "/InstructionPage",
-    name: "InstructionPage",
-    component: () =>
-      import("@/components/InstructionPage.vue"),
-    meta: {
-      requiresAuth: false,
-    },
-  },
-  {
     path: "/quiz/:quizId",
     name: "Player",
     props: (route: any) => ({
