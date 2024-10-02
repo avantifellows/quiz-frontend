@@ -157,6 +157,7 @@ import {
 } from "../types";
 import LocalePicker from "./LocalePicker.vue";
 import { useI18n } from "vue-i18n";
+import Review from "./Questions/Palette/Review.vue";
 export default defineComponent({
   name: "InstructionPage",
   components: {
@@ -165,6 +166,7 @@ export default defineComponent({
     Error,
     Neutral,
     LocalePicker,
+    Review
   },
   props: {
     title: {

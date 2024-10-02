@@ -13,6 +13,9 @@ module.exports = {
       borderWidth: {
         1: "1px",
       },
+      fontSize: {
+        xxs: "0.80rem",
+      },
     },
     screens: {
       "bp-320": "320px",

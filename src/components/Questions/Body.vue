@@ -271,6 +271,15 @@
           </div>
         </div>
       </div>
+      <!-- labels -->
+      <div
+        v-if="isQuizAssessment && !hasQuizEnded && !isSessionAnswerRequestProcessing"
+        class="mx-6 md:mx-10 pb-4"
+      >
+      <span v-if="isMarkedForReview" class="bg-violet-500 text-white text-xs font-bold py-0.5 px-2 rounded-full mr-1">MARKED FOR REVIEW</span>
+      <span v-if="isAnswerSubmitted" class="bg-emerald-600 text-white text-xs font-bold py-0.5 px-2 rounded-full mr-1">ANSWERED</span>
+      <span v-if="!isAnswerSubmitted" class="bg-red-500 text-white text-xs font-bold py-0.5 px-2 rounded-full mr-1">NOT ANSWERED</span>
+      </div>
       <!-- Solution container -->
       <div
         v-if="
@@ -351,6 +360,14 @@ export default defineComponent({
       type: [String, Number, Array],
     },
     isAnswerSubmitted: {
+      default: false,
+      type: Boolean,
+    },
+    isMarkedForReview: {
+      default: false,
+      type: Boolean,
+    },
+    isSessionAnswerRequestProcessing: {
       default: false,
       type: Boolean,
     },
