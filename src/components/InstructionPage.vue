@@ -113,6 +113,11 @@
               <Neutral></Neutral>
               <span class="ml-6 mr-6">{{ $t("generalInstructions.notAnswered") }}</span>
             </div>
+            <div class="relative flex items-center border border-violet-600 p-2 rounded-md my-2 md:mx-4 w-full">
+              <Review class="mr-2"></Review>
+              <span class="ml-6 mr-6">{{ $t("generalInstructions.markedForReview") }}</span>
+              <span class="bg-violet-800 text-white text-xs font-bold py-0.5 px-2 rounded-full">NEW</span>
+            </div>
           </div>
         </li>
       </ol>
@@ -129,6 +134,10 @@
             <li>{{ $t("answeringQuestion.deselectAnswer") }}</li>
             <li>{{ $t("answeringQuestion.changeAnswer") }}</li>
             <li>{{ $t("answeringQuestion.saveAnswer") }}</li>
+            <li class="relative border border-violet-600 p-2 rounded-md">
+              {{  $t("answeringQuestion.reviewQuestion") }}
+              <span class="bg-violet-800 text-white text-xs font-bold py-0.5 px-2 rounded-full">NEW</span>
+            </li>
           </ol>
         </li>
         <li>{{ $t("answeringQuestion.changeAnsweredQuestion") }}</li>

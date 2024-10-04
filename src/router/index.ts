@@ -4,24 +4,6 @@ const requiredAuthKeys = ["userId", "apiKey"];
 
 const routes = [
   {
-    path: "/forms/jnvenable",
-    name: "FormInput",
-    component: () =>
-      import(/* webpackChunkName: "about" */ "@/views/FormInput.vue"),
-    meta: {
-      requiresAuth: false,
-    },
-  },
-  {
-    path: "/forms/jnvenablereports",
-    name: "FormResults",
-    component: () =>
-      import(/* webpackChunkName: "about" */ "@/views/FormResults.vue"),
-    meta: {
-      requiresAuth: false,
-    },
-  },
-  {
     path: "/quiz/:quizId",
     name: "Player",
     props: (route: any) => ({
