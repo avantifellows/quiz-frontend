@@ -1,135 +1,172 @@
 <template>
-    <div>
-        <h4 class="text-lg font-bold m-6">Test Paper Overview</h4>
-        <!-- Table -->
-        <table class="table-auto mx-auto md:mx-0 m-4">
-            <!-- row 1 -->
-            <tr>
-                <th class="border-black border-1 text-left px-4 py-2">Test Name</th>
-                <td class="border-black border-1 px-4 py-2" data-test="title">{{ $props.title }}</td>
-            </tr>
-            <!-- row 2 -->
-            <tr>
-                <th class="border-black border-1 text-left px-4 py-2">Test Format</th>
-                <td class="border-black border-1 px-4 py-2" data-test="test-format">{{ testFormatMapping.get($props.testFormat || "") }} </td>
-            </tr>
-            <!-- row 3 -->
-            <tr>
-                <th class="border-black border-1 text-left px-4 py-2">Duration</th>
-                <td class="border-black border-1 px-4 py-2" data-test="quiz-time-limit">{{ ($props.quizTimeLimit?.max || 0)/60 }} minutes</td>
-            </tr>
-            <!-- row 4 -->
-            <tr>
-                <th class="border-black border-1 text-left px-4 py-2">Total Marks</th>
-                <td class="border-black border-1 px-4 py-2" data-test="total-marks">{{ $props.maxMarks }} Marks</td>
-            </tr>
-            <!-- row 5 -->
-            <tr>
-                <th class="border-black border-1 text-left px-4 py-2">No. of Questions</th>
-                <td class="border-black border-1 px-4 py-2" data-test="num-questions">{{ $props.maxQuestionsAllowedToAttempt }}</td>
-            </tr>
-            <!-- row 6 -->
-            <tr>
-                <th class="border-black border-1 text-left px-4 py-2">Subjects</th>
-                <td class="border-black border-1 px-4 py-2" data-test="subject">{{ $props.subject }}</td>
-            </tr>
-        </table>
-        <!-- Test Paper Pattern(if FST) -->
-        <div v-if="isTestFST" data-test="test-fst">
-          <h4 class="text-lg font-bold m-6">Test Paper Pattern</h4>
-            <!-- Printing subjects extracted from questionSet.title -->
-            <p class="ml-6 mr-4 mb-2 text-justify">The following are the subjects in the test: <strong>
-              <span v-for="(part, index) in subjectNames" :key="part">
-                  {{ index > 0 ? ', ' : '' }}{{ part }}
-              </span></strong>
-            </p>
-            <!-- iterating over every questionset and printing title and its description -->
-            <div
-              v-for="(questionSetState, index) in questionSetStates" :key="index">
-                <li class="text-base mt-2 ml-7 font-semibold leading-none mr-4" :data-test="`questionSetTitle-${index}`">{{ questionSetState.title }}</li>
-                <div class="text-base mx-2 mb-4 leading-tight text-slate-500 ml-12 mr-4" :data-test="`questionSetInstruction-${index}`" v-html="questionSetState.instructionText"></div>
-            </div>
-        </div>
-        <!-- general Instruction -->
-        <h4 class="text-lg font-bold m-6">General Instructions</h4>
-        <div class="ml-11 mr-4">
-          <ol class="text-justify">
-            <li>
-              The countdown timer in the top right corner of the screen will display the remaining time available for you to complete the test. When the timer reaches zero, the test will end by itself. You will not be required to end or submit your test.
-            </li>
-            <li>
-              You can click on the
-              <span class="inline-flex items-baseline">
-                <BaseIcon name='hamburger' class="place-self-center w-4 h-4 border border-gray-300 rounded bg-gray-100"></BaseIcon>
-              </span>
-              button on the top left corner of the page to expand the Question Palette.
-            </li>
-            <li>
-              The Question Palette will show the status of each question using one of the following symbols:
-              <div class="flex flex-wrap mx-2 md:mx-4 my-2">
-                <div class="flex items-center my-2 md:mx-4">
-                  <Success class="mr-2"></Success>
-                  <span class="ml-6 mr-6">You have answered the question</span>
-                </div>
-                <div class="flex items-center my-2 md:mx-4">
-                  <Neutral class="mr-2"></Neutral>
-                  <span class="ml-6 mr-6">You have not visited the question yet</span>
-                </div>
-                <div class="flex items-center my-2 md:mx-4">
-                  <Error class="mr-2"></Error>
-                  <span class="ml-6 mr-6">You have not answered the question</span>
-                </div>
-                <div class="relative flex items-center border border-violet-600 p-2 rounded-md my-2 md:mx-4 w-full">
-                  <Review class="mr-2"></Review>
-                  <span class="mr-2">You have marked the question for review</span>
-                  <span class="bg-violet-800 text-white text-xs font-bold py-0.5 px-2 rounded-full">NEW</span>
-                </div>
-              </div>
-            </li>
-            <li>
-              You can click on the
-              <span class="inline-flex items-baseline">
-                <BaseIcon name='hamburger' class="place-self-center w-4 h-4"></BaseIcon>
-              </span>
-              button again to collapse the Question Palette.
-            </li>
-          </ol>
-        </div>
-
-        <!-- Answering a question -->
-        <h4 class="text-lg font-bold m-6">Answering a Question:</h4>
-        <div class="ml-11 mr-4">
-          <ol class="text-justify">
-             <li>Procedure for answering a multiple choice type question:
-                <ol class="ml-7 list-[lower-alpha] text-justify">
-                <li>To select you answer, click on the button of one of the options.</li>
-                <li>To deselect your chosen answer, click on the button of the chosen option again or click on the <b>Clear</b> button.</li>
-                <li>To change your chosen answer, click on the button of another option.</li>
-                <li>To save your answer, you <b>MUST</b> click on the "Save & Next" button.</li>
-                <li class="relative border border-violet-600 p-2 rounded-md">
-                    To review a question later, you can click on the "Review >" button. This action <b>will not</b> save your answer.
-                    <span class="bg-violet-800 text-white text-xs font-bold py-0.5 px-2 rounded-full">NEW</span>
-                </li>
-             </ol>
-             </li>
-             <li>To change your answer to a question that has already been answered, first select that question for answering and then follow the procedure for answering that type of question.</li>
-          </ol>
-        </div>
-        <div class="mt-5 ml-6 mr-4 flex border-red-400 border-1 p-2">
-          <div class="float-left text-red-400 pr-5 pl-3 text-xl font-bold">!</div>
-          <div class="float-right text-justify pr-2">Note that selecting an option DOES NOT save your answer to the current question. Click on <b>"Save & Next" to save your answer</b> for the current question and then go to the next question.</div>
-        </div>
+  <div>
+    <h4 class="text-lg font-bold m-6">Test Paper Overview</h4>
+    <!-- Table -->
+    <table class="table-auto mx-auto md:mx-0 m-4">
+      <!-- row 1 -->
+      <tr>
+        <th class="border-black border-1 text-left px-4 py-2">Test Name</th>
+        <td class="border-black border-1 px-4 py-2" data-test="title">
+          {{ $props.title }}
+        </td>
+      </tr>
+      <!-- row 2 -->
+      <tr>
+        <th class="border-black border-1 text-left px-4 py-2">Test Format</th>
+        <td class="border-black border-1 px-4 py-2" data-test="test-format">
+          {{ testFormatMapping.get($props.testFormat || "") }}
+        </td>
+      </tr>
+      <!-- row 3 -->
+      <tr>
+        <th class="border-black border-1 text-left px-4 py-2">Duration</th>
+        <td class="border-black border-1 px-4 py-2" data-test="quiz-time-limit">
+          {{ ($props.quizTimeLimit?.max || 0) / 60 }} minutes
+        </td>
+      </tr>
+      <!-- row 4 -->
+      <tr>
+        <th class="border-black border-1 text-left px-4 py-2">Total Marks</th>
+        <td class="border-black border-1 px-4 py-2" data-test="total-marks">
+          {{ $props.maxMarks }} Marks
+        </td>
+      </tr>
+      <!-- row 5 -->
+      <tr>
+        <th class="border-black border-1 text-left px-4 py-2">
+          No. of Questions
+        </th>
+        <td class="border-black border-1 px-4 py-2" data-test="num-questions">
+          {{ $props.maxQuestionsAllowedToAttempt }}
+        </td>
+      </tr>
+      <!-- row 6 -->
+      <tr>
+        <th class="border-black border-1 text-left px-4 py-2">Subjects</th>
+        <td class="border-black border-1 px-4 py-2" data-test="subject">
+          {{ $props.subject }}
+        </td>
+      </tr>
+    </table>
+    <!-- Test Paper Pattern(if FST) -->
+    <div v-if="isTestFST" data-test="test-fst">
+      <h4 class="text-lg font-bold m-6">Test Paper Pattern</h4>
+      <!-- Printing subjects extracted from questionSet.title -->
+      <p class="ml-6 mr-4 mb-2 text-justify">
+        The following are the subjects in the test:
+        <strong>
+          <span v-for="(part, index) in subjectNames" :key="part">
+            {{ index > 0 ? ", " : "" }}{{ part }}
+          </span></strong
+        >
+      </p>
+      <!-- iterating over every questionset and printing title and its description -->
+      <div v-for="(questionSetState, index) in questionSetStates" :key="index">
+        <li
+          class="text-base mt-2 ml-7 font-semibold leading-none mr-4"
+          :data-test="`questionSetTitle-${index}`"
+        >
+          {{ questionSetState.title }}
+        </li>
+        <div
+          class="text-base mx-2 mb-4 leading-tight text-slate-500 ml-12 mr-4"
+          :data-test="`questionSetInstruction-${index}`"
+          v-html="questionSetState.instructionText"
+        ></div>
+      </div>
     </div>
+    <!-- general Instruction -->
+    <!-- Language Toggle Button next to General Instructions -->
+    <div class="flex justify-between items-center m-6">
+      <h4 class="text-lg font-bold">{{ $t("generalInstructions.header") }}</h4>
+      <LocalePicker
+        :options="localeOptions"
+        :currentLocale="currentLocale"
+        @update:locale="handleLocaleChange"
+      />
+    </div>
+    <div class="ml-11 mr-4">
+      <ol class="text-justify">
+        <li>{{ $t("generalInstructions.timerInfo") }}</li>
+        <li>
+          {{ $t("generalInstructions.paletteInfo") }}
+          <span class="inline-flex items-baseline"
+            ><BaseIcon
+              name="hamburger"
+              class="place-self-center w-4 h-4"
+            ></BaseIcon
+          ></span>
+          {{ $t("generalInstructions.expandPalette") }}
+        </li>
+        <li>
+          {{ $t("generalInstructions.paletteSymbols") }}
+          <div class="flex flex-wrap mx-2 md:mx-4 my-2">
+            <div class="flex items-center my-2 md:mx-4">
+              <Success></Success>
+              <span class="ml-6 mr-6">{{ $t("generalInstructions.answered") }}</span>
+            </div>
+            <div class="flex items-center my-2 md:mx-4">
+              <Error></Error>
+              <span class="ml-6 mr-6">{{ $t("generalInstructions.notVisited") }}</span>
+            </div>
+            <div class="flex items-center my-2 md:mx-4">
+              <Neutral></Neutral>
+              <span class="ml-6 mr-6">{{ $t("generalInstructions.notAnswered") }}</span>
+            </div>
+            <div class="relative flex items-center border border-violet-600 p-2 rounded-md my-2 md:mx-4 w-full">
+              <Review class="mr-2"></Review>
+              <span class="ml-6 mr-6">{{ $t("generalInstructions.markedForReview") }}</span>
+              <span class="bg-violet-800 text-white text-xs font-bold py-0.5 px-2 rounded-full">NEW</span>
+            </div>
+          </div>
+        </li>
+      </ol>
+    </div>
+    <!-- Answering a question -->
+
+    <h4 class="text-lg font-bold m-6">{{ $t("answeringQuestion.title") }}</h4>
+    <div class="ml-11 mr-4">
+      <ol class="text-justify">
+        <li>
+          {{ $t("answeringQuestion.procedureForMCQ") }}
+          <ol class="ml-7 list-[lower-alpha] text-justify">
+            <li>{{ $t("answeringQuestion.selectAnswer") }}</li>
+            <li>{{ $t("answeringQuestion.deselectAnswer") }}</li>
+            <li>{{ $t("answeringQuestion.changeAnswer") }}</li>
+            <li>{{ $t("answeringQuestion.saveAnswer") }}</li>
+            <li class="relative border border-violet-600 p-2 rounded-md">
+              {{  $t("answeringQuestion.reviewQuestion") }}
+              <span class="bg-violet-800 text-white text-xs font-bold py-0.5 px-2 rounded-full">NEW</span>
+            </li>
+          </ol>
+        </li>
+        <li>{{ $t("answeringQuestion.changeAnsweredQuestion") }}</li>
+      </ol>
+    </div>
+    <div class="mt-5 ml-6 mr-4 flex border-red-400 border-1 p-2">
+      <div class="float-left text-red-400 pr-5 pl-3 text-xl font-bold">!</div>
+      <div class="float-right text-justify pr-2">
+        {{ $t("answeringQuestion.noteSaveAnswer") }}
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, PropType } from "vue";
+import { computed, defineComponent, PropType, reactive } from "vue";
 import BaseIcon from "./UI/Icons/BaseIcon.vue";
 import Success from "./Questions/Palette/Success.vue";
 import Error from "./Questions/Palette/Error.vue";
 import Neutral from "./Questions/Palette/Neutral.vue";
+import {
+  quizTitleType,
+  testFormat,
+  questionSetPalette,
+  TimeLimit,
+} from "../types";
+import LocalePicker from "./LocalePicker.vue";
+import { useI18n } from "vue-i18n";
 import Review from "./Questions/Palette/Review.vue";
-import { quizTitleType, testFormat, questionSetPalette, TimeLimit } from "../types";
 export default defineComponent({
   name: "InstructionPage",
   components: {
@@ -137,6 +174,7 @@ export default defineComponent({
     Success,
     Error,
     Neutral,
+    LocalePicker,
     Review
   },
   props: {
@@ -154,34 +192,40 @@ export default defineComponent({
     },
     maxMarks: {
       type: Number,
-      required: true
+      required: true,
     },
     quizTimeLimit: {
-      type: Object as PropType<TimeLimit> || null,
-      default: null
+      type: (Object as PropType<TimeLimit>) || null,
+      default: null,
     },
     questionSetStates: {
       type: Array as PropType<questionSetPalette[]>,
-      default: () => []
+      default: () => [],
     },
     testFormat: {
       type: [null, String] as PropType<testFormat>,
-      default: null
+      default: null,
     },
   },
   setup(props) {
-    const isTestFST = computed(() => props.testFormat == "full_syllabus_test")
+    const { t, locale } = useI18n();
+    const state = reactive({
+      currentLocale: locale.value,
+    });
+    const isTestFST = computed(() => props.testFormat == "full_syllabus_test");
 
     // to extract the questionSetTitles from questionSets (eg. Physics - Section A)
     const questionSetTitles = computed(() => {
-      return props.questionSetStates.map(questionSetState => questionSetState.title);
+      return props.questionSetStates.map(
+        (questionSetState) => questionSetState.title
+      );
     });
 
     // to split the questionSetTitles from char "-" (eg. Physics)
     const subjectNames = computed(() => {
       const distinctComponents = new Set();
 
-      questionSetTitles.value.forEach(title => {
+      questionSetTitles.value.forEach((title) => {
         if (title !== null) {
           const parts = title.split("-");
           if (parts.length === 2) {
@@ -200,14 +244,14 @@ export default defineComponent({
       ["chapter_test", "Chapter Test"],
       ["hiring_test", "Hiring Test"],
       ["evaluation_test", "Evaluation Test"],
-      ["homework", "Homework"]
+      ["homework", "Homework"],
     ]);
 
     // to split the questionSetTitles from char "-" (eg. Section A)
     const sectionNames = computed(() => {
       const distinctComponents = new Set();
 
-      questionSetTitles.value.forEach(title => {
+      questionSetTitles.value.forEach((title) => {
         if (title !== null) {
           const parts = title.split("-");
           if (parts.length === 2) {
@@ -218,14 +262,27 @@ export default defineComponent({
 
       return Array.from(distinctComponents);
     });
+    const localeOptions = [
+      { value: "en", label: "English" },
+      { value: "hi", label: "Hindi" },
+    ];
+    const handleLocaleChange = (newLocale: any) => {
+      state.currentLocale = newLocale;
+      locale.value = newLocale;
+      // Update vue-i18n locale here if needed
+    };
 
     return {
       isTestFST,
       questionSetTitles,
       subjectNames,
       sectionNames,
-      testFormatMapping
-    }
+      testFormatMapping,
+      localeOptions,
+      currentLocale: computed(() => state.currentLocale),
+      handleLocaleChange,
+      t,
+    };
   },
-})
+});
 </script>
