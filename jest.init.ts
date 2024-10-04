@@ -1,8 +1,9 @@
 import { config } from "@vue/test-utils";
 import VueClickAway from "vue3-click-away";
 import { createI18n } from 'vue-i18n';
+import { createStore } from 'vuex';
 
-// Mock window.matchMedia
+// Existing configuration
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: (query: string) => ({
@@ -23,17 +24,17 @@ Object.defineProperty(window, 'scrollTo', {
   value: jest.fn(),
 });
 
-// inline-svg stub
 const InlineSvg = {
   template: "<img />",
 };
 
 config.global.stubs = {
-
   InlineSvg,
 };
+
 config.global.plugins = [VueClickAway];
 
+// i18n configuration
 const messages = {
   en: {
     generalInstructions: {
@@ -67,3 +68,20 @@ const i18n = createI18n({
 });
 
 config.global.plugins.push(i18n);
+
+// Vuex configuration
+const store = createStore({
+  state: {
+    locale: "en", // Mock locale state
+  },
+  getters: {
+    locale: (state) => state.locale, // Mock locale getter
+  },
+  mutations: {
+    setLocale(state, locale) {
+      state.locale = locale;
+    }
+  },
+});
+
+config.global.plugins.push(store);
