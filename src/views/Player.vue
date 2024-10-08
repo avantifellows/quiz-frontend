@@ -9,6 +9,16 @@
     </div>
 
     <div v-else class="h-full flex flex-col">
+      <icon-button
+        v-if="shouldShowOmrToggle"
+        :titleConfig="toggleButtonTextConfig"
+        :iconConfig="toggleButtonIconConfig"
+        :buttonClass="toggleButtonIconClass"
+        class="rounded-2xl shadow-lg mt-5 place-self-center"
+        data-test="toggleOmrMode"
+        @click="toggleOmrMode"
+      ></icon-button>
+
       <Splash
         v-if="isSplashShown"
         :title="title"
@@ -19,7 +29,7 @@
         :reviewAnswers="reviewAnswers"
         :sessionEndTimeText="sessionEndTimeText"
         :numQuestions="maxQuestionsAllowedToAttempt"
-        :quizType="metadata.quiz_type"
+        :quizType="computedQuizType"
         :quizTimeLimit="quizTimeLimit"
         :maxMarks="maxMarks"
         :maxQuestionsAllowedToAttempt="numGradedQuestions"
@@ -125,7 +135,7 @@ import QuizAPIService from "../services/API/Quiz";
 import SessionAPIService from "../services/API/Session";
 import QuestionAPIService from "../services/API/Question"
 import { defineComponent, reactive, toRefs, computed, watch, onMounted } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import {
   QuizAPIResponse,
@@ -150,11 +160,13 @@ import {
 } from "../types";
 import { useToast, POSITION } from "vue-toastification"
 import BaseIcon from "../components/UI/Icons/BaseIcon.vue";
+import IconButton from "../components/UI/Buttons/IconButton.vue";
 import OrganizationAPIService from "../services/API/Organization";
 
 export default defineComponent({
   name: "Player",
   components: {
+    IconButton,
     Splash,
     QuestionModal,
     Scorecard,
@@ -177,11 +189,14 @@ export default defineComponent({
     review: {
       default: null,
       type: Boolean
+    },
+    omrMode: {
+      default: false,
+      type: Boolean
     }
   },
   setup(props) {
     const router = useRouter();
-    const route = useRoute();
     const store = useStore();
     const state = reactive({
       currentQuestionIndex: -1 as number,
@@ -233,7 +248,47 @@ export default defineComponent({
 
     const isQuizAssessment = computed(() => (state.metadata.quiz_type == "assessment" || state.metadata.quiz_type == "omr-assessment"));
 
-    const isOmrMode = computed(() => state.metadata.quiz_type == "omr-assessment");
+    const isOmrMode = computed(() => props.omrMode || state.metadata.quiz_type == "omr-assessment");
+
+    const computedQuizType = computed(() => {
+      return isOmrMode.value ? "omr-assessment" : "assessment";
+    });
+
+    const shouldShowOmrToggle = computed(() => state.metadata.quiz_type == "assessment")
+
+    const toggleButtonTextConfig = computed(() => {
+      const config = {
+        value: "",
+        class: ["text-orange-500 underline underline-offset-8", "text-base md:text-lg lg:text-xl font-semibold"],
+      };
+
+      if (isOmrMode.value) {
+        config.value = "Switch to Assessment Mode";
+      } else {
+        config.value = "Switch to OMR Mode";
+      }
+
+      return config;
+    });
+
+    const toggleButtonIconClass = computed(() => {
+      const iconClass = [
+        "border border-orange-300",
+        "bg-transparent hover:bg-gray-100",
+        "rounded-lg shadow-sm px-6 py-3",
+        "flex items-center justify-center",
+        "transition-all duration-200 ease-in-out"
+      ]
+
+      return iconClass;
+    });
+
+    const toggleButtonIconConfig = computed(() => {
+      return {
+        iconName: isOmrMode.value ? "check-circle-solid" : "sync-alt-solid",
+        iconClass: "h-4 w-4 text-white",
+      };
+    });
 
     const isSplashShown = computed(() => state.currentQuestionIndex == -1);
     const numQuestions = computed(() => state.questions.length);
@@ -247,6 +302,18 @@ export default defineComponent({
       title: isQuizAssessment.value ? "Score" : "Score %",
       value: scorecardResultValue.value,
     }));
+
+    function toggleOmrMode() {
+      const url = new URL(window.location.href);
+
+      if (url.searchParams.has("omrMode")) {
+        url.searchParams.delete("omrMode");
+      } else {
+        url.searchParams.set("omrMode", "true");
+      }
+
+      window.location.href = url.toString();
+    }
 
     function starttimeSpentOnQuestionCalc() {
       if (state.timerInterval) {
@@ -422,7 +489,10 @@ export default defineComponent({
         // review quiz mode
         quizDetails = await QuizAPIService.getReviewQuiz(props.quizId);
       } else {
-        quizDetails = await QuizAPIService.getQuiz(props.quizId);
+        quizDetails = await QuizAPIService.getQuiz({
+          quizId: props.quizId,
+          omrMode: isOmrMode.value ?? false
+        });
       }
 
       // since we know that there is going to be only one
@@ -462,7 +532,8 @@ export default defineComponent({
     async function createSession() {
       const sessionDetails = await SessionAPIService.createSession(
         props.quizId,
-        route.query.userId as string
+        props.userId as string,
+        isOmrMode.value
       );
       state.sessionId = sessionDetails._id;
       state.responses = sessionDetails.session_answers;
@@ -562,6 +633,7 @@ export default defineComponent({
         newQuestionIndex,
         {
           answer: itemResponse.answer,
+          marked_for_review: false // false by default for omr
           // not sending time spent on question for omr -- cannot compute!
         }
       );
@@ -982,6 +1054,12 @@ export default defineComponent({
       fetchQuestionBucket,
       timerUpdates,
       isOmrMode,
+      computedQuizType,
+      shouldShowOmrToggle,
+      toggleButtonTextConfig,
+      toggleButtonIconClass,
+      toggleButtonIconConfig,
+      toggleOmrMode,
       starttimeSpentOnQuestionCalc,
       stoptimeSpentOnQuestionCalc
     };
