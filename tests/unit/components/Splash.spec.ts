@@ -1,5 +1,6 @@
 import { mount } from "@vue/test-utils";
 import Splash from "@/components/Splash.vue";
+import { createStore } from "vuex";
 
 describe("Splash.vue", () => {
   const title = "Geometry Quiz";
@@ -7,6 +8,8 @@ describe("Splash.vue", () => {
   const quizType = "assessment";
   const numQuestions = 3;
   const grade = "8";
+
+  // Mount the component with the mock store
   const wrapper = mount(Splash, {
     props: {
       title,
@@ -17,6 +20,7 @@ describe("Splash.vue", () => {
     },
   });
 
+  // Your test cases remain the same
   it("renders props correctly", () => {
     expect(wrapper.find('[data-test="metadata-title"]').text()).toBe(title);
     expect(wrapper.find('[data-test="subject"]').text()).toBe(subject);
@@ -26,13 +30,13 @@ describe("Splash.vue", () => {
   });
 
   it("disables the start button if session data has not been fetched", async () => {
-    await wrapper.setProps({ isFirstSession: null })
+    await wrapper.setProps({ isFirstSession: null });
     await wrapper.find('[data-test="startQuiz"]').trigger("click");
     expect(wrapper.emitted()).toEqual({});
-  })
+  });
 
   it("emits start when start button is active and clicked", async () => {
-    await wrapper.setProps({ isFirstSession: true })
+    await wrapper.setProps({ isFirstSession: true });
     await wrapper.find('[data-test="startQuiz"]').trigger("click");
     expect(wrapper.emitted()).toHaveProperty("start");
   });

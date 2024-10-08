@@ -44,6 +44,12 @@
           :title="legendNeutralText"
           :hasQuizEnded="hasQuizEnded"
         ></Neutral>
+        <div v-if="!hasQuizEnded">
+          <Review
+          title="Marked For Review"
+          :hasQuizEnded="hasQuizEnded"
+          ></Review>
+        </div>
           <div v-if="hasQuizEnded">
             <PartialSuccess :title="legendPartialSuccessText" :hasQuizEnded="hasQuizEnded"></PartialSuccess>
           </div>
@@ -78,9 +84,10 @@ import Success from "./Success.vue";
 import PartialSuccess from "./PartialSuccess.vue";
 import Error from "./Error.vue";
 import Neutral from "./Neutral.vue";
+import Review from "./Review.vue";
 import PaletteItem from "./Item.vue";
 import InstructionPage from "@/components/InstructionPage.vue";
-import { TimeLimit, questionSetPalette, quizTitleType, testFormat } from "../../../types";
+import { TimeLimit, questionSetPalette, quizTitleType, testFormat } from "@/types";
 import { defineComponent, computed, PropType, reactive } from "vue";
 
 export default defineComponent({
@@ -89,6 +96,7 @@ export default defineComponent({
     PartialSuccess,
     Error,
     Neutral,
+    Review,
     PaletteItem,
     InstructionPage
   },

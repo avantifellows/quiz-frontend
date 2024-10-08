@@ -1,6 +1,6 @@
 import { apiClient } from "./RootClient";
 import { questionsEndpoint } from "./Endpoints";
-import { Question } from "../../types";
+import { Question } from "@/types";
 
 export default {
   /**

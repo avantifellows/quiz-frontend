@@ -6,6 +6,8 @@ dist/
 /tests/e2e/screenshots/
 coverage/
 .nyc_output/
+venv/
+
 
 # local env files
 .env.local

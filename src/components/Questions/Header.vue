@@ -49,7 +49,7 @@
 <script lang="ts">
 import IconButton from "../UI/Buttons/IconButton.vue";
 import { defineComponent, reactive, toRefs, computed, watch, onMounted, PropType } from "vue";
-import { quizTitleType } from "../../types";
+import { quizTitleType } from "@/types";
 
 export default defineComponent({
   name: "Header",

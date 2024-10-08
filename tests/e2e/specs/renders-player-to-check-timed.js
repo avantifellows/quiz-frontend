@@ -167,6 +167,7 @@ describe("Player for Assessment Timed quizzes", () => {
                   num_correct: 0,
                   num_wrong: 0,
                   num_partially_correct: 0,
+                  num_marked_for_review: 0,
                   attempt_rate: 0,
                   accuracy_rate: 0,
                 },
@@ -176,6 +177,7 @@ describe("Player for Assessment Timed quizzes", () => {
               total_correct: 0,
               total_wrong: 0,
               total_partially_correct: 0,
+              total_marked_for_review: 0,
               total_marks: 0,
             },
           });
@@ -340,6 +342,7 @@ describe("Player for Homework Quizzes", () => {
           .should("deep.equal", {
             answer: [0],
             time_spent: 3,
+            marked_for_review: false,
           });
       });
 
@@ -363,6 +366,7 @@ describe("Player for Homework Quizzes", () => {
           .should("deep.equal", {
             answer: [0],
             time_spent: 0,
+            marked_for_review: false,
           });
         // click submit again to continue
         cy.get('[data-test="modal"]')
@@ -403,6 +407,7 @@ describe("Player for Homework Quizzes", () => {
           .should("deep.equal", {
             answer: [1],
             time_spent: 3, // not 6
+            marked_for_review: false,
           });
       });
     });

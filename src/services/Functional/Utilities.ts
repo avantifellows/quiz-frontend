@@ -1,5 +1,5 @@
-import store from "../../store/index";
-import { Question, submittedAnswer, CorrectAnswerType, answerEvaluation, QuestionBucketingMap } from "../../types";
+import store from "@/store/index";
+import { Question, submittedAnswer, CorrectAnswerType, answerEvaluation, QuestionBucketingMap } from "@/types";
 const isEqual = require("deep-eql");
 
 /**

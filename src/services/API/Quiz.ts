@@ -1,6 +1,6 @@
 import { apiClient } from "./RootClient";
 import { quizEndpoint, reviewQuizEndpoint } from "./Endpoints";
-import { QuizAPIResponse } from "../../types";
+import { QuizAPIResponse } from "@/types";
 
 export default {
   /**

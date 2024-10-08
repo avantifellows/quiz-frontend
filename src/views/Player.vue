@@ -84,6 +84,7 @@
         v-model:responses="responses"
         v-model:previousResponse="previousResponse"
         @submit-question="submitQuestion"
+        @update-review-status="updateQuestionResponse"
         @end-test="endTest"
         @fetch-question-bucket="fetchQuestionBucket"
         v-if="isQuestionShown && !isOmrMode"
@@ -207,6 +208,7 @@ export default defineComponent({
       numWrong: 0, // number of wrongly answered questions
       numPartiallyCorrect: 0, // number of partially correct questions
       numSkipped: 0, // number of skipped questions
+      numMarkedForReview: 0, // number of questions marked for review
       marksScored: 0,
       maxMarks: 0, // maximum marks that can be scored
       isScorecardShown: false, // to show the scorecard or not
@@ -242,7 +244,7 @@ export default defineComponent({
     });
     const isQuizLoaded = computed(() => numQuestions.value > 0);
     const scorecardResult = computed(() => ({
-      title: isQuizAssessment.value ? "Score" : "Accuracy",
+      title: isQuizAssessment.value ? "Score" : "Score %",
       value: scorecardResultValue.value,
     }));
 
@@ -486,13 +488,44 @@ export default defineComponent({
       await createSession();
     }
 
+    /** updates the session answer once marked for review */
+    async function updateQuestionResponse() {
+      state.isSessionAnswerRequestProcessing = true;
+      const itemResponse = state.responses[state.currentQuestionIndex];
+      const payload: UpdateSessionAnswerAPIPayload = {
+        marked_for_review: itemResponse.marked_for_review
+      }
+      const response = await SessionAPIService.updateSessionAnswer( // response.data
+        state.sessionId,
+        state.currentQuestionIndex,
+        payload
+      );
+      state.timeSpentOnQuestion[state.currentQuestionIndex].hasSynced = true;
+      if (response.status != 200) {
+        state.toast.error(
+          `Review Status for Q.${state.currentQuestionIndex + 1} not saved. Please try to mark for review again or refresh the page.`,
+          {
+            position: POSITION.TOP_LEFT,
+            timeout: 4000,
+            draggablePercent: 0.4
+          }
+        )
+        state.responses[state.currentQuestionIndex] = state.previousResponse; // previous value?!
+      } else {
+        // successful response
+        state.continueAfterAnswerSubmit = true;
+      }
+      state.isSessionAnswerRequestProcessing = false;
+    }
+
     /** updates the session answer once a response is submitted */
     async function submitQuestion() {
       state.isSessionAnswerRequestProcessing = true;
       state.continueAfterAnswerSubmit = false;
       const itemResponse = state.responses[state.currentQuestionIndex];
       const payload: UpdateSessionAnswerAPIPayload = {
-        answer: itemResponse.answer
+        answer: itemResponse.answer,
+        marked_for_review: itemResponse.marked_for_review
       }
       if (!isQuizAssessment.value) {
         // we update time spent for homework immediately when answer is submitted
@@ -701,6 +734,7 @@ export default defineComponent({
       state.numCorrect = 0;
       state.numWrong = 0;
       state.numPartiallyCorrect = 0;
+      state.numMarkedForReview = 0;
       state.marksScored = 0;
 
       // Initialize metrics for each question set
@@ -713,6 +747,7 @@ export default defineComponent({
         correctlyAnswered: 0,
         wronglyAnswered: 0,
         partiallyAnswered: 0,
+        numQuestionsMarkedForReview: 0,
         attemptRate: 0,
         accuracyRate: 0
       }));
@@ -721,6 +756,10 @@ export default defineComponent({
         const [currentQsetIndex] = getQsetLimits(questionIndex);
         const qsetMetricsObj = state.qsetMetrics[currentQsetIndex];
         if (!questionDetail.graded) qsetMetricsObj.maxQuestionsAllowedToAttempt -= 1
+        if (state.responses[index].marked_for_review === true) {
+          qsetMetricsObj.numQuestionsMarkedForReview += 1;
+          state.numMarkedForReview += 1;
+        }
         updateQuestionMetrics(questionDetail, state.responses[index].answer, qsetMetricsObj);
         if (qsetMetricsObj.numAnswered != 0) qsetMetricsObj.accuracyRate = (qsetMetricsObj.correctlyAnswered + 0.5 * qsetMetricsObj.partiallyAnswered) / qsetMetricsObj.numAnswered;
         state.qsetMetrics[currentQsetIndex].attemptRate = qsetMetricsObj.numAnswered / qsetMetricsObj.maxQuestionsAllowedToAttempt;
@@ -857,6 +896,7 @@ export default defineComponent({
                 qstate = "neutral"
               } else {
                 if (state.responses[qindex].answer != null) qstate = "success"
+                else if (state.responses[qindex].marked_for_review) qstate = "review"
                 else qstate = "error"
               }
             } else qstate = "error"
@@ -932,6 +972,7 @@ export default defineComponent({
       startQuiz,
       getQsetLimits,
       submitQuestion,
+      updateQuestionResponse,
       submitOmrQuestion,
       goToPreviousQuestion,
       endTest,
