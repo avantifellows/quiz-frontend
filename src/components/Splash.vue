@@ -23,6 +23,14 @@
               <p :class="metadataTitleClass">{{ numQuestions }} questions</p>
             </div>
           </div>
+          <!-- Conditional check for grade -->
+          <div v-if="grade" :class="metadataCellClass">
+            <BaseIcon name="student-in-class" :iconClass="metadataIconClass"></BaseIcon>
+            <div class="flex items-center" data-test="grade">
+              <p :class="metadataTitleClass">Class {{ grade }}</p>
+            </div>
+          </div>
+        </div>      
           <div :class="metadataCellClass">
             <BaseIcon
               name="student-in-class"
