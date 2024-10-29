@@ -10,6 +10,7 @@
       :warningTimeLimit="timeLimitWarningThreshold"
       :title="title"
       :userId="userId"
+      :quizType="quizType"
       @time-limit-warning="displayTimeLimitWarning"
       @end-test="endTest"
       @end-test-by-time="endTestByTime"

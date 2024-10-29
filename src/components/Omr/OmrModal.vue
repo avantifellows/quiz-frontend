@@ -5,6 +5,7 @@
         v-if="isQuizAssessment"
         :hasQuizEnded="hasQuizEnded"
         :hasTimeLimit="quizTimeLimit != null"
+        :quizType="quizType"
         :title="title"
         :userId="userId"
         :isOmrMode="isOmrMode"

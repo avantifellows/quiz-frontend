@@ -11,22 +11,24 @@ import {
   QuestionSetMetricPayload,
   SessionMetricsPayload
 } from "@/types";
-import axios, { AxiosError } from "axios";
 
 export default {
   /**
    * returns the details for a quiz
    * @param {string} quizId - id of the quiz for which the session is to be created
    * @param {string} userId - id of the user for which the session is to be created
+   * @param {boolean} omrMode - whether the session is being accessed in omrMode
    * @returns {Promise<SessionAPIResponse>} data corresponding to the session
    */
   async createSession(
     quizId: string,
-    userId: string
+    userId: string,
+    omrMode: boolean = false
   ): Promise<SessionAPIResponse> {
     const response = await apiClient().post(sessionsEndpoint, {
       user_id: userId,
       quiz_id: quizId,
+      omr_mode: omrMode
     });
     return response.data;
   },

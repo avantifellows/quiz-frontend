@@ -207,6 +207,7 @@ export interface SessionAPIResponse {
   user_id: string;
   quiz_id: string;
   is_first: boolean;
+  omr_mode: boolean;
   session_answers: SubmittedResponse[];
   has_quiz_ended: boolean;
   time_remaining?: number;
