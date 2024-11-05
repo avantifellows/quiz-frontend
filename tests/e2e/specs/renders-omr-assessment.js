@@ -99,6 +99,7 @@ describe("Player for OMR quizzes", () => {
             .its("request.body")
             .should("deep.equal", {
               answer: [0],
+              marked_for_review: false,
             });
         });
 

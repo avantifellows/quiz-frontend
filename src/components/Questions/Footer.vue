@@ -159,7 +159,7 @@ export default defineComponent({
     const isQuizAssessment = computed(() => props.quizType == "assessment" || props.quizType == "omr-assessment");
     const isSmallScreen = ref(false);
     const updateScreenSize = () => {
-      isSmallScreen.value = window.matchMedia("(max-width: 500px)").matches;
+      isSmallScreen.value = window.matchMedia("(max-width: 560px)").matches;
     };
     const state = reactive({
       assessmentNavigationButtonIconClass: [

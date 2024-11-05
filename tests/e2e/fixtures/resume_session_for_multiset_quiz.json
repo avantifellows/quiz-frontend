@@ -2,6 +2,7 @@
     "_id": "62625e0f773b5fb92fde890b",
     "user_id": "1",
     "quiz_id": "abcd",
+    "omr_mode": false,
     "is_first": false,
     "has_quiz_ended": false,
     "session_answers": [
