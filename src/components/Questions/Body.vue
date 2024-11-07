@@ -20,7 +20,7 @@
     >
     </QuestionPalette>
 
-    <div class="overflow-y-auto flex flex-col w-full">
+    <div class="overflow-y-auto flex flex-col w-full" inert>
       <div class="bg-gray-300">
         <!-- questionHeaderPrefix shows the question index no. and the type of question -->
         <p
