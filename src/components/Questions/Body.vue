@@ -20,8 +20,7 @@
     >
     </QuestionPalette>
 
-    <!-- inert is used to disable copy-paste functionality   -->
-    <div class="overflow-y-auto flex flex-col w-full" inert >
+    <div class="overflow-y-auto flex flex-col w-full">
       <div class="bg-gray-300">
         <!-- questionHeaderPrefix shows the question index no. and the type of question -->
         <p
@@ -37,7 +36,7 @@
         ></p>
       </div>
       <!-- question text -->
-      <div class="mx-6 md:mx-10">
+      <div class="mx-6 md:mx-10" inert>
         <p :class="questionTextClass" data-test="text" v-html="text"></p>
       </div>
       <div :class="orientationClass">
@@ -53,7 +52,7 @@
           />
         </div>
         <!-- question image container -->
-        <div :class="questionImageContainerClass" v-if="isQuestionImagePresent">
+        <div :class="questionImageContainerClass" v-if="isQuestionImagePresent" inert>
           <img
             :src="imageData.url"
             class="object-contain h-full w-full"
@@ -98,6 +97,7 @@
                     v-html="option.text"
                     class="ml-2 h-full place-self-center text-base sm:text-lg"
                     :data-test="`option-${optionIndex}`"
+                    inert
                   ></div>
                 </label>
               </div>
