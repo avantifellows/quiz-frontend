@@ -36,7 +36,7 @@
         ></p>
       </div>
       <!-- question text -->
-      <div class="mx-6 md:mx-10" inert>
+      <div class="mx-6 md:mx-10" v-bind="isQuizAssessment && !hasQuizEnded ? { inert: true } : {}">
         <p :class="questionTextClass" data-test="text" v-html="text"></p>
       </div>
       <div :class="orientationClass">
@@ -52,7 +52,7 @@
           />
         </div>
         <!-- question image container -->
-        <div :class="questionImageContainerClass" v-if="isQuestionImagePresent" inert>
+        <div :class="questionImageContainerClass" v-if="isQuestionImagePresent" v-bind="isQuizAssessment && !hasQuizEnded ? { inert: true } : {}">
           <img
             :src="imageData.url"
             class="object-contain h-full w-full"
@@ -97,7 +97,7 @@
                     v-html="option.text"
                     class="ml-2 h-full place-self-center text-base sm:text-lg"
                     :data-test="`option-${optionIndex}`"
-                    inert
+                    v-bind="isQuizAssessment && !hasQuizEnded ? { inert: true } : {}"
                   ></div>
                 </label>
               </div>
