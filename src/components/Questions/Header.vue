@@ -4,7 +4,6 @@
       <div class="flex w-full justify-between bg-gray-200 p-4">
         <!-- hamburger for question palette -->
         <icon-button
-          :class="{invisible: isOmrMode}"
           :iconConfig="togglePaletteButtonIconConfig"
           :buttonClass="togglePaletteButtonClass"
           :isDisabled="isSessionAnswerRequestProcessing"
@@ -35,10 +34,10 @@
         class="bg-white-400 w-full justify between">
         <div class="py-4 h-12 bg-white px-4">
           <div class="float-left text-lg sm:text-xl text-base truncate" data-test="test-name">
-          {{ $props.title }}
+          {{ $props.title || "no data" }}
           </div>
           <div class="float-right text-lg sm:text-xl text-base mx-1 px-1" data-test="user-id">
-          Id: {{ $props.userId }}
+          Id: {{ $props.userId || "no data" }}
           </div>
         </div>
       </div>
