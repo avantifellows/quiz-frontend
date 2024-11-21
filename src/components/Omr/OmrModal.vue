@@ -6,8 +6,8 @@
       :timeRemaining="timeRemaining" :warningTimeLimit="timeLimitWarningThreshold"
       @time-limit-warning="displayTimeLimitWarning" @end-test="endTest" @end-test-by-time="endTestByTime"
       data-test="omr-header"></Header>
-    <div class="flex flex-col w-full h-full">
-      <div class="mt-20 mb-20 h-full relative">
+    <div class="flex flex-col w-full h-full mt-20 mb-20 -z-10">
+      <div class="h-full relative">
         <div class="scroll-container flex flex-col grow bg-white w-full justify-between overflow-hidden mt-[66px]">
           <div class="flex grow flex-col w-full h-full overflow-y-auto">
             <QuestionPalette v-if="isPaletteVisible" :hasQuizEnded="hasQuizEnded" :questionSetStates="questionSetStates"
@@ -24,6 +24,7 @@
             <p :class="instructionTextClass" v-html="questionSetState.instructionText"
               :data-test="`questionSetInstruction-${index}`"></p>
             <div class="mt-4 space-y-4">
+              <!-- it is being stopping endbutton make sur eu -->
               <OmrItem v-for="(questionState, qindex) in questionSetState.paletteItems" :class="{ 'mt-4': qindex == 0 }"
                 :options="$props.questions[questionState.index].options"
                 :correctAnswer="$props.questions[questionState.index].correct_answer"

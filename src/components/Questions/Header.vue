@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="fixed top-0 left-0 w-full  ">
-      <div class="flex w-full justify-between bg-gray-200 p-4">
+      <div class="flex w-full justify-between bg-gray-200 p-4 z-20">
         <!-- hamburger for question palette -->
         <icon-button
           :iconConfig="togglePaletteButtonIconConfig"
