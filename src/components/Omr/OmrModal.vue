@@ -1,71 +1,59 @@
 <template>
-  <div class="flex flex-col bg-white w-full justify-between">
-      <Header
-        class="fixed top-0"
-        v-if="isQuizAssessment"
-        :hasQuizEnded="hasQuizEnded"
-        :hasTimeLimit="quizTimeLimit != null"
-        :title="title"
-        :userId="userId"
-        :isOmrMode="isOmrMode"
-        :isSessionAnswerRequestProcessing="isSessionAnswerRequestProcessing"
-        v-model:isPaletteVisible="isPaletteVisible"
-        :timeRemaining="timeRemaining"
-        :warningTimeLimit="timeLimitWarningThreshold"
-        @time-limit-warning="displayTimeLimitWarning"
-        @end-test="endTest"
-        @end-test-by-time="endTestByTime"
-        data-test="omr-header"
-      ></Header>
-      <div
-        class="flex flex-col grow space-y-10"
-      >
-        <div class="mt-20 mb-20">
-          <div
-          v-for="(questionSetState, index) in questionSetStates" :key="index" class="space-y-2 mt-[66px]">
-              <div class="bg-gray-300"><p :class="titleTextClass" :data-test="`questionSetTitle-${index}`">{{ questionSetState.title }}</p></div>
-              <p :class="instructionTextClass" v-html="questionSetState.instructionText" :data-test="`questionSetInstruction-${index}`"></p>
-              <div class="mt-4 space-y-4">
-              <OmrItem
-                  v-for="(questionState, qindex) in questionSetState.paletteItems"
-                  :class="{ 'mt-4': qindex == 0 }"
-                  :options="$props.questions[questionState.index].options"
-                  :correctAnswer="$props.questions[questionState.index].correct_answer"
-                  :questionType="$props.questions[questionState.index].type"
-                  :isGradedQuestion="$props.questions[questionState.index].graded"
-                  :maxCharLimit="$props.questions[questionState.index].max_char_limit"
-                  :matrixSize="$props.questions[questionState.index].matrix_size"
-                  :isPortrait="isPortrait"
-                  :quizType="quizType"
-                  :hasQuizEnded="hasQuizEnded"
-                  :submittedAnswer="draftResponses[questionState.index]"
-                  :isQuestionDisabled="questionDisabledArray[questionState.index]"
-                  :currentQuestionIndex="questionState.index"
-                  @option-selected="questionOptionSelected"
-                  @subjective-answer-entered="subjectiveAnswerUpdated"
-                  @numerical-answer-entered="numericalAnswerUpdated"
-                  :key="questionState.index"
-                  :data-test="`OmrItem-${questionState.index}`"
-                  :ref="`omritem-${questionState.index}`"
-              ></OmrItem>
-              </div>
+  <div class="flex flex-col bg-white w-full h-full overflow-auto justify-between">
+    <Header class="fixed top-0" v-if="isQuizAssessment" :hasQuizEnded="hasQuizEnded"
+      :hasTimeLimit="quizTimeLimit != null" :title="title" :userId="userId" :isOmrMode="isOmrMode"
+      :isSessionAnswerRequestProcessing="isSessionAnswerRequestProcessing" v-model:isPaletteVisible="isPaletteVisible"
+      :timeRemaining="timeRemaining" :warningTimeLimit="timeLimitWarningThreshold"
+      @time-limit-warning="displayTimeLimitWarning" @end-test="endTest" @end-test-by-time="endTestByTime"
+      data-test="omr-header"></Header>
+    <div class="flex flex-col w-full h-full mt-20 mb-20 -z-10">
+      <div class="h-full relative">
+        <div class="scroll-container flex flex-col grow bg-white w-full justify-between overflow-hidden mt-[66px]">
+          <div class="flex grow flex-col w-full h-full overflow-y-auto">
+            <QuestionPalette v-if="isPaletteVisible" :hasQuizEnded="hasQuizEnded" :questionSetStates="questionSetStates"
+              :currentQuestionIndex="currentQuestionIndex" :title="title" :subject="subject" :testFormat="testFormat"
+              :maxMarks="maxMarks" :numQuestions="numQuestions" :quizTimeLimit="quizTimeLimit" :isOmrMode="isOmrMode"
+              class="absolute w-full h-full sm:w-2/3 lg:w-1/2 xl:w-1/3 z-10 bg-white overflow-y-scroll pb-[56px]"
+              data-test="questionPalette">
+            </QuestionPalette>
           </div>
-        </div>
-
-        <!-- footer -->
-        <div
-          class="flex w-full lg:p-6 justify-between z-50 place-self-end fixed bottom-0"
-          :class="{
+          <div v-for="(questionSetState, index) in questionSetStates" :key="index" class="space-y-2 pb-[56px]">
+            <div class="bg-gray-300">
+              <p :class="titleTextClass" :data-test="`questionSetTitle-${index}`">{{ questionSetState.title }}</p>
+            </div>
+            <p :class="instructionTextClass" v-html="questionSetState.instructionText"
+              :data-test="`questionSetInstruction-${index}`"></p>
+            <div class="mt-4 space-y-4">
+              <!-- it is being stopping endbutton make sur eu -->
+              <OmrItem v-for="(questionState, qindex) in questionSetState.paletteItems" :class="{ 'mt-4': qindex == 0 }"
+                :options="$props.questions[questionState.index].options"
+                :correctAnswer="$props.questions[questionState.index].correct_answer"
+                :questionType="$props.questions[questionState.index].type"
+                :isGradedQuestion="$props.questions[questionState.index].graded"
+                :maxCharLimit="$props.questions[questionState.index].max_char_limit"
+                :matrixSize="$props.questions[questionState.index].matrix_size" :isPortrait="isPortrait"
+                :quizType="quizType" :hasQuizEnded="hasQuizEnded" :submittedAnswer="draftResponses[questionState.index]"
+                :isQuestionDisabled="questionDisabledArray[questionState.index]"
+                :currentQuestionIndex="questionState.index" @option-selected="questionOptionSelected"
+                @subjective-answer-entered="subjectiveAnswerUpdated" @numerical-answer-entered="numericalAnswerUpdated"
+                :key="questionState.index" :data-test="`OmrItem-${questionState.index}`"
+                :ref="`omritem-${questionState.index}`"></OmrItem>
+            </div>
+          </div>
+          <!-- footer -->
+          <div class="flex w-full lg:p-6 justify-between z-50 place-self-end fixed bottom-0" :class="{
             'bg-white p-4': !isQuizAssessment,
             'bg-gray-200 py-2 px-2': isQuizAssessment,
-          }"
-        ></div>
+          }"></div>
+        </div>
       </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import Header from "../Questions/Header.vue"
+import QuestionPalette from "../Questions/Palette/QuestionPalette.vue"
 import OmrItem from "./OmrItem.vue"
 import {
   defineComponent,
@@ -84,6 +72,7 @@ import {
   SubmittedResponse,
   DraftResponse,
   quizType,
+  testFormat,
   QuestionSetIndexLimits,
   questionSetPalette,
   TimeLimit,
@@ -98,7 +87,8 @@ export default defineComponent({
   name: "OmrModal",
   components: {
     OmrItem,
-    Header
+    Header,
+    QuestionPalette
   },
   props: {
     questions: {
@@ -168,7 +158,19 @@ export default defineComponent({
     title: {
       required: true,
       type: [null, String] as PropType<quizTitleType>,
-    }
+    },
+    subject: {
+      type: String,
+      default: null,
+    },
+    testFormat: {
+      type: [null, String] as PropType<testFormat>,
+      default: null,
+    },
+    maxMarks: {
+      type: Number,
+      required: true,
+    },
   },
   setup(props, context) {
     const state = reactive({
@@ -216,15 +218,15 @@ export default defineComponent({
       (newValue: Number) => {
         if (!props.hasQuizEnded && optionalLimitReachedArray.value[props.qsetIndex]) {
           state.toast.warning(
-              `You have already attempted maximum allowed (${props.maxQuestionsAllowedToAttempt}) questions in current section (Q.${props.qsetIndexLimits.low + 1} - Q.${props.qsetIndexLimits.high}).
+            `You have already attempted maximum allowed (${props.maxQuestionsAllowedToAttempt}) questions in current section (Q.${props.qsetIndexLimits.low + 1} - Q.${props.qsetIndexLimits.high}).
 
   To attempt this question, unselect an answer to another question in this section.
               `,
-              {
-                position: POSITION.TOP_CENTER,
-                timeout: 7000,
-                draggablePercent: 0.4
-              }
+            {
+              position: POSITION.TOP_CENTER,
+              timeout: 7000,
+              draggablePercent: 0.4
+            }
           )
           context.emit("test-optional-warning-shown");
         }
@@ -287,12 +289,12 @@ export default defineComponent({
           }
         }
         state.toast.success(
-              `You have answered ${attemptedQuestions} out of ${props.numQuestions} questions. Please verify your responses and click End Test button again to make final submission.`,
-              {
-                position: POSITION.TOP_CENTER,
-                timeout: 5000,
-                draggablePercent: 0.4
-              }
+          `You have answered ${attemptedQuestions} out of ${props.numQuestions} questions. Please verify your responses and click End Test button again to make final submission.`,
+          {
+            position: POSITION.TOP_CENTER,
+            timeout: 5000,
+            draggablePercent: 0.4
+          }
         )
         state.hasEndTestBeenClickedOnce = false;
       } else {
@@ -442,12 +444,12 @@ export default defineComponent({
     function displayTimeLimitWarning() {
       if (!props.hasQuizEnded) {
         state.toast.warning(
-              `Only ${timeLimitWarningThreshold} minutes left! Please submit!`,
-              {
-                position: POSITION.TOP_CENTER,
-                timeout: 3000,
-                draggablePercent: 0.4
-              }
+          `Only ${timeLimitWarningThreshold} minutes left! Please submit!`,
+          {
+            position: POSITION.TOP_CENTER,
+            timeout: 3000,
+            draggablePercent: 0.4
+          }
         )
         context.emit("test-warning-shown");
       }
@@ -489,3 +491,17 @@ export default defineComponent({
   ],
 });
 </script>
+
+<style>
+.truncate {
+  @apply whitespace-nowrap overflow-hidden overflow-ellipsis;
+  max-width: 10em;
+  /*(10em) Adjust this value to determine the maximum width in characters */
+}
+
+.scroll-container {
+  height: 100vh;
+  /* Adjust the height as per your needs */
+  overflow: auto;
+}
+</style>

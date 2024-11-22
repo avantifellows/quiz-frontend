@@ -65,6 +65,7 @@
         :maxMarks="maxMarks"
         :maxQuestionsAllowedToAttempt="maxQuestionsAllowedToAttempt"
         :quizTimeLimit="quizTimeLimit"
+        :is-omr-mode="isOmrMode"
         :questionSetStates = "questionSetStates"
         class="mx-4 md:mx-40"
     ></InstructionPage>
@@ -178,6 +179,8 @@ export default defineComponent({
       return (props.quizType == "assessment" || props.quizType == "omr-assessment")
     })
 
+    const isOmrMode = computed(() => props.quizType == "omr-assessment");
+
     const startButtonTextConfig = computed(() => {
       const config: IconButtonTitleConfig = {
         value: "",
@@ -230,6 +233,7 @@ export default defineComponent({
       startButtonTextConfig,
       startButtonIconClass,
       isSessionDataFetched,
+      isOmrMode,
       startButtonIconConfig,
       start,
     };
