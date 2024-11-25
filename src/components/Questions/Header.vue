@@ -11,6 +11,16 @@
           data-test="togglePaletteButton"
         ></icon-button>
         <div class="flex space-x-3">
+          <!-- toggle omr button -->
+          <icon-button
+            v-if="shouldShowOmrToggle"
+            :titleConfig="toggleButtonTextConfig"
+            :iconConfig="toggleButtonIconConfig"
+            :buttonClass="toggleButtonIconClass"
+            class="rounded-2xl shadow-lg"
+            data-test="toggleOmrMode"
+            @click="toggleOmrMode"
+          ></icon-button>
           <!-- countdown timer / can't click -->
           <icon-button
             v-if="!hasQuizEnded && hasTimeLimit"
@@ -47,8 +57,8 @@
 
 <script lang="ts">
 import IconButton from "../UI/Buttons/IconButton.vue";
-import { defineComponent, reactive, toRefs, computed, watch, onMounted, PropType } from "vue";
-import { quizTitleType } from "@/types";
+import { ref, defineComponent, reactive, toRefs, computed, watch, onMounted, onBeforeUnmount, PropType } from "vue";
+import { quizTitleType, quizType } from "@/types";
 
 export default defineComponent({
   name: "Header",
@@ -92,7 +102,11 @@ export default defineComponent({
     isOmrMode: {
       type: Boolean,
       default: false,
-    }
+    },
+    quizType: {
+      type: String as PropType<quizType>,
+      default: "homework"
+    },
   },
   setup(props, context) {
     const state = reactive({
@@ -105,6 +119,10 @@ export default defineComponent({
         "bg-red-600 ring-red-500 p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl hover:cursor-default",
       timeRemaining: props.timeRemaining
     });
+    const isSmallScreen = ref(false);
+    const updateScreenSize = () => {
+      isSmallScreen.value = window.matchMedia("(max-width: 560px)").matches;
+    };
 
     onMounted(() => {
       window.setInterval(() => {
@@ -120,6 +138,56 @@ export default defineComponent({
     function togglePalette() {
       state.localIsPaletteVisible = !state.localIsPaletteVisible;
     }
+
+    // repetitive code - make a component later
+    function toggleOmrMode() {
+      const url = new URL(window.location.href);
+
+      if (url.searchParams.has("omrMode")) {
+        url.searchParams.delete("omrMode");
+      } else {
+        url.searchParams.set("omrMode", "true");
+      }
+
+      window.location.href = url.toString();
+    }
+
+    // const shouldShowOmrToggle = computed(() => props.quizType == "assessment")
+    const shouldShowOmrToggle = computed(() => false)
+
+    const toggleButtonTextConfig = computed(() => {
+      const config = {
+        value: "",
+        class: ["text-orange-500 underline underline-offset-8", "text-base md:text-lg lg:text-xl font-semibold"],
+      };
+
+      if (props.isOmrMode) {
+        config.value = isSmallScreen.value ? "A" : "Switch to Assessment Mode";
+      } else {
+        config.value = isSmallScreen.value ? "O" : "Switch to OMR Mode";
+      }
+
+      return config;
+    });
+
+    const toggleButtonIconClass = computed(() => {
+      const iconClass = [
+        "border border-orange-300",
+        "bg-transparent hover:bg-gray-100",
+        "rounded-lg shadow-sm px-6 py-3",
+        "flex items-center justify-center",
+        "transition-all duration-200 ease-in-out"
+      ]
+
+      return iconClass;
+    });
+
+    const toggleButtonIconConfig = computed(() => {
+      return {
+        iconName: props.isOmrMode ? "check-circle-solid" : "sync-alt-solid",
+        iconClass: "h-4 w-4 text-white",
+      };
+    });
 
     const endTestButtonTitleConfig = computed(() => ({
       value: props.hasQuizEnded ? "See Results" : "End Test",
@@ -216,6 +284,16 @@ export default defineComponent({
       }
     );
 
+    // Setup listeners for screen size changes
+    onMounted(() => {
+      updateScreenSize();
+      window.addEventListener("resize", updateScreenSize);
+    });
+
+    onBeforeUnmount(() => {
+      window.removeEventListener("resize", updateScreenSize);
+    });
+
     return {
       ...toRefs(state),
       endTest,
@@ -225,7 +303,12 @@ export default defineComponent({
       togglePaletteButtonIconConfig,
       togglePaletteButtonClass,
       countdownTimerClass,
-      countdownTimerTitleConfig
+      countdownTimerTitleConfig,
+      shouldShowOmrToggle,
+      toggleButtonIconClass,
+      toggleButtonIconConfig,
+      toggleButtonTextConfig,
+      toggleOmrMode
     };
   },
   components: {
