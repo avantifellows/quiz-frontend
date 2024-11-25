@@ -249,6 +249,7 @@ export default defineComponent({
     const isOmrMode = computed(() => props.omrMode || state.metadata.quiz_type == "omr-assessment");
 
     const computedQuizType = computed(() => {
+      if (isQuizAssessment.value == false) return "homework";
       return isOmrMode.value ? "omr-assessment" : "assessment";
     });
 
