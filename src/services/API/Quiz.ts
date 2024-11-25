@@ -1,5 +1,5 @@
 import { apiClient } from "./RootClient";
-import { quizEndpoint } from "./Endpoints";
+import { quizEndpoint, reviewQuizEndpoint } from "./Endpoints";
 import { QuizAPIResponse } from "@/types";
 
 export default {
@@ -15,4 +15,9 @@ export default {
     });
     return response.data;
   },
+
+  async getReviewQuiz(quizId: string): Promise<QuizAPIResponse> {
+    const response = await apiClient().get(reviewQuizEndpoint + quizId);
+    return response.data;
+  }
 };

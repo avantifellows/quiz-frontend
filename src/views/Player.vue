@@ -188,6 +188,10 @@ export default defineComponent({
       default: null,
       type: String,
     },
+    review: {
+      default: null,
+      type: Boolean
+    },
     omrMode: {
       default: false,
       type: Boolean
@@ -483,10 +487,17 @@ export default defineComponent({
     }
 
     async function getQuiz() {
-      const quizDetails : QuizAPIResponse = await QuizAPIService.getQuiz({
-        quizId: props.quizId,
-        omrMode: isOmrMode.value ?? false
-      });
+      let quizDetails : QuizAPIResponse;
+      if (props.review != null) {
+        // review quiz mode
+        quizDetails = await QuizAPIService.getReviewQuiz(props.quizId);
+      } else {
+        quizDetails = await QuizAPIService.getQuiz({
+          quizId: props.quizId,
+          omrMode: isOmrMode.value ?? false
+        });
+      }
+
       // since we know that there is going to be only one
       // question set for now
       state.questionSets = quizDetails.question_sets;
