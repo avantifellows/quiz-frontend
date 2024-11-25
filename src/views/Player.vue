@@ -49,7 +49,6 @@
         }"
         :quizType="metadata.quiz_type"
         :hasQuizEnded="hasQuizEnded"
-        :isOmrMode="isOmrMode"
         :numQuestions="maxQuestionsAllowedToAttempt"
         :maxQuestionsAllowedToAttempt="currentMaxQuestionsAllowedToAttempt"
         :questionSetStates="questionSetStates"
@@ -59,7 +58,10 @@
         :isSessionAnswerRequestProcessing="isSessionAnswerRequestProcessing"
         :userId="userId"
         :title="title"
+        :subject="metadata.subject"
+        :testFormat="metadata.test_format || ''"
         :timeRemaining="timeRemaining"
+        :maxMarks="maxMarks"
         v-model:currentQuestionIndex="currentQuestionIndex"
         v-model:responses="responses"
         v-model:previousOmrResponses="previousOmrResponses"
@@ -254,7 +256,8 @@ export default defineComponent({
       return isOmrMode.value ? "omr-assessment" : "assessment";
     });
 
-    const shouldShowOmrToggle = computed(() => state.metadata.quiz_type == "assessment")
+    // const shouldShowOmrToggle = computed(() => state.metadata.quiz_type == "assessment")
+    const shouldShowOmrToggle = computed(() => false)
 
     const toggleButtonTextConfig = computed(() => {
       const config = {
