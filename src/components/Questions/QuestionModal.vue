@@ -252,7 +252,6 @@ export default defineComponent({
     watch(
       () => props.currentQuestionIndex,
       (newValue: Number) => {
-        console.log(state.localResponses[props.currentQuestionIndex].answer, state.localResponses[props.currentQuestionIndex].marked_for_review)
         state.localCurrentQuestionIndex = newValue.valueOf()
         if (!props.hasQuizEnded && optionalLimitReached.value && currentQuestionResponseAnswer.value == null) {
           state.toast.warning(
