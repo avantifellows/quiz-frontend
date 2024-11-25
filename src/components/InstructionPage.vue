@@ -44,7 +44,7 @@
       <tr>
         <th class="border-black border-1 text-left px-4 py-2">Subjects</th>
         <td class="border-black border-1 px-4 py-2" data-test="subject">
-          {{ $props.subject }}
+          {{ $props.subject|| "..." }}
         </td>
       </tr>
     </table>
@@ -98,7 +98,7 @@
           ></span>
           {{ $t("generalInstructions.expandPalette") }}
         </li>
-        <li>
+        <li v-if="!isOmrMode">
           {{ $t("generalInstructions.paletteSymbols") }}
           <div class="flex flex-wrap mx-2 md:mx-4 my-2">
             <div class="flex items-center my-2 md:mx-4">
@@ -133,17 +133,17 @@
             <li>{{ $t("answeringQuestion.selectAnswer") }}</li>
             <li>{{ $t("answeringQuestion.deselectAnswer") }}</li>
             <li>{{ $t("answeringQuestion.changeAnswer") }}</li>
-            <li>{{ $t("answeringQuestion.saveAnswer") }}</li>
-            <li class="relative border border-violet-600 p-2 rounded-md">
+            <li v-if="!isOmrMode">{{ $t("answeringQuestion.saveAnswer") }}</li>
+            <li class="relative border border-violet-600 p-2 rounded-md" v-if="!isOmrMode">
               {{  $t("answeringQuestion.reviewQuestion") }}
               <span class="bg-violet-800 text-white text-xs font-bold py-0.5 px-2 rounded-full">NEW</span>
             </li>
           </ol>
         </li>
-        <li>{{ $t("answeringQuestion.changeAnsweredQuestion") }}</li>
+        <li v-if="!isOmrMode">{{ $t("answeringQuestion.changeAnsweredQuestion") }}</li>
       </ol>
     </div>
-    <div class="mt-5 ml-6 mr-4 flex border-red-400 border-1 p-2">
+    <div class="mt-5 ml-6 mr-4 flex border-red-400 border-1 p-2" v-if="!isOmrMode">
       <div class="float-left text-red-400 pr-5 pl-3 text-xl font-bold">!</div>
       <div class="float-right text-justify pr-2">
         {{ $t("answeringQuestion.noteSaveAnswer") }}
@@ -205,6 +205,10 @@ export default defineComponent({
     testFormat: {
       type: [null, String] as PropType<testFormat>,
       default: null,
+    },
+    isOmrMode: {
+      type: Boolean,
+      default: false,
     },
   },
   setup(props) {

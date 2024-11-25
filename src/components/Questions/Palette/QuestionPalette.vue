@@ -1,7 +1,8 @@
 <template>
   <div class="bg-white p-4 sm:p-6 lg:p-8 overflow-auto sm:w-1/3 lg:w-1/3 xl:w-1/3">
-    <div class="inline-flex rounded-md w-full" role="group">
+    <div class="inline-flex justify-center rounded-md w-full" role="group">
       <button
+      v-if="!isOmrMode"
         :class="togglePaletteButtonClass"
         class="mr-1"
         type="button"
@@ -13,6 +14,7 @@
         class="ml-1"
         type="button"
         @click="toggleInstructions"
+        :disabled="isOmrMode"
         data-test="toggleInstructions"
       >INSTRUCTIONS</button>
     </div>
@@ -25,9 +27,10 @@
       :max-questions-allowed-to-attempt="numQuestions"
       :quizTimeLimit="quizTimeLimit"
       :questionSetStates = "questionSetStates"
+      :is-omr-mode="isOmrMode"
       data-test="instruction-page"
     />
-    <div v-if="showPaletteButton" data-test="question-palette">
+    <div v-if="showPaletteButton && !isOmrMode" data-test="question-palette">
       <div
         class="bg-gray-200 rounded-md p-4 grid grid-rows-2 space-y-2 mt-6"
       >
@@ -120,6 +123,7 @@ export default defineComponent({
     subject: {
       type: String,
       required: true,
+      default: "..",
     },
     numQuestions: {
       type: Number,
@@ -137,11 +141,29 @@ export default defineComponent({
       type: [null, String] as PropType<testFormat>,
       default: null
     },
+    isOmrMode: {
+      type: Boolean,
+      default: false,
+    },
   },
   setup(props, context) {
     function navigateToQuestion(questionIndex: number) {
-      context.emit("navigate", questionIndex);
+      if (!props.isOmrMode) {
+        context.emit("navigate", questionIndex);
+      }
     }
+
+    const state = reactive({
+      instructionTextClass:
+      "text-lg md:text-xl lg:text-2xl mx-4 mt-2 leading-none text-slate-500",
+      titleTextClass:
+      "text-lg md:text-xl lg:text-2xl mx-4 mt-10 font-bold leading-tight whitespace-pre-wrap",
+      instructionsButtonClass:
+      "bg-gray-300 w-full font-bold ring-gray-500 p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl",
+      // Set initial state based on isOmrMode
+      showInstructions: props.isOmrMode,
+      showPalette: !props.isOmrMode,
+    });
 
     function toggleInstructions() {
       if (state.showInstructions == false) {
@@ -173,8 +195,8 @@ export default defineComponent({
 
     const toggleInstructionsButtonClass = computed(() => [
       {
-        "bg-primary": !showInstructionButton.value,
-        "bg-orange-300 hover:cursor-not-allowed": showInstructionButton.value,
+        "bg-primary": props.isOmrMode || !showInstructionButton.value,
+        "bg-orange-300 hover:cursor-not-allowed": !props.isOmrMode && showInstructionButton.value,
       },
       `w-1/2 font-bold text-white p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl border shadow-lg ring-primary`,
     ]);
@@ -187,16 +209,16 @@ export default defineComponent({
       `w-1/2 font-bold text-white p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl border shadow-lg ring-primary`,
     ]);
 
-    const state = reactive({
-      instructionTextClass:
-        "text-lg md:text-xl lg:text-2xl mx-4 mt-2 leading-none text-slate-500",
-      titleTextClass:
-        "text-lg md:text-xl lg:text-2xl mx-4 mt-10 font-bold leading-tight whitespace-pre-wrap",
-      instructionsButtonClass:
-        "bg-gray-300 w-full font-bold ring-gray-500 p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl",
-      showInstructions: false,
-      showPalette: true,
-    });
+    // const state = reactive({
+    //   instructionTextClass:
+    //     "text-lg md:text-xl lg:text-2xl mx-4 mt-2 leading-none text-slate-500",
+    //   titleTextClass:
+    //     "text-lg md:text-xl lg:text-2xl mx-4 mt-10 font-bold leading-tight whitespace-pre-wrap",
+    //   instructionsButtonClass:
+    //     "bg-gray-300 w-full font-bold ring-gray-500 p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl",
+    //   showInstructions: false,
+    //   showPalette: true,
+    // });
 
     return {
       ...state,

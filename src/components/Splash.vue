@@ -30,7 +30,7 @@
             ></BaseIcon>
 
             <div class="flex items-center" data-test="grade">
-              <p :class="metadataTitleClass">Class {{ grade }}</p>
+              <p :class="metadataTitleClass">Class {{ grade || ": ..."}}</p>
             </div>
           </div>
         </div>
@@ -39,7 +39,7 @@
           <div :class="metadataCellClass" class="border-r-2">
             <BaseIcon name="math" :iconClass="metadataIconClass"></BaseIcon>
             <div class="flex items-center" data-test="subject">
-              <p :class="metadataTitleClass">{{ subject }}</p>
+              <p :class="metadataTitleClass">{{ subject || "Subject: ..." }}</p>
             </div>
           </div>
           <div :class="metadataCellClass">
@@ -65,6 +65,7 @@
         :maxMarks="maxMarks"
         :maxQuestionsAllowedToAttempt="maxQuestionsAllowedToAttempt"
         :quizTimeLimit="quizTimeLimit"
+        :is-omr-mode="isOmrMode"
         :questionSetStates = "questionSetStates"
         class="mx-4 md:mx-40"
     ></InstructionPage>
@@ -178,6 +179,8 @@ export default defineComponent({
       return (props.quizType == "assessment" || props.quizType == "omr-assessment")
     })
 
+    const isOmrMode = computed(() => props.quizType == "omr-assessment");
+
     const startButtonTextConfig = computed(() => {
       const config: IconButtonTitleConfig = {
         value: "",
@@ -230,6 +233,7 @@ export default defineComponent({
       startButtonTextConfig,
       startButtonIconClass,
       isSessionDataFetched,
+      isOmrMode,
       startButtonIconConfig,
       start,
     };
