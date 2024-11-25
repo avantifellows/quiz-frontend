@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col bg-white w-full h-full overflow-auto justify-between">
     <Header class="fixed top-0" v-if="isQuizAssessment" :hasQuizEnded="hasQuizEnded"
-      :hasTimeLimit="quizTimeLimit != null" :title="title" :userId="userId" :isOmrMode="isOmrMode"
+      :hasTimeLimit="quizTimeLimit != null" :title="title" :userId="userId" :isOmrMode=true
       :isSessionAnswerRequestProcessing="isSessionAnswerRequestProcessing" v-model:isPaletteVisible="isPaletteVisible"
       :timeRemaining="timeRemaining" :warningTimeLimit="timeLimitWarningThreshold"
       @time-limit-warning="displayTimeLimitWarning" @end-test="endTest" @end-test-by-time="endTestByTime"
@@ -12,7 +12,7 @@
           <div class="flex grow flex-col w-full h-full overflow-y-auto">
             <QuestionPalette v-if="isPaletteVisible" :hasQuizEnded="hasQuizEnded" :questionSetStates="questionSetStates"
               :currentQuestionIndex="currentQuestionIndex" :title="title" :subject="subject" :testFormat="testFormat"
-              :maxMarks="maxMarks" :numQuestions="numQuestions" :quizTimeLimit="quizTimeLimit" :isOmrMode="isOmrMode"
+              :maxMarks="maxMarks" :numQuestions="numQuestions" :quizTimeLimit="quizTimeLimit" :isOmrMode=true
               class="absolute w-full h-full sm:w-2/3 lg:w-1/2 xl:w-1/3 z-10 bg-white overflow-y-scroll pb-[56px]"
               data-test="questionPalette">
             </QuestionPalette>
@@ -31,12 +31,18 @@
                 :questionType="$props.questions[questionState.index].type"
                 :isGradedQuestion="$props.questions[questionState.index].graded"
                 :maxCharLimit="$props.questions[questionState.index].max_char_limit"
-                :matrixSize="$props.questions[questionState.index].matrix_size" :isPortrait="isPortrait"
-                :quizType="quizType" :hasQuizEnded="hasQuizEnded" :submittedAnswer="draftResponses[questionState.index]"
+                :matrixSize="$props.questions[questionState.index].matrix_size"
+                :isPortrait="isPortrait"
+                :quizType="quizType"
+                :hasQuizEnded="hasQuizEnded"
+                :submittedAnswer="draftResponses[questionState.index]"
                 :isQuestionDisabled="questionDisabledArray[questionState.index]"
-                :currentQuestionIndex="questionState.index" @option-selected="questionOptionSelected"
-                @subjective-answer-entered="subjectiveAnswerUpdated" @numerical-answer-entered="numericalAnswerUpdated"
-                :key="questionState.index" :data-test="`OmrItem-${questionState.index}`"
+                :currentQuestionIndex="questionState.index"
+                @option-selected="questionOptionSelected"
+                @subjective-answer-entered="subjectiveAnswerUpdated"
+                @numerical-answer-entered="numericalAnswerUpdated"
+                :key="questionState.index"
+                :data-test="`OmrItem-${questionState.index}`"
                 :ref="`omritem-${questionState.index}`"></OmrItem>
             </div>
           </div>
@@ -146,10 +152,6 @@ export default defineComponent({
     timeRemaining: {
       type: Number,
       default: 0
-    },
-    isOmrMode: {
-      type: Boolean,
-      default: false,
     },
     userId: {
       type: String,

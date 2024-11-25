@@ -49,7 +49,6 @@
         }"
         :quizType="metadata.quiz_type"
         :hasQuizEnded="hasQuizEnded"
-        :isOmrMode="isOmrMode"
         :numQuestions="maxQuestionsAllowedToAttempt"
         :maxQuestionsAllowedToAttempt="currentMaxQuestionsAllowedToAttempt"
         :questionSetStates="questionSetStates"
@@ -253,7 +252,8 @@ export default defineComponent({
       return isOmrMode.value ? "omr-assessment" : "assessment";
     });
 
-    const shouldShowOmrToggle = computed(() => state.metadata.quiz_type == "assessment")
+    // const shouldShowOmrToggle = computed(() => state.metadata.quiz_type == "assessment")
+    const shouldShowOmrToggle = computed(() => false)
 
     const toggleButtonTextConfig = computed(() => {
       const config = {

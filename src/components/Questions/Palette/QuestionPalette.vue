@@ -209,17 +209,6 @@ export default defineComponent({
       `w-1/2 font-bold text-white p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl border shadow-lg ring-primary`,
     ]);
 
-    // const state = reactive({
-    //   instructionTextClass:
-    //     "text-lg md:text-xl lg:text-2xl mx-4 mt-2 leading-none text-slate-500",
-    //   titleTextClass:
-    //     "text-lg md:text-xl lg:text-2xl mx-4 mt-10 font-bold leading-tight whitespace-pre-wrap",
-    //   instructionsButtonClass:
-    //     "bg-gray-300 w-full font-bold ring-gray-500 p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl",
-    //   showInstructions: false,
-    //   showPalette: true,
-    // });
-
     return {
       ...state,
       navigateToQuestion,

@@ -152,7 +152,8 @@ export default defineComponent({
       window.location.href = url.toString();
     }
 
-    const shouldShowOmrToggle = computed(() => props.quizType == "assessment")
+    // const shouldShowOmrToggle = computed(() => props.quizType == "assessment")
+    const shouldShowOmrToggle = computed(() => false)
 
     const toggleButtonTextConfig = computed(() => {
       const config = {
