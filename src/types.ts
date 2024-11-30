@@ -2,7 +2,7 @@
 
 type language = "en" | "hi";
 export type quizType = "assessment" | "homework" | "omr-assessment";
-export type testFormat = "full_syllabus_test" | "major_test" | "part_test" | "chapter_test" | "hiring_test" | "evaluation_test" | "homework" | "";
+export type testFormat = "full_syllabus_test" | "major_test" | "part_test" | "chapter_test" | "hiring_test" | "evaluation_test" | "mock_test" | "homework" | "";
 export type quizTitleType = string | null;
 export type textAreaValueType = string | number | null;
 export type isFirstSessionType = boolean | null;

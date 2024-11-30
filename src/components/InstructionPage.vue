@@ -249,6 +249,7 @@ export default defineComponent({
       ["hiring_test", "Hiring Test"],
       ["evaluation_test", "Evaluation Test"],
       ["homework", "Homework"],
+      ["mock_test", "Mock Test"]
     ]);
 
     // to split the questionSetTitles from char "-" (eg. Section A)
