@@ -198,6 +198,7 @@ export interface QuizAPIResponse {
   shuffle: boolean;
   time_limit: TimeLimit | null;
   review_immediate?: boolean;
+  show_scores?: boolean;
   display_solution?: boolean;
   question_sets: QuestionSet[];
 }

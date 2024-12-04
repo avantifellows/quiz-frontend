@@ -35,101 +35,106 @@
         <!-- canvas element for drawing the confetti -->
         <canvas id="confetticanvas" class="fixed z-50"></canvas>
 
-        <!-- circular progress bar -->
-        <CircularProgress
-          v-if="isCircularProgressShown"
-          class="relative mx-auto w-full flex justify-center"
-          :radius="circularProgressRadius"
-          :stroke="circularProgressStroke"
-          :result="result"
-          :progressBarPercent="localProgressBarPercent"
-          :key="reRenderKey"
-          data-test="progress"
-        >
-        </CircularProgress>
+        <div v-if="showScores">
+          <!-- circular progress bar -->
+          <CircularProgress
+            v-if="isCircularProgressShown"
+            class="relative mx-auto w-full flex justify-center"
+            :radius="circularProgressRadius"
+            :stroke="circularProgressStroke"
+            :result="result"
+            :progressBarPercent="localProgressBarPercent"
+            :key="reRenderKey"
+            data-test="progress"
+          >
+          </CircularProgress>
 
-        <!-- metric boxes -->
-        <div
-          v-if="hasGradedQuestions"
-          class="flex flex-col bp-500:flex-row justify-center space-y-1 bp-500:space-x-1 bp-500:space-y-0 px-4 bp-500:px-10 place-self-center items-stretch"
-        >
+          <!-- metric boxes -->
           <div
-            v-for="(metric, metricIndex) in metrics"
-            class="rounded-md bp-500:rounded-2xl bg-amber-400 flex flex-row bp-500:flex-col lg:flex-row border-2 px-4 lg:px-6 lg:h-20 space-x-4 w-full md:w-2/3 lg:w-1/2 h-full"
-            :key="metric"
+            v-if="hasGradedQuestions"
+            class="flex flex-col bp-500:flex-row justify-center space-y-1 bp-500:space-x-1 bp-500:space-y-0 px-4 bp-500:px-10 place-self-center items-stretch"
           >
             <div
-              class="w-full h-full flex flex-row justify-center space-x-2 bp-500:mt-2 lg:mt-0 "
+              v-for="(metric, metricIndex) in metrics"
+              class="rounded-md bp-500:rounded-2xl bg-amber-400 flex flex-row bp-500:flex-col lg:flex-row border-2 px-4 lg:px-6 lg:h-20 space-x-4 w-full md:w-2/3 lg:w-1/2 h-full"
+              :key="metric"
             >
-              <!-- metric icon -->
-              <BaseIcon
-                :name="metric.icon.source"
-                :iconClass="metric.icon.class"
-              ></BaseIcon>
-              <!-- numeric value of the metric -->
-              <p
-                class="text-xl bp-360:text-2xl md:text-3xl lg:text-4xl font-bold my-auto text-left"
-                :data-test="`metricValue-${metricIndex}`"
+              <div
+                class="w-full h-full flex flex-row justify-center space-x-2 bp-500:mt-2 lg:mt-0 "
               >
-                {{ metric.value }}
-              </p>
+                <!-- metric icon -->
+                <BaseIcon
+                  :name="metric.icon.source"
+                  :iconClass="metric.icon.class"
+                ></BaseIcon>
+                <!-- numeric value of the metric -->
+                <p
+                  class="text-xl bp-360:text-2xl md:text-3xl lg:text-4xl font-bold my-auto text-left"
+                  :data-test="`metricValue-${metricIndex}`"
+                >
+                  {{ metric.value }}
+                </p>
+              </div>
+              <!-- name of the metric -->
+              <div
+                class="text-center text-xs bp-500:text-sm md:text-base px-1 h-full flex items-center w-full"
+              >
+                <p class="break-words text-left">
+                  {{ metric.name }}
+                </p>
+              </div>
             </div>
-            <!-- name of the metric -->
-            <div
-              class="text-center text-xs bp-500:text-sm md:text-base px-1 h-full flex items-center w-full"
-            >
-              <p class="break-words text-left">
-                {{ metric.name }}
-              </p>
+          </div>
+
+          <!-- question set metrics table -->
+          <div v-if="isQuizAssessment" class="flex flex-col w-full mx-auto my-4 overflow-auto">
+            <div class="flex border-b-2 border-gray-400 p-2 font-bold">
+              <div :class="tableCellClass">Name</div>
+              <div :class="tableCellClass">Marks Scored</div>
+              <div v-if="!isPortrait" :class="tableCellClass">Total No. Of Questions</div>
+              <div :class="tableCellClass">Attempt Rate (%)</div>
+              <div :class="tableCellClass">Accuracy Rate (%)</div>
             </div>
+            <div v-for="metric in $props.qsetMetrics" :key="metric.name" class="flex border-b border-gray-100 p-2">
+              <div :class="tableCellClass">{{ metric.name }}</div>
+              <div :class="tableCellClass">{{ metric.marksScored }}</div>
+              <div v-if="!isPortrait" :class="tableCellClass">{{ metric.maxQuestionsAllowedToAttempt }}</div>
+              <div :class="tableCellClass">{{ formatPercentage(metric.attemptRate) }}</div>
+              <div :class="tableCellClass">{{ formatPercentage(metric.accuracyRate) }}</div>
+            </div>
+          </div>
+
+          <!-- action buttons -->
+          <div
+            class="place-self-center flex h-20"
+            :class="{
+              'mt-5': isCircularProgressShown,
+              'flex-row space-x-8 w-100 mt-12': !isPortrait,
+              'flex-col space-y-2 w-32 mt-13': isPortrait,
+            }"
+            ignore-share-scorecard
+          >
+            <!-- share button -->
+            <icon-button
+              :titleConfig="shareButtonTitleConfig"
+              :buttonClass="shareButtonClass"
+              @click="shareScorecard"
+              data-test="share"
+            ></icon-button>
+
+            <!-- back button -->
+            <!-- commenting this as it's not being used right now, so it should not take
+            up space in the DOM -->
+            <!-- <icon-button
+              :titleConfig="backButtonTitleConfig"
+              :buttonClass="backButtonClass"
+              @click="goBack"
+              data-test="backButton"
+            ></icon-button> -->
           </div>
         </div>
-
-        <!-- question set metrics table -->
-        <div v-if="isQuizAssessment" class="flex flex-col w-full mx-auto my-4 overflow-auto">
-          <div class="flex border-b-2 border-gray-400 p-2 font-bold">
-            <div :class="tableCellClass">Name</div>
-            <div :class="tableCellClass">Marks Scored</div>
-            <div v-if="!isPortrait" :class="tableCellClass">Total No. Of Questions</div>
-            <div :class="tableCellClass">Attempt Rate (%)</div>
-            <div :class="tableCellClass">Accuracy Rate (%)</div>
-          </div>
-          <div v-for="metric in $props.qsetMetrics" :key="metric.name" class="flex border-b border-gray-100 p-2">
-            <div :class="tableCellClass">{{ metric.name }}</div>
-            <div :class="tableCellClass">{{ metric.marksScored }}</div>
-            <div v-if="!isPortrait" :class="tableCellClass">{{ metric.maxQuestionsAllowedToAttempt }}</div>
-            <div :class="tableCellClass">{{ formatPercentage(metric.attemptRate) }}</div>
-            <div :class="tableCellClass">{{ formatPercentage(metric.accuracyRate) }}</div>
-          </div>
-        </div>
-
-        <!-- action buttons -->
-        <div
-          class="place-self-center flex h-20"
-          :class="{
-            'mt-5': isCircularProgressShown,
-            'flex-row space-x-8 w-100 mt-12': !isPortrait,
-            'flex-col space-y-2 w-32 mt-13': isPortrait,
-          }"
-          ignore-share-scorecard
-        >
-          <!-- share button -->
-          <icon-button
-            :titleConfig="shareButtonTitleConfig"
-            :buttonClass="shareButtonClass"
-            @click="shareScorecard"
-            data-test="share"
-          ></icon-button>
-
-          <!-- back button -->
-          <!-- commenting this as it's not being used right now, so it should not take
-          up space in the DOM -->
-          <!-- <icon-button
-            :titleConfig="backButtonTitleConfig"
-            :buttonClass="backButtonClass"
-            @click="goBack"
-            data-test="backButton"
-          ></icon-button> -->
+        <div v-else class="text-center text-lg md:text-lg lg:text-xl pt-5 leading-tight">
+          Results will be shared soon!
         </div>
       </div>
     </div>
@@ -191,6 +196,11 @@ export default defineComponent({
     isShown: {
       default: false,
       type: Boolean,
+    },
+    /** whether scores have to be displayed after quiz has ended */
+    showScores: {
+      default: true,
+      type: Boolean
     },
     /** whether there are graded questions */
     hasGradedQuestions: {
