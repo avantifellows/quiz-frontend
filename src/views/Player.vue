@@ -110,6 +110,7 @@
           hidden: !isScorecardShown,
         }"
         :result="scorecardResult"
+        :showScores="showScores"
         :quizType="metadata.quiz_type"
         :metrics="scorecardMetrics"
         :progressPercentage="scorecardProgress"
@@ -228,6 +229,7 @@ export default defineComponent({
       hasQuizEnded: false, // whether the quiz has ended - only valid for quizType = assessment
       reviewAnswers: true, // whether users can review answers once quiz has ended
       displaySolution: true as boolean, // whether solutions to each question should be displayed
+      showScores: true as boolean, // whether we should show scores after quiz has ended
       sessionEndTimeText: "", // session end time in text if available
       sessionId: "", // id of the session created for a user-quiz combination
       isSessionAnswerRequestProcessing: false, // whether session answer api request is processing
@@ -505,6 +507,7 @@ export default defineComponent({
         quizDetails.max_marks || quizDetails.num_graded_questions;
       state.title = quizDetails.title;
       state.displaySolution = quizDetails?.display_solution ?? true;
+      state.showScores = quizDetails?.show_scores ?? true;
       createQuestionBuckets(totalQuestionsInEachSet);
 
       if (quizDetails?.review_immediate == false) {
