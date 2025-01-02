@@ -1,5 +1,11 @@
 import store from "@/store/index";
-import { Question, submittedAnswer, CorrectAnswerType, answerEvaluation, QuestionBucketingMap } from "@/types";
+import {
+  Question,
+  submittedAnswer,
+  CorrectAnswerType,
+  answerEvaluation,
+  QuestionBucketingMap,
+} from "@/types";
 const isEqual = require("deep-eql");
 
 /**
@@ -87,7 +93,8 @@ export function isQuestionAnswerCorrect(
     valid: false,
     answered: false,
   } as answerEvaluation;
-
+  console.log("questionDetail", questionDetail);
+  console.log("userAnswer", userAnswer);
   if (questionDetail.graded) {
     answerEvaluation.valid = true;
 
@@ -103,7 +110,12 @@ export function isQuestionAnswerCorrect(
         const correctAnswer: CorrectAnswerType = questionDetail.correct_answer;
         if (isEqual(userAnswer, correctAnswer)) {
           answerEvaluation.isCorrect = true;
-        } else if (doesPartialMarkingExist && Array.isArray(userAnswer) && Array.isArray(correctAnswer) && userAnswer.length > 0) {
+        } else if (
+          doesPartialMarkingExist &&
+          Array.isArray(userAnswer) &&
+          Array.isArray(correctAnswer) &&
+          userAnswer.length > 0
+        ) {
           // check if user answer is a subset of correct answer
           // ensure userAnswer and correctAnswer are treated as array of numbers here
           const isSubset = (userAnswer as number[]).every((option) =>
@@ -120,7 +132,12 @@ export function isQuestionAnswerCorrect(
         const correctAnswer: CorrectAnswerType = questionDetail.correct_answer;
         if (isEqual(userAnswer, correctAnswer)) {
           answerEvaluation.isCorrect = true;
-        } else if (doesPartialMarkingExist && Array.isArray(userAnswer) && Array.isArray(correctAnswer) && userAnswer.length > 0) {
+        } else if (
+          doesPartialMarkingExist &&
+          Array.isArray(userAnswer) &&
+          Array.isArray(correctAnswer) &&
+          userAnswer.length > 0
+        ) {
           // check if user answer is a subset of correct answer
           const isSubset = (userAnswer as string[]).every((option) =>
             (correctAnswer as string[]).includes(option)
@@ -150,13 +167,15 @@ export function isQuestionAnswerCorrect(
       answerEvaluation.answered = true;
       const correctAnswer: CorrectAnswerType = questionDetail.correct_answer;
 
-      if (questionDetail.type == "numerical-float" &&
-          typeof correctAnswer == "number" &&
-          Math.abs(userAnswer - correctAnswer) < 0.05
+      if (
+        questionDetail.type == "numerical-float" &&
+        typeof correctAnswer == "number" &&
+        Math.abs(userAnswer - correctAnswer) < 0.05
       ) {
         answerEvaluation.isCorrect = true; // tolerance of error = 0.05
-      } else if (questionDetail.type == "numerical-integer" &&
-          userAnswer == correctAnswer
+      } else if (
+        questionDetail.type == "numerical-integer" &&
+        userAnswer == correctAnswer
       ) {
         answerEvaluation.isCorrect = true;
       } else answerEvaluation.isCorrect = false;
@@ -176,14 +195,17 @@ export function isQuestionAnswerCorrect(
  * @returns {boolean} - whether the question details have been fetched or not
  */
 export function isQuestionFetched(qsetIndex: number, questionIndex: number) {
-  const bucketToCheck = Math.floor(questionIndex / store.state.bucketSize)
+  const bucketToCheck = Math.floor(questionIndex / store.state.bucketSize);
   if (
-    'questionBucketingMaps' in store.state &&
+    "questionBucketingMaps" in store.state &&
     store.state.questionBucketingMaps[qsetIndex] != null &&
     store.state.questionBucketingMaps[qsetIndex][bucketToCheck] != null &&
-    'isFetched' in store.state.questionBucketingMaps[qsetIndex][bucketToCheck]
-  ) return store.state.questionBucketingMaps[qsetIndex][bucketToCheck].isFetched
-  return true
+    "isFetched" in store.state.questionBucketingMaps[qsetIndex][bucketToCheck]
+  ) {
+    return store.state.questionBucketingMaps[qsetIndex][bucketToCheck]
+      .isFetched;
+  }
+  return true;
 }
 
 /**
@@ -194,28 +216,36 @@ export function isQuestionFetched(qsetIndex: number, questionIndex: number) {
  * @param {Array<number>} totalQuestionsInEachSet - array of total number of questions in each question set
  */
 export function createQuestionBuckets(totalQuestionsInEachSet: Array<number>) {
-  const questionBucketingMaps = [] as Array<QuestionBucketingMap>
+  // number of questions in each set - 30
+  const questionBucketingMaps = [] as Array<QuestionBucketingMap>;
 
   // calculate total buckets possible
   for (const [mapIndex, totalQuestions] of totalQuestionsInEachSet.entries()) {
-    const totalBucketsPossible = Math.ceil(totalQuestions / store.state.bucketSize)
+    const totalBucketsPossible = Math.ceil(
+      totalQuestions / store.state.bucketSize // 30/10 = 3
+    );
 
     // create the bucket map
-    const questionBucketingMap = {} as QuestionBucketingMap
-    for (let bucketIndex = 0; bucketIndex < totalBucketsPossible; bucketIndex++) {
+    const questionBucketingMap = {} as QuestionBucketingMap;
+    for (
+      let bucketIndex = 0;
+      bucketIndex < totalBucketsPossible;
+      bucketIndex++
+    ) {
       questionBucketingMap[bucketIndex] = {
-        start: (bucketIndex * store.state.bucketSize),
-        end: (
+        start: bucketIndex * store.state.bucketSize,
+        end:
           bucketIndex == totalBucketsPossible - 1 &&
-        totalQuestions % store.state.bucketSize != 0
-        )
-          ? totalQuestions - 1
-          : (bucketIndex * store.state.bucketSize) + (store.state.bucketSize - 1),
+          totalQuestions % store.state.bucketSize != 0
+            ? totalQuestions - 1
+            : bucketIndex * store.state.bucketSize +
+              (store.state.bucketSize - 1),
         isFetched: !bucketIndex,
-      }
+      };
     }
     questionBucketingMaps.push(questionBucketingMap);
+    // console.log("questionBucketingMap", questionBucketingMap);
   }
 
-  store.dispatch("setQuestionBucketMap", questionBucketingMaps)
+  store.dispatch("setQuestionBucketMap", questionBucketingMaps);
 }

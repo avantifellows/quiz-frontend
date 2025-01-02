@@ -2,128 +2,53 @@
   <div class="h-full">
     <!-- loading spinner -->
     <div v-if="!isQuizLoaded" class="flex justify-center h-full">
-      <BaseIcon
-        name="spinner-solid"
-        iconClass="animate-spin h-10 w-10 object-scale-down my-auto"
-      />
+      <BaseIcon name="spinner-solid" iconClass="animate-spin h-10 w-10 object-scale-down my-auto" />
     </div>
 
     <div v-else class="h-full flex flex-col">
-      <icon-button
-        v-if="shouldShowOmrToggle"
-        :titleConfig="toggleButtonTextConfig"
-        :iconConfig="toggleButtonIconConfig"
-        :buttonClass="toggleButtonIconClass"
-        class="rounded-2xl shadow-lg mt-5 place-self-center"
-        data-test="toggleOmrMode"
-        @click="toggleOmrMode"
-      ></icon-button>
+      <icon-button v-if="shouldShowOmrToggle" :titleConfig="toggleButtonTextConfig" :iconConfig="toggleButtonIconConfig"
+        :buttonClass="toggleButtonIconClass" class="rounded-2xl shadow-lg mt-5 place-self-center"
+        data-test="toggleOmrMode" @click="toggleOmrMode"></icon-button>
 
-      <Splash
-        v-if="isSplashShown"
-        :title="title"
-        :subject="metadata.subject"
-        :grade="metadata.grade"
-        :isFirstSession="isFirstSession"
-        :hasQuizEnded="hasQuizEnded"
-        :reviewAnswers="reviewAnswers"
-        :sessionEndTimeText="sessionEndTimeText"
-        :numQuestions="maxQuestionsAllowedToAttempt"
-        :quizType="computedQuizType"
-        :quizTimeLimit="quizTimeLimit"
-        :maxMarks="maxMarks"
-        :maxQuestionsAllowedToAttempt="numGradedQuestions"
-        :testFormat="metadata.test_format || ''"
-        :displaySolution="displaySolution"
-        :questions="questions"
-        :questionSetStates="questionSetStates"
-        @start="startQuiz"
-        data-test="splash"
-      ></Splash>
+      <Splash v-if="isSplashShown" :title="title" :subject="metadata.subject" :grade="metadata.grade"
+        :isFirstSession="isFirstSession" :hasQuizEnded="hasQuizEnded" :reviewAnswers="reviewAnswers"
+        :sessionEndTimeText="sessionEndTimeText" :numQuestions="maxQuestionsAllowedToAttempt"
+        :quizType="computedQuizType" :quizTimeLimit="quizTimeLimit" :maxMarks="maxMarks"
+        :maxQuestionsAllowedToAttempt="numGradedQuestions" :testFormat="metadata.test_format || ''"
+        :displaySolution="displaySolution" :questions="questions" :questionSetStates="questionSetStates"
+        @start="startQuiz" data-test="splash"></Splash>
 
-      <OmrModal
-        :questions="questions"
-        class="absolute z-10"
-        :class="{
-          hidden: !isOmrMode,
-        }"
-        :quizType="metadata.quiz_type"
-        :hasQuizEnded="hasQuizEnded"
-        :numQuestions="maxQuestionsAllowedToAttempt"
-        :maxQuestionsAllowedToAttempt="currentMaxQuestionsAllowedToAttempt"
-        :questionSetStates="questionSetStates"
-        :qsetIndex="currentQsetIndex"
-        :qsetIndexLimits="currentQsetIndexLimits"
-        :quizTimeLimit="quizTimeLimit"
+      <OmrModal :questions="questions" class="absolute z-10" :class="{
+        hidden: !isOmrMode,
+      }" :quizType="metadata.quiz_type" :hasQuizEnded="hasQuizEnded" :numQuestions="maxQuestionsAllowedToAttempt"
+        :maxQuestionsAllowedToAttempt="currentMaxQuestionsAllowedToAttempt" :questionSetStates="questionSetStates"
+        :qsetIndex="currentQsetIndex" :qsetIndexLimits="currentQsetIndexLimits" :quizTimeLimit="quizTimeLimit"
+        :isSessionAnswerRequestProcessing="isSessionAnswerRequestProcessing" :userId="userId" :title="title"
+        :subject="metadata.subject" :testFormat="metadata.test_format || ''" :timeRemaining="timeRemaining"
+        :maxMarks="maxMarks" v-model:currentQuestionIndex="currentQuestionIndex" v-model:responses="responses"
+        v-model:previousOmrResponses="previousOmrResponses" @submit-omr-question="submitOmrQuestion" @end-test="endTest"
+        data-test="omr-modal" v-if="isQuestionShown && isOmrMode"></OmrModal>
+
+      <QuestionModal :questions="questions" :class="{
+        hidden: isOmrMode,
+      }" :quizType="metadata.quiz_type" :hasQuizEnded="hasQuizEnded" :numQuestions="maxQuestionsAllowedToAttempt"
+        :maxQuestionsAllowedToAttempt="currentMaxQuestionsAllowedToAttempt" :questionSetTitle="currentQsetTitle"
+        :questionSetStates="questionSetStates" :qsetIndexLimits="currentQsetIndexLimits" :quizTimeLimit="quizTimeLimit"
         :isSessionAnswerRequestProcessing="isSessionAnswerRequestProcessing"
-        :userId="userId"
-        :title="title"
-        :subject="metadata.subject"
-        :testFormat="metadata.test_format || ''"
-        :timeRemaining="timeRemaining"
-        :maxMarks="maxMarks"
-        v-model:currentQuestionIndex="currentQuestionIndex"
-        v-model:responses="responses"
-        v-model:previousOmrResponses="previousOmrResponses"
-        @submit-omr-question="submitOmrQuestion"
-        @end-test="endTest"
-        data-test="omr-modal"
-        v-if="isQuestionShown && isOmrMode"
-      ></OmrModal>
+        :continueAfterAnswerSubmit="continueAfterAnswerSubmit" :timeRemaining="timeRemaining" :userId="userId"
+        :title="title" :subject="metadata.subject" :testFormat="metadata.test_format || ''" :maxMarks="maxMarks"
+        v-model:currentQuestionIndex="currentQuestionIndex" v-model:responses="responses"
+        v-model:previousResponse="previousResponse" @submit-question="submitQuestion"
+        @update-review-status="updateQuestionResponse" @end-test="endTest" @fetch-question-bucket="fetchQuestionBucket"
+        v-if="isQuestionShown && !isOmrMode" data-test="modal"></QuestionModal>
 
-      <QuestionModal
-        :questions="questions"
-        :class="{
-          hidden: isOmrMode,
-        }"
-        :quizType="metadata.quiz_type"
-        :hasQuizEnded="hasQuizEnded"
-        :numQuestions="maxQuestionsAllowedToAttempt"
-        :maxQuestionsAllowedToAttempt="currentMaxQuestionsAllowedToAttempt"
-        :questionSetTitle="currentQsetTitle"
-        :questionSetStates="questionSetStates"
-        :qsetIndexLimits="currentQsetIndexLimits"
-        :quizTimeLimit="quizTimeLimit"
-        :isSessionAnswerRequestProcessing="isSessionAnswerRequestProcessing"
-        :continueAfterAnswerSubmit="continueAfterAnswerSubmit"
-        :timeRemaining="timeRemaining"
-        :userId="userId"
-        :title="title"
-        :subject="metadata.subject"
-        :testFormat="metadata.test_format || ''"
-        :maxMarks="maxMarks"
-        v-model:currentQuestionIndex="currentQuestionIndex"
-        v-model:responses="responses"
-        v-model:previousResponse="previousResponse"
-        @submit-question="submitQuestion"
-        @update-review-status="updateQuestionResponse"
-        @end-test="endTest"
-        @fetch-question-bucket="fetchQuestionBucket"
-        v-if="isQuestionShown && !isOmrMode"
-        data-test="modal"
-      ></QuestionModal>
-
-      <Scorecard
-        id="scorecardmodal"
-        class="absolute z-10"
-        :class="{
-          hidden: !isScorecardShown,
-        }"
-        :result="scorecardResult"
-        :showScores="showScores"
-        :quizType="metadata.quiz_type"
-        :metrics="scorecardMetrics"
-        :progressPercentage="scorecardProgress"
-        :qsetMetrics="qsetMetrics"
-        :isShown="isScorecardShown"
-        :title="title"
-        :userId="userId"
-        greeting="Hooray! Congrats on completing the quiz! 🎉"
-        :numQuestionsAnswered="numQuestionsAnswered"
-        :hasGradedQuestions="hasGradedQuestions"
-        @go-back="goToPreviousQuestion"
-        data-test="scorecard"
-      ></Scorecard>
+      <Scorecard id="scorecardmodal" class="absolute z-10" :class="{
+        hidden: !isScorecardShown,
+      }" :result="scorecardResult" :showScores="showScores" :quizType="metadata.quiz_type" :metrics="scorecardMetrics"
+        :progressPercentage="scorecardProgress" :qsetMetrics="qsetMetrics" :isShown="isScorecardShown" :title="title"
+        :userId="userId" greeting="Hooray! Congrats on completing the quiz! 🎉"
+        :numQuestionsAnswered="numQuestionsAnswered" :hasGradedQuestions="hasGradedQuestions"
+        @go-back="goToPreviousQuestion" data-test="scorecard"></Scorecard>
     </div>
   </div>
 </template>
@@ -202,6 +127,7 @@ export default defineComponent({
       title: null as quizTitleType,
       metadata: {} as QuizMetadata,
       questions: [] as Question[],
+      randomIndex: [] as number[],
       responses: [] as SubmittedResponse[], // holds the responses to each item submitted by the viewer
       previousResponse: {} as SubmittedResponse, // holds previous respnose for question being submitted
       previousOmrResponses: [] as SubmittedResponse[],
@@ -363,10 +289,10 @@ export default defineComponent({
             calculateScorecardMetrics();
           }
         } else if (newValue != -1 && !state.hasQuizEnded) {
-          if (!state.responses[newValue].visited) {
+          if (!state.responses[state.randomIndex[newValue]].visited) {
             // if not visited yet
             starttimeSpentOnQuestionCalc(); // for homework and assessment
-            state.responses[newValue].visited = true;
+            state.responses[state.randomIndex[newValue]].visited = true;
             SessionAPIService.updateSessionAnswer(
               state.sessionId,
               state.currentQuestionIndex,
@@ -381,7 +307,7 @@ export default defineComponent({
             }
 
             // for homework, run the timer if question is visited but not submitted
-            if (!isQuizAssessment.value && state.responses[newValue].answer == null) {
+            if (!isQuizAssessment.value && state.responses[state.randomIndex[newValue]].answer == null) {
               starttimeSpentOnQuestionCalc();
             }
           }
@@ -391,7 +317,7 @@ export default defineComponent({
       }
     );
 
-    function getQsetLimits(questionIndex : number) : [number, QuestionSetIndexLimits] {
+    function getQsetLimits(questionIndex: number): [number, QuestionSetIndexLimits] {
       // returns the question set index a question belongs to
       // and the limits of that question set (low and high)
       let qsetIndex = state.qsetCumulativeLengths.findIndex(
@@ -474,7 +400,7 @@ export default defineComponent({
         );
         state.timeRemaining = response.time_remaining;
         if (state.timeRemaining == 0 && isQuizAssessment.value) {
-        // show results based on submitted session's answers (if any)
+          // show results based on submitted session's answers (if any)
           endTest()
         }
         state.currentQuestionIndex = 0;
@@ -486,17 +412,18 @@ export default defineComponent({
     }
 
     async function getQuiz() {
-      const quizDetails : QuizAPIResponse = await QuizAPIService.getQuiz({
+      const quizDetails: QuizAPIResponse = await QuizAPIService.getQuiz({
         quizId: props.quizId,
         omrMode: isOmrMode.value ?? false
       });
+      // console.log("quizDetails---------------------", quizDetails)
       // since we know that there is going to be only one
       // question set for now
       state.questionSets = quizDetails.question_sets;
       const totalQuestionsInEachSet = [];
       for (const [idx, questionSet] of state.questionSets.entries()) {
         state.maxQuestionsAllowedToAttempt += questionSet.max_questions_allowed_to_attempt;
-        state.questions.push(...questionSet.questions) // spread to add questions
+        state.questions.push(...questionSet.questions) // spread to add questions--- aspirin here we are adding the questions to the questions array it is not coplete data
         totalQuestionsInEachSet.push(questionSet.questions.length)
         if (idx == 0) state.qsetCumulativeLengths.push(questionSet.questions.length)
         else state.qsetCumulativeLengths.push(state.qsetCumulativeLengths[idx - 1] + questionSet.questions.length)
@@ -522,6 +449,32 @@ export default defineComponent({
             state.reviewAnswers = false;
           }
         }
+      }
+      // console.log(state.questions);
+      shuffleRandomIndex();
+    }
+    function shuffleRandomIndex() {
+      // Clear the existing randomIndex array
+      state.randomIndex.length = 0;
+      const totalQuestions = state.questions.length;
+      const numBlocks = Math.ceil(totalQuestions / 10);// subsetsize currently set to 10 can extennd it.
+
+      for (let block = 0; block < numBlocks; block++) {
+        // Get the indices for the current block
+        const start = block * 10;
+        const end = Math.min(start + 10, totalQuestions);
+        const blockIndices = Array.from({ length: end - start }, (_, index) => start + index);
+
+        // Shuffle the block indices
+        for (let i = blockIndices.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [blockIndices[i], blockIndices[j]] = [blockIndices[j], blockIndices[i]];
+        }
+
+        // Append shuffled block indices to randomIndex
+        // the issue lies if there are more than 1 question set then this log fails better to shuffle using the question set lengths and add the same logic.
+        state.randomIndex.push(...blockIndices);
+        console.log("randomIndex", state.randomIndex)
       }
     }
 
@@ -558,7 +511,7 @@ export default defineComponent({
     /** updates the session answer once marked for review */
     async function updateQuestionResponse() {
       state.isSessionAnswerRequestProcessing = true;
-      const itemResponse = state.responses[state.currentQuestionIndex];
+      const itemResponse = state.responses[state.randomIndex[state.currentQuestionIndex]];
       const payload: UpdateSessionAnswerAPIPayload = {
         marked_for_review: itemResponse.marked_for_review
       }
@@ -577,7 +530,7 @@ export default defineComponent({
             draggablePercent: 0.4
           }
         )
-        state.responses[state.currentQuestionIndex] = state.previousResponse; // previous value?!
+        state.responses[state.randomIndex[state.currentQuestionIndex]] = state.previousResponse; // previous value?!
       } else {
         // successful response
         state.continueAfterAnswerSubmit = true;
@@ -589,7 +542,7 @@ export default defineComponent({
     async function submitQuestion() {
       state.isSessionAnswerRequestProcessing = true;
       state.continueAfterAnswerSubmit = false;
-      const itemResponse = state.responses[state.currentQuestionIndex];
+      const itemResponse = state.responses[state.randomIndex[state.currentQuestionIndex]];
       const payload: UpdateSessionAnswerAPIPayload = {
         answer: itemResponse.answer,
         marked_for_review: itemResponse.marked_for_review
@@ -614,7 +567,7 @@ export default defineComponent({
             draggablePercent: 0.4
           }
         )
-        state.responses[state.currentQuestionIndex] = state.previousResponse; // previous value?!
+        state.responses[state.randomIndex[state.currentQuestionIndex]] = state.previousResponse; // previous value?!
       } else {
         // successful response
         state.continueAfterAnswerSubmit = true;
@@ -623,7 +576,7 @@ export default defineComponent({
     }
 
     async function submitOmrQuestion(newQuestionIndex: number) {
-      const itemResponse = state.responses[newQuestionIndex];
+      const itemResponse = state.responses[state.randomIndex[newQuestionIndex]];
       const response = await SessionAPIService.updateSessionAnswer( // response.data
         state.sessionId,
         newQuestionIndex,
@@ -642,7 +595,7 @@ export default defineComponent({
             draggablePercent: 0.4
           }
         )
-        state.responses[newQuestionIndex] = state.previousOmrResponses[newQuestionIndex];
+        state.responses[state.randomIndex[newQuestionIndex]] = state.previousOmrResponses[state.randomIndex[newQuestionIndex]];
       }
     }
 
@@ -698,6 +651,7 @@ export default defineComponent({
       } else {
         state.currentQuestionIndex = numQuestions.value;
       }
+      console.log(state.responses)
     }
 
     getQuizCreateSession();
@@ -824,11 +778,11 @@ export default defineComponent({
         const [currentQsetIndex] = getQsetLimits(questionIndex);
         const qsetMetricsObj = state.qsetMetrics[currentQsetIndex];
         if (!questionDetail.graded) qsetMetricsObj.maxQuestionsAllowedToAttempt -= 1
-        if (state.responses[index].marked_for_review === true) {
+        if (state.responses[state.randomIndex[index]].marked_for_review === true) {
           qsetMetricsObj.numQuestionsMarkedForReview += 1;
           state.numMarkedForReview += 1;
         }
-        updateQuestionMetrics(questionDetail, state.responses[index].answer, qsetMetricsObj);
+        updateQuestionMetrics(questionDetail, state.responses[state.randomIndex[index]].answer, qsetMetricsObj);
         if (qsetMetricsObj.numAnswered != 0) qsetMetricsObj.accuracyRate = (qsetMetricsObj.correctlyAnswered + 0.5 * qsetMetricsObj.partiallyAnswered) / qsetMetricsObj.numAnswered;
         state.qsetMetrics[currentQsetIndex].attemptRate = qsetMetricsObj.numAnswered / qsetMetricsObj.maxQuestionsAllowedToAttempt;
         state.qsetMetrics[currentQsetIndex] = qsetMetricsObj;
@@ -939,7 +893,7 @@ export default defineComponent({
           if (state.hasQuizEnded) {
             const questionAnswerEvaluation = isQuestionAnswerCorrect(
               state.questions[qindex],
-              state.responses[qindex].answer,
+              state.responses[state.randomIndex[qindex]].answer,
               state.questions[qindex].marking_scheme?.partial != null // doesPartialMarkingExist
             )
             if (!questionAnswerEvaluation.valid && state.questions[qindex].graded) continue
@@ -948,7 +902,7 @@ export default defineComponent({
               qstate = "neutral"
             } else if (
               !questionAnswerEvaluation.answered ||
-          questionAnswerEvaluation.isCorrect == null
+              questionAnswerEvaluation.isCorrect == null
             ) {
               qstate = "neutral"
             } else {
@@ -960,11 +914,11 @@ export default defineComponent({
             }
           } else {
             if (state.responses.length > 0) {
-              if (!state.responses[qindex].visited) { // initially responses empty
+              if (!state.responses[state.randomIndex[qindex]].visited) { // initially responses empty
                 qstate = "neutral"
               } else {
-                if (state.responses[qindex].answer != null) qstate = "success"
-                else if (state.responses[qindex].marked_for_review) qstate = "review"
+                if (state.responses[state.randomIndex[qindex]].answer != null) qstate = "success"
+                else if (state.responses[state.randomIndex[qindex]].marked_for_review) qstate = "review"
                 else qstate = "error"
               }
             } else qstate = "error"
@@ -1014,6 +968,7 @@ export default defineComponent({
           let globalQuestionIndex = i
           if (qsetIndex != 0) globalQuestionIndex = i + state.qsetCumulativeLengths[qsetIndex - 1]
           state.questions[globalQuestionIndex] = fetchedQuestions[i - bucketStartIndex]
+          // console.log("fetchedQuestions[i - bucketStartIndex]---------------------", fetchedQuestions[i - bucketStartIndex])
         }
 
         store.dispatch("updateBucketFetchedStatus", {
