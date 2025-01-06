@@ -40,7 +40,7 @@
         v-model:currentQuestionIndex="currentQuestionIndex" v-model:responses="responses"
         v-model:previousResponse="previousResponse" @submit-question="submitQuestion"
         @update-review-status="updateQuestionResponse" @end-test="endTest" @fetch-question-bucket="fetchQuestionBucket"
-        v-if="isQuestionShown && !isOmrMode" data-test="modal"></QuestionModal>
+        :randomIndex="randomIndex" v-if="isQuestionShown && !isOmrMode" data-test="modal"></QuestionModal>
 
       <Scorecard id="scorecardmodal" class="absolute z-10" :class="{
         hidden: !isScorecardShown,
@@ -85,6 +85,7 @@ import {
   UpdateSessionAnswerAPIPayload,
   UpdateSessionAnswersAtSpecificPositionsAPIPayload,
   QuestionSetMetric
+  // IndexMapping
 } from "../types";
 import { useToast, POSITION } from "vue-toastification"
 import BaseIcon from "../components/UI/Icons/BaseIcon.vue";
@@ -451,31 +452,43 @@ export default defineComponent({
         }
       }
       // console.log(state.questions);
+      // console.log("<------------------ Here we go ------------>", state.questionSets)
       shuffleRandomIndex();
     }
+
     function shuffleRandomIndex() {
       // Clear the existing randomIndex array
       state.randomIndex.length = 0;
-      const totalQuestions = state.questions.length;
-      const numBlocks = Math.ceil(totalQuestions / 10);// subsetsize currently set to 10 can extennd it.
+      const questionSets = state.questionSets; // Assuming questionSets is an array of question arrays
+      const subsetSize = 10;
+      let globalIndex = 0; // Track global index across all questions
 
-      for (let block = 0; block < numBlocks; block++) {
-        // Get the indices for the current block
-        const start = block * 10;
-        const end = Math.min(start + 10, totalQuestions);
-        const blockIndices = Array.from({ length: end - start }, (_, index) => start + index);
+      // Iterate over each question set
+      questionSets.forEach(questionSet => {
+        const totalQuestions = questionSet.questions.length;
+        const numBlocks = Math.ceil(totalQuestions / subsetSize);
 
-        // Shuffle the block indices
-        for (let i = blockIndices.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [blockIndices[i], blockIndices[j]] = [blockIndices[j], blockIndices[i]];
+        // For each block (subset of 10)
+        for (let block = 0; block < numBlocks; block++) {
+          // Get the start and end index for the current block
+          const start = block * subsetSize;
+          const end = Math.min(start + subsetSize, totalQuestions);
+          const blockIndices = Array.from({ length: end - start }, (_, index) => globalIndex + index);
+
+          // Shuffle the current block using Fisher-Yates algorithm
+          for (let i = blockIndices.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [blockIndices[i], blockIndices[j]] = [blockIndices[j], blockIndices[i]];
+          }
+
+          // Append the shuffled indices to randomIndex
+          state.randomIndex.push(...blockIndices);
+
+          // Update global index for the next set of questions
+          globalIndex += blockIndices.length;
         }
-
-        // Append shuffled block indices to randomIndex
-        // the issue lies if there are more than 1 question set then this log fails better to shuffle using the question set lengths and add the same logic.
-        state.randomIndex.push(...blockIndices);
-        console.log("randomIndex", state.randomIndex)
-      }
+      });
+      // console.log("randomIndex", state.randomIndex);
     }
 
     async function createSession() {
@@ -517,7 +530,7 @@ export default defineComponent({
       }
       const response = await SessionAPIService.updateSessionAnswer( // response.data
         state.sessionId,
-        state.currentQuestionIndex,
+        state.randomIndex[state.currentQuestionIndex],
         payload
       );
       state.timeSpentOnQuestion[state.currentQuestionIndex].hasSynced = true;
@@ -550,11 +563,11 @@ export default defineComponent({
       if (!isQuizAssessment.value) {
         // we update time spent for homework immediately when answer is submitted
         stoptimeSpentOnQuestionCalc();
-        payload.time_spent = state.timeSpentOnQuestion[state.currentQuestionIndex].timeSpent;
+        payload.time_spent = state.timeSpentOnQuestion[state.randomIndex[state.currentQuestionIndex]].timeSpent;
       }
       const response = await SessionAPIService.updateSessionAnswer( // response.data
         state.sessionId,
-        state.currentQuestionIndex,
+        state.randomIndex[state.currentQuestionIndex],
         payload
       );
       state.timeSpentOnQuestion[state.currentQuestionIndex].hasSynced = true;
@@ -576,7 +589,7 @@ export default defineComponent({
     }
 
     async function submitOmrQuestion(newQuestionIndex: number) {
-      const itemResponse = state.responses[state.randomIndex[newQuestionIndex]];
+      const itemResponse = state.responses[newQuestionIndex];
       const response = await SessionAPIService.updateSessionAnswer( // response.data
         state.sessionId,
         newQuestionIndex,
@@ -595,7 +608,7 @@ export default defineComponent({
             draggablePercent: 0.4
           }
         )
-        state.responses[state.randomIndex[newQuestionIndex]] = state.previousOmrResponses[state.randomIndex[newQuestionIndex]];
+        state.responses[newQuestionIndex] = state.previousOmrResponses[newQuestionIndex];
       }
     }
 
@@ -651,7 +664,7 @@ export default defineComponent({
       } else {
         state.currentQuestionIndex = numQuestions.value;
       }
-      console.log(state.responses)
+      // console.log(state.responses)
     }
 
     getQuizCreateSession();
@@ -750,7 +763,6 @@ export default defineComponent({
 
     function calculateScorecardMetrics() {
       let index = 0;
-
       // set initial values
       state.numSkipped = numGradedQuestions.value;
       state.numCorrect = 0;
@@ -777,12 +789,14 @@ export default defineComponent({
       state.questions.forEach((questionDetail, questionIndex) => {
         const [currentQsetIndex] = getQsetLimits(questionIndex);
         const qsetMetricsObj = state.qsetMetrics[currentQsetIndex];
+        let dynamicIndex = state.randomIndex[index];
         if (!questionDetail.graded) qsetMetricsObj.maxQuestionsAllowedToAttempt -= 1
-        if (state.responses[state.randomIndex[index]].marked_for_review === true) {
+        if (isOmrMode.value) dynamicIndex = index;
+        if (state.responses[dynamicIndex].marked_for_review === true) {
           qsetMetricsObj.numQuestionsMarkedForReview += 1;
           state.numMarkedForReview += 1;
         }
-        updateQuestionMetrics(questionDetail, state.responses[state.randomIndex[index]].answer, qsetMetricsObj);
+        updateQuestionMetrics(questionDetail, state.responses[dynamicIndex].answer, qsetMetricsObj);
         if (qsetMetricsObj.numAnswered != 0) qsetMetricsObj.accuracyRate = (qsetMetricsObj.correctlyAnswered + 0.5 * qsetMetricsObj.partiallyAnswered) / qsetMetricsObj.numAnswered;
         state.qsetMetrics[currentQsetIndex].attemptRate = qsetMetricsObj.numAnswered / qsetMetricsObj.maxQuestionsAllowedToAttempt;
         state.qsetMetrics[currentQsetIndex] = qsetMetricsObj;

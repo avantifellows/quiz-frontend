@@ -93,8 +93,8 @@ export function isQuestionAnswerCorrect(
     valid: false,
     answered: false,
   } as answerEvaluation;
-  console.log("questionDetail", questionDetail);
-  console.log("userAnswer", userAnswer);
+  // console.log("questionDetail", questionDetail);
+  // console.log("userAnswer", userAnswer);
   if (questionDetail.graded) {
     answerEvaluation.valid = true;
 

@@ -1,95 +1,49 @@
 <template>
   <div class="h-full flex flex-col bg-white w-full justify-between absolute">
-    <Header
-      v-if="isQuizAssessment"
-      :hasQuizEnded="hasQuizEnded"
-      :hasTimeLimit="quizTimeLimit != null"
-      v-model:isPaletteVisible="isPaletteVisible"
-      :timeRemaining="timeRemaining"
+    <Header v-if="isQuizAssessment" :hasQuizEnded="hasQuizEnded" :hasTimeLimit="quizTimeLimit != null"
+      v-model:isPaletteVisible="isPaletteVisible" :timeRemaining="timeRemaining"
       :isSessionAnswerRequestProcessing="$props.isSessionAnswerRequestProcessing"
-      :warningTimeLimit="timeLimitWarningThreshold"
-      :title="title"
-      :userId="userId"
-      :quizType="quizType"
-      @time-limit-warning="displayTimeLimitWarning"
-      @end-test="endTest"
-      @end-test-by-time="endTestByTime"
-      data-test="header"
-    ></Header>
+      :warningTimeLimit="timeLimitWarningThreshold" :title="title" :userId="userId" :quizType="quizType"
+      @time-limit-warning="displayTimeLimitWarning" @end-test="endTest" @end-test-by-time="endTestByTime"
+      data-test="header"></Header>
     <div v-if="!isQuizAssessment">
-      <div
-        class="bg-white-400 w-full justify between">
+      <div class="bg-white-400 w-full justify between">
         <div class="p-4 h-14 bg-white">
           <div class="float-left text-lg sm:text-xl truncate" data-test="test-name">
-          {{ $props.title }}
+            {{ $props.title }}
           </div>
           <div class="float-right text-lg sm:text-xl mx-1 px-1 " data-test="user-id">
-          Id: {{ $props.userId }}
+            Id: {{ $props.userId }}
           </div>
         </div>
       </div>
     </div>
-    <div
-      class="scroll-container flex flex-col grow bg-white w-full justify-between overflow-hidden"
-    >
-      <Body
-        :text="currentQuestion.text"
-        :solutionText="currentQuestion.solution"
-        :class="bodyContainerClass"
-        :options="currentQuestion.options"
-        :correctAnswer="questionCorrectAnswer"
-        :questionType="questionType"
-        :isGradedQuestion="isGradedQuestion"
-        :maxCharLimit="currentQuestion.max_char_limit"
-        :matrixSize="currentQuestion.matrix_size"
-        :isPortrait="isPortrait"
-        :imageData="currentQuestion?.image"
-        :displaySolution="displaySolution"
-        :draftAnswer="draftResponses[currentQuestionIndex]"
-        :submittedAnswer="currentQuestionResponseAnswer"
-        :isAnswerSubmitted="isAnswerSubmitted"
+    <div class="scroll-container flex flex-col grow bg-white w-full justify-between overflow-hidden">
+
+      <Body :text="currentQuestion.text" :solutionText="currentQuestion.solution" :class="bodyContainerClass"
+        :options="currentQuestion.options" :correctAnswer="questionCorrectAnswer" :questionType="questionType"
+        :isGradedQuestion="isGradedQuestion" :maxCharLimit="currentQuestion.max_char_limit"
+        :matrixSize="currentQuestion.matrix_size" :isPortrait="isPortrait" :imageData="currentQuestion?.image"
+        :displaySolution="displaySolution" :draftAnswer="draftResponses[randomIndex[currentQuestionIndex]]"
+        :submittedAnswer="currentQuestionResponseAnswer" :isAnswerSubmitted="isAnswerSubmitted"
         :isMarkedForReview="isMarkedForReview"
-        :isSessionAnswerRequestProcessing="$props.isSessionAnswerRequestProcessing"
-        :isPaletteVisible="isPaletteVisible"
-        :isDraftAnswerCleared="isDraftAnswerCleared"
-        :quizType="quizType"
-        :hasQuizEnded="hasQuizEnded"
-        :optionalLimitReached="optionalLimitReached"
-        :questionSetTitle="questionSetTitle"
-        :currentQuestionIndex="currentQuestionIndex"
-        :questionSetStates="questionSetStates"
-        :title="title"
-        :subject="subject"
-        :testFormat="testFormat"
-        :maxMarks="maxMarks"
-        :maxQuestionsAllowedToAttempt="maxQuestionsAllowedToAttempt"
-        :quizTimeLimit="quizTimeLimit"
-        :numQuestions = "numQuestions"
-        @option-selected="questionOptionSelected"
-        @subjective-answer-entered="subjectiveAnswerUpdated"
-        @numerical-answer-entered="numericalAnswerUpdated"
-        @navigate="navigateToQuestion"
-        :key="reRenderKey"
-        data-test="body"
-        ref="body"
-      ></Body>
-      <Footer
-        :isAnswerSubmitted="isAnswerSubmitted"
-        :isMarkedForReview="isMarkedForReview"
+        :isSessionAnswerRequestProcessing="$props.isSessionAnswerRequestProcessing" :isPaletteVisible="isPaletteVisible"
+        :isDraftAnswerCleared="isDraftAnswerCleared" :quizType="quizType" :hasQuizEnded="hasQuizEnded"
+        :optionalLimitReached="optionalLimitReached" :questionSetTitle="questionSetTitle"
+        :currentQuestionIndex="currentQuestionIndex" :questionSetStates="questionSetStates" :title="title"
+        :subject="subject" :testFormat="testFormat" :maxMarks="maxMarks"
+        :maxQuestionsAllowedToAttempt="maxQuestionsAllowedToAttempt" :quizTimeLimit="quizTimeLimit"
+        :numQuestions="numQuestions" @option-selected="questionOptionSelected"
+        @subjective-answer-entered="subjectiveAnswerUpdated" @numerical-answer-entered="numericalAnswerUpdated"
+        @navigate="navigateToQuestion" :key="reRenderKey" data-test="body" ref="body"></Body>
+      <Footer :isAnswerSubmitted="isAnswerSubmitted" :isMarkedForReview="isMarkedForReview"
         :isPreviousButtonShown="currentQuestionIndex > 0"
-        :isNextButtonShown="currentQuestionIndex != questions.length - 1"
-        :isSubmitEnabled="isAttemptValid"
-        :quizType="quizType"
-        :hasQuizEnded="hasQuizEnded"
+        :isNextButtonShown="currentQuestionIndex != questions.length - 1" :isSubmitEnabled="isAttemptValid"
+        :quizType="quizType" :hasQuizEnded="hasQuizEnded"
         :isSessionAnswerRequestProcessing="$props.isSessionAnswerRequestProcessing"
-        :continueAfterAnswerSubmit="$props.continueAfterAnswerSubmit"
-        @submit="submitQuestion"
-        @continue="showNextQuestion"
-        @previous="showPreviousQuestion"
-        @clear="clearAnswer"
-        @mark-for-review="markForReviewQuestion"
-        data-test="footer"
-      ></Footer>
+        :continueAfterAnswerSubmit="$props.continueAfterAnswerSubmit" @submit="submitQuestion"
+        @continue="showNextQuestion" @previous="showPreviousQuestion" @clear="clearAnswer"
+        @mark-for-review="markForReviewQuestion" data-test="footer"></Footer>
     </div>
   </div>
 </template>
@@ -135,6 +89,10 @@ export default defineComponent({
     questions: {
       required: true,
       type: Array as PropType<Question[]>
+    },
+    randomIndex: {
+      required: true,
+      type: Array as PropType<number[]>
     },
     currentQuestionIndex: {
       type: Number,
@@ -292,7 +250,7 @@ To attempt Q.${props.currentQuestionIndex + 1}, unselect an answer to another qu
     function questionOptionSelected(answer: number | string) {
       if (isQuestionTypeSingleChoice.value && typeof answer == "number") {
         // for MCQ, simply set the option as the current response
-        state.draftResponses[props.currentQuestionIndex] = [answer]
+        state.draftResponses[props.randomIndex[props.currentQuestionIndex]] = [answer]
         return
       }
 
@@ -301,17 +259,17 @@ To attempt Q.${props.currentQuestionIndex + 1}, unselect an answer to another qu
         // answer: CT
         // updated answer -> [AQ, BR, CS, CT]
         // if answer: CS, updated answer -> [AQ, BR]
-        if (state.draftResponses[props.currentQuestionIndex] == null) {
-          state.draftResponses[props.currentQuestionIndex] = []
+        if (state.draftResponses[props.randomIndex[props.currentQuestionIndex]] == null) {
+          state.draftResponses[props.randomIndex[props.currentQuestionIndex]] = []
         }
 
-        let currentResponse = clonedeep(state.draftResponses[props.currentQuestionIndex])
+        let currentResponse = clonedeep(state.draftResponses[props.randomIndex[props.currentQuestionIndex]])
         if (Array.isArray(currentResponse)) {
           const answerPositionInResponse = currentResponse.indexOf(answer)
           if (answerPositionInResponse != -1) {
             currentResponse.splice(answerPositionInResponse, 1)
             if (currentResponse.length == 0) {
-            // if all options unselected, set answer to null
+              // if all options unselected, set answer to null
               currentResponse = null;
             }
           } else {
@@ -319,36 +277,36 @@ To attempt Q.${props.currentQuestionIndex + 1}, unselect an answer to another qu
             currentResponse.sort()
           }
         }
-        state.draftResponses[props.currentQuestionIndex] = currentResponse
+        state.draftResponses[props.randomIndex[props.currentQuestionIndex]] = currentResponse
       }
     }
 
     function submitQuestion() {
       if (!state.localResponses.length) return
-      state.localResponses[props.currentQuestionIndex].answer =
-        state.draftResponses[props.currentQuestionIndex]
-      if (state.draftResponses[props.currentQuestionIndex] != null) {
+      state.localResponses[props.randomIndex[props.currentQuestionIndex]].answer =
+        state.draftResponses[props.randomIndex[props.currentQuestionIndex]]
+      if (state.draftResponses[props.randomIndex[props.currentQuestionIndex]] != null) {
         // question is answered => set review to false
-        state.localResponses[props.currentQuestionIndex].marked_for_review = false;
+        state.localResponses[props.randomIndex[props.currentQuestionIndex]].marked_for_review = false;
       }
       context.emit("submit-question")
     }
 
     function clearAnswer() {
       state.reRenderKey = !state.reRenderKey
-      state.draftResponses[props.currentQuestionIndex] = null
+      state.draftResponses[props.randomIndex[props.currentQuestionIndex]] = null
       state.isDraftAnswerCleared = true
     }
 
     function markForReviewQuestion() {
-      state.previousLocalResponse = clonedeep(state.localResponses[props.currentQuestionIndex]);
-      state.localResponses[props.currentQuestionIndex].marked_for_review = true;
+      state.previousLocalResponse = clonedeep(state.localResponses[props.randomIndex[props.currentQuestionIndex]]);
+      state.localResponses[props.randomIndex[props.currentQuestionIndex]].marked_for_review = true;
       let markForReviewInfoText = `Question ${props.currentQuestionIndex + 1} is marked for review.`
-      if (state.localResponses[props.currentQuestionIndex].answer != null) {
+      if (state.localResponses[props.randomIndex[props.currentQuestionIndex]].answer != null) {
         markForReviewInfoText += `\nAnswer to Question ${props.currentQuestionIndex + 1} is cleared!`
         clearAnswer()
         submitQuestion()
-      } else if (state.draftResponses[props.currentQuestionIndex] != null) {
+      } else if (state.draftResponses[props.randomIndex[props.currentQuestionIndex]] != null) {
         markForReviewInfoText += "\nThis action does not save your answer!"
       }
       state.toast.info(
@@ -400,10 +358,10 @@ To attempt Q.${props.currentQuestionIndex + 1}, unselect an answer to another qu
     function resetState() {
       if (
         (state.isDraftAnswerCleared || isAnswerSubmitted.value) &&
-        state.draftResponses[props.currentQuestionIndex] !=
-          currentQuestionResponseAnswer.value
+        state.draftResponses[props.randomIndex[props.currentQuestionIndex]] !=
+        currentQuestionResponseAnswer.value
       ) {
-        state.draftResponses[props.currentQuestionIndex] =
+        state.draftResponses[props.randomIndex[props.currentQuestionIndex]] =
           currentQuestionResponseAnswer.value
       }
       state.isDraftAnswerCleared = false
@@ -411,12 +369,12 @@ To attempt Q.${props.currentQuestionIndex + 1}, unselect an answer to another qu
     }
 
     function numericalAnswerUpdated(answer: number | null) {
-      state.draftResponses[props.currentQuestionIndex] = answer
+      state.draftResponses[props.randomIndex[props.currentQuestionIndex]] = answer
     }
 
     /** update the attempt to the current question - valid for subjective questions */
     function subjectiveAnswerUpdated(answer: string) {
-      state.draftResponses[props.currentQuestionIndex] = answer
+      state.draftResponses[props.randomIndex[props.currentQuestionIndex]] = answer
     }
 
     function endTest() {
@@ -432,16 +390,16 @@ To attempt Q.${props.currentQuestionIndex + 1}, unselect an answer to another qu
           }
         }
         state.toast.success(
-            `Total Questions: ${props.numQuestions}
+          `Total Questions: ${props.numQuestions}
 Questions Answered: ${attemptedQuestions}
 Questions Marked for Review and Unanswered: ${markedForReviewAndUnansweredQuestions}
 \nUse the Question Palette to review all questions.
 For final submission, click the End Test button again.`,
-            {
-              position: POSITION.TOP_CENTER,
-              timeout: 6000,
-              draggablePercent: 0.4
-            }
+          {
+            position: POSITION.TOP_CENTER,
+            timeout: 6000,
+            draggablePercent: 0.4
+          }
         )
         state.hasEndTestBeenClickedOnce = false;
       } else {
@@ -466,7 +424,7 @@ For final submission, click the End Test button again.`,
     }))
 
     const currentQuestion = computed(
-      () => props.questions[props.currentQuestionIndex]
+      () => props.questions[props.randomIndex[props.currentQuestionIndex]]
     )
 
     const questionType = computed(() => currentQuestion.value.type)
@@ -498,7 +456,7 @@ For final submission, click the End Test button again.`,
     )
 
     const currentQuestionResponse = computed(
-      () => props.responses[props.currentQuestionIndex]
+      () => props.responses[props.randomIndex[props.currentQuestionIndex]]
     )
 
     const currentQuestionResponseAnswer = computed(
@@ -515,7 +473,7 @@ For final submission, click the End Test button again.`,
         return true
       }
       if (isQuestionTypeSingleChoice.value || isQuestionTypeMultiChoice.value) {
-        return currentQuestionResponseAnswer.value != []
+        return currentQuestionResponseAnswer.value != null
       }
       return true
     })
@@ -529,8 +487,8 @@ For final submission, click the End Test button again.`,
         // this cannot be answered
         return false
       }
-      const currentDraftResponse = state.draftResponses[
-        props.currentQuestionIndex
+      const currentDraftResponse = state.draftResponses[props.randomIndex[
+        props.currentQuestionIndex]
       ] as DraftResponse
       if (currentDraftResponse == null) {
         return false
@@ -568,12 +526,12 @@ For final submission, click the End Test button again.`,
     function displayTimeLimitWarning() {
       if (!props.hasQuizEnded) {
         state.toast.warning(
-            `Only ${timeLimitWarningThreshold} minutes left! Please submit!`,
-            {
-              position: POSITION.TOP_CENTER,
-              timeout: 3000,
-              draggablePercent: 0.4
-            }
+          `Only ${timeLimitWarningThreshold} minutes left! Please submit!`,
+          {
+            position: POSITION.TOP_CENTER,
+            timeout: 3000,
+            draggablePercent: 0.4
+          }
         )
         context.emit("test-warning-shown");
       }
@@ -624,10 +582,13 @@ For final submission, click the End Test button again.`,
 <style>
 .truncate {
   @apply whitespace-nowrap overflow-hidden overflow-ellipsis;
-  max-width: 10em; /*(10em) Adjust this value to determine the maximum width in characters */
+  max-width: 10em;
+  /*(10em) Adjust this value to determine the maximum width in characters */
 }
+
 .scroll-container {
-  height: 100vh; /* Adjust the height as per your needs */
+  height: 100vh;
+  /* Adjust the height as per your needs */
   overflow: auto;
 }
 </style>

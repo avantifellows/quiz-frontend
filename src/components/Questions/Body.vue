@@ -1,39 +1,18 @@
 <template>
-  <div
-    class="flex relative h-full overflow-y-auto"
-    :class="{ 'bg-gray-50': isPaletteVisible }"
-  >
-    <QuestionPalette
-      v-if="isPaletteVisible"
-      :hasQuizEnded="hasQuizEnded"
-      :questionSetStates="questionSetStates"
-      :currentQuestionIndex="currentQuestionIndex"
-      :title="title"
-      :subject="subject"
-      :testFormat="testFormat"
-      :maxMarks="maxMarks"
-      :numQuestions="numQuestions"
-      :quizTimeLimit="quizTimeLimit"
-      class="absolute w-full h-full sm:w-2/3 lg:w-1/2 xl:w-1/3 z-10"
-      @navigate="navigateToQuestion"
-      data-test="questionPalette"
-    >
+  <div class="flex relative h-full overflow-y-auto" :class="{ 'bg-gray-50': isPaletteVisible }">
+    <QuestionPalette v-if="isPaletteVisible" :hasQuizEnded="hasQuizEnded" :questionSetStates="questionSetStates"
+      :currentQuestionIndex="currentQuestionIndex" :title="title" :subject="subject" :testFormat="testFormat"
+      :maxMarks="maxMarks" :numQuestions="numQuestions" :quizTimeLimit="quizTimeLimit"
+      class="absolute w-full h-full sm:w-2/3 lg:w-1/2 xl:w-1/3 z-10" @navigate="navigateToQuestion"
+      data-test="questionPalette">
     </QuestionPalette>
 
     <div class="overflow-y-auto flex flex-col w-full">
       <div class="bg-gray-300">
         <!-- questionHeaderPrefix shows the question index no. and the type of question -->
-        <p
-          :class="questionHeaderPrefixClass"
-          data-test="question-index-type"
-          v-html="questionHeaderPrefix"
-        ></p>
+        <p :class="questionHeaderPrefixClass" data-test="question-index-type" v-html="questionHeaderPrefix"></p>
         <!-- questionHeaderSuffix shows the subject and section no. of question -->
-        <p
-          :class="questionHeaderSuffixClass"
-          data-test="question-subject-section"
-          v-html="questionHeaderSuffix"
-        ></p>
+        <p :class="questionHeaderSuffixClass" data-test="question-subject-section" v-html="questionHeaderSuffix"></p>
       </div>
       <!-- question text -->
       <div class="mx-6 md:mx-10" v-bind="isQuizAssessment && !hasQuizEnded ? { inert: true } : {}">
@@ -41,145 +20,75 @@
       </div>
       <div :class="orientationClass">
         <!-- loading spinner when question image is loading -->
-        <div
-          :class="questionImageAreaClass"
-          class="flex justify-center"
-          v-if="isImageLoading"
-        >
-          <BaseIcon
-            name="spinner-solid"
-            iconClass="animate-spin h-4 w-4 object-scale-down"
-          />
+        <div :class="questionImageAreaClass" class="flex justify-center" v-if="isImageLoading">
+          <BaseIcon name="spinner-solid" iconClass="animate-spin h-4 w-4 object-scale-down" />
         </div>
         <!-- question image container -->
-        <div :class="questionImageContainerClass" v-if="isQuestionImagePresent" v-bind="isQuizAssessment && !hasQuizEnded ? { inert: true } : {}">
-          <img
-            :src="imageData.url"
-            class="object-contain h-full w-full"
-            :alt="imageData.alt_text"
-            @load="stopImageLoading"
-            ref="questionImage"
-            :class="{ invisible: isImageLoading }"
-          />
+        <div :class="questionImageContainerClass" v-if="isQuestionImagePresent"
+          v-bind="isQuizAssessment && !hasQuizEnded ? { inert: true } : {}">
+          <img :src="imageData.url" class="object-contain h-full w-full" :alt="imageData.alt_text"
+            @load="stopImageLoading" ref="questionImage" :class="{ invisible: isImageLoading }" />
         </div>
         <!-- option container -->
-        <div
-          v-if="areOptionsVisible"
-          class="flex"
-          :class="answerContainerClass"
-          data-test="optionContainer"
-        >
+        <div v-if="areOptionsVisible" class="flex" :class="answerContainerClass" data-test="optionContainer">
           <ul class="w-full">
             <li class="list-none space-y-1 flex flex-col">
-              <div
-                v-for="(option, optionIndex) in options"
-                :key="optionIndex"
+              <div v-for="(option, optionIndex) in options" :key="optionIndex"
                 :class="[optionBackgroundClass(optionIndex), optionTextClass]"
-                :data-test="`optionContainer-${optionIndex}`"
-              >
+                :data-test="`optionContainer-${optionIndex}`">
                 <!-- each option is defined here -->
                 <!-- adding <label> so that touch input is just not limited to the radio/checkbox button -->
                 <label :class="labelClass(option)">
                   <!-- understand the meaning of the attributes here:
                     https://www.w3schools.com/tags/att_input_type_radio.asp -->
 
-                  <input
-                    :type="optionInputType"
-                    name="option"
+                  <input :type="optionInputType" name="option"
                     class="place-self-center text-primary focus:ring-0 disabled:cursor-not-allowed"
-                    style="box-shadow: none"
-                    @click="selectOption(optionIndex)"
-                    :checked="isOptionMarked(optionIndex)"
-                    :disabled="isAnswerDisabled"
-                    :data-test="`optionSelector-${optionIndex}`"
-                  />
-                  <div
-                    v-html="option.text"
-                    class="ml-2 h-full place-self-center text-base sm:text-lg"
+                    style="box-shadow: none" @click="selectOption(optionIndex)" :checked="isOptionMarked(optionIndex)"
+                    :disabled="isAnswerDisabled" :data-test="`optionSelector-${optionIndex}`" />
+                  <div v-html="option.text" class="ml-2 h-full place-self-center text-base sm:text-lg"
                     :data-test="`option-${optionIndex}`"
-                    v-bind="isQuizAssessment && !hasQuizEnded ? { inert: true } : {}"
-                  ></div>
+                    v-bind="isQuizAssessment && !hasQuizEnded ? { inert: true } : {}"></div>
                 </label>
               </div>
             </li>
           </ul>
         </div>
         <!-- subjective question answer -->
-        <div
-          v-if="isQuestionTypeSubjective"
-          class="flex flex-col"
-          :class="answerContainerClass"
-          data-test="subjectiveAnswerContainer"
-        >
+        <div v-if="isQuestionTypeSubjective" class="flex flex-col" :class="answerContainerClass"
+          data-test="subjectiveAnswerContainer">
           <!-- input area for the answer -->
-          <Textarea
-            v-model:value="subjectiveAnswer"
-            class="px-2 w-full"
-            :boxStyling="subjectiveAnswerBoxStyling"
-            placeholder="Enter your answer here"
-            :isDisabled="isAnswerDisabled"
-            :maxHeightLimit="250"
-            @beforeinput="preventKeypressIfApplicable"
-            data-test="subjectiveAnswer"
-          ></Textarea>
+          <Textarea v-model:value="subjectiveAnswer" class="px-2 w-full" :boxStyling="subjectiveAnswerBoxStyling"
+            placeholder="Enter your answer here" :isDisabled="isAnswerDisabled" :maxHeightLimit="250"
+            @beforeinput="preventKeypressIfApplicable" data-test="subjectiveAnswer"></Textarea>
           <!-- character limit -->
-          <div
-            class="flex items-end px-6 mt-2"
-            v-if="hasCharLimit && !isAnswerSubmitted"
-            data-test="charLimitContainer"
-          >
-            <p
-              class="text-sm sm:text-base lg:text-lg font-bold"
-              :class="maxCharLimitClass"
-              data-test="charLimit"
-            >
+          <div class="flex items-end px-6 mt-2" v-if="hasCharLimit && !isAnswerSubmitted"
+            data-test="charLimitContainer">
+            <p class="text-sm sm:text-base lg:text-lg font-bold" :class="maxCharLimitClass" data-test="charLimit">
               {{ charactersLeft }} characters left
             </p>
           </div>
           <!-- answer display -->
-          <div
-            v-if="hasQuizEnded"
-            class="px-2 text-lg mt-2"
-            data-test="subjectiveCorrectAnswer"
-          >
+          <div v-if="hasQuizEnded" class="px-2 text-lg mt-2" data-test="subjectiveCorrectAnswer">
             Correct Answer: {{ correctAnswer }}
           </div>
         </div>
         <!-- Numerical question answer -->
-        <div
-          v-if="isQuestionTypeNumericalFloat || isQuestionTypeNumericalInteger"
-          class="flex flex-col"
-          :class="answerContainerClass"
-          data-test="numericalAnswerContainer"
-        >
+        <div v-if="isQuestionTypeNumericalFloat || isQuestionTypeNumericalInteger" class="flex flex-col"
+          :class="answerContainerClass" data-test="numericalAnswerContainer">
           <!-- input area for the answer -->
-          <Textarea
-            v-model:value="numericalAnswer"
-            class="px-2 w-full text-base"
-            :boxStyling="numericalAnswerBoxStyling"
-            placeholder="Enter your answer here. Numbers only."
-            :inputMode="getInputMode"
-            :isDisabled="isAnswerDisabled"
-            :maxHeightLimit="50"
-            @beforeinput="preventKeypressIfApplicable"
-            data-test="numericalAnswer"
-          ></Textarea>
+          <Textarea v-model:value="numericalAnswer" class="px-2 w-full text-base"
+            :boxStyling="numericalAnswerBoxStyling" placeholder="Enter your answer here. Numbers only."
+            :inputMode="getInputMode" :isDisabled="isAnswerDisabled" :maxHeightLimit="50"
+            @beforeinput="preventKeypressIfApplicable" data-test="numericalAnswer"></Textarea>
           <!-- answer display -->
-          <div
-            v-if="hasQuizEnded"
-            class="px-2 text-lg mt-2"
-            data-test="numericalCorrectAnswer"
-          >
+          <div v-if="hasQuizEnded" class="px-2 text-lg mt-2" data-test="numericalCorrectAnswer">
             Correct Answer: {{ correctAnswer }}
           </div>
         </div>
         <!-- Matrix match answer -->
-        <div
-          v-if="isQuestionTypeMatrixMatch"
-          class="flex flex-col items-center"
-          :class="answerContainerClass"
-          data-test="matrixMatchContainer"
-        >
+        <div v-if="isQuestionTypeMatrixMatch" class="flex flex-col items-center" :class="answerContainerClass"
+          data-test="matrixMatchContainer">
           <ul class="max-w-screen-md w-full">
             <li class="list-none space-y-1 flex flex-col">
               <!-- Create the matrix match table -->
@@ -187,74 +96,49 @@
                 <thead>
                   <tr>
                     <th></th>
-                    <th
-                      v-for="(column, columnIndex) in $props.matrixSize?.[1] ||
-                      5"
-                      :key="columnIndex"
-                      class="border border-gray-200 text-center"
-                    >
+                    <th v-for="(column, columnIndex) in $props.matrixSize?.[1] ||
+                      5" :key="columnIndex" class="border border-gray-200 text-center">
                       {{ getColumnLabel(columnIndex) }}
                     </th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr
-                    v-for="(row, rowIndex) in $props.matrixSize?.[0] || 4"
-                    :key="rowIndex"
-                  >
+                  <tr v-for="(row, rowIndex) in $props.matrixSize?.[0] || 4" :key="rowIndex">
                     <td class="border border-gray-200 text-center">
                       {{ getRowLabel(rowIndex) }}
                     </td>
-                    <td
-                      v-for="(column, columnIndex) in $props.matrixSize?.[1] ||
-                      5"
-                      :key="columnIndex"
-                      class="border border-gray-200 text-center"
-                    >
-                      <div
-                        :class="
-                          optionBackgroundClass(
+                    <td v-for="(column, columnIndex) in $props.matrixSize?.[1] ||
+                      5" :key="columnIndex" class="border border-gray-200 text-center">
+                      <div :class="optionBackgroundClass(
+                        convertMatrixMatchOptionToString(
+                          rowIndex,
+                          columnIndex
+                        )
+                      )
+                        ">
+                        <input type="checkbox" :id="`${rowIndex}-${columnIndex}`" :name="`${rowIndex}-${columnIndex}`"
+                          :value="`${columnIndex}`"
+                          class="mx-auto text-primary focus:ring-0 disabled:cursor-not-allowed"
+                          :disabled="isAnswerDisabled" :class="optionBackgroundClass(
                             convertMatrixMatchOptionToString(
                               rowIndex,
                               columnIndex
                             )
                           )
-                        "
-                      >
-                        <input
-                          type="checkbox"
-                          :id="`${rowIndex}-${columnIndex}`"
-                          :name="`${rowIndex}-${columnIndex}`"
-                          :value="`${columnIndex}`"
-                          class="mx-auto text-primary focus:ring-0 disabled:cursor-not-allowed"
-                          :disabled="isAnswerDisabled"
-                          :class="
-                            optionBackgroundClass(
-                              convertMatrixMatchOptionToString(
-                                rowIndex,
-                                columnIndex
-                              )
-                            )
-                          "
-                          style="box-shadow: none"
-                          @click="
+                            " style="box-shadow: none" @click="
                             selectOption(
                               convertMatrixMatchOptionToString(
                                 rowIndex,
                                 columnIndex
                               )
                             )
-                          "
-                          :checked="
-                            isMatrixMatchOptionMarked(
-                              convertMatrixMatchOptionToString(
-                                rowIndex,
-                                columnIndex
-                              )
+                            " :checked="isMatrixMatchOptionMarked(
+                            convertMatrixMatchOptionToString(
+                              rowIndex,
+                              columnIndex
                             )
-                          "
-                          :data-test="`matrixMatchSelector-${rowIndex}-${columnIndex}`"
-                        />
+                          )
+                            " :data-test="`matrixMatchSelector-${rowIndex}-${columnIndex}`" />
                       </div>
                     </td>
                   </tr>
@@ -263,39 +147,28 @@
             </li>
           </ul>
           <!-- answer display -->
-          <div
-            v-if="hasQuizEnded"
-            class="px-2 text-lg mt-2"
-            data-test="matrixMatchCorrectAnswer"
-          >
+          <div v-if="hasQuizEnded" class="px-2 text-lg mt-2" data-test="matrixMatchCorrectAnswer">
             Correct Answer: {{ correctAnswer }}
           </div>
         </div>
       </div>
       <!-- labels -->
-      <div
-        v-if="isQuizAssessment && !hasQuizEnded && !isSessionAnswerRequestProcessing"
-        class="mx-6 md:mx-10 pb-4"
-      >
-      <span v-if="isMarkedForReview" class="bg-violet-500 text-white text-xs font-bold py-0.5 px-2 rounded-full mr-1">MARKED FOR REVIEW</span>
-      <span v-if="isAnswerSubmitted" class="bg-emerald-600 text-white text-xs font-bold py-0.5 px-2 rounded-full mr-1">ANSWERED</span>
-      <span v-if="!isAnswerSubmitted" class="bg-red-500 text-white text-xs font-bold py-0.5 px-2 rounded-full mr-1">NOT ANSWERED</span>
+      <div v-if="isQuizAssessment && !hasQuizEnded && !isSessionAnswerRequestProcessing" class="mx-6 md:mx-10 pb-4">
+        <span v-if="isMarkedForReview"
+          class="bg-violet-500 text-white text-xs font-bold py-0.5 px-2 rounded-full mr-1">MARKED FOR REVIEW</span>
+        <span v-if="isAnswerSubmitted"
+          class="bg-emerald-600 text-white text-xs font-bold py-0.5 px-2 rounded-full mr-1">ANSWERED</span>
+        <span v-if="!isAnswerSubmitted"
+          class="bg-red-500 text-white text-xs font-bold py-0.5 px-2 rounded-full mr-1">NOT ANSWERED</span>
       </div>
       <!-- Solution container -->
-      <div
-        v-if="
-          ((!isQuizAssessment && $props.isAnswerSubmitted) || hasQuizEnded) &&
-          $props.displaySolution &&
-          isSolutionTextPresent
-        "
-        class="mx-6 md:mx-10 py-4"
-      >
+      <div v-if="
+        ((!isQuizAssessment && $props.isAnswerSubmitted) || hasQuizEnded) &&
+        $props.displaySolution &&
+        isSolutionTextPresent
+      " class="mx-6 md:mx-10 py-4">
         <p class="text-lg base:text-lg font-bold">Solution:</p>
-        <p
-          :class="solutionTextClass"
-          data-test="solution-text"
-          v-html="solutionText"
-        ></p>
+        <p :class="solutionTextClass" data-test="solution-text" v-html="solutionText"></p>
       </div>
     </div>
   </div>
@@ -737,9 +610,8 @@ export default defineComponent({
     }
 
     const questionHeaderPrefix = computed(() => {
-      return `Q.${
-        props.currentQuestionIndex + 1
-      } | ${questionTypeHeaderMapping.get(props.questionType)}`;
+      return `Q.${props.currentQuestionIndex + 1
+        } | ${questionTypeHeaderMapping.get(props.questionType)}`;
     });
 
     const questionHeaderSuffix = computed(() => {
