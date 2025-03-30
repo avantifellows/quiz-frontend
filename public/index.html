@@ -6,6 +6,38 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <link rel="icon" href="<%= BASE_URL %>favicon.ico" />
 
+    <script>
+      window.MathJax = {
+        startup: {
+          ready: () => {
+            MathJax.startup.defaultReady();
+            document.getElementById('mathjax-done').textContent = 'true';
+          }
+        },
+        chtml: {
+          scale: 0.9,
+          minScale: 0.5
+        },
+        tex: {
+          inlineMath: [["$", "$"], ["\\(", "\\)"]],
+          displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+          processEscapes: true,
+          autoload: {
+            color: [],
+            colorv2: ['color']
+          },
+          packages: {'[+]': ['noerrors']}
+        },
+        options: {
+          ignoreHtmlClass: "no-mathjax",
+          processHtmlClass: 'tex2jax_process'
+        },
+        loader: {
+          load: ['[tex]/noerrors']
+        }
+      };
+    </script>
+
     <!-- for mathjax support on older browsers -->
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
 
