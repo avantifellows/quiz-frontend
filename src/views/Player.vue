@@ -494,8 +494,30 @@ export default defineComponent({
       // question set for now
       state.questionSets = quizDetails.question_sets;
       const totalQuestionsInEachSet = [];
+      
+      // Check if questions should be shuffled
+      const shouldShuffle = quizDetails.shuffle;
+      
       for (const [idx, questionSet] of state.questionSets.entries()) {
         state.maxQuestionsAllowedToAttempt += questionSet.max_questions_allowed_to_attempt;
+        
+        // If shuffle is enabled, shuffle the questions in this question set
+        // Note: As per the implementation details, we can only jumble the first 10 questions
+        // due to the subset pattern in the backend
+        if (shouldShuffle && questionSet.questions.length > 0) {
+          const questionsToShuffle = questionSet.questions.slice(0, Math.min(10, questionSet.questions.length));
+          const remainingQuestions = questionSet.questions.slice(Math.min(10, questionSet.questions.length));
+          
+          // Fisher-Yates shuffle algorithm
+          for (let i = questionsToShuffle.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [questionsToShuffle[i], questionsToShuffle[j]] = [questionsToShuffle[j], questionsToShuffle[i]];
+          }
+          
+          // Combine shuffled questions with remaining questions
+          questionSet.questions = [...questionsToShuffle, ...remainingQuestions];
+        }
+        
         state.questions.push(...questionSet.questions) // spread to add questions
         totalQuestionsInEachSet.push(questionSet.questions.length)
         if (idx == 0) state.qsetCumulativeLengths.push(questionSet.questions.length)
