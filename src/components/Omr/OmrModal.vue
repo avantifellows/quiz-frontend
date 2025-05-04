@@ -1,11 +1,23 @@
 <template>
   <div class="flex flex-col bg-white w-full h-full overflow-auto justify-between">
-    <Header class="fixed top-0" v-if="isQuizAssessment" :hasQuizEnded="hasQuizEnded"
-      :hasTimeLimit="quizTimeLimit != null" :title="title" :userId="userId" :isOmrMode=true
-      :isSessionAnswerRequestProcessing="isSessionAnswerRequestProcessing" v-model:isPaletteVisible="isPaletteVisible"
-      :timeRemaining="timeRemaining" :warningTimeLimit="timeLimitWarningThreshold"
-      @time-limit-warning="displayTimeLimitWarning" @end-test="endTest" @end-test-by-time="endTestByTime"
-      data-test="omr-header"></Header>
+ <Header 
+  class="fixed top-0" 
+  v-if="isQuizAssessment" 
+  :hasQuizEnded="hasQuizEnded"
+  :hasTimeLimit="quizTimeLimit != null" 
+  :title="title" 
+  :userId="userId" 
+  :isOmrMode="true"
+  :isSessionAnswerRequestProcessing="isSessionAnswerRequestProcessing" 
+  v-model:isPaletteVisible="isPaletteVisible"
+  :timeRemaining="timeRemaining" 
+  :warningTimeLimit="timeLimitWarningThreshold"
+  @time-limit-warning="displayTimeLimitWarning" 
+  @end-test="endTest" 
+  @end-test-by-time="endTestByTime"
+  data-test="omr-header"
+>
+</Header>
     <div class="flex flex-col w-full h-full mt-20 mb-20 -z-10">
       <div class="h-full relative">
         <div class="scroll-container flex flex-col grow bg-white w-full justify-between overflow-hidden mt-[66px]">
