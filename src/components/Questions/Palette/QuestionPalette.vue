@@ -1,82 +1,71 @@
 <template>
-  <div class="bg-white p-4 sm:p-6 lg:p-8 overflow-auto sm:w-1/3 lg:w-1/3 xl:w-1/3">
-    <div class="inline-flex justify-center rounded-md w-full" role="group">
-      <button
-      v-if="!isOmrMode"
-        :class="togglePaletteButtonClass"
-        class="mr-1"
-        type="button"
-        @click="togglePalette"
-        data-test="togglePalette"
-      >PALETTE</button>
-      <button
-        :class="toggleInstructionsButtonClass"
-        class="ml-1"
-        type="button"
-        @click="toggleInstructions"
-        :disabled="isOmrMode"
-        data-test="toggleInstructions"
-      >INSTRUCTIONS</button>
-    </div>
-      <InstructionPage
-      v-if="showInstructionButton"
+  <!-- Only render palette on large screens -->
+  <div
+    class="bg-white p-4 sm:p-6 lg:p-8 overflow-auto lg:w-1/3 hidden lg:block"
+  >
+    <InstructionPage
       :title="title"
       :subject="subject"
       :testFormat="testFormat"
       :maxMarks="maxMarks"
       :max-questions-allowed-to-attempt="numQuestions"
       :quizTimeLimit="quizTimeLimit"
-      :questionSetStates = "questionSetStates"
+      :questionSetStates="questionSetStates"
       :is-omr-mode="isOmrMode"
       data-test="instruction-page"
     />
-    <div v-if="showPaletteButton && !isOmrMode" data-test="question-palette">
-      <div
-        class="bg-gray-200 rounded-md p-4 grid grid-rows-2 space-y-2 mt-6"
-      >
+
+    <div data-test="question-palette">
+      <div class="bg-gray-200 rounded-md p-4 grid grid-rows-2 space-y-2 mt-6">
         <div class="grid grid-cols-2">
-          <Success
-            :title="legendSuccessText"
-            :hasQuizEnded="hasQuizEnded"
-          ></Success>
-          <Error :title="legendErrorText" :hasQuizEnded="hasQuizEnded"></Error>
+          <Success :title="legendSuccessText" :hasQuizEnded="hasQuizEnded" />
+          <Error :title="legendErrorText" :hasQuizEnded="hasQuizEnded" />
         </div>
 
         <div class="grid grid-cols-2">
-          <Neutral
-          :title="legendNeutralText"
-          :hasQuizEnded="hasQuizEnded"
-        ></Neutral>
-        <div v-if="!hasQuizEnded">
-          <Review
-          title="Marked For Review"
-          :hasQuizEnded="hasQuizEnded"
-          ></Review>
-        </div>
+          <Neutral :title="legendNeutralText" :hasQuizEnded="hasQuizEnded" />
+          <div v-if="!hasQuizEnded">
+            <Review title="Marked For Review" :hasQuizEnded="hasQuizEnded" />
+          </div>
           <div v-if="hasQuizEnded">
-            <PartialSuccess :title="legendPartialSuccessText" :hasQuizEnded="hasQuizEnded"></PartialSuccess>
+            <PartialSuccess
+              :title="legendPartialSuccessText"
+              :hasQuizEnded="hasQuizEnded"
+            />
           </div>
         </div>
       </div>
 
       <div
-        v-for="(questionSetState, index) in questionSetStates" :key="index" class="space-y-2">
-          <p :class="titleTextClass" :data-test="`paletteTitle-${index}`">{{ questionSetState.title }}</p>
-          <div :class="instructionTextClass" :data-test="`paletteInstruction-${index}`" v-html="questionSetState.instructionText"></div>
-          <div class="grid grid-cols-5 bp-500:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 mt-4 space-y-4">
-            <PaletteItem
-              v-for="(questionState, qindex) in questionSetState.paletteItems"
-              class="hover:cursor-pointer"
-              :class="{ 'mt-4': qindex == 0 }"
-              :key="qindex"
-              :index="questionState.index"
-              :hasQuizEnded="hasQuizEnded"
-              :state="questionState.value"
-              :isHighlighted="currentQuestionIndex == questionState.index"
-              @click="navigateToQuestion(questionState.index)"
-              :data-test="`paletteItem-${questionState.index}`"
-            ></PaletteItem>
-          </div>
+        v-for="(questionSetState, index) in questionSetStates"
+        :key="index"
+        class="space-y-2"
+      >
+        <p :class="titleTextClass" :data-test="`paletteTitle-${index}`">
+          {{ questionSetState.title }}
+        </p>
+        <div
+          :class="instructionTextClass"
+          :data-test="`paletteInstruction-${index}`"
+          v-html="questionSetState.instructionText"
+        ></div>
+
+        <div
+          class="grid grid-cols-5 bp-500:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 mt-4 space-y-4"
+        >
+          <PaletteItem
+            v-for="(questionState, qindex) in questionSetState.paletteItems"
+            class="hover:cursor-pointer"
+            :class="{ 'mt-4': qindex == 0 }"
+            :key="qindex"
+            :index="questionState.index"
+            :hasQuizEnded="hasQuizEnded"
+            :state="questionState.value"
+            :isHighlighted="currentQuestionIndex == questionState.index"
+            @click="navigateToQuestion(questionState.index)"
+            :data-test="`paletteItem-${questionState.index}`"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -155,29 +144,11 @@ export default defineComponent({
 
     const state = reactive({
       instructionTextClass:
-      "text-lg md:text-xl lg:text-2xl mx-4 mt-2 leading-none text-slate-500",
+        "text-lg md:text-xl lg:text-2xl mx-4 mt-2 leading-none text-slate-500",
       titleTextClass:
-      "text-lg md:text-xl lg:text-2xl mx-4 mt-10 font-bold leading-tight whitespace-pre-wrap",
-      instructionsButtonClass:
-      "bg-gray-300 w-full font-bold ring-gray-500 p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl",
-      // Set initial state based on isOmrMode
-      showInstructions: props.isOmrMode,
-      showPalette: !props.isOmrMode,
+        "text-lg md:text-xl lg:text-2xl mx-4 mt-10 font-bold leading-tight whitespace-pre-wrap",
     });
 
-    function toggleInstructions() {
-      if (state.showInstructions == false) {
-        state.showInstructions = !state.showInstructions;
-        state.showPalette = !state.showPalette
-      }
-    };
-
-    function togglePalette() {
-      if (state.showPalette == false) {
-        state.showPalette = !state.showPalette;
-        state.showInstructions = !state.showInstructions;
-      }
-    }
     const legendSuccessText = computed(() =>
       props.hasQuizEnded ? "Correct" : "Answered"
     );
@@ -190,36 +161,11 @@ export default defineComponent({
 
     const legendPartialSuccessText = "Partially Correct"
 
-    const showInstructionButton = computed(() => state.showInstructions == true)
-    const showPaletteButton = computed(() => state.showPalette == true)
-
-    const toggleInstructionsButtonClass = computed(() => [
-      {
-        "bg-primary": props.isOmrMode || !showInstructionButton.value,
-        "bg-orange-300 hover:cursor-not-allowed": !props.isOmrMode && showInstructionButton.value,
-      },
-      `w-1/2 font-bold text-white p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl border shadow-lg ring-primary`,
-    ]);
-
-    const togglePaletteButtonClass = computed(() => [
-      {
-        "bg-primary": !showPaletteButton.value,
-        "bg-orange-300 hover:cursor-not-allowed": showPaletteButton.value,
-      },
-      `w-1/2 font-bold text-white p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl border shadow-lg ring-primary`,
-    ]);
-
     return {
       ...state,
       navigateToQuestion,
-      toggleInstructions,
-      togglePalette,
       legendSuccessText,
       legendPartialSuccessText,
-      showInstructionButton,
-      showPaletteButton,
-      toggleInstructionsButtonClass,
-      togglePaletteButtonClass,
       legendErrorText,
       legendNeutralText,
     };
