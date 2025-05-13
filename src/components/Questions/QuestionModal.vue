@@ -1,21 +1,23 @@
 <template>
   <div class="h-full flex flex-col bg-white w-full justify-between absolute">
-    <Header
-      v-if="isQuizAssessment"
-      :hasQuizEnded="hasQuizEnded"
-      :hasTimeLimit="quizTimeLimit != null"
-      v-model:isPaletteVisible="isPaletteVisible"
-      :timeRemaining="timeRemaining"
-      :isSessionAnswerRequestProcessing="$props.isSessionAnswerRequestProcessing"
-      :warningTimeLimit="timeLimitWarningThreshold"
-      :title="title"
-      :userId="userId"
-      :quizType="quizType"
-      @time-limit-warning="displayTimeLimitWarning"
-      @end-test="endTest"
-      @end-test-by-time="endTestByTime"
-      data-test="header"
-    ></Header>
+ <Header 
+  class="fixed top-0" 
+  v-if="isQuizAssessment" 
+  :hasQuizEnded="hasQuizEnded"
+  :hasTimeLimit="quizTimeLimit != null" 
+  :title="title" 
+  :userId="userId" 
+  :isOmrMode="true"
+  :isSessionAnswerRequestProcessing="isSessionAnswerRequestProcessing" 
+  v-model:isPaletteVisible="isPaletteVisible"
+  :timeRemaining="timeRemaining" 
+  :warningTimeLimit="timeLimitWarningThreshold"
+  @time-limit-warning="displayTimeLimitWarning" 
+  @end-test="endTest" 
+  @end-test-by-time="endTestByTime"
+  data-test="omr-header"
+>
+</Header>
     <div v-if="!isQuizAssessment">
       <div
         class="bg-white-400 w-full justify between">
