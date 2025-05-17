@@ -257,7 +257,7 @@ export default defineComponent({
       (newValue) => {
         context.emit("update:currentQuestionIndex", newValue)
         state.localShuffledQuestionIndex = props.questionOrder[newValue]
-        context.emit("update:shuffledQuestionIndex", newValue)
+        context.emit("update:shuffledQuestionIndex", props.questionOrder[newValue])
       }
     )
 

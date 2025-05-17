@@ -401,7 +401,7 @@ export default defineComponent({
           }
         }
         // the index where cumulative length first exceeds newValue
-        [state.currentQsetIndex, state.currentQsetIndexLimits] = getQsetLimits(state.shuffledQuestionIndex);
+        [state.currentQsetIndex, state.currentQsetIndexLimits] = getQsetLimits(state.currentQuestionIndex);
       }
     );
 
