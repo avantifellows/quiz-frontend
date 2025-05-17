@@ -50,18 +50,20 @@ describe("Player for Assessment quizzes", () => {
           .should("have.text", "Q.11 | Numerical");
 
         cy.get('[data-test="footer"]')
-          .get('[data-test="nextQuestionButton"]').trigger("click");
+          .get('[data-test="nextQuestionButton"]')
+          .trigger("click");
 
         cy.get('[data-test="modal"]')
           .get('[data-test="question-index-type"]')
           .should("have.text", "Q.12 | Numerical");
-      })
+      });
       it("Checking if the palette displays question indices in the correct order", () => {
         cy.get('[data-test="togglePaletteButton"]').trigger("click");
         for (let i = 0; i < 24; i++) {
-          cy.get(`[data-test="paletteItem-${i}"]`)
-            .should("have.text", `${i + 1}`
-            );
+          cy.get(`[data-test="paletteItem-${i}"]`).should(
+            "have.text",
+            `${i + 1}`
+          );
         }
       });
     });
@@ -97,18 +99,13 @@ describe("Player for Assessment quizzes", () => {
         .get('[data-test="body"]')
         .get('[data-test="text"]')
         .should("have.text", "Which grade are you in?");
-      cy.get('[data-test="optionSelector-0"]')
-        .should("be.checked");
-      cy.get('[data-test="optionSelector-1"]')
-        .should("be.checked");
-      cy.get('[data-test="optionSelector-2"]')
-        .should("not.be.checked");
+      cy.get('[data-test="optionSelector-0"]').should("be.checked");
+      cy.get('[data-test="optionSelector-1"]').should("be.checked");
+      cy.get('[data-test="optionSelector-2"]').should("not.be.checked");
 
       cy.get('[data-test="togglePaletteButton"]').trigger("click");
-      cy.get('[data-test="paletteItem-3"]')
-        .trigger("click");
-      cy.get('textarea[data-test="input"]')
-        .should("have.value", "3");
+      cy.get('[data-test="paletteItem-3"]').trigger("click");
+      cy.get('textarea[data-test="input"]').should("have.value", "3");
     });
   });
-})
+});
