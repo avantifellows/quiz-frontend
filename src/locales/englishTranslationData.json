@@ -22,6 +22,7 @@
     "saveAnswer": "To save your answer, you MUST click on the Save & Next button.",
     "reviewQuestion": "To review a question later, you can click on the 'Review >' button. This action will not save your answer.",
     "changeAnsweredQuestion": "To change your answer to a question that has already been answered, first select that question for answering and then follow the procedure for answering that type of question.",
+    "noteLanguage": "We have translated the papers to the best of our ability. If there are any mismatches in the text or any incorrect words, please refer to the English version and consider it as final.",
     "noteSaveAnswer": "Note that selecting an option does NOT save your answer to the current question. Click on Save & Next to save your answer for the current question and then go to the next question."
   }
 }

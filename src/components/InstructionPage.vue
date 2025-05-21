@@ -141,6 +141,7 @@
           </ol>
         </li>
         <li v-if="!isOmrMode">{{ $t("answeringQuestion.changeAnsweredQuestion") }}</li>
+        <li v-if="!isOmrMode">{{ $t("answeringQuestion.noteLanguage") }}</li>
       </ol>
     </div>
     <div class="mt-5 ml-6 mr-4 flex border-red-400 border-1 p-2" v-if="!isOmrMode">
