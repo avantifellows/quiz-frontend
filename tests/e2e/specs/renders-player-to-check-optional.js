@@ -75,12 +75,12 @@ describe("Player for Assessment quizzes", () => {
       it("cannot select answer for question once optional limit reached", () => {
         cy.get('[data-test="modal"]')
           .get('[data-test="question-index-type')
-          .should("have.text", "Q.16 | Single Choice");
+          .should("have.text", "Q.16 | Numerical");
         cy.get('[data-test="togglePaletteButton"]').trigger("click");
         cy.get('[data-test="paletteItem-15"]').trigger("click");
 
         cy.get('[data-test="modal"]')
-          .get('[data-test="optionSelector-0"]')
+          .get('[data-test="input"]')
           .should("be.disabled");
       });
 
@@ -88,7 +88,7 @@ describe("Player for Assessment quizzes", () => {
         // pick 3rd question in 2nd qset
         cy.get('[data-test="modal"]')
           .get('[data-test="question-index-type')
-          .should("have.text", "Q.16 | Single Choice");
+          .should("have.text", "Q.16 | Numerical");
         cy.get('[data-test="togglePaletteButton"]').trigger("click");
         cy.get('[data-test="paletteItem-14"]').trigger("click");
 
@@ -104,18 +104,18 @@ describe("Player for Assessment quizzes", () => {
         // now go to 4th question in 2nd qset
         cy.get('[data-test="modal"]')
           .get('[data-test="question-index-type')
-          .should("have.text", "Q.16 | Single Choice");
+          .should("have.text", "Q.16 | Numerical");
         cy.get('[data-test="togglePaletteButton"]').trigger("click");
         cy.get('[data-test="paletteItem-15"]').trigger("click");
 
         // option can be selected now!
         cy.get('[data-test="modal"]')
-          .get('[data-test="optionSelector-0"]')
+          .get('[data-test="input"]')
           .should("not.be.disabled");
 
         cy.get('[data-test="modal"]')
-          .get('[data-test="optionSelector-0"]')
-          .trigger("click");
+          .get('[data-test="numericalAnswer"]')
+          .type(".1");
 
         // can submit the answer!
         cy.get('[data-test="modal"]')

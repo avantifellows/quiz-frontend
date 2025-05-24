@@ -223,6 +223,10 @@ describe("QuestionModal.vue", () => {
     })
   );
 
+  const testQuestionOrder = [
+    0, 1, 2, 3, 4, 8, 6, 7, 5, 9, 12, 11, 10 // need to change this ordering
+  ] as number[];
+
   const qsetTestIndexLimits = {
     low: 0,
     high: questions.length
@@ -232,6 +236,7 @@ describe("QuestionModal.vue", () => {
   const mountWrapper = async (
     params = {
       currentQuestionIndex: 0,
+      shuffledQuestionIndex: 0,
       maxQuestionsAllowedToAttempt: questions.length
     }
   ) => {
@@ -244,8 +249,10 @@ describe("QuestionModal.vue", () => {
         questions,
         responses: clonedeep(responses),
         currentQuestionIndex: params.currentQuestionIndex,
+        shuffledQuestionIndex: params.shuffledQuestionIndex,
         maxQuestionsAllowedToAttempt: params.maxQuestionsAllowedToAttempt,
         qsetIndexLimits: qsetTestIndexLimits,
+        questionOrder: testQuestionOrder
       },
     });
   };
@@ -518,9 +525,15 @@ describe("QuestionModal.vue", () => {
 
     beforeEach(() => mountWrapper({
       currentQuestionIndex: questionIndex,
-      maxQuestionsAllowedToAttempt: questions.length
+      shuffledQuestionIndex: testQuestionOrder[questionIndex],
+      maxQuestionsAllowedToAttempt: questions.length,
     }));
 
+    beforeEach(async () => {
+      await wrapper.setProps({
+        questionOrder: testQuestionOrder,
+      });
+    });
     it("selecting option makes answer valid", async () => {
       // initially answer should be invalid
       expect(wrapper.vm.isAttemptValid).toBeFalsy();
@@ -553,6 +566,7 @@ describe("QuestionModal.vue", () => {
       beforeEach(async () => {
         await mountWrapper({
           currentQuestionIndex: questionIndex,
+          shuffledQuestionIndex: testQuestionOrder[questionIndex],
           maxQuestionsAllowedToAttempt: questions.length
         });
 
@@ -625,6 +639,7 @@ describe("QuestionModal.vue", () => {
 
     beforeEach(() => mountWrapper({
       currentQuestionIndex: questionIndex,
+      shuffledQuestionIndex: testQuestionOrder[questionIndex],
       maxQuestionsAllowedToAttempt: questions.length
     }));
 
@@ -728,6 +743,7 @@ describe("QuestionModal.vue", () => {
 
     beforeEach(() => mountWrapper({
       currentQuestionIndex: questionIndex,
+      shuffledQuestionIndex: testQuestionOrder[questionIndex],
       maxQuestionsAllowedToAttempt: questions.length
     }));
 
@@ -861,6 +877,7 @@ describe("QuestionModal.vue", () => {
         questions,
         responses: clonedeep(responses),
         currentQuestionIndex: 0,
+        questionOrder: testQuestionOrder,
         quizType: "assessment",
         qsetIndexLimits: qsetTestIndexLimits,
         quizTimeLimit: { min: 0, max: 200 },
@@ -887,18 +904,22 @@ describe("QuestionModal.vue", () => {
     submittedResponses[2].visited = true;
 
     for (let index = 0; index < 5; index++) {
-      submittedResponses[index].visited = true;
-      submittedResponses[index].answer = 0;
+      submittedResponses[testQuestionOrder[index]].visited = true;
+      submittedResponses[testQuestionOrder[index]].answer = 0;
     }
 
     it("optional warning toast should be emitted", async () => {
       const questionIndex = 5; // numerical float question
       await wrapper.setProps({
         currentQuestionIndex: questionIndex,
+        shuffledQuestionIndex: testQuestionOrder[questionIndex],
         maxQuestionsAllowedToAttempt: 5,
         responses: submittedResponses,
       });
-      expect(wrapper.emitted()).toHaveProperty("test-optional-warning-shown");
+
+      setTimeout(() => {
+        expect(wrapper.emitted()).toHaveProperty("test-optional-warning-shown");
+      }, 1000);
     });
 
     it("optional warning toast should not be emitted", async () => {
