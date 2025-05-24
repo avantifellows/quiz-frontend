@@ -838,14 +838,12 @@ export default defineComponent({
       state.questions.forEach((questionDetail, questionIndex) => {
         const [currentQsetIndex] = getQsetLimits(questionIndex);
         const qsetMetricsObj = state.qsetMetrics[currentQsetIndex];
-        let dynamicIndex = index;
-        if (!isOmrMode.value) dynamicIndex = state.questionOrder[index];
         if (!questionDetail.graded) qsetMetricsObj.maxQuestionsAllowedToAttempt -= 1
-        if (state.responses[dynamicIndex].marked_for_review === true) {
+        if (state.responses[index].marked_for_review === true) {
           qsetMetricsObj.numQuestionsMarkedForReview += 1;
           state.numMarkedForReview += 1;
         }
-        updateQuestionMetrics(questionDetail, state.responses[dynamicIndex].answer, qsetMetricsObj);
+        updateQuestionMetrics(questionDetail, state.responses[index].answer, qsetMetricsObj);
         if (qsetMetricsObj.numAnswered != 0) qsetMetricsObj.accuracyRate = (qsetMetricsObj.correctlyAnswered + 0.5 * qsetMetricsObj.partiallyAnswered) / qsetMetricsObj.numAnswered;
         state.qsetMetrics[currentQsetIndex].attemptRate = qsetMetricsObj.numAnswered / qsetMetricsObj.maxQuestionsAllowedToAttempt;
         state.qsetMetrics[currentQsetIndex] = qsetMetricsObj;
