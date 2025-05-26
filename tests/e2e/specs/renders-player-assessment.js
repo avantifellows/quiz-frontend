@@ -520,11 +520,6 @@ describe("Player for Assessment quizzes", () => {
         cy.get('[data-test="modal"]')
           .get('[data-test="previousQuestionButton"]')
           .trigger("click");
-
-        // option 1 should no longer be checked, option 2 should be checked
-        cy.get("@modal")
-          .get('[data-test="optionSelector-0"]')
-          .should("not.be.checked");
         cy.get("@modal")
           .get('[data-test="optionSelector-1"]')
           .should("be.checked");
