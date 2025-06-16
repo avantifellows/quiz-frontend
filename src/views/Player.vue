@@ -547,7 +547,10 @@ export default defineComponent({
       );
       state.sessionId = sessionDetails._id;
       state.responses = sessionDetails.session_answers;
-      state.questionOrder = sessionDetails.question_order;
+      // Only use shuffled order for non-OMR mode
+      state.questionOrder = isOmrMode.value ?
+        Array.from({length: sessionDetails.session_answers.length}, (_, i) => i) :
+        sessionDetails.question_order;
       for (const response of state.responses) {
         if (response.time_spent == null) {
           state.timeSpentOnQuestion.push({
