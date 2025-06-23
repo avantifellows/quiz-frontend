@@ -1,140 +1,125 @@
 <template>
-  <div class="flex flex-col bg-[#FFEDDA] w-full">
+  <div class="flex flex-col bg-[#FFEDDA] w-full min-h-screen">
     <div
-      class="flex justify-center w-full mx-auto my-auto h-full py-4"
+      class="flex justify-center w-full mx-auto my-auto h-full py-8"
       ref="container"
     >
       <div
-        class="flex flex-col justify-center w-full sm:w-5/6"
+        class="flex flex-col justify-center w-full sm:w-5/6 max-w-4xl mx-auto"
         :class="{
-          'space-y-8': !isCircularProgressShown && !isMobileLandscape,
+          'space-y-6': !isCircularProgressShown && !isMobileLandscape,
           'space-y-4': !isCircularProgressShown && isMobileLandscape,
         }"
       >
-        <!-- scorecard greeting -->
-        <div
-          class="text-center text-lg md:text-xl lg:text-2xl font-extrabold font-sans"
-          :class="{ 'mb-4': isCircularProgressShown }"
-        >
-          {{ greeting }}
-        </div>
-
-        <!-- name of the quiz -->
-        <div
-          class="text-center text-lg md:text-lg lg:text-xl font-semibold"
-        >
-          {{ title }}
-        </div>
-        <!-- student's userId -->
-        <div
-          class="text-center text-lg md:text-lg lg:text-xl pt-5 leading-tight" data-test="scorecard-user-id"
-        >
-          Id: {{ userId }}
-        </div>
-
-        <!-- canvas element for drawing the confetti -->
-        <canvas id="confetticanvas" class="fixed z-50"></canvas>
-
-        <div v-if="showScores">
-          <!-- circular progress bar -->
-          <CircularProgress
-            v-if="isCircularProgressShown"
-            class="relative mx-auto w-full flex justify-center"
-            :radius="circularProgressRadius"
-            :stroke="circularProgressStroke"
-            :result="result"
-            :progressBarPercent="localProgressBarPercent"
-            :key="reRenderKey"
-            data-test="progress"
-          >
-          </CircularProgress>
-
-          <!-- metric boxes -->
-          <div
-            v-if="hasGradedQuestions"
-            class="flex flex-col bp-500:flex-row justify-center space-y-1 bp-500:space-x-1 bp-500:space-y-0 px-4 bp-500:px-10 place-self-center items-stretch"
-          >
+        <!-- Main content card -->
+        <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mx-4">
+          <!-- scorecard greeting with icon -->
+          <div class="text-center mb-6">
+            <div class="text-4xl mb-3">🎉</div>
             <div
-              v-for="(metric, metricIndex) in metrics"
-              class="rounded-md bp-500:rounded-2xl bg-amber-400 flex flex-row bp-500:flex-col lg:flex-row border-2 px-4 lg:px-6 lg:h-20 space-x-4 w-full md:w-2/3 lg:w-1/2 h-full"
-              :key="metric"
+              class="text-xl md:text-2xl lg:text-3xl font-extrabold font-sans text-gray-800"
+            >
+              {{ greeting }}
+            </div>
+          </div>
+
+          <!-- name of the quiz -->
+          <div
+            class="text-center text-lg md:text-xl lg:text-2xl font-semibold text-gray-700 mb-4"
+          >
+            {{ title }}
+          </div>
+
+          <!-- student's userId in a styled box -->
+          <div
+            class="text-center mb-6"
+          >
+            <div class="inline-block bg-gray-100 rounded-lg px-4 py-2">
+              <span class="text-sm text-gray-600 font-medium">User ID:</span>
+              <span class="text-base font-semibold text-gray-800 ml-2" data-test="scorecard-user-id">{{ userId }}</span>
+            </div>
+          </div>
+
+          <!-- canvas element for drawing the confetti -->
+          <canvas id="confetticanvas" class="fixed z-50"></canvas>
+
+          <div v-if="showScores || isFormQuiz">
+            <!-- circular progress bar -->
+            <CircularProgress
+              v-if="isCircularProgressShown"
+              class="relative mx-auto w-full flex justify-center mb-6"
+              :radius="circularProgressRadius"
+              :stroke="circularProgressStroke"
+              :result="result"
+              :progressBarPercent="localProgressBarPercent"
+              :key="reRenderKey"
+              data-test="progress"
+            >
+            </CircularProgress>
+
+            <!-- metric boxes -->
+            <div
+              v-if="hasGradedQuestions && !isFormQuiz"
+              class="flex flex-col bp-500:flex-row justify-center space-y-3 bp-500:space-x-4 bp-500:space-y-0 mb-6"
             >
               <div
-                class="w-full h-full flex flex-row justify-center space-x-2 bp-500:mt-2 lg:mt-0 "
+                v-for="(metric, metricIndex) in metrics"
+                class="rounded-lg bg-gradient-to-r from-amber-400 to-orange-400 flex flex-row items-center px-4 py-3 shadow-md"
+                :key="metric"
               >
                 <!-- metric icon -->
                 <BaseIcon
                   :name="metric.icon.source"
                   :iconClass="metric.icon.class"
+                  class="mr-3"
                 ></BaseIcon>
-                <!-- numeric value of the metric -->
-                <p
-                  class="text-xl bp-360:text-2xl md:text-3xl lg:text-4xl font-bold my-auto text-left"
-                  :data-test="`metricValue-${metricIndex}`"
-                >
-                  {{ metric.value }}
-                </p>
-              </div>
-              <!-- name of the metric -->
-              <div
-                class="text-center text-xs bp-500:text-sm md:text-base px-1 h-full flex items-center w-full"
-              >
-                <p class="break-words text-left">
-                  {{ metric.name }}
-                </p>
+                <!-- metric content -->
+                <div class="flex flex-col">
+                  <p
+                    class="text-2xl md:text-3xl font-bold text-gray-800"
+                    :data-test="`metricValue-${metricIndex}`"
+                  >
+                    {{ metric.value }}
+                  </p>
+                  <p class="text-sm font-medium text-gray-700">
+                    {{ metric.name }}
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- question set metrics table -->
-          <div v-if="isQuizAssessment" class="flex flex-col w-full mx-auto my-4 overflow-auto">
-            <div class="flex border-b-2 border-gray-400 p-2 font-bold">
-              <div :class="tableCellClass">Name</div>
-              <div :class="tableCellClass">Marks Scored</div>
-              <div v-if="!isPortrait" :class="tableCellClass">Total No. Of Questions</div>
-              <div :class="tableCellClass">Attempt Rate (%)</div>
-              <div :class="tableCellClass">Accuracy Rate (%)</div>
+            <!-- question set metrics table -->
+            <div v-if="isQuizAssessment" class="bg-gray-50 rounded-lg p-4 mb-6 overflow-auto">
+              <div class="flex border-b-2 border-gray-400 p-2 font-bold">
+                <div :class="tableCellClass">Name</div>
+                <div :class="tableCellClass">Marks Scored</div>
+                <div v-if="!isPortrait" :class="tableCellClass">Total No. Of Questions</div>
+                <div :class="tableCellClass">Attempt Rate (%)</div>
+                <div :class="tableCellClass">Accuracy Rate (%)</div>
+              </div>
+              <div v-for="metric in $props.qsetMetrics" :key="metric.name" class="flex border-b border-gray-100 p-2">
+                <div :class="tableCellClass">{{ metric.name }}</div>
+                <div :class="tableCellClass">{{ metric.marksScored }}</div>
+                <div v-if="!isPortrait" :class="tableCellClass">{{ metric.maxQuestionsAllowedToAttempt }}</div>
+                <div :class="tableCellClass">{{ formatPercentage(metric.attemptRate) }}</div>
+                <div :class="tableCellClass">{{ formatPercentage(metric.accuracyRate) }}</div>
+              </div>
             </div>
-            <div v-for="metric in $props.qsetMetrics" :key="metric.name" class="flex border-b border-gray-100 p-2">
-              <div :class="tableCellClass">{{ metric.name }}</div>
-              <div :class="tableCellClass">{{ metric.marksScored }}</div>
-              <div v-if="!isPortrait" :class="tableCellClass">{{ metric.maxQuestionsAllowedToAttempt }}</div>
-              <div :class="tableCellClass">{{ formatPercentage(metric.attemptRate) }}</div>
-              <div :class="tableCellClass">{{ formatPercentage(metric.accuracyRate) }}</div>
+
+            <!-- action buttons -->
+            <div class="flex justify-center mt-6" ignore-share-scorecard>
+              <!-- share button -->
+              <icon-button
+                :titleConfig="shareButtonTitleConfig"
+                :buttonClass="shareButtonClass"
+                @click="shareScorecard"
+                data-test="share"
+              ></icon-button>
             </div>
           </div>
-
-          <!-- action buttons -->
-          <div
-            class="place-self-center flex h-20"
-            :class="{
-              'mt-5': isCircularProgressShown,
-              'flex-row space-x-8 w-100 mt-12': !isPortrait,
-              'flex-col space-y-2 w-32 mt-13': isPortrait,
-            }"
-            ignore-share-scorecard
-          >
-            <!-- share button -->
-            <icon-button
-              :titleConfig="shareButtonTitleConfig"
-              :buttonClass="shareButtonClass"
-              @click="shareScorecard"
-              data-test="share"
-            ></icon-button>
-
-            <!-- back button -->
-            <!-- commenting this as it's not being used right now, so it should not take
-            up space in the DOM -->
-            <!-- <icon-button
-              :titleConfig="backButtonTitleConfig"
-              :buttonClass="backButtonClass"
-              @click="goBack"
-              data-test="backButton"
-            ></icon-button> -->
+          <div v-else-if="!isFormQuiz" class="text-center text-lg md:text-lg lg:text-xl pt-5 leading-tight">
+            Results will be shared soon!
           </div>
-        </div>
-        <div v-else class="text-center text-lg md:text-lg lg:text-xl pt-5 leading-tight">
-          Results will be shared soon!
         </div>
       </div>
     </div>
@@ -247,7 +232,7 @@ export default defineComponent({
       backButtonClass:
         "bg-back-color hover:bg-primary-hover bp-500:w-40 px-6 py-3 bp-500:p-4 bp-500:px-10 sm:p-6 rounded-2xl md:rounded-xl shadow-xl disabled:opacity-50 disabled:pointer-events-none invisible",
       shareButtonClass:
-        "flex justify-center bg-share-color hover:bg-green-600 bp-500:w-40 px-6 py-3 bp-500:p-4 bp-500:px-10 sm:p-6 rounded-2xl md:rounded-xl shadow-xl disabled:opacity-50 disabled:pointer-events-none",
+        "flex justify-center bg-share-color hover:bg-green-600 bp-500:w-40 px-6 py-3 bp-500:p-4 bp-500:px-10 sm:p-6 rounded-2xl md:rounded-xl shadow-xl cursor-pointer",
       tableCellClass: "px-2 sm:px-4 flex-1 whitespace-normal break-words",
       isPortrait: true,
       isMobileLandscape: false, // whether the screen corresponds to a mobile screen in landscape mode
@@ -289,10 +274,15 @@ export default defineComponent({
       return (props.quizType == "assessment" || props.quizType == "omr-assessment")
     })
 
+    const isFormQuiz = computed(() => props.quizType == "form")
+
     /**
      * returns the text to be shared for showing result and number of questions answered
      */
     const resultTextToShare = computed(() => {
+      if (isFormQuiz.value) {
+        return `I completed a questionnaire with ${numQuestionsAnsweredText.value} questions on Avanti Fellows today!`;
+      }
       return `I answered ${numQuestionsAnsweredText.value} questions with ${
         props.result.value
       } ${props.result.title.toLowerCase()} on Avanti Fellows quiz today!`;
@@ -361,6 +351,11 @@ export default defineComponent({
         value: "Share",
         class: "text-white text-md sm:text-lg lg:text-xl font-bold",
       };
+    });
+
+    /** enhanced share button styling */
+    const enhancedShareButtonClass = computed(() => {
+      return "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-3 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-200 font-semibold";
     });
 
     function formatPercentage(value: number) {
@@ -479,12 +474,14 @@ export default defineComponent({
     return {
       ...toRefs(state),
       isQuizAssessment,
+      isFormQuiz,
       container,
       shareScorecard,
       goBack,
       isCircularProgressShown,
       backButtonTitleConfig,
       shareButtonTitleConfig,
+      enhancedShareButtonClass,
       circularProgressRadius,
       circularProgressStroke,
       formatPercentage

@@ -520,14 +520,6 @@ export default defineComponent({
         return;
       }
 
-      const isAlphabet = /[a-zA-Z]/.test(event.data); // Check if the input is an alphabet
-
-      if (isAlphabet) {
-        showErrorNotification("Alphabets are not allowed!");
-        event.preventDefault();
-        return;
-      }
-
       if (isQuestionTypeSubjective.value) {
         // checks if character limit is reached in case it is set
         if (!hasCharLimit.value) return;
@@ -537,6 +529,14 @@ export default defineComponent({
         }
       }
       if (isQuestionTypeNumericalFloat.value) {
+        const isAlphabet = /[a-zA-Z]/.test(event.data); // Check if the input is an alphabet
+
+        if (isAlphabet) {
+          showErrorNotification("Alphabets are not allowed!");
+          event.preventDefault();
+          return;
+        }
+
         const keysAllowed: string[] = [
           "0",
           "1",
@@ -569,6 +569,14 @@ export default defineComponent({
         }
       }
       if (isQuestionTypeNumericalInteger.value) {
+        const isAlphabet = /[a-zA-Z]/.test(event.data); // Check if the input is an alphabet
+
+        if (isAlphabet) {
+          showErrorNotification("Alphabets are not allowed!");
+          event.preventDefault();
+          return;
+        }
+
         const keysAllowed: string[] = [
           "0",
           "1",

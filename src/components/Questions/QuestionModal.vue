@@ -556,6 +556,8 @@ For final submission, click the End Test button again.`,
 
     const isQuizAssessment = computed(() => props.quizType == "assessment")
 
+    const isFormQuiz = computed(() => props.quizType == "form")
+
     const optionalLimitReached = computed(() => {
       let numSubmittedResponses = 0
       for (let idx = props.qsetIndexLimits.low; idx < props.qsetIndexLimits.high; idx++) {
@@ -613,6 +615,7 @@ For final submission, click the End Test button again.`,
       isMarkedForReview,
       isAttemptValid,
       isQuizAssessment,
+      isFormQuiz,
       optionalLimitReached,
       numericalAnswerUpdated,
       timeLimitWarningThreshold,

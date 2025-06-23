@@ -120,7 +120,7 @@
         :isShown="isScorecardShown"
         :title="title"
         :userId="userId"
-        greeting="Hooray! Congrats on completing the quiz! 🎉"
+        :greeting="scorecardGreeting"
         :numQuestionsAnswered="numQuestionsAnswered"
         :hasGradedQuestions="hasGradedQuestions"
         @go-back="goToPreviousQuestion"
@@ -254,7 +254,10 @@ export default defineComponent({
 
     const isOmrMode = computed(() => props.omrMode || state.metadata.quiz_type == "omr-assessment");
 
+    const isFormQuiz = computed(() => state.metadata.quiz_type == "form");
+
     const computedQuizType = computed(() => {
+      if (isFormQuiz.value) return "form";
       if (isQuizAssessment.value == false) return "homework";
       return isOmrMode.value ? "omr-assessment" : "assessment";
     });
@@ -326,6 +329,9 @@ export default defineComponent({
         clearInterval(state.timerInterval);
       }
 
+      // Don't track time for forms as they are meant to be filled at user's pace
+      if (isFormQuiz.value) return;
+
       state.timerInterval = setInterval(() => {
         if (!isOmrMode.value && state.currentQuestionIndex >= 0 && state.currentQuestionIndex < numQuestions.value && !state.isSessionAnswerRequestProcessing) {
           state.timeSpentOnQuestion[state.shuffledQuestionIndex].timeSpent += 1;
@@ -368,13 +374,18 @@ export default defineComponent({
           state.timeSpentOnQuestion[shuffledOldValue].hasSynced = true;
         }
         if (newValue == numQuestions.value) {
-          if (!state.hasQuizEnded && !isQuizAssessment.value) {
-            endTest() // send an end-quiz event for homeworks
+          if (!state.hasQuizEnded && (!isQuizAssessment.value || isFormQuiz.value)) {
+            endTest() // send an end-quiz event for homeworks and forms
           }
           if (state.hasQuizEnded) {
-            state.isScorecardShown = true;
-            if (!hasGradedQuestions.value) return;
-            calculateScorecardMetrics();
+            // Always show scorecard for forms, only show for other quiz types if showScores is true
+            if (isFormQuiz.value || (!isFormQuiz.value && state.showScores)) {
+              state.isScorecardShown = true;
+            }
+            // Only calculate metrics for non-form quizzes with graded questions
+            if (!isFormQuiz.value && hasGradedQuestions.value) {
+              calculateScorecardMetrics();
+            }
           }
         } else if (shuffledNewValue != -1 && !state.hasQuizEnded) {
           if (!state.responses[shuffledNewValue].visited) {
@@ -612,8 +623,9 @@ export default defineComponent({
         answer: itemResponse.answer,
         marked_for_review: itemResponse.marked_for_review
       }
-      if (!isQuizAssessment.value) {
+      if (!isQuizAssessment.value && !isFormQuiz.value) {
         // we update time spent for homework immediately when answer is submitted
+        // but not for forms since they don't track time
         stoptimeSpentOnQuestionCalc();
         payload.time_spent = state.timeSpentOnQuestion[state.shuffledQuestionIndex].timeSpent;
       }
@@ -695,21 +707,33 @@ export default defineComponent({
               }
             )
           } else {
-            calculateScorecardMetrics();
-            SessionAPIService.updateSession(state.sessionId, {
-              event: eventType.END_QUIZ,
-              metrics: state.qsetMetrics
-            });
+            if (!isFormQuiz.value) {
+              calculateScorecardMetrics();
+            }
+            const payload: any = {
+              event: eventType.END_QUIZ
+            };
+            // Only send metrics for non-form quizzes
+            if (!isFormQuiz.value) {
+              payload.metrics = state.qsetMetrics;
+            }
+            SessionAPIService.updateSession(state.sessionId, payload);
             state.hasQuizEnded = true;
             state.currentQuestionIndex = numQuestions.value;
           }
           state.isSessionAnswerRequestProcessing = false;
         } else {
-          calculateScorecardMetrics();
-          SessionAPIService.updateSession(state.sessionId, {
-            event: eventType.END_QUIZ,
-            metrics: state.qsetMetrics
-          });
+          if (!isFormQuiz.value) {
+            calculateScorecardMetrics();
+          }
+          const payload: any = {
+            event: eventType.END_QUIZ
+          };
+          // Only send metrics for non-form quizzes
+          if (!isFormQuiz.value) {
+            payload.metrics = state.qsetMetrics;
+          }
+          SessionAPIService.updateSession(state.sessionId, payload);
           state.hasQuizEnded = true;
           state.currentQuestionIndex = numQuestions.value;
         }
@@ -810,6 +834,13 @@ export default defineComponent({
 
     const hasGradedQuestions = computed(() => {
       return numNonGradedQuestions.value != numQuestions.value;
+    });
+
+    const scorecardGreeting = computed(() => {
+      if (isFormQuiz.value) {
+        return "Thank you for completing the questionnaire! 📝";
+      }
+      return "Hooray! Congrats on completing the quiz! 🎉";
     });
 
     function calculateScorecardMetrics() {
@@ -1049,6 +1080,7 @@ export default defineComponent({
       isQuestionShown,
       isSplashShown,
       isQuizAssessment,
+      isFormQuiz,
       scorecardMetrics,
       scorecardProgress,
       numQuestionsAnswered,
@@ -1057,6 +1089,7 @@ export default defineComponent({
       numGradedQuestions,
       isQuizLoaded,
       scorecardResult,
+      scorecardGreeting,
       startQuiz,
       getQsetLimits,
       submitQuestion,
