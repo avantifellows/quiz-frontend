@@ -35,8 +35,7 @@
             class="text-center mb-6"
           >
             <div class="inline-block bg-gray-100 rounded-lg px-4 py-2">
-              <span class="text-sm text-gray-600 font-medium">User ID:</span>
-              <span class="text-base font-semibold text-gray-800 ml-2" data-test="scorecard-user-id">{{ userId }}</span>
+              <span class="text-base font-semibold text-gray-800" data-test="scorecard-user-id">Id: {{ userId }}</span>
             </div>
           </div>
 
