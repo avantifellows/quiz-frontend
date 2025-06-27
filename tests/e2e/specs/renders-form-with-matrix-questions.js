@@ -1,134 +1,234 @@
 describe("Form with Matrix Questions Tests", () => {
   beforeEach(() => {
-    cy.visit("/");
-    cy.intercept("POST", "**/organizations/authenticate", {
-      fixture: "org_authentication.json",
-    }).as("getAuthenticatedOrg");
-
-    cy.intercept("GET", "**/quiz/**", {
+    // stub the response to /quiz/{quizId}
+    cy.intercept("GET", Cypress.env("backend") + "/quiz/*", {
       fixture: "form_questionnaire.json",
-    }).as("getFormQuiz");
+    });
 
-    cy.intercept("POST", "**/sessions", {
+    // stub the response to /sessions
+    cy.intercept("POST", "/sessions/", {
       fixture: "new_form_session.json",
-    }).as("createSession");
+    });
 
-    cy.intercept("PUT", "**/sessions/**", {
-      statusCode: 200,
-      body: { time_remaining: 1800 },
-    }).as("updateSession");
+    cy.intercept("PATCH", "/session_answers/**", { status: 200 }).as(
+      "patchSessionAnswerRequest"
+    );
+    cy.intercept("PATCH", "/sessions/*", { body: { timeRemaining: 1800 } });
 
-    cy.intercept("PUT", "**/session_answers/**", {
-      statusCode: 200,
-    }).as("updateSessionAnswer");
+    cy.intercept(
+      "GET",
+      Cypress.env("backend") + "/organizations/authenticate/*",
+      {
+        fixture: "org_authentication.json",
+      }
+    );
+    cy.visit("/quiz/form_quiz_123456?userId=1&apiKey=pqr");
   });
 
   it("should render and interact with matrix rating questions", () => {
     // Start the form
     cy.get('[data-test="splash"]').should("be.visible");
-    cy.get('[data-test="start-button"]').click();
+    cy.get('[data-test="startQuiz"]').click();
 
     // Wait for the first question to load
     cy.get('[data-test="body"]').should("be.visible");
 
-    // Navigate to the matrix rating question (question 5)
-    for (let i = 0; i < 4; i++) {
-      cy.get('[data-test="next-button"]').click();
-      cy.wait(500);
-    }
+    // Fill out first 4 questions to get to matrix rating question (question 5)
+    // Question 1: subjective
+    cy.get('[data-test="subjectiveAnswer"]').type("John Doe");
+    cy.get('[data-test="submitButton"]').click();
+    cy.wait(500);
+
+    // Question 2: single choice
+    cy.get('[data-test="optionSelector-1"]').click(); // PCB
+    cy.get('[data-test="submitButton"]').click();
+    cy.wait(500);
+
+    // Question 3: multi choice
+    cy.get('[data-test="optionSelector-0"]').click(); // Maths
+    cy.get('[data-test="optionSelector-1"]').click(); // English
+    cy.get('[data-test="submitButton"]').click();
+    cy.wait(500);
+
+    // Question 4: single choice
+    cy.get('[data-test="optionSelector-2"]').click(); // Because these subjects have more career options
+    cy.get('[data-test="submitButton"]').click();
+    cy.wait(500);
 
     // Check that we're on the matrix rating question
     cy.get('[data-test="matrixRatingContainer"]').should("be.visible");
     cy.get('[data-test="question-index-type"]').should("contain", "Q.5");
 
-    // Test matrix rating interactions - Fill all 4 rows (Math, Physics, Chemistry, Biology)
+    // Test matrix rating interactions - Fill all 5 rows (Math, Physics, Chemistry, Biology, English)
     cy.get('[data-test="matrixRatingSelector-0-2"]').click(); // Math - Option 3
     cy.get('[data-test="matrixRatingSelector-1-1"]').click(); // Physics - Option 2
     cy.get('[data-test="matrixRatingSelector-2-0"]').click(); // Chemistry - Option 1
     cy.get('[data-test="matrixRatingSelector-3-4"]').click(); // Biology - Option 5
+    cy.get('[data-test="matrixRatingSelector-4-3"]').click(); // English - Option 4
 
     // Verify selections are made
     cy.get('[data-test="matrixRatingSelector-0-2"]').should("be.checked");
     cy.get('[data-test="matrixRatingSelector-1-1"]').should("be.checked");
     cy.get('[data-test="matrixRatingSelector-2-0"]').should("be.checked");
     cy.get('[data-test="matrixRatingSelector-3-4"]').should("be.checked");
+    cy.get('[data-test="matrixRatingSelector-4-3"]').should("be.checked");
 
     // Move to next question (matrix numerical)
-    cy.get('[data-test="next-button"]').click();
+    cy.get('[data-test="submitButton"]').click();
   });
 
   it("should render and interact with matrix numerical questions", () => {
     // Start the form and navigate to matrix numerical question (question 6)
     cy.get('[data-test="splash"]').should("be.visible");
-    cy.get('[data-test="start-button"]').click();
+    cy.get('[data-test="startQuiz"]').click();
 
-    // Navigate to the matrix numerical question
-    for (let i = 0; i < 5; i++) {
-      cy.get('[data-test="next-button"]').click();
-      cy.wait(500);
-    }
+    // Fill out first 5 questions to get to matrix numerical question (question 6)
+    // Question 1: subjective
+    cy.get('[data-test="subjectiveAnswer"]').type("John Doe");
+    cy.get('[data-test="submitButton"]').click();
+    cy.wait(500);
+
+    // Question 2: single choice
+    cy.get('[data-test="optionSelector-1"]').click(); // PCB
+    cy.get('[data-test="submitButton"]').click();
+    cy.wait(500);
+
+    // Question 3: multi choice
+    cy.get('[data-test="optionSelector-0"]').click(); // Maths
+    cy.get('[data-test="optionSelector-1"]').click(); // English
+    cy.get('[data-test="submitButton"]').click();
+    cy.wait(500);
+
+    // Question 4: single choice
+    cy.get('[data-test="optionSelector-2"]').click(); // Because these subjects have more career options
+    cy.get('[data-test="submitButton"]').click();
+    cy.wait(500);
+
+    // Question 5: matrix rating - answer all rows
+    cy.get('[data-test="matrixRatingSelector-0-2"]').click(); // Math
+    cy.get('[data-test="matrixRatingSelector-1-1"]').click(); // Physics
+    cy.get('[data-test="matrixRatingSelector-2-0"]').click(); // Chemistry
+    cy.get('[data-test="matrixRatingSelector-3-4"]').click(); // Biology
+    cy.get('[data-test="matrixRatingSelector-4-3"]').click(); // English
+    cy.get('[data-test="submitButton"]').click();
+    cy.wait(500);
 
     // Check that we're on the matrix numerical question
     cy.get('[data-test="matrixNumericalContainer"]').should("be.visible");
     cy.get('[data-test="question-index-type"]').should("contain", "Q.6");
 
-    // Test matrix numerical inputs - Fill all 5 rows (Math, Physics, Chemistry, Biology, Overall)
+    // Test matrix numerical inputs - Fill all 6 rows (Math, Physics, Chemistry, Biology, English, Overall)
     cy.get('[data-test="matrixNumericalInput-0"]').type("85"); // Math
     cy.get('[data-test="matrixNumericalInput-1"]').type("78"); // Physics
     cy.get('[data-test="matrixNumericalInput-2"]').type("92"); // Chemistry
     cy.get('[data-test="matrixNumericalInput-3"]').type("88"); // Biology
-    cy.get('[data-test="matrixNumericalInput-4"]').type("85"); // Overall
+    cy.get('[data-test="matrixNumericalInput-4"]').type("90"); // English
+    cy.get('[data-test="matrixNumericalInput-5"]').type("85"); // Overall
 
     // Verify values are entered
     cy.get('[data-test="matrixNumericalInput-0"]').should("have.value", "85");
     cy.get('[data-test="matrixNumericalInput-1"]').should("have.value", "78");
     cy.get('[data-test="matrixNumericalInput-2"]').should("have.value", "92");
     cy.get('[data-test="matrixNumericalInput-3"]').should("have.value", "88");
-    cy.get('[data-test="matrixNumericalInput-4"]').should("have.value", "85");
+    cy.get('[data-test="matrixNumericalInput-4"]').should("have.value", "90");
+    cy.get('[data-test="matrixNumericalInput-5"]').should("have.value", "85");
 
     // Move to next question
-    cy.get('[data-test="next-button"]').click();
+    cy.get('[data-test="submitButton"]').click();
   });
 
   it("should complete the entire form and show scorecard", () => {
     // Start the form
     cy.get('[data-test="splash"]').should("be.visible");
-    cy.get('[data-test="start-button"]').click();
+    cy.get('[data-test="startQuiz"]').click();
 
     // Fill out first question (subjective)
-    cy.get('[data-test="subjectiveAnswer"]').type("John Doe");
-    cy.get('[data-test="next-button"]').click();
+    cy.get('[data-test="body"]').should("be.visible");
+    cy.get('[data-test="subjectiveAnswer"]')
+      .should("be.visible")
+      .type("John Doe");
+    cy.get('[data-test="submitButton"]').should("not.be.disabled").click();
+    cy.wait(1000);
 
     // Fill out second question (single choice)
-    cy.get('[data-test="optionSelector-1"]').click(); // 18-25
-    cy.get('[data-test="next-button"]').click();
+    cy.get('[data-test="body"]').should("be.visible");
+    cy.get('[data-test="optionSelector-1"]').should("be.visible").click(); // PCB
+    cy.get('[data-test="submitButton"]').should("not.be.disabled").click();
+    cy.wait(1000);
 
     // Fill out third question (multi choice)
-    cy.get('[data-test="optionSelector-0"]').click(); // Student
-    cy.get('[data-test="optionSelector-1"]').click(); // Working Professional
-    cy.get('[data-test="next-button"]').click();
+    cy.get('[data-test="body"]').should("be.visible");
+    cy.get('[data-test="optionSelector-0"]').should("be.visible").click(); // Maths
+    cy.get('[data-test="optionSelector-1"]').should("be.visible").click(); // English
+    cy.get('[data-test="submitButton"]').should("not.be.disabled").click();
+    cy.wait(1000);
 
     // Fill out fourth question (single choice)
-    cy.get('[data-test="optionSelector-2"]').click(); // Search Engine
-    cy.get('[data-test="next-button"]').click();
+    cy.get('[data-test="body"]').should("be.visible");
+    cy.get('[data-test="optionSelector-2"]').should("be.visible").click(); // Because these subjects have more career options
+    cy.get('[data-test="submitButton"]').should("not.be.disabled").click();
+    cy.wait(1000);
 
-    // Fill out matrix rating question - ALL 4 rows required (Math, Physics, Chemistry, Biology)
-    cy.get('[data-test="matrixRatingSelector-0-2"]').click(); // Math
-    cy.get('[data-test="matrixRatingSelector-1-1"]').click(); // Physics
-    cy.get('[data-test="matrixRatingSelector-2-0"]').click(); // Chemistry
-    cy.get('[data-test="matrixRatingSelector-3-4"]').click(); // Biology
-    cy.get('[data-test="next-button"]').click();
+    // Fill out matrix rating question - ALL 5 rows required (Math, Physics, Chemistry, Biology, English)
+    cy.get('[data-test="body"]').should("be.visible");
+    cy.get('[data-test="matrixRatingContainer"]').should("be.visible");
+    cy.get('[data-test="matrixRatingSelector-0-2"]')
+      .should("be.visible")
+      .click(); // Math
+    cy.get('[data-test="matrixRatingSelector-1-1"]')
+      .should("be.visible")
+      .click(); // Physics
+    cy.get('[data-test="matrixRatingSelector-2-0"]')
+      .should("be.visible")
+      .click(); // Chemistry
+    cy.get('[data-test="matrixRatingSelector-3-4"]')
+      .should("be.visible")
+      .click(); // Biology
+    cy.get('[data-test="matrixRatingSelector-4-3"]')
+      .should("be.visible")
+      .click(); // English
+    cy.get('[data-test="submitButton"]').should("not.be.disabled").click();
+    cy.wait(1000);
 
-    // Fill out matrix numerical question - ALL 5 rows required (Math, Physics, Chemistry, Biology, Overall)
-    cy.get('[data-test="matrixNumericalInput-0"]').type("85"); // Math
-    cy.get('[data-test="matrixNumericalInput-1"]').type("78"); // Physics
-    cy.get('[data-test="matrixNumericalInput-2"]').type("92"); // Chemistry
-    cy.get('[data-test="matrixNumericalInput-3"]').type("88"); // Biology
-    cy.get('[data-test="matrixNumericalInput-4"]').type("85"); // Overall
-    cy.get('[data-test="next-button"]').click();
+    // Fill out matrix numerical question - ALL 6 rows required (Math, Physics, Chemistry, Biology, English, Overall)
+    cy.get('[data-test="body"]').should("be.visible");
+    cy.get('[data-test="matrixNumericalContainer"]').should("be.visible");
+    cy.get('[data-test="matrixNumericalInput-0"]')
+      .should("be.visible")
+      .type("85"); // Math
+    cy.get('[data-test="matrixNumericalInput-1"]')
+      .should("be.visible")
+      .type("78"); // Physics
+    cy.get('[data-test="matrixNumericalInput-2"]')
+      .should("be.visible")
+      .type("92"); // Chemistry
+    cy.get('[data-test="matrixNumericalInput-3"]')
+      .should("be.visible")
+      .type("88"); // Biology
+    cy.get('[data-test="matrixNumericalInput-4"]')
+      .should("be.visible")
+      .type("90"); // English
+    cy.get('[data-test="matrixNumericalInput-5"]')
+      .should("be.visible")
+      .type("85"); // Overall
+    cy.get('[data-test="submitButton"]').should("not.be.disabled").click();
+    cy.wait(1000);
+
+    // Fill out seventh question (subjective)
+    cy.get('[data-test="body"]').should("be.visible");
+    cy.get('[data-test="subjectiveAnswer"]')
+      .should("be.visible")
+      .type("Doctor");
+    cy.get('[data-test="submitButton"]').should("not.be.disabled").click();
+    cy.wait(1000);
 
     // Fill out last question (subjective)
-    cy.get('[data-test="subjectiveAnswer"]').type("Great service!");
+    cy.get('[data-test="body"]').should("be.visible");
+    cy.get('[data-test="subjectiveAnswer"]')
+      .should("be.visible")
+      .type("Great service!");
+    cy.get('[data-test="submitButton"]').should("not.be.disabled").click();
+    cy.wait(1000);
 
     // The form should automatically end and show scorecard
     cy.get('[data-test="scorecard"]').should("be.visible");
@@ -140,10 +240,10 @@ describe("Form with Matrix Questions Tests", () => {
 
   it("should not show OMR mode for forms even if omrMode=true", () => {
     // Visit with omrMode parameter
-    cy.visit("/?omrMode=true");
+    cy.visit("/quiz/form_quiz_123456?userId=1&apiKey=pqr&omrMode=true");
 
     cy.get('[data-test="splash"]').should("be.visible");
-    cy.get('[data-test="start-button"]').click();
+    cy.get('[data-test="startQuiz"]').click();
 
     // Should still show regular QuestionModal, not OmrModal
     cy.get('[data-test="body"]').should("be.visible");
