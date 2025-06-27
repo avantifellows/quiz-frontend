@@ -582,7 +582,7 @@ For final submission, click the End Test button again.`,
         if (typeof currentDraftResponse !== 'object' || currentDraftResponse === null || Array.isArray(currentDraftResponse)) {
           return false;
         }
-        // Check if all matrix rows are filled
+        // Check if all matrix rows are filled for matrix-rating and matrix-numerical
         const matrixRows = currentQuestion.value?.matrix_rows || [];
         const answeredRows = Object.keys(currentDraftResponse);
         return matrixRows.length > 0 && answeredRows.length === matrixRows.length;

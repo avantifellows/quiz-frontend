@@ -41,7 +41,7 @@ describe("Form with Matrix Questions Tests", () => {
     cy.get('[data-test="matrixRatingContainer"]').should("be.visible");
     cy.get('[data-test="question-index-type"]').should("contain", "Q.5");
 
-    // Test matrix rating interactions
+    // Test matrix rating interactions - Fill all 4 rows (Math, Physics, Chemistry, Biology)
     cy.get('[data-test="matrixRatingSelector-0-2"]').click(); // Math - Option 3
     cy.get('[data-test="matrixRatingSelector-1-1"]').click(); // Physics - Option 2
     cy.get('[data-test="matrixRatingSelector-2-0"]').click(); // Chemistry - Option 1
@@ -72,7 +72,7 @@ describe("Form with Matrix Questions Tests", () => {
     cy.get('[data-test="matrixNumericalContainer"]').should("be.visible");
     cy.get('[data-test="question-index-type"]').should("contain", "Q.6");
 
-    // Test matrix numerical inputs
+    // Test matrix numerical inputs - Fill all 5 rows (Math, Physics, Chemistry, Biology, Overall)
     cy.get('[data-test="matrixNumericalInput-0"]').type("85"); // Math
     cy.get('[data-test="matrixNumericalInput-1"]').type("78"); // Physics
     cy.get('[data-test="matrixNumericalInput-2"]').type("92"); // Chemistry
@@ -112,14 +112,19 @@ describe("Form with Matrix Questions Tests", () => {
     cy.get('[data-test="optionSelector-2"]').click(); // Search Engine
     cy.get('[data-test="next-button"]').click();
 
-    // Fill out matrix rating question
-    cy.get('[data-test="matrixRatingSelector-0-2"]').click();
-    cy.get('[data-test="matrixRatingSelector-1-1"]').click();
+    // Fill out matrix rating question - ALL 4 rows required (Math, Physics, Chemistry, Biology)
+    cy.get('[data-test="matrixRatingSelector-0-2"]').click(); // Math
+    cy.get('[data-test="matrixRatingSelector-1-1"]').click(); // Physics
+    cy.get('[data-test="matrixRatingSelector-2-0"]').click(); // Chemistry
+    cy.get('[data-test="matrixRatingSelector-3-4"]').click(); // Biology
     cy.get('[data-test="next-button"]').click();
 
-    // Fill out matrix numerical question
-    cy.get('[data-test="matrixNumericalInput-0"]').type("85");
-    cy.get('[data-test="matrixNumericalInput-1"]').type("78");
+    // Fill out matrix numerical question - ALL 5 rows required (Math, Physics, Chemistry, Biology, Overall)
+    cy.get('[data-test="matrixNumericalInput-0"]').type("85"); // Math
+    cy.get('[data-test="matrixNumericalInput-1"]').type("78"); // Physics
+    cy.get('[data-test="matrixNumericalInput-2"]').type("92"); // Chemistry
+    cy.get('[data-test="matrixNumericalInput-3"]').type("88"); // Biology
+    cy.get('[data-test="matrixNumericalInput-4"]').type("85"); // Overall
     cy.get('[data-test="next-button"]').click();
 
     // Fill out last question (subjective)
