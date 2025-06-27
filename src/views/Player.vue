@@ -252,7 +252,11 @@ export default defineComponent({
 
     const isQuizAssessment = computed(() => (state.metadata.quiz_type == "assessment" || state.metadata.quiz_type == "omr-assessment"));
 
-    const isOmrMode = computed(() => props.omrMode || state.metadata.quiz_type == "omr-assessment");
+    const isOmrMode = computed(() => {
+      // Forms should never use OMR mode, homework should never use OMR mode
+      if (isFormQuiz.value || state.metadata.quiz_type == "homework") return false;
+      return props.omrMode || state.metadata.quiz_type == "omr-assessment";
+    });
 
     const isFormQuiz = computed(() => state.metadata.quiz_type == "form");
 

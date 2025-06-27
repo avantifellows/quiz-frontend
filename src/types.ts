@@ -2,13 +2,13 @@
 
 type language = "en" | "hi";
 export type quizType = "assessment" | "homework" | "omr-assessment" | "form";
-export type testFormat = "full_syllabus_test" | "major_test" | "part_test" | "chapter_test" | "hiring_test" | "evaluation_test" | "mock_test" | "homework" | "";
+export type testFormat = "full_syllabus_test" | "major_test" | "part_test" | "chapter_test" | "hiring_test" | "evaluation_test" | "mock_test" | "homework" | "questionnaire" | "";
 export type quizTitleType = string | null;
 export type textAreaValueType = string | number | null;
 export type isFirstSessionType = boolean | null;
 type quizNavigationMode = "linear" | "non-linear";
-export type submittedAnswer = number[] | string[] | string | number | null;
-export type CorrectAnswerType = number[] | string[] | string | number | null;
+export type submittedAnswer = number[] | string[] | string | number | Record<string, number> | null;
+export type CorrectAnswerType = number[] | string[] | string | number | Record<string, number> | null;
 
 export enum eventType {
   START_QUIZ = "start-quiz",
@@ -23,7 +23,9 @@ export enum questionType {
   NUMERICAL_INTEGER = "numerical-integer",
   NUMERICAL_FLOAT = "numerical-float",
   SUBJECTIVE = "subjective",
-  MATRIX_MATCH = "matrix-match"
+  MATRIX_MATCH = "matrix-match",
+  MATRIX_RATING = "matrix-rating",
+  MATRIX_NUMERICAL = "matrix-numerical"
 }
 
 export enum questionTypeHeaderText {
@@ -32,7 +34,9 @@ export enum questionTypeHeaderText {
     NUMERICAL_INTEGER = "Numerical Integer",
     NUMERICAL_FLOAT = "Numerical",
     SUBJECTIVE = "Subjective Answer",
-    MATRIX_MATCH = "Matrix Matching"
+    MATRIX_MATCH = "Matrix Matching",
+    MATRIX_RATING = "Matrix Rating Scale",
+    MATRIX_NUMERICAL = "Matrix idkNumerical Input"
  }
 
 export interface IconButtonTitleConfig {
@@ -53,7 +57,7 @@ export interface InputTextValidationConfig {
   invalidMessage: String;
 }
 
-export type DraftResponse = number[] | string[] | number | string | null;
+export type DraftResponse = number[] | string[] | number | string | Record<string, number> | null;
 
 export interface SubmittedResponse {
   _id: string;
@@ -161,6 +165,7 @@ export interface Question {
   image: Image | null;
   max_char_limit: number | null;
   matrix_size: number[] | null;
+  matrix_rows: string[] | null;
   graded: boolean;
   instructions: string | null;
   marking_scheme: MarkingScheme | null;

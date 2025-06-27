@@ -138,7 +138,7 @@
           </div>
           <!-- answer display -->
           <div
-            v-if="hasQuizEnded"
+            v-if="hasQuizEnded && !isFormQuiz"
             class="px-2 text-lg mt-2"
             data-test="subjectiveCorrectAnswer"
           >
@@ -166,7 +166,7 @@
           ></Textarea>
           <!-- answer display -->
           <div
-            v-if="hasQuizEnded"
+            v-if="hasQuizEnded && !isFormQuiz"
             class="px-2 text-lg mt-2"
             data-test="numericalCorrectAnswer"
           >
@@ -264,11 +264,123 @@
           </ul>
           <!-- answer display -->
           <div
-            v-if="hasQuizEnded"
+            v-if="hasQuizEnded && !isFormQuiz"
             class="px-2 text-lg mt-2"
             data-test="matrixMatchCorrectAnswer"
           >
             Correct Answer: {{ correctAnswer }}
+          </div>
+        </div>
+        <!-- Matrix rating answer -->
+        <div
+          v-if="isQuestionTypeMatrixRating"
+          class="flex flex-col items-center"
+          :class="answerContainerClass"
+          data-test="matrixRatingContainer"
+        >
+          <div class="max-w-screen-md w-full">
+            <table class="border-collapse border border-gray-200 mx-auto w-full">
+              <thead>
+                <tr>
+                  <th class="border border-gray-200 text-left p-2 bg-gray-50">Item</th>
+                  <th
+                    v-for="(option, optionIndex) in options"
+                    :key="optionIndex"
+                    class="border border-gray-200 text-center p-2 bg-gray-50 text-sm"
+                  >
+                    {{ option.text }}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(row, rowIndex) in matrixRows"
+                  :key="rowIndex"
+                >
+                  <td class="border border-gray-200 p-2 font-medium">
+                    {{ row }}
+                  </td>
+                  <td
+                    v-for="(option, optionIndex) in options"
+                    :key="optionIndex"
+                    class="border border-gray-200 text-center p-2"
+                  >
+                    <input
+                      type="radio"
+                      :name="`matrix-rating-${rowIndex}`"
+                      :value="optionIndex"
+                      class="text-primary focus:ring-0 disabled:cursor-not-allowed"
+                      :disabled="isAnswerDisabled"
+                      style="box-shadow: none"
+                      @click="selectMatrixOption(row, optionIndex)"
+                      :checked="isMatrixRatingOptionSelected(row, optionIndex)"
+                      :data-test="`matrixRatingSelector-${rowIndex}-${optionIndex}`"
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- answer display -->
+          <div
+            v-if="hasQuizEnded && !isFormQuiz"
+            class="px-2 text-lg mt-2"
+            data-test="matrixRatingCorrectAnswer"
+          >
+            Correct Answer: {{ JSON.stringify(correctAnswer) }}
+          </div>
+        </div>
+        <!-- Matrix numerical answer -->
+        <div
+          v-if="isQuestionTypeMatrixNumerical"
+          class="flex flex-col items-center"
+          :class="answerContainerClass"
+          data-test="matrixNumericalContainer"
+        >
+          <div class="max-w-screen-md w-full">
+            <table class="border-collapse border border-gray-200 mx-auto w-full">
+              <thead>
+                <tr>
+                  <th class="border border-gray-200 text-left p-2 bg-gray-50">Item</th>
+                  <th class="border border-gray-200 text-center p-2 bg-gray-50">Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(row, rowIndex) in matrixRows"
+                  :key="rowIndex"
+                >
+                  <td class="border border-gray-200 p-2 font-medium">
+                    {{ row }}
+                  </td>
+                  <td class="border border-gray-200 text-center p-2">
+                    <input
+                      type="number"
+                      inputmode="numeric"
+                      pattern="[0-9]*"
+                      min="0"
+                      max="100"
+                      maxlength="3"
+                      :placeholder="`Enter value for ${row}`"
+                      class="w-full px-2 py-1 border rounded text-center focus:border-primary focus:ring-primary disabled:cursor-not-allowed disabled:bg-gray-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      :disabled="isAnswerDisabled"
+                      :value="getMatrixNumericalValue(row)"
+                      @input="updateMatrixNumericalValue(row, $event)"
+                      @keypress="validateMatrixNumericalInput"
+                      :data-test="`matrixNumericalInput-${rowIndex}`"
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- answer display -->
+          <div
+            v-if="hasQuizEnded && !isFormQuiz"
+            class="px-2 text-lg mt-2"
+            data-test="matrixNumericalCorrectAnswer"
+          >
+            Correct Answer: {{ JSON.stringify(correctAnswer) }}
           </div>
         </div>
       </div>
@@ -386,6 +498,11 @@ export default defineComponent({
       default: () => [4, 5],
       type: Array,
     },
+    /** matrix rows for matrix rating/numerical questions */
+    matrixRows: {
+      default: () => [],
+      type: Array,
+    },
     /** data of the image to be shown on a question. Contains URL and alt_text */
     imageData: {
       default: null,
@@ -467,6 +584,7 @@ export default defineComponent({
   },
   setup(props, context) {
     const isQuizAssessment = computed(() => props.quizType == "assessment");
+    const isFormQuiz = computed(() => props.quizType == "form");
     const state = reactive({
       isImageLoading: false,
       // set containing the question types in which options are present
@@ -506,6 +624,8 @@ export default defineComponent({
       [questionType.NUMERICAL_FLOAT, questionTypeHeaderText.NUMERICAL_FLOAT],
       [questionType.SUBJECTIVE, questionTypeHeaderText.SUBJECTIVE],
       [questionType.MATRIX_MATCH, questionTypeHeaderText.MATRIX_MATCH],
+      [questionType.MATRIX_RATING, questionTypeHeaderText.MATRIX_RATING],
+      [questionType.MATRIX_NUMERICAL, questionTypeHeaderText.MATRIX_NUMERICAL],
     ]);
 
     /** stop the loading spinner when the image has been loaded **/
@@ -599,6 +719,66 @@ export default defineComponent({
 
     function selectOption(answer: number | string) {
       context.emit("option-selected", answer);
+    }
+
+    function selectMatrixOption(row: string, optionIndex: number) {
+      context.emit("matrix-option-selected", row, optionIndex);
+    }
+
+    function isMatrixRatingOptionSelected(row: string, optionIndex: number) {
+      if (props.draftAnswer && typeof props.draftAnswer === 'object' && !Array.isArray(props.draftAnswer)) {
+        return props.draftAnswer[row] === optionIndex;
+      }
+      return false;
+    }
+
+    function getMatrixNumericalValue(row: string) {
+      if (props.draftAnswer && typeof props.draftAnswer === 'object' && !Array.isArray(props.draftAnswer)) {
+        return props.draftAnswer[row] || '';
+      }
+      return '';
+    }
+
+    function updateMatrixNumericalValue(row: string, event: Event) {
+      const target = event.target as HTMLInputElement;
+      let value = target.value;
+
+      // Limit to 3 digits and max value 100
+      if (value && value.length > 3) {
+        value = value.slice(0, 3);
+        target.value = value;
+      }
+
+      const numValue = value ? Number(value) : null;
+      if (numValue !== null && numValue > 100) {
+        target.value = "100";
+        context.emit("matrix-numerical-updated", row, 100);
+      } else {
+        context.emit("matrix-numerical-updated", row, numValue);
+      }
+    }
+
+    function validateMatrixNumericalInput(event: KeyboardEvent) {
+      const target = event.target as HTMLInputElement;
+      const char = String.fromCharCode(event.which);
+
+      // Only allow numbers
+      if (!/[0-9]/.test(char)) {
+        event.preventDefault();
+        return;
+      }
+
+      // Limit to 3 digits
+      if (target.value.length >= 3) {
+        event.preventDefault();
+        return;
+      }
+
+      // Check if resulting value would exceed 100
+      const newValue = target.value + char;
+      if (Number(newValue) > 100) {
+        event.preventDefault();
+      }
     }
 
     function labelClass(optionText: String) {
@@ -798,6 +978,12 @@ export default defineComponent({
     const isQuestionTypeMatrixMatch = computed(
       () => props.questionType == questionType.MATRIX_MATCH
     );
+    const isQuestionTypeMatrixRating = computed(
+      () => props.questionType == questionType.MATRIX_RATING
+    );
+    const isQuestionTypeMatrixNumerical = computed(
+      () => props.questionType == questionType.MATRIX_NUMERICAL
+    );
 
     // styling class to decide orientation of image + options
     // depending on portrait/landscape orientation
@@ -896,7 +1082,7 @@ export default defineComponent({
       {
         "bg-gray-100": props.isAnswerSubmitted,
       },
-      "bp-420:h-20 sm:h-28 md:h-36 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed",
+      "bp-420:h-16 sm:h-20 md:h-24 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed",
     ]);
 
     const numericalAnswerBoxStyling = computed(() => [
@@ -1017,6 +1203,11 @@ export default defineComponent({
       optionBackgroundClass,
       isOptionMarked,
       selectOption,
+      selectMatrixOption,
+      isMatrixRatingOptionSelected,
+      getMatrixNumericalValue,
+      updateMatrixNumericalValue,
+      validateMatrixNumericalInput,
       getRowLabel,
       getColumnLabel,
       convertMatrixMatchOptionToString,
@@ -1032,6 +1223,8 @@ export default defineComponent({
       isQuestionTypeMultiChoice,
       isQuestionTypeSingleChoice,
       isQuestionTypeMatrixMatch,
+      isQuestionTypeMatrixRating,
+      isQuestionTypeMatrixNumerical,
       orientationClass,
       optionInputType,
       answerContainerClass,
@@ -1045,12 +1238,15 @@ export default defineComponent({
       numericalAnswerBoxStyling,
       isQuestionTypeNumericalFloat,
       isQuestionTypeNumericalInteger,
+      isFormQuiz,
     };
   },
   emits: [
     "option-selected",
     "subjective-answer-entered",
     "numerical-answer-entered",
+    "matrix-option-selected",
+    "matrix-numerical-updated",
     "navigate",
   ],
 });

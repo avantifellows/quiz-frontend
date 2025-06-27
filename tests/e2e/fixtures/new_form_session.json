@@ -1,0 +1,68 @@
+{
+  "_id": "form_session_12345",
+  "user_id": "user_123",
+  "quiz_id": "form_quiz_456",
+  "is_first": true,
+  "omr_mode": false,
+  "question_order": [0, 1, 2, 3, 4, 5, 6],
+  "session_answers": [
+    {
+      "_id": "answer_1",
+      "question_id": "q1",
+      "answer": null,
+      "visited": false,
+      "time_spent": 0,
+      "marked_for_review": false
+    },
+    {
+      "_id": "answer_2",
+      "question_id": "q2",
+      "answer": null,
+      "visited": false,
+      "time_spent": 0,
+      "marked_for_review": false
+    },
+    {
+      "_id": "answer_3",
+      "question_id": "q3",
+      "answer": null,
+      "visited": false,
+      "time_spent": 0,
+      "marked_for_review": false
+    },
+    {
+      "_id": "answer_4",
+      "question_id": "q4",
+      "answer": null,
+      "visited": false,
+      "time_spent": 0,
+      "marked_for_review": false
+    },
+    {
+      "_id": "answer_5",
+      "question_id": "q5",
+      "answer": null,
+      "visited": false,
+      "time_spent": 0,
+      "marked_for_review": false
+    },
+    {
+      "_id": "answer_6",
+      "question_id": "q6",
+      "answer": null,
+      "visited": false,
+      "time_spent": 0,
+      "marked_for_review": false
+    },
+    {
+      "_id": "answer_7",
+      "question_id": "q7",
+      "answer": null,
+      "visited": false,
+      "time_spent": 0,
+      "marked_for_review": false
+    }
+  ],
+  "has_quiz_ended": false,
+  "time_remaining": null
+}
