@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="fixed top-0 left-0 w-full  ">
+    <div class="fixed top-0 left-0 w-full">
       <div class="flex w-full justify-between bg-gray-200 p-4 z-20">
         <!-- hamburger for question palette -->
         <icon-button
@@ -40,15 +40,24 @@
           ></icon-button>
         </div>
       </div>
-      <div
-        class="bg-white-400 w-full justify between">
+      <div class="bg-white-400 w-full justify between">
         <div class="py-4 h-12 bg-white px-4">
-          <div class="float-left text-lg sm:text-xl text-base truncate" data-test="test-name">
-          {{ $props.title || "no data" }}
+          <div
+            class="float-left text-lg sm:text-xl text-base truncate"
+            data-test="test-name"
+          >
+            {{ $props.title || "no data" }}
           </div>
-          <div class="float-right text-lg sm:text-xl text-base mx-1 px-1" data-test="user-id">
-          Id: {{ $props.userId || "no data" }}
+          <div
+            class="float-right text-lg sm:text-xl text-base mx-1 px-1"
+            data-test="user-id"
+          >
+            Id: {{ $props.userId || "no data" }}
           </div>
+          <div class="w-full text-center text-md sm:text-lg font-semibold text-gray-700 pt-2" data-test="section-name">
+  {{ sectionName }}
+</div>
+
         </div>
       </div>
     </div>
@@ -57,7 +66,17 @@
 
 <script lang="ts">
 import IconButton from "../UI/Buttons/IconButton.vue";
-import { ref, defineComponent, reactive, toRefs, computed, watch, onMounted, onBeforeUnmount, PropType } from "vue";
+import {
+  ref,
+  defineComponent,
+  reactive,
+  toRefs,
+  computed,
+  watch,
+  onMounted,
+  onBeforeUnmount,
+  PropType,
+} from "vue";
 import { quizTitleType, quizType } from "@/types";
 
 export default defineComponent({
@@ -69,7 +88,7 @@ export default defineComponent({
     },
     userId: {
       type: String,
-      default: ""
+      default: "",
     },
     hasQuizEnded: {
       type: Boolean,
@@ -82,22 +101,22 @@ export default defineComponent({
     },
     isSessionAnswerRequestProcessing: {
       type: Boolean,
-      default: false
+      default: false,
     },
     /** whether the quiz has a time limit */
     hasTimeLimit: {
       type: Boolean,
-      default: false
+      default: false,
     },
     /** display a warning when <default> minutes left on timer */
     warningTimeLimit: {
       type: Number,
-      default: 10
+      default: 10,
     },
     /** time remaining for quiz to complete */
     timeRemaining: {
       type: Number,
-      default: 0 // time remaining for quiz to complete
+      default: 0, // time remaining for quiz to complete
     },
     isOmrMode: {
       type: Boolean,
@@ -105,7 +124,11 @@ export default defineComponent({
     },
     quizType: {
       type: String as PropType<quizType>,
-      default: "homework"
+      default: "homework",
+    },
+    sectionName: {
+      type: String,
+      default: "",
     },
   },
   setup(props, context) {
@@ -117,7 +140,7 @@ export default defineComponent({
         "bg-gray-500 ring-gray-500 p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl hover:cursor-default",
       countdownTimerAlert:
         "bg-red-600 ring-red-500 p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl hover:cursor-default",
-      timeRemaining: props.timeRemaining
+      timeRemaining: props.timeRemaining,
     });
     const isSmallScreen = ref(false);
     const updateScreenSize = () => {
@@ -126,11 +149,15 @@ export default defineComponent({
 
     onMounted(() => {
       window.setInterval(() => {
-        if (!props.hasQuizEnded && props.hasTimeLimit && !props.isSessionAnswerRequestProcessing) {
-          state.timeRemaining -= 1
+        if (
+          !props.hasQuizEnded &&
+          props.hasTimeLimit &&
+          !props.isSessionAnswerRequestProcessing
+        ) {
+          state.timeRemaining -= 1;
         }
       }, 1000); // update every second if quiz has not ended
-    })
+    });
 
     function endTest() {
       context.emit("end-test");
@@ -153,12 +180,15 @@ export default defineComponent({
     }
 
     // const shouldShowOmrToggle = computed(() => props.quizType == "assessment")
-    const shouldShowOmrToggle = computed(() => false)
+    const shouldShowOmrToggle = computed(() => false);
 
     const toggleButtonTextConfig = computed(() => {
       const config = {
         value: "",
-        class: ["text-orange-500 underline underline-offset-8", "text-base md:text-lg lg:text-xl font-semibold"],
+        class: [
+          "text-orange-500 underline underline-offset-8",
+          "text-base md:text-lg lg:text-xl font-semibold",
+        ],
       };
 
       if (props.isOmrMode) {
@@ -176,8 +206,8 @@ export default defineComponent({
         "bg-transparent hover:bg-gray-100",
         "rounded-lg shadow-sm px-6 py-3",
         "flex items-center justify-center",
-        "transition-all duration-200 ease-in-out"
-      ]
+        "transition-all duration-200 ease-in-out",
+      ];
 
       return iconClass;
     });
@@ -211,44 +241,44 @@ export default defineComponent({
         buttonClass = state.countdownTimerAlert;
       }
       return buttonClass;
-    })
+    });
 
     function padWithZeroes(digit: Number) {
       if (digit.toString().length <= 1) {
-        return "0" + digit.toString()
+        return "0" + digit.toString();
       }
-      return digit.toString()
+      return digit.toString();
     }
 
     const seconds = computed(() => {
-      return padWithZeroes((state.timeRemaining) % 60)
-    })
+      return padWithZeroes(state.timeRemaining % 60);
+    });
 
     const minutes = computed(() => {
-      return padWithZeroes(Math.trunc(state.timeRemaining / 60) % 60)
-    })
+      return padWithZeroes(Math.trunc(state.timeRemaining / 60) % 60);
+    });
 
     const hours = computed(() => {
-      return padWithZeroes(Math.trunc(state.timeRemaining / 60 / 60) % 24)
-    })
+      return padWithZeroes(Math.trunc(state.timeRemaining / 60 / 60) % 24);
+    });
 
-    const countdownTimerTitleConfig = computed(() => (
-      {
-        value: `${hours.value}:${minutes.value}:${seconds.value}`,
-        class:
-        "text-white text-sm bp-500:text-md lg:text-lg xl:text-xl font-bold"
-      }));
+    const countdownTimerTitleConfig = computed(() => ({
+      value: `${hours.value}:${minutes.value}:${seconds.value}`,
+      class:
+        "text-white text-sm bp-500:text-md lg:text-lg xl:text-xl font-bold",
+    }));
 
     watch(
       () => state.timeRemaining,
       (newValue) => {
         if (newValue == props.warningTimeLimit * 60) {
-          context.emit("time-limit-warning")
+          context.emit("time-limit-warning");
         }
         if (newValue == 0) {
-          context.emit("end-test-by-time")
+          context.emit("end-test-by-time");
         }
-      })
+      }
+    );
 
     const togglePaletteButtonClass = computed(() => [
       {
@@ -308,12 +338,17 @@ export default defineComponent({
       toggleButtonIconClass,
       toggleButtonIconConfig,
       toggleButtonTextConfig,
-      toggleOmrMode
+      toggleOmrMode,
     };
   },
   components: {
     IconButton,
   },
-  emits: ["end-test", "end-test-by-time", "update:isPaletteVisible", "time-limit-warning"],
+  emits: [
+    "end-test",
+    "end-test-by-time",
+    "update:isPaletteVisible",
+    "time-limit-warning",
+  ],
 });
 </script>
