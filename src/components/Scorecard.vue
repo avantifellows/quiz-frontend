@@ -302,6 +302,7 @@ export default defineComponent({
      */
     const isCircularProgressShown = computed(() => {
       if (
+        isFormQuiz.value ||
         !props.hasGradedQuestions ||
         props.progressPercentage == null ||
         props.result.value == null ||
