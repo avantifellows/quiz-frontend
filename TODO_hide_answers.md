@@ -3,9 +3,8 @@
 ## Problem
 Students can access correct answers via browser developer tools through multiple attack vectors:
 1. **Network Tab**: API responses contain `correct_answer` fields
-2. **Vue DevTools**: Component state includes all question data with answers
-3. **JavaScript Console**: Direct access to question objects with answers
-4. **Component Inspector**: Props and state visible in browser dev tools
+2. **JavaScript Console**: Direct access to question objects with answers
+3. **Component Inspector**: Props and state visible in browser dev tools
 
 ## Key Constraint
 **Homework mode provides immediate feedback** on answer correctness and must continue to work without exposing all answers upfront.
@@ -129,7 +128,6 @@ Students can access correct answers via browser developer tools through multiple
 
 After implementation, verify:
 - [ ] **Network Tab**: No `correct_answer` fields in API responses during active quiz
-- [ ] **Vue DevTools**: No correct answers in component state
 - [ ] **JavaScript Console**: No accessible answer data
 - [ ] **Component Props**: No answer-related props visible
 - [ ] **Source Code**: No hardcoded answers in minified JS
