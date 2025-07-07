@@ -602,7 +602,7 @@ export default defineComponent({
 
     function getMatrixNumericalValue(row: string) {
       if (state.draftAnswer && typeof state.draftAnswer === 'object' && !Array.isArray(state.draftAnswer)) {
-        return (state.draftAnswer as Record<string, number>)[row] || '';
+        return (state.draftAnswer as Record<string, string>)[row] || '';
       }
       return '';
     }
@@ -617,18 +617,18 @@ export default defineComponent({
         target.value = value;
       }
 
-      const numValue = value ? Number(value) : null;
-      if (numValue !== null && numValue > 100) {
+      // Check numeric value for validation but preserve string format
+      if (value && Number(value) > 100) {
         target.value = "100";
         value = "100";
       }
 
-      const finalValue = value ? Number(value) : null;
-      const currentDraft = (state.draftAnswer as Record<string, number>) || {};
-      if (finalValue === null) {
+      // Store as string to preserve leading zeros (like "00")
+      const currentDraft = (state.draftAnswer as Record<string, string>) || {};
+      if (value === "") {
         delete currentDraft[row];
       } else {
-        currentDraft[row] = finalValue;
+        currentDraft[row] = value;
       }
       state.draftAnswer = Object.keys(currentDraft).length > 0 ? currentDraft : null;
       context.emit(

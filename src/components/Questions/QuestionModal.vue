@@ -442,8 +442,8 @@ To attempt Q.${props.currentQuestionIndex + 1}, unselect an answer to another qu
     }
 
     /** update matrix numerical answer */
-    function matrixNumericalUpdated(row: string, value: number | null) {
-      const currentDraft = state.draftResponses[state.localShuffledQuestionIndex] as Record<string, number> || {};
+    function matrixNumericalUpdated(row: string, value: string | null) {
+      const currentDraft = state.draftResponses[state.localShuffledQuestionIndex] as Record<string, string> || {};
       if (value === null) {
         delete currentDraft[row];
       } else {

@@ -749,13 +749,15 @@ export default defineComponent({
         target.value = value;
       }
 
-      const numValue = value ? Number(value) : null;
-      if (numValue !== null && numValue > 100) {
+      // Check numeric value for validation but preserve string format
+      if (value && Number(value) > 100) {
         target.value = "100";
-        context.emit("matrix-numerical-updated", row, 100);
-      } else {
-        context.emit("matrix-numerical-updated", row, numValue);
+        value = "100";
       }
+
+      // Emit the string value to preserve leading zeros (like "00")
+      const finalValue = value === "" ? null : value;
+      context.emit("matrix-numerical-updated", row, finalValue);
     }
 
     function validateMatrixNumericalInput(event: KeyboardEvent) {

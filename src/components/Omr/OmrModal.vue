@@ -294,7 +294,7 @@ export default defineComponent({
     }
 
     /** update matrix numerical answer */
-    function matrixNumericalUpdated(answer: Record<string, number> | null, newQuestionIndex: number) {
+    function matrixNumericalUpdated(answer: Record<string, string> | null, newQuestionIndex: number) {
       updateQuestionIndex(newQuestionIndex);
       state.previousLocalResponses[newQuestionIndex] = clonedeep(state.localResponses[state.localCurrentQuestionIndex]);
       state.localResponses[state.localCurrentQuestionIndex].answer = answer
