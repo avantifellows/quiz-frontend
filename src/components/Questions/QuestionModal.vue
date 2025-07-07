@@ -443,7 +443,16 @@ To attempt Q.${props.currentQuestionIndex + 1}, unselect an answer to another qu
 
     /** update matrix numerical answer */
     function matrixNumericalUpdated(row: string, value: string | null) {
-      const currentDraft = state.draftResponses[state.localShuffledQuestionIndex] as Record<string, string> || {};
+      const currentDraft: Record<string, string> = {};
+
+      // Copy existing values, converting to strings if needed
+      const existing = state.draftResponses[state.localShuffledQuestionIndex];
+      if (existing && typeof existing === 'object' && !Array.isArray(existing)) {
+        Object.entries(existing).forEach(([key, val]) => {
+          currentDraft[key] = String(val);
+        });
+      }
+
       if (value === null) {
         delete currentDraft[row];
       } else {

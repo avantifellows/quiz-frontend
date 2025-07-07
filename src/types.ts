@@ -7,8 +7,8 @@ export type quizTitleType = string | null;
 export type textAreaValueType = string | number | null;
 export type isFirstSessionType = boolean | null;
 type quizNavigationMode = "linear" | "non-linear";
-export type submittedAnswer = number[] | string[] | string | number | Record<string, number> | null;
-export type CorrectAnswerType = number[] | string[] | string | number | Record<string, number> | null;
+export type submittedAnswer = number[] | string[] | string | number | Record<string, number> | Record<string, string> | null;
+export type CorrectAnswerType = number[] | string[] | string | number | Record<string, number> | Record<string, string> | null;
 
 export enum eventType {
   START_QUIZ = "start-quiz",
@@ -57,7 +57,7 @@ export interface InputTextValidationConfig {
   invalidMessage: String;
 }
 
-export type DraftResponse = number[] | string[] | number | string | Record<string, number> | null;
+export type DraftResponse = number[] | string[] | number | string | Record<string, number> | Record<string, string> | null;
 
 export interface SubmittedResponse {
   _id: string;

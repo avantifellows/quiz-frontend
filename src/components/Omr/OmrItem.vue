@@ -602,7 +602,8 @@ export default defineComponent({
 
     function getMatrixNumericalValue(row: string) {
       if (state.draftAnswer && typeof state.draftAnswer === 'object' && !Array.isArray(state.draftAnswer)) {
-        return (state.draftAnswer as Record<string, string>)[row] || '';
+        const matrixData = state.draftAnswer as Record<string, string | number>;
+        return String(matrixData[row] || '');
       }
       return '';
     }
@@ -624,7 +625,15 @@ export default defineComponent({
       }
 
       // Store as string to preserve leading zeros (like "00")
-      const currentDraft = (state.draftAnswer as Record<string, string>) || {};
+      const currentDraft: Record<string, string> = {};
+
+      // Copy existing values, converting to strings if needed
+      if (state.draftAnswer && typeof state.draftAnswer === 'object' && !Array.isArray(state.draftAnswer)) {
+        Object.entries(state.draftAnswer).forEach(([key, val]) => {
+          currentDraft[key] = String(val);
+        });
+      }
+
       if (value === "") {
         delete currentDraft[row];
       } else {
