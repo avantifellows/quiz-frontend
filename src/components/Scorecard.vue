@@ -105,19 +105,92 @@
               </div>
             </div>
 
-            <!-- action buttons -->
-            <div class="flex justify-center mt-6" ignore-share-scorecard>
-              <!-- share button -->
-              <icon-button
-                :titleConfig="shareButtonTitleConfig"
-                :buttonClass="shareButtonClass"
-                @click="shareScorecard"
-                data-test="share"
-              ></icon-button>
+            <!-- action buttons when showing scores -->
+            <div v-if="showScores" class="flex justify-center mt-6" ignore-share-scorecard>
+              <!-- when both next step and share are available -->
+              <div v-if="nextStepUrl" class="flex flex-col gap-4 items-center w-full max-w-xs">
+                <!-- see answers button (when review is allowed) -->
+                <icon-button
+                  v-if="reviewAnswers"
+                  :titleConfig="backButtonTitleConfig"
+                  :buttonClass="backButtonClass + ' w-full'"
+                  @click="goBack"
+                  data-test="see-answers"
+                ></icon-button>
+
+                <!-- share button -->
+                <icon-button
+                  :titleConfig="shareButtonTitleConfig"
+                  :buttonClass="shareButtonClass + ' w-full'"
+                  @click="shareScorecard"
+                  data-test="share"
+                ></icon-button>
+
+                <!-- next step button -->
+                <icon-button
+                  :titleConfig="nextStepButtonTitleConfig"
+                  :buttonClass="nextStepButtonClass + ' w-full'"
+                  @click="proceedToNextStep"
+                  data-test="proceed-next"
+                ></icon-button>
+              </div>
+
+              <!-- when only share is available (no next step) -->
+              <div v-else class="flex flex-col gap-4 items-center w-full max-w-xs">
+                <!-- see answers button (when review is allowed) -->
+                <icon-button
+                  v-if="reviewAnswers"
+                  :titleConfig="backButtonTitleConfig"
+                  :buttonClass="backButtonClass + ' w-full'"
+                  @click="goBack"
+                  data-test="see-answers"
+                ></icon-button>
+
+                <!-- share button -->
+                <icon-button
+                  :titleConfig="shareButtonTitleConfig"
+                  :buttonClass="shareButtonClass + ' w-full'"
+                  @click="shareScorecard"
+                  data-test="share"
+                ></icon-button>
+              </div>
+            </div>
+
+            <!-- completion message when not showing scores (for forms) -->
+            <div v-else>
+              <div class="text-center mt-6">
+                <div class="text-lg md:text-xl lg:text-2xl font-semibold text-gray-700 mb-4">
+                  {{ completionMessage }}
+                </div>
+                <div v-if="nextStepUrl" class="flex justify-center">
+                  <div class="w-full max-w-xs">
+                    <icon-button
+                      :titleConfig="nextStepButtonTitleConfig"
+                      :buttonClass="nextStepButtonClass + ' w-full'"
+                      @click="proceedToNextStep"
+                      data-test="proceed-next"
+                    ></icon-button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          <div v-else-if="!isFormQuiz" class="text-center text-lg md:text-lg lg:text-xl pt-5 leading-tight">
-            Results will be shared soon!
+
+          <!-- completion message when neither showScores nor isFormQuiz -->
+          <div v-else class="text-center mt-6">
+            <div class="text-lg md:text-xl lg:text-2xl font-semibold text-gray-700 mb-4">
+              {{ completionMessage }}
+            </div>
+            <div v-if="nextStepUrl" class="flex justify-center">
+              <div class="w-full max-w-xs">
+                <icon-button
+                  :titleConfig="nextStepButtonTitleConfig"
+                  :buttonClass="nextStepButtonClass + ' w-full'"
+                  @click="proceedToNextStep"
+                  data-test="proceed-next"
+                ></icon-button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -215,6 +288,21 @@ export default defineComponent({
     qsetMetrics: {
       required: true,
       type: Array as PropType<QuestionSetMetric[]>,
+    },
+    /** Processed next step URL (already has parameters replaced) */
+    nextStepUrl: {
+      type: String,
+      default: ""
+    },
+    /** Text to display on the next step button */
+    nextStepText: {
+      type: String,
+      default: "Proceed to Next Step"
+    },
+    /** Whether users can review answers after quiz ends */
+    reviewAnswers: {
+      type: Boolean,
+      default: false
     }
   },
   setup(props, context) {
@@ -231,7 +319,7 @@ export default defineComponent({
       backButtonClass:
         "bg-back-color hover:bg-primary-hover bp-500:w-40 px-6 py-3 bp-500:p-4 bp-500:px-10 sm:p-6 rounded-2xl md:rounded-xl shadow-xl disabled:opacity-50 disabled:pointer-events-none invisible",
       shareButtonClass:
-        "flex justify-center bg-share-color hover:bg-green-600 bp-500:w-40 px-6 py-3 bp-500:p-4 bp-500:px-10 sm:p-6 rounded-2xl md:rounded-xl shadow-xl cursor-pointer",
+        "flex justify-center bg-emerald-500 hover:bg-emerald-600 px-6 py-3 rounded-2xl md:rounded-xl shadow-xl cursor-pointer",
       tableCellClass: "px-2 sm:px-4 flex-1 whitespace-normal break-words",
       isPortrait: true,
       isMobileLandscape: false, // whether the screen corresponds to a mobile screen in landscape mode
@@ -274,6 +362,14 @@ export default defineComponent({
     })
 
     const isFormQuiz = computed(() => props.quizType == "form")
+
+    /** Completion message when scores are not shown */
+    const completionMessage = computed(() => {
+      if (isFormQuiz.value) {
+        return props.nextStepUrl ? "Thanks for completing the questionnaire!" : "Thanks for completing the questionnaire! You may close this window.";
+      }
+      return props.nextStepUrl ? "Thank you for completing the quiz!" : "Thank you for completing the quiz! You may close this window.";
+    });
 
     /**
      * returns the text to be shared for showing result and number of questions answered
@@ -353,10 +449,30 @@ export default defineComponent({
       };
     });
 
+    /** config for the text of the next step button */
+    const nextStepButtonTitleConfig = computed(() => {
+      return {
+        value: props.nextStepText,
+        class: "text-white text-md sm:text-lg lg:text-xl font-bold",
+      };
+    });
+
+    /** config for the styling of the next step button */
+    const nextStepButtonClass = computed(() => {
+      return "flex justify-center bg-emerald-500 hover:bg-emerald-600 px-6 py-3 rounded-2xl md:rounded-xl shadow-xl cursor-pointer";
+    });
+
     /** enhanced share button styling */
     const enhancedShareButtonClass = computed(() => {
       return "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-3 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-200 font-semibold";
     });
+
+    /** Navigate to the next step URL */
+    function proceedToNextStep() {
+      if (props.nextStepUrl) {
+        window.location.href = props.nextStepUrl;
+      }
+    }
 
     function formatPercentage(value: number) {
       return `${(value * 100).toFixed(2)}%`;
@@ -477,14 +593,18 @@ export default defineComponent({
       isFormQuiz,
       container,
       shareScorecard,
+      shareButtonTitleConfig,
+      backButtonTitleConfig,
+      nextStepButtonTitleConfig,
+      nextStepButtonClass,
+      enhancedShareButtonClass,
+      completionMessage,
+      proceedToNextStep,
       goBack,
       isCircularProgressShown,
-      backButtonTitleConfig,
-      shareButtonTitleConfig,
-      enhancedShareButtonClass,
       circularProgressRadius,
       circularProgressStroke,
-      formatPercentage
+      formatPercentage,
     };
   },
   emits: ["go-back"],

@@ -102,6 +102,8 @@ export interface QuizMetadata {
   omr_mode: boolean;
   test_format?: testFormat;
   session_end_time?: string;
+  next_step_url?: string;
+  next_step_text?: string;
 }
 
 export interface QuestionBucket {

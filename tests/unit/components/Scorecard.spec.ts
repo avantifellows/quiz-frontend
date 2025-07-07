@@ -227,4 +227,220 @@ describe("Scorecard.vue", () => {
     });
     expect(wrapper.vm.isCircularProgressShown).toBeFalsy();
   });
+
+  // Tests for new completion message logic
+  describe("Completion message and button logic", () => {
+    it("shows completion message when showScores is false for form quiz without nextStepUrl", async () => {
+      const formWrapper = mount(Scorecard, {
+        props: {
+          numQuestionsAnswered: 2,
+          title: "Test Form",
+          progressPercentage: 100,
+          metrics: [],
+          result: { title: "Accuracy", value: "100%" },
+          showScores: false,
+          quizType: "form",
+          nextStepUrl: "",
+        },
+        global: { provide: { store } },
+      });
+
+      expect(formWrapper.text()).toContain("Thanks for completing the questionnaire! You may close this window.");
+      expect(formWrapper.find('[data-test="share"]').exists()).toBe(false);
+      expect(formWrapper.find('[data-test="proceed-next"]').exists()).toBe(false);
+    });
+
+    it("shows completion message when showScores is false for regular quiz without nextStepUrl", async () => {
+      const quizWrapper = mount(Scorecard, {
+        props: {
+          numQuestionsAnswered: 2,
+          title: "Test Quiz",
+          progressPercentage: 100,
+          metrics: [],
+          result: { title: "Score", value: "80%" },
+          showScores: false,
+          quizType: "assessment",
+          nextStepUrl: "",
+        },
+        global: { provide: { store } },
+      });
+
+      expect(quizWrapper.text()).toContain("Thank you for completing the quiz! You may close this window.");
+      expect(quizWrapper.find('[data-test="share"]').exists()).toBe(false);
+      expect(quizWrapper.find('[data-test="proceed-next"]').exists()).toBe(false);
+    });
+
+    it("shows completion message when showScores is false for form quiz with nextStepUrl", async () => {
+      const formWrapper = mount(Scorecard, {
+        props: {
+          numQuestionsAnswered: 2,
+          title: "Test Form",
+          progressPercentage: 100,
+          metrics: [],
+          result: { title: "Accuracy", value: "100%" },
+          showScores: false,
+          quizType: "form",
+          nextStepUrl: "https://example.com/next",
+          nextStepText: "Continue to Results",
+        },
+        global: { provide: { store } },
+      });
+
+      expect(formWrapper.text()).toContain("Thanks for completing the questionnaire!");
+      expect(formWrapper.text()).not.toContain("You may close this window.");
+      expect(formWrapper.find('[data-test="share"]').exists()).toBe(false);
+      expect(formWrapper.find('[data-test="proceed-next"]').exists()).toBe(true);
+    });
+
+    it("shows only share button when showScores is true and no nextStepUrl", async () => {
+      const quizWrapper = mount(Scorecard, {
+        props: {
+          numQuestionsAnswered: 2,
+          title: "Test Quiz",
+          progressPercentage: 100,
+          metrics: [],
+          result: { title: "Score", value: "80%" },
+          showScores: true,
+          quizType: "assessment",
+          nextStepUrl: "",
+        },
+        global: { provide: { store } },
+      });
+
+      expect(quizWrapper.find('[data-test="share"]').exists()).toBe(true);
+      expect(quizWrapper.find('[data-test="proceed-next"]').exists()).toBe(false);
+    });
+
+    it("shows both share and proceed buttons when showScores is true and nextStepUrl exists", async () => {
+      const quizWrapper = mount(Scorecard, {
+        props: {
+          numQuestionsAnswered: 2,
+          title: "Test Quiz",
+          progressPercentage: 100,
+          metrics: [],
+          result: { title: "Score", value: "80%" },
+          showScores: true,
+          quizType: "assessment",
+          nextStepUrl: "https://example.com/next",
+          nextStepText: "Continue to Results",
+        },
+        global: { provide: { store } },
+      });
+
+      expect(quizWrapper.find('[data-test="share"]').exists()).toBe(true);
+      expect(quizWrapper.find('[data-test="proceed-next"]').exists()).toBe(true);
+      expect(quizWrapper.find('[data-test="proceed-next"]').text()).toContain("Continue to Results");
+    });
+
+    it("shows proceed button when showScores is false but nextStepUrl exists", async () => {
+      const quizWrapper = mount(Scorecard, {
+        props: {
+          numQuestionsAnswered: 2,
+          title: "Test Quiz",
+          progressPercentage: 100,
+          metrics: [],
+          result: { title: "Score", value: "80%" },
+          showScores: false,
+          quizType: "assessment",
+          nextStepUrl: "https://example.com/next",
+          nextStepText: "Continue to Results",
+        },
+        global: { provide: { store } },
+      });
+
+      expect(quizWrapper.text()).toContain("Thank you for completing the quiz!");
+      expect(quizWrapper.text()).not.toContain("You may close this window.");
+      expect(quizWrapper.find('[data-test="share"]').exists()).toBe(false);
+      expect(quizWrapper.find('[data-test="proceed-next"]').exists()).toBe(true);
+    });
+
+    it("tests completionMessage computed property for form quiz without nextStepUrl", () => {
+      const formWrapper = mount(Scorecard, {
+        props: {
+          numQuestionsAnswered: 2,
+          title: "Test Form",
+          progressPercentage: 100,
+          metrics: [],
+          result: { title: "Accuracy", value: "100%" },
+          quizType: "form",
+          nextStepUrl: "",
+        },
+        global: { provide: { store } },
+      });
+
+      expect(formWrapper.vm.completionMessage).toBe("Thanks for completing the questionnaire! You may close this window.");
+    });
+
+    it("tests completionMessage computed property for form quiz with nextStepUrl", () => {
+      const formWrapper = mount(Scorecard, {
+        props: {
+          numQuestionsAnswered: 2,
+          title: "Test Form",
+          progressPercentage: 100,
+          metrics: [],
+          result: { title: "Accuracy", value: "100%" },
+          quizType: "form",
+          nextStepUrl: "https://example.com/next",
+        },
+        global: { provide: { store } },
+      });
+
+      expect(formWrapper.vm.completionMessage).toBe("Thanks for completing the questionnaire!");
+    });
+
+    it("tests completionMessage computed property for regular quiz without nextStepUrl", () => {
+      const quizWrapper = mount(Scorecard, {
+        props: {
+          numQuestionsAnswered: 2,
+          title: "Test Quiz",
+          progressPercentage: 100,
+          metrics: [],
+          result: { title: "Score", value: "80%" },
+          quizType: "assessment",
+          nextStepUrl: "",
+        },
+        global: { provide: { store } },
+      });
+
+      expect(quizWrapper.vm.completionMessage).toBe("Thank you for completing the quiz! You may close this window.");
+    });
+
+    it("tests completionMessage computed property for regular quiz with nextStepUrl", () => {
+      const quizWrapper = mount(Scorecard, {
+        props: {
+          numQuestionsAnswered: 2,
+          title: "Test Quiz",
+          progressPercentage: 100,
+          metrics: [],
+          result: { title: "Score", value: "80%" },
+          quizType: "assessment",
+          nextStepUrl: "https://example.com/next",
+        },
+        global: { provide: { store } },
+      });
+
+      expect(quizWrapper.vm.completionMessage).toBe("Thank you for completing the quiz!");
+    });
+
+    it("tests proceedToNextStep function", () => {
+      const quizWrapper = mount(Scorecard, {
+        props: {
+          numQuestionsAnswered: 2,
+          title: "Test Quiz",
+          progressPercentage: 100,
+          metrics: [],
+          result: { title: "Score", value: "80%" },
+          nextStepUrl: "https://example.com/next",
+        },
+        global: { provide: { store } },
+      });
+
+      // Mock window.location.href
+      delete (window as any).location;
+      window.location = { href: '' } as any;
+
+      quizWrapper.vm.proceedToNextStep();
+      expect(window.location.href).toBe("https://example.com/next");
+    });
+  });
 });

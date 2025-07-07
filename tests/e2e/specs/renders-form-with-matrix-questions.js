@@ -1,7 +1,7 @@
 describe("Form with Matrix Questions Tests", () => {
   beforeEach(() => {
-    // stub the response to /quiz/{quizId}
-    cy.intercept("GET", Cypress.env("backend") + "/quiz/*", {
+    // stub the response to /form/{formId}
+    cy.intercept("GET", Cypress.env("backend") + "/form/*", {
       fixture: "form_questionnaire.json",
     });
 
@@ -22,7 +22,7 @@ describe("Form with Matrix Questions Tests", () => {
         fixture: "org_authentication.json",
       }
     );
-    cy.visit("/quiz/form_quiz_123456?userId=1&apiKey=pqr");
+    cy.visit("/form/form_quiz_123456?userId=1&apiKey=pqr");
   });
 
   it("should render and interact with matrix rating questions", () => {
@@ -180,7 +180,7 @@ describe("Form with Matrix Questions Tests", () => {
       .click(); // Physics
     cy.get('[data-test="matrixRatingSelector-2-0"]')
       .should("be.visible")
-      .click(); // Chemistry
+      .click();
     cy.get('[data-test="matrixRatingSelector-3-4"]')
       .should("be.visible")
       .click(); // Biology
@@ -230,17 +230,29 @@ describe("Form with Matrix Questions Tests", () => {
     cy.get('[data-test="submitButton"]').should("not.be.disabled").click();
     cy.wait(1000);
 
-    // The form should automatically end and show scorecard
+    // The form should automatically end and show scorecard with completion message
     cy.get('[data-test="scorecard"]').should("be.visible");
     cy.get('[data-test="scorecard"]').should(
       "contain",
       "Thank you for completing the questionnaire!"
     );
+
+    // Should show completion message instead of share button since show_scores is false
+    cy.get('[data-test="scorecard"]').should(
+      "contain",
+      "Thanks for completing the questionnaire! You may close this window."
+    );
+
+    // Should not show share button when show_scores is false
+    cy.get('[data-test="share"]').should("not.exist");
+
+    // Should not show proceed button when there's no next step URL
+    cy.get('[data-test="proceed-next"]').should("not.exist");
   });
 
   it("should not show OMR mode for forms even if omrMode=true", () => {
     // Visit with omrMode parameter
-    cy.visit("/quiz/form_quiz_123456?userId=1&apiKey=pqr&omrMode=true");
+    cy.visit("/form/form_quiz_123456?userId=1&apiKey=pqr&omrMode=true");
 
     cy.get('[data-test="splash"]').should("be.visible");
     cy.get('[data-test="startQuiz"]').click();

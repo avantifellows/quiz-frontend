@@ -123,6 +123,9 @@
         :greeting="scorecardGreeting"
         :numQuestionsAnswered="numQuestionsAnswered"
         :hasGradedQuestions="hasGradedQuestions"
+        :reviewAnswers="reviewAnswers"
+        :nextStepUrl="processedNextStepUrl"
+        :nextStepText="nextStepButtonText"
         @go-back="goToPreviousQuestion"
         data-test="scorecard"
       ></Scorecard>
@@ -137,6 +140,7 @@ import Splash from "../components/Splash.vue";
 import Scorecard from "../components/Scorecard.vue";
 import { resetConfetti, isQuestionAnswerCorrect, isQuestionFetched, createQuestionBuckets } from "../services/Functional/Utilities";
 import QuizAPIService from "../services/API/Quiz";
+import FormAPIService from "../services/API/Form";
 import SessionAPIService from "../services/API/Session";
 import QuestionAPIService from "../services/API/Question"
 import { defineComponent, reactive, toRefs, computed, watch, onMounted } from "vue";
@@ -515,10 +519,16 @@ export default defineComponent({
     }
 
     async function getQuiz() {
-      const quizDetails : QuizAPIResponse = await QuizAPIService.getQuiz({
-        quizId: props.quizId,
-        omrMode: isOmrMode.value ?? false
-      });
+      // Use Form API service if current route is a form route
+      const isFormRoute = router.currentRoute.value.path.startsWith("/form/");
+      const quizDetails : QuizAPIResponse = isFormRoute
+        ? await FormAPIService.getForm({
+          formId: props.quizId
+        })
+        : await QuizAPIService.getQuiz({
+          quizId: props.quizId,
+          omrMode: isOmrMode.value ?? false
+        });
       // since we know that there is going to be only one
       // question set for now
       state.questionSets = quizDetails.question_sets;
@@ -532,6 +542,7 @@ export default defineComponent({
       }
       state.quizTimeLimit = quizDetails.time_limit;
       state.metadata = quizDetails.metadata;
+
       state.maxMarks =
         quizDetails.max_marks || quizDetails.num_graded_questions;
       state.title = quizDetails.title;
@@ -847,6 +858,20 @@ export default defineComponent({
       return "Hooray! Congrats on completing the quiz! 🎉";
     });
 
+    /** Process the next step URL by replacing parameters */
+    const processedNextStepUrl = computed(() => {
+      if (!state.metadata?.next_step_url) return "";
+
+      return state.metadata.next_step_url
+        .replace('{userId}', props.userId || '')
+        .replace('{apiKey}', props.apiKey || '');
+    });
+
+    /** Get the next step button text */
+    const nextStepButtonText = computed(() => {
+      return state.metadata?.next_step_text || "Proceed to Next Step";
+    });
+
     function calculateScorecardMetrics() {
       let index = 0;
 
@@ -1114,7 +1139,9 @@ export default defineComponent({
       toggleButtonIconConfig,
       toggleOmrMode,
       starttimeSpentOnQuestionCalc,
-      stoptimeSpentOnQuestionCalc
+      stoptimeSpentOnQuestionCalc,
+      processedNextStepUrl,
+      nextStepButtonText
     };
   },
 });
