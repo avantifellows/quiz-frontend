@@ -40,7 +40,7 @@
           </div>
 
           <!-- canvas element for drawing the confetti -->
-          <canvas id="confetticanvas" class="fixed z-50"></canvas>
+          <canvas id="confetticanvas" class="fixed z-50 pointer-events-none"></canvas>
 
           <div v-if="showScores || isFormQuiz">
             <!-- circular progress bar -->
