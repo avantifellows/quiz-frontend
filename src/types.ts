@@ -126,6 +126,7 @@ interface QuestionMetadata {
   difficulty: string;
   chapter_id: string;
   topic_id: string;
+  priority: string;
 }
 
 export interface TimeLimit {
