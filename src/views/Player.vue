@@ -337,8 +337,9 @@ export default defineComponent({
         clearInterval(state.timerInterval);
       }
 
-      // Don't track time for forms as they are meant to be filled at user's pace
-      if (isFormQuiz.value) return;
+      // Track time silently for forms as well (no visible timer)
+      // so that backend can store per-question durations.
+      // We still skip for OMR mode which has no reliable per-question timing.
 
       state.timerInterval = setInterval(() => {
         if (!isOmrMode.value && state.currentQuestionIndex >= 0 && state.currentQuestionIndex < numQuestions.value && !state.isSessionAnswerRequestProcessing) {
@@ -369,7 +370,7 @@ export default defineComponent({
           else shuffledNewValue = -1
         }
         if (shuffledNewValue != -1) state.shuffledQuestionIndex = shuffledNewValue;
-        if (!state.hasQuizEnded && isQuizAssessment.value && !isOmrMode.value && shuffledOldValue != -1) {
+        if (!state.hasQuizEnded && (isQuizAssessment.value || isFormQuiz.value) && !isOmrMode.value && shuffledOldValue != -1) {
           // update time spent for previous question in assessment
           // but not for homework
           SessionAPIService.updateSessionAnswer(
@@ -638,9 +639,8 @@ export default defineComponent({
         answer: itemResponse.answer,
         marked_for_review: itemResponse.marked_for_review
       }
-      if (!isQuizAssessment.value && !isFormQuiz.value) {
-        // we update time spent for homework immediately when answer is submitted
-        // but not for forms since they don't track time
+      if (!isQuizAssessment.value) {
+        // For homework and form quizzes, update time spent immediately on submit.
         stoptimeSpentOnQuestionCalc();
         payload.time_spent = state.timeSpentOnQuestion[state.shuffledQuestionIndex].timeSpent;
       }
