@@ -1,6 +1,7 @@
 import { apiClient } from "./RootClient";
 import { quizEndpoint } from "./Endpoints";
 import { QuizAPIResponse } from "@/types";
+import router from "@/router";
 
 export default {
   /**
@@ -10,9 +11,17 @@ export default {
    * @returns {Promise<QuizAPIResponse>} data corresponding to the quiz
    */
   async getQuiz({ quizId, omrMode = false }: { quizId: string, omrMode: boolean }): Promise<QuizAPIResponse> {
-    const response = await apiClient().get(quizEndpoint + quizId, {
-      params: { omr_mode: omrMode }
-    });
-    return response.data;
+    try {
+      const response = await apiClient().get(quizEndpoint + quizId, {
+        params: { omr_mode: omrMode }
+      });
+      return response.data;
+    } catch (error: any) {
+      // Handle quiz-specific 404 errors
+      if (error?.response?.status === 404) {
+        router.replace({ name: "quiz-not-available" });
+      }
+      throw error; // Re-throw for other error types
+    }
   },
 };

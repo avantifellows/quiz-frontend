@@ -250,6 +250,14 @@ export default defineComponent({
         }
       })
 
+    // Watch for prop changes and update internal state (useful for testing)
+    watch(
+      () => props.timeRemaining,
+      (newValue) => {
+        state.timeRemaining = newValue;
+      }
+    )
+
     const togglePaletteButtonClass = computed(() => [
       {
         "bg-gray-300": !props.isPaletteVisible,

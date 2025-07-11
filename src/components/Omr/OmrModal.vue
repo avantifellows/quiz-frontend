@@ -32,6 +32,7 @@
                 :isGradedQuestion="$props.questions[questionState.index].graded"
                 :maxCharLimit="$props.questions[questionState.index].max_char_limit"
                 :matrixSize="$props.questions[questionState.index].matrix_size"
+                :matrixRows="$props.questions[questionState.index].matrix_rows"
                 :isPortrait="isPortrait"
                 :quizType="quizType"
                 :hasQuizEnded="hasQuizEnded"
@@ -41,6 +42,8 @@
                 @option-selected="questionOptionSelected"
                 @subjective-answer-entered="subjectiveAnswerUpdated"
                 @numerical-answer-entered="numericalAnswerUpdated"
+                @matrix-option-selected="matrixOptionSelected"
+                @matrix-numerical-updated="matrixNumericalUpdated"
                 :key="questionState.index"
                 :data-test="`OmrItem-${questionState.index}`"
                 :ref="`omritem-${questionState.index}`"></OmrItem>
@@ -282,6 +285,22 @@ export default defineComponent({
       context.emit("submit-omr-question", newQuestionIndex);
     }
 
+    /** update matrix rating answer */
+    function matrixOptionSelected(answer: Record<string, number>, newQuestionIndex: number) {
+      updateQuestionIndex(newQuestionIndex);
+      state.previousLocalResponses[newQuestionIndex] = clonedeep(state.localResponses[state.localCurrentQuestionIndex]);
+      state.localResponses[state.localCurrentQuestionIndex].answer = answer
+      context.emit("submit-omr-question", newQuestionIndex);
+    }
+
+    /** update matrix numerical answer */
+    function matrixNumericalUpdated(answer: Record<string, string> | null, newQuestionIndex: number) {
+      updateQuestionIndex(newQuestionIndex);
+      state.previousLocalResponses[newQuestionIndex] = clonedeep(state.localResponses[state.localCurrentQuestionIndex]);
+      state.localResponses[state.localCurrentQuestionIndex].answer = answer
+      context.emit("submit-omr-question", newQuestionIndex);
+    }
+
     function endTest() {
       if (!props.hasQuizEnded && state.hasEndTestBeenClickedOnce) {
         let attemptedQuestions = 0;
@@ -366,6 +385,16 @@ export default defineComponent({
       if (isQuestionTypeSubjective.value) return currentDraftResponse != ""
       if (isQuestionTypeNumericalInteger.value || isQuestionTypeNumericalFloat.value) {
         return true
+      }
+      // Handle matrix questions (matrix-rating and matrix-numerical only)
+      if (currentQuestion.value?.type === "matrix-rating" || currentQuestion.value?.type === "matrix-numerical") {
+        if (typeof currentDraftResponse !== 'object' || currentDraftResponse === null || Array.isArray(currentDraftResponse)) {
+          return false;
+        }
+        // Check if all matrix rows are filled for matrix-rating and matrix-numerical
+        const matrixRows = currentQuestion.value?.matrix_rows || [];
+        const answeredRows = Object.keys(currentDraftResponse);
+        return matrixRows.length > 0 && answeredRows.length === matrixRows.length;
       }
       return Array.isArray(currentDraftResponse) && currentDraftResponse.length > 0
     })
@@ -463,6 +492,8 @@ export default defineComponent({
       updateQuestionIndex,
       questionOptionSelected,
       subjectiveAnswerUpdated,
+      matrixOptionSelected,
+      matrixNumericalUpdated,
       clearAnswer,
       endTest,
       endTestByTime,

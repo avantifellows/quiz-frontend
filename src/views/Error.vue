@@ -28,6 +28,34 @@
         You do not have the permission to access this page
       </p>
     </div>
+    <!-- Quiz Not Available -->
+    <div
+      v-if="isQuizNotAvailable"
+      class="w-full mt-16 flex flex-col space-y-4 items-center"
+    >
+      <BaseIcon
+        name="warning"
+        iconClass="w-12 h-12 text-red-600 fill-current"
+      />
+      <p class="text-2xl text-center">Requested quiz is not available</p>
+      <p class="text-lg text-gray-500 text-center w-10/12 sm:w-1/2">
+        The quiz you are trying to access is not available through this URL
+      </p>
+    </div>
+    <!-- Form Not Available -->
+    <div
+      v-if="isFormNotAvailable"
+      class="w-full mt-16 flex flex-col space-y-4 items-center"
+    >
+      <BaseIcon
+        name="warning"
+        iconClass="w-12 h-12 text-red-600 fill-current"
+      />
+      <p class="text-2xl text-center">Requested questionnaire is not available</p>
+      <p class="text-lg text-gray-500 text-center w-10/12 sm:w-1/2">
+        The questionnaire you are trying to access is not available through this URL
+      </p>
+    </div>
   </div>
 </template>
 
@@ -53,9 +81,17 @@ export default defineComponent({
     const isError403 = computed(() => {
       return props.type === "403";
     });
+    const isQuizNotAvailable = computed(() => {
+      return props.type === "quiz-not-available";
+    });
+    const isFormNotAvailable = computed(() => {
+      return props.type === "form-not-available";
+    });
     return {
       isError404,
       isError403,
+      isQuizNotAvailable,
+      isFormNotAvailable,
     };
   },
 });

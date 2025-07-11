@@ -132,6 +132,20 @@ export function isQuestionAnswerCorrect(
         } else {
           answerEvaluation.isCorrect = false;
         }
+      } else if (questionDetail.type == "matrix-rating") {
+        const correctAnswer: CorrectAnswerType = questionDetail.correct_answer;
+        if (isEqual(userAnswer, correctAnswer)) {
+          answerEvaluation.isCorrect = true;
+        } else {
+          answerEvaluation.isCorrect = false;
+        }
+      } else if (questionDetail.type == "matrix-numerical") {
+        const correctAnswer: CorrectAnswerType = questionDetail.correct_answer;
+        if (isEqual(userAnswer, correctAnswer)) {
+          answerEvaluation.isCorrect = true;
+        } else {
+          answerEvaluation.isCorrect = false;
+        }
       } else if (
         questionDetail.type == "subjective" &&
         typeof userAnswer == "string" &&
@@ -163,6 +177,14 @@ export function isQuestionAnswerCorrect(
     }
   } else {
     if (userAnswer != null && typeof userAnswer != "number") {
+      answerEvaluation.answered = true;
+    } else if (
+      (questionDetail.type == "matrix-rating" || questionDetail.type == "matrix-numerical") &&
+      userAnswer != null &&
+      typeof userAnswer == "object" &&
+      !Array.isArray(userAnswer) &&
+      Object.keys(userAnswer).length > 0
+    ) {
       answerEvaluation.answered = true;
     }
   }

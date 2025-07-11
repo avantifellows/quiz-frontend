@@ -52,8 +52,11 @@
           </div>
         </div>
       </div>
-      <p v-if="isQuizAssessment" class="text-white text-xl md:text-2xl lg:text-3xl font-bold justify-center text-center">
+      <p v-if="isQuizAssessment && !isFormQuiz" class="text-white text-xl md:text-2xl lg:text-3xl font-bold justify-center text-center">
         PLEASE READ THE INSTRUCTIONS CAREFULLY
+      </p>
+      <p v-if="isFormQuiz" class="text-white text-lg md:text-xl lg:text-2xl font-semibold justify-center text-center">
+        Please fill out the questionnaire at your own pace
       </p>
     </div>
 
@@ -179,6 +182,8 @@ export default defineComponent({
       return (props.quizType == "assessment" || props.quizType == "omr-assessment")
     })
 
+    const isFormQuiz = computed(() => props.quizType == "form")
+
     const isOmrMode = computed(() => props.quizType == "omr-assessment");
 
     const startButtonTextConfig = computed(() => {
@@ -230,6 +235,7 @@ export default defineComponent({
       ...toRefs(state),
       displayTitle,
       isQuizAssessment,
+      isFormQuiz,
       startButtonTextConfig,
       startButtonIconClass,
       isSessionDataFetched,
