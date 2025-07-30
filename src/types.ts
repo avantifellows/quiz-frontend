@@ -104,6 +104,7 @@ export interface QuizMetadata {
   session_end_time?: string;
   next_step_url?: string;
   next_step_text?: string;
+  next_step_autostart?: boolean;
 }
 
 export interface QuestionBucket {

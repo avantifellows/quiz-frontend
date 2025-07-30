@@ -20,7 +20,7 @@
       ></icon-button>
 
       <Splash
-        v-if="isSplashShown"
+        v-if="isSplashShown && !autoStart"
         :title="title"
         :subject="metadata.subject"
         :grade="metadata.grade"
@@ -196,6 +196,10 @@ export default defineComponent({
       type: String,
     },
     omrMode: {
+      default: false,
+      type: Boolean
+    },
+    autoStart: {
       default: false,
       type: Boolean
     }
@@ -598,6 +602,11 @@ export default defineComponent({
     async function getQuizCreateSession() {
       await getQuiz();
       await createSession();
+
+      // Auto-start quiz if autoStart prop is true
+      if (props.autoStart) {
+        await startQuiz();
+      }
     }
 
     /** updates the session answer once marked for review */
@@ -862,9 +871,17 @@ export default defineComponent({
     const processedNextStepUrl = computed(() => {
       if (!state.metadata?.next_step_url) return "";
 
-      return state.metadata.next_step_url
+      let url = state.metadata.next_step_url
         .replace('{userId}', props.userId || '')
         .replace('{apiKey}', props.apiKey || '');
+
+      // Add autoStart parameter if next_step_autostart is true
+      if (state.metadata?.next_step_autostart) {
+        const separator = url.includes('?') ? '&' : '?';
+        url += `${separator}autoStart=true`;
+      }
+
+      return url;
     });
 
     /** Get the next step button text */

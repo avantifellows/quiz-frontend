@@ -26,7 +26,7 @@
         :class="[
           { hidden: isOmrMode },
         ]"
-        v-if="(isQuizAssessment && isNextButtonShown) || (isFormQuiz && hasQuizEnded && isNextButtonShown)"
+        v-if="(isQuizAssessment && isNextButtonShown) || (isFormQuiz && hasQuizEnded && isNextButtonShown) || (!isQuizAssessment && !isFormQuiz && hasQuizEnded && isNextButtonShown)"
         :iconConfig="nextQuestionButtonIconConfig"
         :buttonClass="assessmentNavigationButtonClass"
         :isDisabled="isSessionAnswerRequestProcessing"
