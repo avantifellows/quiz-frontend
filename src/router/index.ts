@@ -10,7 +10,25 @@ const routes = [
       ...route.params,
       userId: route.query.userId,
       apiKey: route.query.apiKey,
-      omrMode: route.query.omrMode === "true"
+      omrMode: route.query.omrMode === "true",
+      autoStart: route.query.autoStart === "true"
+    }),
+    // lazy-loading: https://router.vuejs.org/guide/advanced/lazy-loading.html
+    component: () =>
+      import(/* webpackChunkName: "about" */ "@/views/Player.vue"),
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: "/form/:quizId",
+    name: "FormPlayer",
+    props: (route: any) => ({
+      ...route.params,
+      userId: route.query.userId,
+      apiKey: route.query.apiKey,
+      omrMode: route.query.omrMode === "true",
+      autoStart: route.query.autoStart === "true"
     }),
     // lazy-loading: https://router.vuejs.org/guide/advanced/lazy-loading.html
     component: () =>
@@ -32,6 +50,20 @@ const routes = [
     component: () =>
       import(/* webpackChunkName: "error" */ "@/views/Error.vue"),
     props: { type: "403" },
+  },
+  {
+    path: "/quiz-not-available",
+    name: "quiz-not-available",
+    component: () =>
+      import(/* webpackChunkName: "error" */ "@/views/Error.vue"),
+    props: { type: "quiz-not-available" },
+  },
+  {
+    path: "/form-not-available",
+    name: "form-not-available",
+    component: () =>
+      import(/* webpackChunkName: "error" */ "@/views/Error.vue"),
+    props: { type: "form-not-available" },
   },
   {
     path: "/",

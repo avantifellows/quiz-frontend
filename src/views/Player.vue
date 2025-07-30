@@ -20,7 +20,7 @@
       ></icon-button>
 
       <Splash
-        v-if="isSplashShown"
+        v-if="isSplashShown && !autoStart"
         :title="title"
         :subject="metadata.subject"
         :grade="metadata.grade"
@@ -120,9 +120,12 @@
         :isShown="isScorecardShown"
         :title="title"
         :userId="userId"
-        greeting="Hooray! Congrats on completing the quiz! 🎉"
+        :greeting="scorecardGreeting"
         :numQuestionsAnswered="numQuestionsAnswered"
         :hasGradedQuestions="hasGradedQuestions"
+        :reviewAnswers="reviewAnswers"
+        :nextStepUrl="processedNextStepUrl"
+        :nextStepText="nextStepButtonText"
         @go-back="goToPreviousQuestion"
         data-test="scorecard"
       ></Scorecard>
@@ -137,6 +140,7 @@ import Splash from "../components/Splash.vue";
 import Scorecard from "../components/Scorecard.vue";
 import { resetConfetti, isQuestionAnswerCorrect, isQuestionFetched, createQuestionBuckets } from "../services/Functional/Utilities";
 import QuizAPIService from "../services/API/Quiz";
+import FormAPIService from "../services/API/Form";
 import SessionAPIService from "../services/API/Session";
 import QuestionAPIService from "../services/API/Question"
 import { defineComponent, reactive, toRefs, computed, watch, onMounted } from "vue";
@@ -192,6 +196,10 @@ export default defineComponent({
       type: String,
     },
     omrMode: {
+      default: false,
+      type: Boolean
+    },
+    autoStart: {
       default: false,
       type: Boolean
     }
@@ -252,9 +260,16 @@ export default defineComponent({
 
     const isQuizAssessment = computed(() => (state.metadata.quiz_type == "assessment" || state.metadata.quiz_type == "omr-assessment"));
 
-    const isOmrMode = computed(() => props.omrMode || state.metadata.quiz_type == "omr-assessment");
+    const isOmrMode = computed(() => {
+      // Forms should never use OMR mode, homework should never use OMR mode
+      if (isFormQuiz.value || state.metadata.quiz_type == "homework") return false;
+      return props.omrMode || state.metadata.quiz_type == "omr-assessment";
+    });
+
+    const isFormQuiz = computed(() => state.metadata.quiz_type == "form");
 
     const computedQuizType = computed(() => {
+      if (isFormQuiz.value) return "form";
       if (isQuizAssessment.value == false) return "homework";
       return isOmrMode.value ? "omr-assessment" : "assessment";
     });
@@ -326,6 +341,10 @@ export default defineComponent({
         clearInterval(state.timerInterval);
       }
 
+      // Track time silently for forms as well (no visible timer)
+      // so that backend can store per-question durations.
+      // We still skip for OMR mode which has no reliable per-question timing.
+
       state.timerInterval = setInterval(() => {
         if (!isOmrMode.value && state.currentQuestionIndex >= 0 && state.currentQuestionIndex < numQuestions.value && !state.isSessionAnswerRequestProcessing) {
           state.timeSpentOnQuestion[state.shuffledQuestionIndex].timeSpent += 1;
@@ -355,7 +374,7 @@ export default defineComponent({
           else shuffledNewValue = -1
         }
         if (shuffledNewValue != -1) state.shuffledQuestionIndex = shuffledNewValue;
-        if (!state.hasQuizEnded && isQuizAssessment.value && !isOmrMode.value && shuffledOldValue != -1) {
+        if (!state.hasQuizEnded && (isQuizAssessment.value || isFormQuiz.value) && !isOmrMode.value && shuffledOldValue != -1) {
           // update time spent for previous question in assessment
           // but not for homework
           SessionAPIService.updateSessionAnswer(
@@ -368,13 +387,18 @@ export default defineComponent({
           state.timeSpentOnQuestion[shuffledOldValue].hasSynced = true;
         }
         if (newValue == numQuestions.value) {
-          if (!state.hasQuizEnded && !isQuizAssessment.value) {
-            endTest() // send an end-quiz event for homeworks
+          if (!state.hasQuizEnded && (!isQuizAssessment.value || isFormQuiz.value)) {
+            endTest() // send an end-quiz event for homeworks and forms
           }
           if (state.hasQuizEnded) {
-            state.isScorecardShown = true;
-            if (!hasGradedQuestions.value) return;
-            calculateScorecardMetrics();
+            // Always show scorecard for forms, only show for other quiz types if showScores is true
+            if (isFormQuiz.value || (!isFormQuiz.value && state.showScores)) {
+              state.isScorecardShown = true;
+            }
+            // Only calculate metrics for non-form quizzes with graded questions
+            if (!isFormQuiz.value && hasGradedQuestions.value) {
+              calculateScorecardMetrics();
+            }
           }
         } else if (shuffledNewValue != -1 && !state.hasQuizEnded) {
           if (!state.responses[shuffledNewValue].visited) {
@@ -500,10 +524,16 @@ export default defineComponent({
     }
 
     async function getQuiz() {
-      const quizDetails : QuizAPIResponse = await QuizAPIService.getQuiz({
-        quizId: props.quizId,
-        omrMode: isOmrMode.value ?? false
-      });
+      // Use Form API service if current route is a form route
+      const isFormRoute = router.currentRoute.value.path.startsWith("/form/");
+      const quizDetails : QuizAPIResponse = isFormRoute
+        ? await FormAPIService.getForm({
+          formId: props.quizId
+        })
+        : await QuizAPIService.getQuiz({
+          quizId: props.quizId,
+          omrMode: isOmrMode.value ?? false
+        });
       // since we know that there is going to be only one
       // question set for now
       state.questionSets = quizDetails.question_sets;
@@ -517,6 +547,7 @@ export default defineComponent({
       }
       state.quizTimeLimit = quizDetails.time_limit;
       state.metadata = quizDetails.metadata;
+
       state.maxMarks =
         quizDetails.max_marks || quizDetails.num_graded_questions;
       state.title = quizDetails.title;
@@ -571,6 +602,11 @@ export default defineComponent({
     async function getQuizCreateSession() {
       await getQuiz();
       await createSession();
+
+      // Auto-start quiz if autoStart prop is true
+      if (props.autoStart) {
+        await startQuiz();
+      }
     }
 
     /** updates the session answer once marked for review */
@@ -613,7 +649,7 @@ export default defineComponent({
         marked_for_review: itemResponse.marked_for_review
       }
       if (!isQuizAssessment.value) {
-        // we update time spent for homework immediately when answer is submitted
+        // For homework and form quizzes, update time spent immediately on submit.
         stoptimeSpentOnQuestionCalc();
         payload.time_spent = state.timeSpentOnQuestion[state.shuffledQuestionIndex].timeSpent;
       }
@@ -695,21 +731,33 @@ export default defineComponent({
               }
             )
           } else {
-            calculateScorecardMetrics();
-            SessionAPIService.updateSession(state.sessionId, {
-              event: eventType.END_QUIZ,
-              metrics: state.qsetMetrics
-            });
+            if (!isFormQuiz.value) {
+              calculateScorecardMetrics();
+            }
+            const payload: any = {
+              event: eventType.END_QUIZ
+            };
+            // Only send metrics for non-form quizzes
+            if (!isFormQuiz.value) {
+              payload.metrics = state.qsetMetrics;
+            }
+            SessionAPIService.updateSession(state.sessionId, payload);
             state.hasQuizEnded = true;
             state.currentQuestionIndex = numQuestions.value;
           }
           state.isSessionAnswerRequestProcessing = false;
         } else {
-          calculateScorecardMetrics();
-          SessionAPIService.updateSession(state.sessionId, {
-            event: eventType.END_QUIZ,
-            metrics: state.qsetMetrics
-          });
+          if (!isFormQuiz.value) {
+            calculateScorecardMetrics();
+          }
+          const payload: any = {
+            event: eventType.END_QUIZ
+          };
+          // Only send metrics for non-form quizzes
+          if (!isFormQuiz.value) {
+            payload.metrics = state.qsetMetrics;
+          }
+          SessionAPIService.updateSession(state.sessionId, payload);
           state.hasQuizEnded = true;
           state.currentQuestionIndex = numQuestions.value;
         }
@@ -810,6 +858,35 @@ export default defineComponent({
 
     const hasGradedQuestions = computed(() => {
       return numNonGradedQuestions.value != numQuestions.value;
+    });
+
+    const scorecardGreeting = computed(() => {
+      if (isFormQuiz.value) {
+        return "Thank you for completing the questionnaire! 📝";
+      }
+      return "Hooray! Congrats on completing the quiz! 🎉";
+    });
+
+    /** Process the next step URL by replacing parameters */
+    const processedNextStepUrl = computed(() => {
+      if (!state.metadata?.next_step_url) return "";
+
+      let url = state.metadata.next_step_url
+        .replace('{userId}', props.userId || '')
+        .replace('{apiKey}', props.apiKey || '');
+
+      // Add autoStart parameter if next_step_autostart is true
+      if (state.metadata?.next_step_autostart) {
+        const separator = url.includes('?') ? '&' : '?';
+        url += `${separator}autoStart=true`;
+      }
+
+      return url;
+    });
+
+    /** Get the next step button text */
+    const nextStepButtonText = computed(() => {
+      return state.metadata?.next_step_text || "Proceed to Next Step";
     });
 
     function calculateScorecardMetrics() {
@@ -1049,6 +1126,7 @@ export default defineComponent({
       isQuestionShown,
       isSplashShown,
       isQuizAssessment,
+      isFormQuiz,
       scorecardMetrics,
       scorecardProgress,
       numQuestionsAnswered,
@@ -1057,6 +1135,7 @@ export default defineComponent({
       numGradedQuestions,
       isQuizLoaded,
       scorecardResult,
+      scorecardGreeting,
       startQuiz,
       getQsetLimits,
       submitQuestion,
@@ -1077,7 +1156,9 @@ export default defineComponent({
       toggleButtonIconConfig,
       toggleOmrMode,
       starttimeSpentOnQuestionCalc,
-      stoptimeSpentOnQuestionCalc
+      stoptimeSpentOnQuestionCalc,
+      processedNextStepUrl,
+      nextStepButtonText
     };
   },
 });

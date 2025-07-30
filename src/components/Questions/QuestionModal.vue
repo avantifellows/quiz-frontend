@@ -42,6 +42,7 @@
         :isGradedQuestion="isGradedQuestion"
         :maxCharLimit="currentQuestion.max_char_limit"
         :matrixSize="currentQuestion.matrix_size"
+        :matrixRows="currentQuestion.matrix_rows"
         :isPortrait="isPortrait"
         :imageData="currentQuestion?.image"
         :displaySolution="displaySolution"
@@ -69,6 +70,8 @@
         @option-selected="questionOptionSelected"
         @subjective-answer-entered="subjectiveAnswerUpdated"
         @numerical-answer-entered="numericalAnswerUpdated"
+        @matrix-option-selected="matrixOptionSelected"
+        @matrix-numerical-updated="matrixNumericalUpdated"
         @navigate="navigateToQuestion"
         :key="reRenderKey"
         data-test="body"
@@ -431,6 +434,33 @@ To attempt Q.${props.currentQuestionIndex + 1}, unselect an answer to another qu
       state.draftResponses[state.localShuffledQuestionIndex] = answer
     }
 
+    /** update matrix rating answer */
+    function matrixOptionSelected(row: string, optionIndex: number) {
+      const currentDraft = state.draftResponses[state.localShuffledQuestionIndex] as Record<string, number> || {};
+      currentDraft[row] = optionIndex;
+      state.draftResponses[state.localShuffledQuestionIndex] = currentDraft;
+    }
+
+    /** update matrix numerical answer */
+    function matrixNumericalUpdated(row: string, value: string | null) {
+      const currentDraft: Record<string, string> = {};
+
+      // Copy existing values, converting to strings if needed
+      const existing = state.draftResponses[state.localShuffledQuestionIndex];
+      if (existing && typeof existing === 'object' && !Array.isArray(existing)) {
+        Object.entries(existing).forEach(([key, val]) => {
+          currentDraft[key] = String(val);
+        });
+      }
+
+      if (value === null) {
+        delete currentDraft[row];
+      } else {
+        currentDraft[row] = value;
+      }
+      state.draftResponses[state.localShuffledQuestionIndex] = Object.keys(currentDraft).length > 0 ? currentDraft : null;
+    }
+
     function endTest() {
       if (!props.hasQuizEnded && state.hasEndTestBeenClickedOnce) {
         let attemptedQuestions = 0;
@@ -508,6 +538,12 @@ For final submission, click the End Test button again.`,
     const isQuestionTypeMatrixMatch = computed(
       () => questionType.value == "matrix-match"
     )
+    const isQuestionTypeMatrixRating = computed(
+      () => questionType.value == "matrix-rating"
+    )
+    const isQuestionTypeMatrixNumerical = computed(
+      () => questionType.value == "matrix-numerical"
+    )
 
     const currentQuestionResponse = computed(
       () => props.responses[state.localShuffledQuestionIndex]
@@ -551,10 +587,21 @@ For final submission, click the End Test button again.`,
       if (isQuestionTypeNumericalInteger.value || isQuestionTypeNumericalFloat.value) {
         return true
       }
+      if (isQuestionTypeMatrixRating.value || isQuestionTypeMatrixNumerical.value) {
+        if (typeof currentDraftResponse !== 'object' || currentDraftResponse === null || Array.isArray(currentDraftResponse)) {
+          return false;
+        }
+        // Check if all matrix rows are filled for matrix-rating and matrix-numerical
+        const matrixRows = currentQuestion.value?.matrix_rows || [];
+        const answeredRows = Object.keys(currentDraftResponse);
+        return matrixRows.length > 0 && answeredRows.length === matrixRows.length;
+      }
       return Array.isArray(currentDraftResponse) && currentDraftResponse.length > 0
     })
 
     const isQuizAssessment = computed(() => props.quizType == "assessment")
+
+    const isFormQuiz = computed(() => props.quizType == "form")
 
     const optionalLimitReached = computed(() => {
       let numSubmittedResponses = 0
@@ -598,6 +645,8 @@ For final submission, click the End Test button again.`,
       showNextQuestion,
       showPreviousQuestion,
       subjectiveAnswerUpdated,
+      matrixOptionSelected,
+      matrixNumericalUpdated,
       clearAnswer,
       markForReviewQuestion,
       endTest,
@@ -613,6 +662,7 @@ For final submission, click the End Test button again.`,
       isMarkedForReview,
       isAttemptValid,
       isQuizAssessment,
+      isFormQuiz,
       optionalLimitReached,
       numericalAnswerUpdated,
       timeLimitWarningThreshold,

@@ -21,12 +21,12 @@
         @click="goToPreviousQuestion"
         data-test="previousQuestionButton"
       ></icon-button>
-      <!-- forward button - assessment -->
+      <!-- forward button - assessment and forms when quiz ended -->
       <icon-button
         :class="[
           { hidden: isOmrMode },
         ]"
-        v-if="isQuizAssessment && isNextButtonShown"
+        v-if="(isQuizAssessment && isNextButtonShown) || (isFormQuiz && hasQuizEnded && isNextButtonShown) || (!isQuizAssessment && !isFormQuiz && hasQuizEnded && isNextButtonShown)"
         :iconConfig="nextQuestionButtonIconConfig"
         :buttonClass="assessmentNavigationButtonClass"
         :isDisabled="isSessionAnswerRequestProcessing"
@@ -66,9 +66,9 @@
     </div>
 
     <div class="place-self-end flex h-full">
-      <!-- submit/continue button - homework-->
+      <!-- submit/continue button - homework and forms when quiz active-->
       <icon-button
-        v-if="!isQuizAssessment"
+        v-if="!isQuizAssessment && !hasQuizEnded"
         :titleConfig="submitButtonTitleConfig"
         :iconConfig="submitButtonIconConfig"
         :buttonClass="submitButtonClass"
@@ -157,6 +157,7 @@ export default defineComponent({
   },
   setup(props, context) {
     const isQuizAssessment = computed(() => props.quizType == "assessment" || props.quizType == "omr-assessment");
+    const isFormQuiz = computed(() => props.quizType == "form");
     const isSmallScreen = ref(false);
     const updateScreenSize = () => {
       isSmallScreen.value = window.matchMedia("(max-width: 560px)").matches;
@@ -164,9 +165,9 @@ export default defineComponent({
     const state = reactive({
       assessmentNavigationButtonIconClass: [
         {
-          "text-yellow-800 h-6 w-4": !isQuizAssessment.value,
+          "text-yellow-800 h-6 w-4": !isQuizAssessment.value || isFormQuiz.value,
           "text-gray-600 h-3 w-2 sm:h-5 sm:w-3 lg:h-6 lg:w-4":
-            isQuizAssessment.value,
+            isQuizAssessment.value && !isFormQuiz.value,
         },
         "fill-current",
       ],
@@ -175,9 +176,9 @@ export default defineComponent({
       assessmentNavigationButtonClass: [
         {
           "bg-yellow-500 hover:bg-yellow-600 ring-yellow-500 px-6 bp-500:px-8 rounded-2xl":
-            !isQuizAssessment.value,
+            !isQuizAssessment.value || isFormQuiz.value,
           "bg-white hover:bg-gray-100 px-4 bp-500:px-6 rounded-lg sm:rounded-xl lg:rounded-2xl":
-            isQuizAssessment.value,
+            isQuizAssessment.value && !isFormQuiz.value,
         },
         "p-2 bp-500:p-4 shadow-xl",
       ],
@@ -239,9 +240,21 @@ export default defineComponent({
     });
 
     function submitQuestion() {
-      // for homework ONLY
-      if (props.isAnswerSubmitted) context.emit("continue");
-      else context.emit("submit");
+      if (isFormQuiz.value) {
+        // for forms - auto-proceed after save like assessments
+        context.emit("submit");
+        // wait for processing to be done and answer to be submitted
+        const checkProcessingDone = setInterval(() => {
+          if (!props.isSessionAnswerRequestProcessing) {
+            if (props.continueAfterAnswerSubmit) context.emit("continue");
+            clearInterval(checkProcessingDone);
+          }
+        }, 100); // check every 100ms
+      } else {
+        // for homework
+        if (props.isAnswerSubmitted && !isFormQuiz.value) context.emit("continue");
+        else context.emit("submit");
+      }
     }
 
     function clearAnswer() {
@@ -282,8 +295,15 @@ export default defineComponent({
     }
 
     const submitButtonTitleConfig = computed(() => {
+      let buttonText = "Submit";
+      if (isFormQuiz.value) {
+        buttonText = "Save >";
+      } else if (props.isAnswerSubmitted && !props.isSessionAnswerRequestProcessing) {
+        buttonText = "Continue";
+      }
+
       return {
-        value: props.isAnswerSubmitted && !props.isSessionAnswerRequestProcessing ? "Continue" : "Submit",
+        value: buttonText,
         class:
           "text-white text-md bp-500:text-lg lg:text-xl xl:text-2xl font-bold",
       } as IconButtonTitleConfig;
@@ -300,11 +320,13 @@ export default defineComponent({
     const submitButtonClass = computed(() => [
       {
         "bg-emerald-500 hover:bg-emerald-600 ring-emerald-500":
-          !props.isAnswerSubmitted,
+          !props.isAnswerSubmitted || isFormQuiz.value,
         "bg-primary hover:bg-primary-hover ring-primary":
-          props.isAnswerSubmitted,
+          props.isAnswerSubmitted && !isFormQuiz.value,
       },
-      "p-4 px-8 bp-500:p-6 bp-500:px-12 rounded-2xl shadow-xl disabled:opacity-50 disabled:cursor-not-allowed",
+      isFormQuiz.value
+        ? "p-3 px-6 bp-500:p-4 bp-500:px-8 rounded-2xl shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+        : "p-4 px-8 bp-500:p-6 bp-500:px-12 rounded-2xl shadow-xl disabled:opacity-50 disabled:cursor-not-allowed",
     ]);
 
     // Setup listeners for screen size changes
@@ -338,6 +360,7 @@ export default defineComponent({
       submitButtonIconConfig,
       submitButtonClass,
       isQuizAssessment,
+      isFormQuiz,
     };
   },
   emits: ["submit", "previous", "continue", "clear", "mark-for-review"],
