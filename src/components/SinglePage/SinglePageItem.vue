@@ -325,6 +325,18 @@
           </div>
         </div>
       </div>
+      <!-- Solution container for full text mode -->
+      <div
+        v-if="showFullText && ((!isQuizAssessment && isAnswerSubmitted) || hasQuizEnded) && displaySolution && isSolutionTextPresent"
+        class="mx-6 py-4"
+      >
+        <p class="text-lg font-bold">Solution:</p>
+        <p
+          class="p-2 text-base md:text-lg whitespace-pre-wrap"
+          data-test="solution-text"
+          v-html="solutionText"
+        ></p>
+      </div>
     </div>
 
     <!-- Bubble/OMR mode layout (original) -->
@@ -755,6 +767,14 @@ export default defineComponent({
       type: Object,
       default: null,
     },
+    solutionText: {
+      type: String,
+      default: "",
+    },
+    displaySolution: {
+      type: Boolean,
+      default: true,
+    },
   },
   setup(props, context) {
     const isQuizAssessment = computed(
@@ -1159,6 +1179,7 @@ export default defineComponent({
     const areOptionsVisible = computed(() =>
       state.questionTypesWithOptions.has(props.questionType)
     );
+    const isSolutionTextPresent = computed(() => props.solutionText != "");
     const isQuestionTypeSubjective = computed(
       () => props.questionType == questionType.SUBJECTIVE
     );
@@ -1260,7 +1281,6 @@ export default defineComponent({
     });
     const isAnswerDisabled = computed(
       () =>
-        (isAnswerSubmitted.value && !isQuizAssessment.value) ||
         props.isQuestionDisabled ||
         props.hasQuizEnded
     );
@@ -1380,6 +1400,7 @@ export default defineComponent({
       preventKeypressIfApplicable,
       questionImageAreaClass,
       areOptionsVisible,
+      isSolutionTextPresent,
       isQuestionTypeSubjective,
       isQuestionTypeMultiChoice,
       isQuestionTypeSingleChoice,

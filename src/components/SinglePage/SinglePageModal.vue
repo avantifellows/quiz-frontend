@@ -6,9 +6,9 @@
       :timeRemaining="timeRemaining" :warningTimeLimit="timeLimitWarningThreshold"
       @time-limit-warning="displayTimeLimitWarning" @end-test="endTest" @end-test-by-time="endTestByTime"
       data-test="omr-header"></Header>
-    <div class="flex flex-col w-full h-full mt-20 mb-20 -z-10">
+    <div class="flex flex-col w-full h-full -z-10" :class="{ 'mt-20 mb-20': isQuizAssessment }">
       <div class="h-full relative">
-        <div class="scroll-container flex flex-col grow bg-white w-full justify-between overflow-hidden mt-[66px]">
+        <div class="scroll-container flex flex-col grow bg-white w-full justify-between overflow-hidden" :class="{ 'mt-[66px]': isQuizAssessment }">
           <div class="flex grow flex-col w-full h-full overflow-y-auto">
             <QuestionPalette v-if="isPaletteVisible" :hasQuizEnded="hasQuizEnded" :questionSetStates="questionSetStates"
               :currentQuestionIndex="currentQuestionIndex" :title="title" :subject="subject" :testFormat="testFormat"
@@ -42,6 +42,8 @@
                 :showFullText="showFullText"
                 :questionText="$props.questions[questionState.index].text"
                 :questionImage="$props.questions[questionState.index].image"
+                :solutionText="$props.questions[questionState.index].solution"
+                :displaySolution="displaySolution"
                 @option-selected="questionOptionSelected"
                 @subjective-answer-entered="subjectiveAnswerUpdated"
                 @numerical-answer-entered="numericalAnswerUpdated"
@@ -57,6 +59,17 @@
             'bg-white p-4': !isQuizAssessment,
             'bg-gray-200 py-2 px-2': isQuizAssessment,
           }"></div>
+          <!-- Submit button for non-assessment quizzes (forms/homework) -->
+          <div v-if="!isQuizAssessment && !hasQuizEnded" class="flex justify-center py-8 pb-24">
+            <button
+              @click="endTest"
+              :disabled="isSessionAnswerRequestProcessing"
+              class="bg-emerald-500 hover:bg-emerald-600 text-white text-lg font-bold py-4 px-8 rounded-2xl shadow-xl disabled:opacity-50 disabled:pointer-events-none"
+              data-test="submit-button"
+            >
+              Submit
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -182,6 +195,10 @@ export default defineComponent({
     showFullText: {
       type: Boolean,
       default: false,
+    },
+    displaySolution: {
+      type: Boolean,
+      default: true,
     },
   },
   setup(props, context) {
@@ -316,8 +333,9 @@ export default defineComponent({
             attemptedQuestions += 1;
           }
         }
+        const buttonName = isQuizAssessment.value ? "End Test" : "Submit";
         state.toast.success(
-          `You have answered ${attemptedQuestions} out of ${props.numQuestions} questions. Please verify your responses and click End Test button again to make final submission.`,
+          `You have answered ${attemptedQuestions} out of ${props.numQuestions} questions. Please verify your responses and click ${buttonName} button again to make final submission.`,
           {
             position: POSITION.TOP_CENTER,
             timeout: 5000,

@@ -63,6 +63,7 @@
         :timeRemaining="timeRemaining"
         :maxMarks="maxMarks"
         :showFullText="showFullText"
+        :displaySolution="displaySolution"
         v-model:currentQuestionIndex="currentQuestionIndex"
         v-model:responses="responses"
         v-model:previousOmrResponses="previousOmrResponses"
