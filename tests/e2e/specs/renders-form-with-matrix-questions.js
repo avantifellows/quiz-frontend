@@ -257,7 +257,7 @@ describe("Form with Matrix Questions Tests", () => {
     cy.get('[data-test="splash"]').should("be.visible");
     cy.get('[data-test="startQuiz"]').click();
 
-    // Should still show regular QuestionModal, not OmrModal
+    // Should still show regular QuestionModal, not SinglePageModal
     cy.get('[data-test="body"]').should("be.visible");
     cy.get('[data-test="omr-modal"]').should("not.exist");
 

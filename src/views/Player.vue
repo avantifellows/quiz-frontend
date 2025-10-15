@@ -41,11 +41,11 @@
         data-test="splash"
       ></Splash>
 
-      <OmrModal
+      <SinglePageModal
         :questions="questions"
         class="absolute z-10"
         :class="{
-          hidden: !isOmrMode,
+          hidden: !isOmrMode && !singlePageMode,
         }"
         :quizType="metadata.quiz_type"
         :hasQuizEnded="hasQuizEnded"
@@ -62,19 +62,20 @@
         :testFormat="metadata.test_format || ''"
         :timeRemaining="timeRemaining"
         :maxMarks="maxMarks"
+        :showFullText="showFullText"
         v-model:currentQuestionIndex="currentQuestionIndex"
         v-model:responses="responses"
         v-model:previousOmrResponses="previousOmrResponses"
         @submit-omr-question="submitOmrQuestion"
         @end-test="endTest"
-        data-test="omr-modal"
-        v-if="isQuestionShown && isOmrMode"
-      ></OmrModal>
+        data-test="single-page-modal"
+        v-if="isQuestionShown && (isOmrMode || singlePageMode)"
+      ></SinglePageModal>
 
       <QuestionModal
         :questions="questions"
         :class="{
-          hidden: isOmrMode,
+          hidden: isOmrMode || singlePageMode,
         }"
         :quizType="metadata.quiz_type"
         :hasQuizEnded="hasQuizEnded"
@@ -101,7 +102,7 @@
         @update-review-status="updateQuestionResponse"
         @end-test="endTest"
         @fetch-question-bucket="fetchQuestionBucket"
-        v-if="isQuestionShown && !isOmrMode"
+        v-if="isQuestionShown && !isOmrMode && !singlePageMode"
         data-test="modal"
       ></QuestionModal>
 
@@ -135,7 +136,7 @@
 
 <script lang="ts">
 import QuestionModal from "../components/Questions/QuestionModal.vue";
-import OmrModal from "../components/Omr/OmrModal.vue"
+import SinglePageModal from "../components/SinglePage/SinglePageModal.vue"
 import Splash from "../components/Splash.vue";
 import Scorecard from "../components/Scorecard.vue";
 import { resetConfetti, isQuestionAnswerCorrect, isQuestionFetched, createQuestionBuckets } from "../services/Functional/Utilities";
@@ -180,7 +181,7 @@ export default defineComponent({
     QuestionModal,
     Scorecard,
     BaseIcon,
-    OmrModal
+    SinglePageModal
   },
   props: {
     quizId: {
@@ -196,6 +197,10 @@ export default defineComponent({
       type: String,
     },
     omrMode: {
+      default: false,
+      type: Boolean
+    },
+    singlePageMode: {
       default: false,
       type: Boolean
     },
@@ -267,6 +272,8 @@ export default defineComponent({
     });
 
     const isFormQuiz = computed(() => state.metadata.quiz_type == "form");
+
+    const showFullText = computed(() => !isOmrMode.value && props.singlePageMode);
 
     const computedQuizType = computed(() => {
       if (isFormQuiz.value) return "form";
@@ -528,11 +535,13 @@ export default defineComponent({
       const isFormRoute = router.currentRoute.value.path.startsWith("/form/");
       const quizDetails : QuizAPIResponse = isFormRoute
         ? await FormAPIService.getForm({
-          formId: props.quizId
+          formId: props.quizId,
+          singlePageMode: props.singlePageMode
         })
         : await QuizAPIService.getQuiz({
           quizId: props.quizId,
-          omrMode: isOmrMode.value ?? false
+          omrMode: isOmrMode.value ?? false,
+          singlePageMode: props.singlePageMode
         });
       // since we know that there is going to be only one
       // question set for now
@@ -553,7 +562,10 @@ export default defineComponent({
       state.title = quizDetails.title;
       state.displaySolution = quizDetails?.display_solution ?? true;
       state.showScores = quizDetails?.show_scores ?? true;
-      createQuestionBuckets(totalQuestionsInEachSet);
+      // Skip bucketing for single page mode (all questions are already loaded)
+      if (!props.singlePageMode) {
+        createQuestionBuckets(totalQuestionsInEachSet);
+      }
 
       if (quizDetails?.review_immediate == false) {
         // check if current time is beyond session end time
@@ -1158,7 +1170,8 @@ export default defineComponent({
       starttimeSpentOnQuestionCalc,
       stoptimeSpentOnQuestionCalc,
       processedNextStepUrl,
-      nextStepButtonText
+      nextStepButtonText,
+      showFullText
     };
   },
 });

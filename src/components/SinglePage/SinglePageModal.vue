@@ -25,7 +25,7 @@
               :data-test="`questionSetInstruction-${index}`"></p>
             <div class="mt-4 space-y-4">
               <!-- it is being stopping endbutton make sur eu -->
-              <OmrItem v-for="(questionState, qindex) in questionSetState.paletteItems" :class="{ 'mt-4': qindex == 0 }"
+              <SinglePageItem v-for="(questionState, qindex) in questionSetState.paletteItems" :class="{ 'mt-4': qindex == 0 }"
                 :options="$props.questions[questionState.index].options"
                 :correctAnswer="$props.questions[questionState.index].correct_answer"
                 :questionType="$props.questions[questionState.index].type"
@@ -39,14 +39,17 @@
                 :submittedAnswer="draftResponses[questionState.index]"
                 :isQuestionDisabled="questionDisabledArray[questionState.index]"
                 :currentQuestionIndex="questionState.index"
+                :showFullText="showFullText"
+                :questionText="$props.questions[questionState.index].text"
+                :questionImage="$props.questions[questionState.index].image"
                 @option-selected="questionOptionSelected"
                 @subjective-answer-entered="subjectiveAnswerUpdated"
                 @numerical-answer-entered="numericalAnswerUpdated"
                 @matrix-option-selected="matrixOptionSelected"
                 @matrix-numerical-updated="matrixNumericalUpdated"
                 :key="questionState.index"
-                :data-test="`OmrItem-${questionState.index}`"
-                :ref="`omritem-${questionState.index}`"></OmrItem>
+                :data-test="`SinglePageItem-${questionState.index}`"
+                :ref="`singlepageitem-${questionState.index}`"></SinglePageItem>
             </div>
           </div>
           <!-- footer -->
@@ -63,7 +66,7 @@
 <script lang="ts">
 import Header from "../Questions/Header.vue"
 import QuestionPalette from "../Questions/Palette/QuestionPalette.vue"
-import OmrItem from "./OmrItem.vue"
+import SinglePageItem from "./SinglePageItem.vue"
 import {
   defineComponent,
   PropType,
@@ -93,9 +96,9 @@ const clonedeep = require("lodash.clonedeep");
 const { v4: uuidv4 } = require('uuid');
 
 export default defineComponent({
-  name: "OmrModal",
+  name: "SinglePageModal",
   components: {
-    OmrItem,
+    SinglePageItem,
     Header,
     QuestionPalette
   },
@@ -175,6 +178,10 @@ export default defineComponent({
     maxMarks: {
       type: Number,
       required: true,
+    },
+    showFullText: {
+      type: Boolean,
+      default: false,
     },
   },
   setup(props, context) {
@@ -267,7 +274,7 @@ export default defineComponent({
     }
 
     function clearAnswer() {
-      // no clearAnswer functionality for OmrModal
+      // no clearAnswer functionality for SinglePageModal
     }
 
     function numericalAnswerUpdated(answer: number | null, newQuestionIndex: number) {

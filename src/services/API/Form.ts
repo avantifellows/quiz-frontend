@@ -7,11 +7,16 @@ export default {
   /**
    * returns the details for a form
    * @param {string} formId - uuid of the form to be fetched
+   * @param {boolean} singlePageMode - whether form should be displayed in single page mode with full text
    * @returns {Promise<QuizAPIResponse>} data corresponding to the form
    */
-  async getForm({ formId }: { formId: string }): Promise<QuizAPIResponse> {
+  async getForm({ formId, singlePageMode = false }: { formId: string, singlePageMode?: boolean }): Promise<QuizAPIResponse> {
     try {
-      const response = await apiClient().get(formEndpoint + formId);
+      const response = await apiClient().get(formEndpoint + formId, {
+        params: {
+          single_page_mode: singlePageMode
+        }
+      });
       return response.data;
     } catch (error: any) {
       // Handle form-specific 404 errors

@@ -8,12 +8,16 @@ export default {
    * returns the details for a quiz
    * @param {string} quizId - uuid of the quiz to be fetched
    * @param {boolean} omrMode - whether quiz should be displayed in omr mode
+   * @param {boolean} singlePageMode - whether quiz should be displayed in single page mode with full text
    * @returns {Promise<QuizAPIResponse>} data corresponding to the quiz
    */
-  async getQuiz({ quizId, omrMode = false }: { quizId: string, omrMode: boolean }): Promise<QuizAPIResponse> {
+  async getQuiz({ quizId, omrMode = false, singlePageMode = false }: { quizId: string, omrMode: boolean, singlePageMode?: boolean }): Promise<QuizAPIResponse> {
     try {
       const response = await apiClient().get(quizEndpoint + quizId, {
-        params: { omr_mode: omrMode }
+        params: {
+          omr_mode: omrMode,
+          single_page_mode: singlePageMode
+        }
       });
       return response.data;
     } catch (error: any) {

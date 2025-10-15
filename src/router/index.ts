@@ -11,6 +11,7 @@ const routes = [
       userId: route.query.userId,
       apiKey: route.query.apiKey,
       omrMode: route.query.omrMode === "true",
+      singlePageMode: route.query.singlePageMode === "true",
       autoStart: route.query.autoStart === "true"
     }),
     // lazy-loading: https://router.vuejs.org/guide/advanced/lazy-loading.html
@@ -28,6 +29,7 @@ const routes = [
       userId: route.query.userId,
       apiKey: route.query.apiKey,
       omrMode: route.query.omrMode === "true",
+      singlePageMode: route.query.singlePageMode === "true",
       autoStart: route.query.autoStart === "true"
     }),
     // lazy-loading: https://router.vuejs.org/guide/advanced/lazy-loading.html
