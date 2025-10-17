@@ -267,8 +267,8 @@ export default defineComponent({
     const isQuizAssessment = computed(() => (state.metadata.quiz_type == "assessment" || state.metadata.quiz_type == "omr-assessment"));
 
     const isOmrMode = computed(() => {
-      // Forms should never use OMR mode, homework should never use OMR mode
-      if (isFormQuiz.value || state.metadata.quiz_type == "homework") return false;
+      // homework should never use OMR mode
+      if (state.metadata.quiz_type == "homework") return false;
       return props.omrMode || state.metadata.quiz_type == "omr-assessment";
     });
 
@@ -1085,12 +1085,17 @@ export default defineComponent({
           })
         }
         // the below instruction assumes all questions within a set are of the same type
-        let paletteInstructionText: string = state.questionSets[index].description ?? "";
+        let paletteInstructionText: string = "";
 
-        if (state.questionSets[index].max_questions_allowed_to_attempt < state.questionSets[index].questions.length) {
-          paletteInstructionText += `<br>You may attempt only up to ${state.questionSets[index].max_questions_allowed_to_attempt} questions in this section.`
-        } else {
-          paletteInstructionText += `<br>You may attempt all questions in this section.`
+        // Don't show instruction text for forms
+        if (!isFormQuiz.value) {
+          paletteInstructionText = state.questionSets[index].description ?? "";
+
+          if (state.questionSets[index].max_questions_allowed_to_attempt < state.questionSets[index].questions.length) {
+            paletteInstructionText += `<br>You may attempt only up to ${state.questionSets[index].max_questions_allowed_to_attempt} questions in this section.`
+          } else {
+            paletteInstructionText += `<br>You may attempt all questions in this section.`
+          }
         }
 
         qsetStates.push({

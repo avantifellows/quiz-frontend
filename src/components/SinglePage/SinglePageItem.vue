@@ -7,11 +7,11 @@
         <p class="text-lg md:text-xl font-bold mb-2" data-test="question-header-text">
           {{ questionHeaderText }}
         </p>
-        <p v-if="questionText" class="text-base md:text-lg mb-2 leading-relaxed whitespace-pre-wrap" v-html="questionText"></p>
+        <p v-if="questionText" class="text-base md:text-lg mb-2 leading-relaxed whitespace-pre-wrap" v-html="questionText" v-lazy-images></p>
       </div>
       <!-- Question image if present -->
       <div v-if="questionImage && questionImage.url" class="mb-4 flex justify-center">
-        <img :src="questionImage.url" :alt="questionImage.alt_text || 'Question image'" class="max-h-96 object-contain border rounded-md" />
+        <img :src="questionImage.url" :alt="questionImage.alt_text || 'Question image'" class="max-h-96 object-contain border rounded-md" loading="lazy" decoding="async" />
       </div>
       <!-- Options/Answers section -->
       <div :class="orientationClass">
@@ -23,11 +23,11 @@
           data-test="optionContainer"
         >
           <ul class="w-full">
-            <li class="list-none space-y-2 flex flex-col">
+            <li class="list-none flex" :class="shouldShowOptionsHorizontally ? 'flex-row flex-wrap gap-3' : 'flex-col space-y-2'">
               <div
                 v-for="(option, optionIndex) in options"
                 :key="optionIndex"
-                :class="[optionBackgroundClass(optionIndex), optionTextClass]"
+                :class="[optionBackgroundClass(optionIndex), optionTextClass, shouldShowOptionsHorizontally ? 'flex-shrink-0' : '']"
                 :data-test="`optionContainer-${optionIndex}`"
               >
                 <!-- each option is defined here -->
@@ -47,6 +47,7 @@
                     class="ml-2 h-full place-self-center text-base sm:text-lg"
                     :data-test="`option-${optionIndex}`"
                     v-html="option.text"
+                    v-lazy-images
                   ></div>
                 </label>
               </div>
@@ -335,6 +336,7 @@
           class="p-2 text-base md:text-lg whitespace-pre-wrap"
           data-test="solution-text"
           v-html="solutionText"
+          v-lazy-images
         ></p>
       </div>
     </div>
@@ -684,6 +686,7 @@ import {
 } from "vue";
 
 import { quizType, questionType, DraftResponse } from "@/types"
+import { lazyLoadImages } from "@/directives/lazyLoadImages";
 
 const MAX_LENGTH_NUMERICAL_CHARACTERS: number = 10; // max length of characters in numerical answer textbox
 
@@ -693,6 +696,9 @@ export default defineComponent({
   name: "SinglePageItem",
   components: {
     Textarea,
+  },
+  directives: {
+    'lazy-images': lazyLoadImages,
   },
   props: {
     options: {
@@ -1333,6 +1339,53 @@ export default defineComponent({
       "h-12 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed",
     ]);
 
+    /**
+     * Determines whether options should be displayed horizontally or vertically
+     * Shows options horizontally when:
+     * - Options are visible and in full text mode
+     * - Options are short enough (average length < 20 chars)
+     * - Total text length is reasonable (< 100 chars)
+     * - Number of options is small (≤ 5)
+     * - No HTML content (which might include images)
+     */
+    const shouldShowOptionsHorizontally = computed(() => {
+      // Only apply to full text mode with visible options
+      if (!props.showFullText || !areOptionsVisible.value) return false;
+
+      // Don't show horizontally if no options
+      if (!props.options || props.options.length === 0) return false;
+
+      // Calculate total text length, stripping HTML tags
+      let totalLength = 0;
+      let hasHtmlContent = false;
+
+      for (const option of props.options) {
+        const optionText = (option as any).text || '';
+
+        // Check if option contains HTML tags (like images)
+        if (/<img|<div|<p|<span/i.test(optionText)) {
+          hasHtmlContent = true;
+          break;
+        }
+
+        // Strip HTML tags and calculate length
+        const textOnly = optionText.replace(/<[^>]*>/g, '').trim();
+        totalLength += textOnly.length;
+      }
+
+      // If any option has HTML content, force vertical layout
+      if (hasHtmlContent) return false;
+
+      const numOptions = props.options.length;
+      const avgLength = totalLength / numOptions;
+
+      // Heuristic: show horizontally if options are short and few
+      // Average option length < 20 characters
+      // Total length < 100 characters
+      // Number of options <= 5
+      return avgLength < 20 && totalLength < 100 && numOptions <= 5;
+    });
+
     state.subjectiveAnswer = defaultSubjectiveAnswer.value;
     state.numericalAnswer = defaultNumericalAnswer.value;
 
@@ -1430,6 +1483,7 @@ export default defineComponent({
       isQuestionTypeNumericalFloat,
       isQuestionTypeNumericalInteger,
       isFormQuiz,
+      shouldShowOptionsHorizontally,
     };
   },
   emits: [
