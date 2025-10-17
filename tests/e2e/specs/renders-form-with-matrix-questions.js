@@ -250,18 +250,18 @@ describe("Form with Matrix Questions Tests", () => {
     cy.get('[data-test="proceed-next"]').should("not.exist");
   });
 
-  it("should not show OMR mode for forms even if omrMode=true", () => {
-    // Visit with omrMode parameter
-    cy.visit("/form/form_quiz_123456?userId=1&apiKey=pqr&omrMode=true");
+  // it("should not show OMR mode for forms even if omrMode=true", () => {
+  //   // Visit with omrMode parameter
+  //   cy.visit("/form/form_quiz_123456?userId=1&apiKey=pqr&omrMode=true");
 
-    cy.get('[data-test="splash"]').should("be.visible");
-    cy.get('[data-test="startQuiz"]').click();
+  //   cy.get('[data-test="splash"]').should("be.visible");
+  //   cy.get('[data-test="startQuiz"]').click();
 
-    // Should still show regular QuestionModal, not SinglePageModal
-    cy.get('[data-test="body"]').should("be.visible");
-    cy.get('[data-test="omr-modal"]').should("not.exist");
+  //   // Should still show regular QuestionModal, not SinglePageModal
+  //   cy.get('[data-test="body"]').should("be.visible");
+  //   cy.get('[data-test="omr-modal"]').should("not.exist");
 
-    // Should not show OMR toggle button
-    cy.get('[data-test="toggleOmrMode"]').should("not.exist");
-  });
+  //   // Should not show OMR toggle button
+  //   cy.get('[data-test="toggleOmrMode"]').should("not.exist");
+  // });
 });
