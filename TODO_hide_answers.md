@@ -188,7 +188,7 @@ If issues arise:
 
 ## Timeline Estimate
 - **Backend Changes**: 2-3 weeks
-- **Frontend Security**: 1-2 weeks  
+- **Frontend Security**: 1-2 weeks
 - **Homework Mode Integration**: 1-2 weeks
 - **Testing & Validation**: 1 week
 - **Total**: 5-8 weeks

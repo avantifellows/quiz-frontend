@@ -6,9 +6,9 @@
       :timeRemaining="timeRemaining" :warningTimeLimit="timeLimitWarningThreshold"
       @time-limit-warning="displayTimeLimitWarning" @end-test="endTest" @end-test-by-time="endTestByTime"
       data-test="omr-header"></Header>
-    <div class="flex flex-col w-full h-full mt-20 mb-20 -z-10">
+    <div class="flex flex-col w-full h-full -z-10" :class="{ 'mt-20 mb-20': isQuizAssessment }">
       <div class="h-full relative">
-        <div class="scroll-container flex flex-col grow bg-white w-full justify-between overflow-hidden mt-[66px]">
+        <div class="scroll-container flex flex-col grow bg-white w-full justify-between overflow-hidden" :class="{ 'mt-[66px]': isQuizAssessment }">
           <div class="flex grow flex-col w-full h-full overflow-y-auto">
             <QuestionPalette v-if="isPaletteVisible" :hasQuizEnded="hasQuizEnded" :questionSetStates="questionSetStates"
               :currentQuestionIndex="currentQuestionIndex" :title="title" :subject="subject" :testFormat="testFormat"
@@ -25,7 +25,7 @@
               :data-test="`questionSetInstruction-${index}`"></p>
             <div class="mt-4 space-y-4">
               <!-- it is being stopping endbutton make sur eu -->
-              <OmrItem v-for="(questionState, qindex) in questionSetState.paletteItems" :class="{ 'mt-4': qindex == 0 }"
+              <SinglePageItem v-for="(questionState, qindex) in questionSetState.paletteItems" :class="{ 'mt-4': qindex == 0 }"
                 :options="$props.questions[questionState.index].options"
                 :correctAnswer="$props.questions[questionState.index].correct_answer"
                 :questionType="$props.questions[questionState.index].type"
@@ -39,14 +39,19 @@
                 :submittedAnswer="draftResponses[questionState.index]"
                 :isQuestionDisabled="questionDisabledArray[questionState.index]"
                 :currentQuestionIndex="questionState.index"
+                :showFullText="showFullText"
+                :questionText="$props.questions[questionState.index].text"
+                :questionImage="$props.questions[questionState.index].image"
+                :solutionText="$props.questions[questionState.index].solution"
+                :displaySolution="displaySolution"
                 @option-selected="questionOptionSelected"
                 @subjective-answer-entered="subjectiveAnswerUpdated"
                 @numerical-answer-entered="numericalAnswerUpdated"
                 @matrix-option-selected="matrixOptionSelected"
                 @matrix-numerical-updated="matrixNumericalUpdated"
                 :key="questionState.index"
-                :data-test="`OmrItem-${questionState.index}`"
-                :ref="`omritem-${questionState.index}`"></OmrItem>
+                :data-test="`SinglePageItem-${questionState.index}`"
+                :ref="`singlepageitem-${questionState.index}`"></SinglePageItem>
             </div>
           </div>
           <!-- footer -->
@@ -54,6 +59,17 @@
             'bg-white p-4': !isQuizAssessment,
             'bg-gray-200 py-2 px-2': isQuizAssessment,
           }"></div>
+          <!-- Submit button for non-assessment quizzes (forms/homework) -->
+          <div v-if="!isQuizAssessment && !hasQuizEnded" class="flex justify-center py-8 pb-24">
+            <button
+              @click="endTest"
+              :disabled="isSessionAnswerRequestProcessing"
+              class="bg-emerald-500 hover:bg-emerald-600 text-white text-lg font-bold py-4 px-8 rounded-2xl shadow-xl disabled:opacity-50 disabled:pointer-events-none"
+              data-test="submit-button"
+            >
+              Submit
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -63,7 +79,7 @@
 <script lang="ts">
 import Header from "../Questions/Header.vue"
 import QuestionPalette from "../Questions/Palette/QuestionPalette.vue"
-import OmrItem from "./OmrItem.vue"
+import SinglePageItem from "./SinglePageItem.vue"
 import {
   defineComponent,
   PropType,
@@ -93,9 +109,9 @@ const clonedeep = require("lodash.clonedeep");
 const { v4: uuidv4 } = require('uuid');
 
 export default defineComponent({
-  name: "OmrModal",
+  name: "SinglePageModal",
   components: {
-    OmrItem,
+    SinglePageItem,
     Header,
     QuestionPalette
   },
@@ -175,6 +191,14 @@ export default defineComponent({
     maxMarks: {
       type: Number,
       required: true,
+    },
+    showFullText: {
+      type: Boolean,
+      default: false,
+    },
+    displaySolution: {
+      type: Boolean,
+      default: true,
     },
   },
   setup(props, context) {
@@ -267,7 +291,7 @@ export default defineComponent({
     }
 
     function clearAnswer() {
-      // no clearAnswer functionality for OmrModal
+      // no clearAnswer functionality for SinglePageModal
     }
 
     function numericalAnswerUpdated(answer: number | null, newQuestionIndex: number) {
@@ -309,8 +333,9 @@ export default defineComponent({
             attemptedQuestions += 1;
           }
         }
+        const buttonName = isQuizAssessment.value ? "End Test" : "Submit";
         state.toast.success(
-          `You have answered ${attemptedQuestions} out of ${props.numQuestions} questions. Please verify your responses and click End Test button again to make final submission.`,
+          `You have answered ${attemptedQuestions} out of ${props.numQuestions} questions. Please verify your responses and click ${buttonName} button again to make final submission.`,
           {
             position: POSITION.TOP_CENTER,
             timeout: 5000,

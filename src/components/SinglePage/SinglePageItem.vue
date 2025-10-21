@@ -1,6 +1,348 @@
 <template>
   <div class="flex h-full">
-    <div class="flex flex-row w-full">
+    <!-- Full text mode layout -->
+    <div v-if="showFullText" class="flex flex-col w-full max-w-4xl mx-auto border rounded-lg p-6 my-4 bg-white shadow-sm">
+      <!-- Question header with number and text -->
+      <div class="mb-4">
+        <p class="text-lg md:text-xl font-bold mb-2" data-test="question-header-text">
+          {{ questionHeaderText }}
+        </p>
+        <p v-if="questionText" class="text-base md:text-lg mb-2 leading-relaxed whitespace-pre-wrap" v-html="questionText" v-lazy-images></p>
+      </div>
+      <!-- Question image if present -->
+      <div v-if="questionImage && questionImage.url" class="mb-4 flex justify-center">
+        <img :src="questionImage.url" :alt="questionImage.alt_text || 'Question image'" class="max-h-96 object-contain border rounded-md" loading="lazy" decoding="async" />
+      </div>
+      <!-- Options/Answers section -->
+      <div :class="orientationClass">
+        <!-- option container for full text mode -->
+        <div
+          v-if="areOptionsVisible"
+          class="flex"
+          :class="answerContainerClass"
+          data-test="optionContainer"
+        >
+          <ul class="w-full">
+            <li class="list-none flex" :class="shouldShowOptionsHorizontally ? 'flex-row flex-wrap gap-3' : 'flex-col space-y-2'">
+              <div
+                v-for="(option, optionIndex) in options"
+                :key="optionIndex"
+                :class="[optionBackgroundClass(optionIndex), optionTextClass, shouldShowOptionsHorizontally ? 'flex-shrink-0' : '']"
+                :data-test="`optionContainer-${optionIndex}`"
+              >
+                <!-- each option is defined here -->
+                <label :class="labelClass(option)">
+                  <input
+                    :type="optionInputType"
+                    :name="`option-${optionIndex}-${$props.currentQuestionIndex}`"
+                    class="place-self-center text-primary focus:ring-0 disabled:cursor-not-allowed"
+                    style="box-shadow: none"
+                    @click="selectOption(optionIndex)"
+                    :checked="isOptionMarked(optionIndex)"
+                    :disabled="isAnswerDisabled"
+                    :data-test="`optionSelector-${optionIndex}`"
+                  />
+                  <!-- Show full option text in full text mode without letter labels -->
+                  <div
+                    class="ml-2 h-full place-self-center text-base sm:text-lg"
+                    :data-test="`option-${optionIndex}`"
+                    v-html="option.text"
+                    v-lazy-images
+                  ></div>
+                </label>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <!-- subjective question answer -->
+        <div
+          v-if="isQuestionTypeSubjective"
+          class="flex flex-col"
+          :class="answerContainerClass"
+          data-test="subjectiveAnswerContainer"
+        >
+          <!-- input area for the answer -->
+          <Textarea
+            v-model:value="subjectiveAnswer"
+            class="px-1 w-full"
+            :boxStyling="subjectiveAnswerBoxStyling"
+            placeholder="Enter your answer here"
+            :isDisabled="isAnswerDisabled"
+            :maxHeightLimit="250"
+            @beforeinput="preventKeypressIfApplicable"
+            data-test="subjectiveAnswer"
+          ></Textarea>
+          <!-- character limit -->
+          <div
+            class="flex items-end px-6 mt-2"
+            v-if="hasCharLimit && !isAnswerSubmitted"
+            data-test="charLimitContainer"
+          >
+            <p
+              class="text-sm sm:text-base lg:text-lg font-bold"
+              :class="maxCharLimitClass"
+              data-test="charLimit"
+            >
+              {{ charactersLeft }}
+            </p>
+          </div>
+          <!-- answer display -->
+          <div
+            v-if="hasQuizEnded && !isFormQuiz"
+            class="px-1 text-lg mt-2"
+            data-test="subjectiveCorrectAnswer"
+          >
+            Correct Answer: {{ correctAnswer }}
+          </div>
+        </div>
+        <!-- Numerical question answer -->
+        <div
+          v-if="isQuestionTypeNumericalFloat || isQuestionTypeNumericalInteger"
+          class="flex flex-col"
+          :class="answerContainerClass"
+          data-test="numericalAnswerContainer"
+        >
+          <!-- input area for the answer -->
+          <Textarea
+            v-model:value="numericalAnswer"
+            class="px-1 w-full text-lg"
+            :boxStyling="numericalAnswerBoxStyling"
+            placeholder="Numbers only."
+            :inputMode="getInputMode"
+            :isDisabled="isAnswerDisabled"
+            :maxHeightLimit="50"
+            @beforeinput="preventKeypressIfApplicable"
+            data-test="numericalAnswer"
+          ></Textarea>
+          <!-- answer display -->
+          <div
+            v-if="hasQuizEnded && !isFormQuiz"
+            class="px-1 text-lg mt-2"
+            data-test="numericalCorrectAnswer"
+          >
+            Correct Answer: {{ correctAnswer }}
+          </div>
+        </div>
+        <!-- Matrix match answer -->
+        <div
+          v-if="isQuestionTypeMatrixMatch"
+          class="flex flex-col items-center"
+          :class="answerContainerClass"
+          data-test="matrixMatchContainer"
+        >
+          <ul class="max-w-screen-md w-full">
+            <li class="list-none space-y-1 flex flex-col">
+              <!-- Create the matrix match table -->
+              <table class="border-collapse border border-gray-200 mx-auto">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th
+                      v-for="(column, columnIndex) in $props.matrixSize?.[1] ||
+                      5"
+                      :key="columnIndex"
+                      class="border border-gray-200 text-center"
+                    >
+                      {{ getColumnLabel(columnIndex) }}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="(row, rowIndex) in $props.matrixSize?.[0] || 4"
+                    :key="rowIndex"
+                  >
+                    <td class="border border-gray-200 text-center">
+                      {{ "ABCD"[rowIndex] }}
+                    </td>
+                    <td
+                      v-for="(column, columnIndex) in $props.matrixSize?.[1] ||
+                      5"
+                      :key="columnIndex"
+                      class="border border-gray-200 text-center"
+                    >
+                      <div
+                        :class="
+                          optionBackgroundClass(
+                            convertMatrixMatchOptionToString(
+                              rowIndex,
+                              columnIndex
+                            )
+                          )
+                        "
+                      >
+                        <input
+                          type="checkbox"
+                          :id="`${rowIndex}-${columnIndex}`"
+                          :name="`${rowIndex}-${columnIndex}-${$props.currentQuestionIndex}`"
+                          :value="`${columnIndex}`"
+                          :disabled="isAnswerDisabled"
+                          class="place-self-center text-primary focus:ring-0 disabled:cursor-not-allowed"
+                          style="box-shadow: none"
+                          @click="
+                            selectOption(
+                              convertMatrixMatchOptionToString(
+                                rowIndex,
+                                columnIndex
+                              )
+                            )
+                          "
+                          :checked="
+                            isMatrixMatchOptionMarked(
+                              convertMatrixMatchOptionToString(
+                                rowIndex,
+                                columnIndex
+                              )
+                            )
+                          "
+                          :data-test="`matrixMatchSelector-${rowIndex}-${columnIndex}`"
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </li>
+          </ul>
+          <!-- answer display -->
+          <div
+            v-if="hasQuizEnded && !isFormQuiz"
+            class="px-2 text-lg mt-2"
+            data-test="matrixMatchCorrectAnswer"
+          >
+            Correct Answer: {{ correctAnswer }}
+          </div>
+        </div>
+        <!-- Matrix rating answer -->
+        <div
+          v-if="isQuestionTypeMatrixRating"
+          class="flex flex-col items-center"
+          :class="answerContainerClass"
+          data-test="matrixRatingContainer"
+        >
+          <div class="max-w-screen-md w-full">
+            <table class="border-collapse border border-gray-200 mx-auto w-full">
+              <thead>
+                <tr>
+                  <th class="border border-gray-200 text-left p-2 bg-gray-50">Item</th>
+                  <th
+                    v-for="(option, optionIndex) in options"
+                    :key="optionIndex"
+                    class="border border-gray-200 text-center p-2 bg-gray-50 text-sm"
+                  >
+                    {{ option.text }}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(row, rowIndex) in matrixRows"
+                  :key="rowIndex"
+                >
+                  <td class="border border-gray-200 p-2 font-medium">
+                    {{ row }}
+                  </td>
+                  <td
+                    v-for="(option, optionIndex) in options"
+                    :key="optionIndex"
+                    class="border border-gray-200 text-center p-2"
+                  >
+                    <input
+                      type="radio"
+                      :name="`matrix-rating-${rowIndex}-${currentQuestionIndex}`"
+                      :value="optionIndex"
+                      class="text-primary focus:ring-0 disabled:cursor-not-allowed"
+                      :disabled="isAnswerDisabled"
+                      style="box-shadow: none"
+                      @click="selectMatrixOption(row, optionIndex)"
+                      :checked="isMatrixRatingOptionSelected(row, optionIndex)"
+                      :data-test="`matrixRatingSelector-${rowIndex}-${optionIndex}`"
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- answer display -->
+          <div
+            v-if="hasQuizEnded && !isFormQuiz"
+            class="px-2 text-lg mt-2"
+            data-test="matrixRatingCorrectAnswer"
+          >
+            Correct Answer: {{ JSON.stringify(correctAnswer) }}
+          </div>
+        </div>
+        <!-- Matrix numerical answer -->
+        <div
+          v-if="isQuestionTypeMatrixNumerical"
+          class="flex flex-col items-center"
+          :class="answerContainerClass"
+          data-test="matrixNumericalContainer"
+        >
+          <div class="max-w-screen-md w-full">
+            <table class="border-collapse border border-gray-200 mx-auto w-full">
+              <thead>
+                <tr>
+                  <th class="border border-gray-200 text-left p-2 bg-gray-50">Item</th>
+                  <th class="border border-gray-200 text-center p-2 bg-gray-50">Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(row, rowIndex) in matrixRows"
+                  :key="rowIndex"
+                >
+                  <td class="border border-gray-200 p-2 font-medium">
+                    {{ row }}
+                  </td>
+                  <td class="border border-gray-200 text-center p-2">
+                    <input
+                      type="number"
+                      inputmode="numeric"
+                      pattern="[0-9]*"
+                      min="0"
+                      max="100"
+                      maxlength="3"
+                      :placeholder="`Enter value for ${row}`"
+                      class="w-full px-2 py-1 border rounded text-center focus:border-primary focus:ring-primary disabled:cursor-not-allowed disabled:bg-gray-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      :disabled="isAnswerDisabled"
+                      :value="getMatrixNumericalValue(row)"
+                      @input="updateMatrixNumericalValue(row, $event)"
+                      @keypress="validateMatrixNumericalInput"
+                      :data-test="`matrixNumericalInput-${rowIndex}`"
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- answer display -->
+          <div
+            v-if="hasQuizEnded && !isFormQuiz"
+            class="px-2 text-lg mt-2"
+            data-test="matrixNumericalCorrectAnswer"
+          >
+            Correct Answer: {{ JSON.stringify(correctAnswer) }}
+          </div>
+        </div>
+      </div>
+      <!-- Solution container for full text mode -->
+      <div
+        v-if="showFullText && ((!isQuizAssessment && isAnswerSubmitted) || hasQuizEnded) && displaySolution && isSolutionTextPresent"
+        class="mx-6 py-4"
+      >
+        <p class="text-lg font-bold">Solution:</p>
+        <p
+          class="p-2 text-base md:text-lg whitespace-pre-wrap"
+          data-test="solution-text"
+          v-html="solutionText"
+          v-lazy-images
+        ></p>
+      </div>
+    </div>
+
+    <!-- Bubble/OMR mode layout (original) -->
+    <div v-else class="flex flex-row w-full">
       <!-- question number and type information-->
       <div class="basis-3/12">
         <p
@@ -344,14 +686,19 @@ import {
 } from "vue";
 
 import { quizType, questionType, DraftResponse } from "@/types"
+import { lazyLoadImages } from "@/directives/lazyLoadImages";
 
 const MAX_LENGTH_NUMERICAL_CHARACTERS: number = 10; // max length of characters in numerical answer textbox
 
 const clonedeep = require("lodash.clonedeep");
 
 export default defineComponent({
+  name: "SinglePageItem",
   components: {
     Textarea,
+  },
+  directives: {
+    'lazy-images': lazyLoadImages,
   },
   props: {
     options: {
@@ -413,6 +760,26 @@ export default defineComponent({
     currentQuestionIndex: {
       type: Number,
       default: 0,
+    },
+    showFullText: {
+      type: Boolean,
+      default: false,
+    },
+    questionText: {
+      type: String,
+      default: "",
+    },
+    questionImage: {
+      type: Object,
+      default: null,
+    },
+    solutionText: {
+      type: String,
+      default: "",
+    },
+    displaySolution: {
+      type: Boolean,
+      default: true,
     },
   },
   setup(props, context) {
@@ -818,6 +1185,7 @@ export default defineComponent({
     const areOptionsVisible = computed(() =>
       state.questionTypesWithOptions.has(props.questionType)
     );
+    const isSolutionTextPresent = computed(() => props.solutionText != "");
     const isQuestionTypeSubjective = computed(
       () => props.questionType == questionType.SUBJECTIVE
     );
@@ -919,7 +1287,6 @@ export default defineComponent({
     });
     const isAnswerDisabled = computed(
       () =>
-        (isAnswerSubmitted.value && !isQuizAssessment.value) ||
         props.isQuestionDisabled ||
         props.hasQuizEnded
     );
@@ -971,6 +1338,53 @@ export default defineComponent({
       },
       "h-12 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed",
     ]);
+
+    /**
+     * Determines whether options should be displayed horizontally or vertically
+     * Shows options horizontally when:
+     * - Options are visible and in full text mode
+     * - Options are short enough (average length < 20 chars)
+     * - Total text length is reasonable (< 100 chars)
+     * - Number of options is small (≤ 5)
+     * - No HTML content (which might include images)
+     */
+    const shouldShowOptionsHorizontally = computed(() => {
+      // Only apply to full text mode with visible options
+      if (!props.showFullText || !areOptionsVisible.value) return false;
+
+      // Don't show horizontally if no options
+      if (!props.options || props.options.length === 0) return false;
+
+      // Calculate total text length, stripping HTML tags
+      let totalLength = 0;
+      let hasHtmlContent = false;
+
+      for (const option of props.options) {
+        const optionText = (option as any).text || '';
+
+        // Check if option contains HTML tags (like images)
+        if (/<img|<div|<p|<span/i.test(optionText)) {
+          hasHtmlContent = true;
+          break;
+        }
+
+        // Strip HTML tags and calculate length
+        const textOnly = optionText.replace(/<[^>]*>/g, '').trim();
+        totalLength += textOnly.length;
+      }
+
+      // If any option has HTML content, force vertical layout
+      if (hasHtmlContent) return false;
+
+      const numOptions = props.options.length;
+      const avgLength = totalLength / numOptions;
+
+      // Heuristic: show horizontally if options are short and few
+      // Average option length < 20 characters
+      // Total length < 100 characters
+      // Number of options <= 5
+      return avgLength < 20 && totalLength < 100 && numOptions <= 5;
+    });
 
     state.subjectiveAnswer = defaultSubjectiveAnswer.value;
     state.numericalAnswer = defaultNumericalAnswer.value;
@@ -1039,6 +1453,7 @@ export default defineComponent({
       preventKeypressIfApplicable,
       questionImageAreaClass,
       areOptionsVisible,
+      isSolutionTextPresent,
       isQuestionTypeSubjective,
       isQuestionTypeMultiChoice,
       isQuestionTypeSingleChoice,
@@ -1068,6 +1483,7 @@ export default defineComponent({
       isQuestionTypeNumericalFloat,
       isQuestionTypeNumericalInteger,
       isFormQuiz,
+      shouldShowOptionsHorizontally,
     };
   },
   emits: [

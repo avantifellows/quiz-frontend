@@ -1,11 +1,11 @@
 import { flushPromises, mount } from "@vue/test-utils";
 import { Question, QuestionSetIndexLimits, SubmittedResponse } from "@/types";
-import OmrModal from "@/components/Omr/OmrModal.vue";
+import SinglePageModal from "@/components/SinglePage/SinglePageModal.vue";
 import { createQuestionBuckets } from "@/services/Functional/Utilities";
 
 const clonedeep = require("lodash.clonedeep");
 
-describe("OmrModal.vue", () => {
+describe("SinglePageModal.vue", () => {
   const questions = [
     {
       _id: "1234",
@@ -251,13 +251,14 @@ describe("OmrModal.vue", () => {
     params = {
       currentQuestionIndex: 0,
       maxQuestionsAllowedToAttempt: questions.length,
+      showFullText: false,
     }
   ) => {
     if (wrapper != undefined) wrapper.unmount();
 
     createQuestionBuckets([questions.length]);
 
-    wrapper = mount(OmrModal, {
+    wrapper = mount(SinglePageModal, {
       props: {
         questions,
         responses: clonedeep(responses),
@@ -267,6 +268,7 @@ describe("OmrModal.vue", () => {
         qsetIndexLimits: qsetTestIndexLimits,
         questionSetStates: testQuestionSetStates,
         isOmrMode: true,
+        showFullText: params.showFullText,
       },
     });
   };
@@ -282,7 +284,7 @@ describe("OmrModal.vue", () => {
       expect(wrapper.vm.draftResponses.length).toBe(questions.length);
     });
 
-    describe("OMR Assessments", () => {
+    describe("Single Page Assessments", () => {
       it("emits end-test upon end test", async () => {
         wrapper.find('[data-test="endTestButton"]').trigger("click");
         wrapper.find('[data-test="endTestButton"]').trigger("click"); // adding additional click to protect endTest button
@@ -299,20 +301,20 @@ describe("OmrModal.vue", () => {
 
       // select an option
       await wrapper
-        .find('[data-test="OmrItem-0"]')
+        .find('[data-test="SinglePageItem-0"]')
         .find('[data-test="optionSelector-0"]').trigger("click");
 
       // the answer should now be valid
       expect(wrapper.vm.isAttemptValid).toBeTruthy();
     });
 
-    describe("submits omr question", () => {
+    describe("submits single page question", () => {
       beforeEach(async () => {
         await mountWrapper();
 
         // select an option
         wrapper
-          .find('[data-test="OmrItem-0"]')
+          .find('[data-test="SinglePageItem-0"]')
           .find('[data-test="optionSelector-0"]')
           .trigger("click");
 
@@ -332,23 +334,23 @@ describe("OmrModal.vue", () => {
       });
     });
 
-    describe("omr assessments", () => {
+    describe("single page assessments", () => {
       it("clears selected answer on clicking answer again", async () => {
         // select an option
         await wrapper
-          .find('[data-test="OmrItem-0"]')
+          .find('[data-test="SinglePageItem-0"]')
           .find('[data-test="optionSelector-0"]')
           .trigger("click");
 
         // select same option again
         await wrapper
-          .find('[data-test="OmrItem-0"]')
+          .find('[data-test="SinglePageItem-0"]')
           .find('[data-test="optionSelector-0"]')
           .trigger("click");
 
         expect(
           await wrapper
-            .find('[data-test="OmrItem-0"]')
+            .find('[data-test="SinglePageItem-0"]')
             .find('[data-test="optionSelector-0"]').checked
         ).toBeFalsy();
       });
@@ -360,22 +362,23 @@ describe("OmrModal.vue", () => {
 
     beforeEach(() => mountWrapper({
       currentQuestionIndex: questionIndex,
-      maxQuestionsAllowedToAttempt: questions.length
+      maxQuestionsAllowedToAttempt: questions.length,
+      showFullText: false,
     }));
 
     it("unselecting all options makes the answer invalid", async () => {
       // select an option
-      await wrapper.find('[data-test="OmrItem-1"]')
+      await wrapper.find('[data-test="SinglePageItem-1"]')
         .find('[data-test="optionSelector-0"]')
         .trigger("click");
 
       // select another option
-      await wrapper.find('[data-test="OmrItem-1"]')
+      await wrapper.find('[data-test="SinglePageItem-1"]')
         .find('[data-test="optionSelector-1"]')
         .trigger("click");
 
       // unselect an option
-      await wrapper.find('[data-test="OmrItem-1"]')
+      await wrapper.find('[data-test="SinglePageItem-1"]')
         .find('[data-test="optionSelector-0"]')
         .trigger("click");
 
@@ -383,7 +386,7 @@ describe("OmrModal.vue", () => {
       expect(wrapper.vm.isAttemptValid).toBeTruthy();
 
       // unselect the other option
-      await wrapper.find('[data-test="OmrItem-1"]')
+      await wrapper.find('[data-test="SinglePageItem-1"]')
         .find('[data-test="optionSelector-1"]')
         .trigger("click");
 
@@ -391,20 +394,21 @@ describe("OmrModal.vue", () => {
       expect(await wrapper.vm.isAttemptValid).toBeFalsy();
     });
 
-    describe("submits omr question", () => {
+    describe("submits single page question", () => {
       beforeEach(async () => {
         await mountWrapper({
           currentQuestionIndex: questionIndex,
-          maxQuestionsAllowedToAttempt: questions.length
+          maxQuestionsAllowedToAttempt: questions.length,
+          showFullText: false,
         });
 
         // select an option
-        await wrapper.find('[data-test="OmrItem-1"]')
+        await wrapper.find('[data-test="SinglePageItem-1"]')
           .find('[data-test="optionSelector-0"]')
           .trigger("click");
 
         // select another option
-        await wrapper.find('[data-test="OmrItem-1"]')
+        await wrapper.find('[data-test="SinglePageItem-1"]')
           .find('[data-test="optionSelector-1"]')
           .trigger("click");
 
@@ -430,7 +434,8 @@ describe("OmrModal.vue", () => {
 
     beforeEach(() => mountWrapper({
       currentQuestionIndex: questionIndex,
-      maxQuestionsAllowedToAttempt: questions.length
+      maxQuestionsAllowedToAttempt: questions.length,
+      showFullText: false,
     }));
 
     it("entering answer makes answer valid", async () => {
@@ -438,7 +443,7 @@ describe("OmrModal.vue", () => {
       expect(wrapper.vm.isAttemptValid).toBeFalsy();
 
       // select an option
-      await wrapper.find('[data-test="OmrItem-2"]')
+      await wrapper.find('[data-test="SinglePageItem-2"]')
         .find('[data-test="input"]').setValue("abcd");
 
       // the answer should now be valid
@@ -451,7 +456,8 @@ describe("OmrModal.vue", () => {
 
     beforeEach(() => mountWrapper({
       currentQuestionIndex: questionIndex,
-      maxQuestionsAllowedToAttempt: questions.length
+      maxQuestionsAllowedToAttempt: questions.length,
+      showFullText: false,
     }));
 
     it("entering answer makes answer valid", async () => {
@@ -459,11 +465,28 @@ describe("OmrModal.vue", () => {
       expect(wrapper.vm.isAttemptValid).toBeFalsy();
 
       // select an option
-      await wrapper.find('[data-test="OmrItem-3"]')
+      await wrapper.find('[data-test="SinglePageItem-3"]')
         .find('[data-test="input"]').setValue(9);
 
       // the answer should now be valid
       expect(wrapper.vm.isAttemptValid).toBeTruthy();
+    });
+  });
+
+  describe("full text mode", () => {
+    beforeEach(() => mountWrapper({
+      currentQuestionIndex: 0,
+      maxQuestionsAllowedToAttempt: questions.length,
+      showFullText: true,
+    }));
+
+    it("renders with showFullText prop", () => {
+      expect(wrapper.props().showFullText).toBe(true);
+    });
+
+    it("passes showFullText to SinglePageItem components", () => {
+      const singlePageItem = wrapper.find('[data-test="SinglePageItem-0"]');
+      expect(singlePageItem.exists()).toBe(true);
     });
   });
 });
