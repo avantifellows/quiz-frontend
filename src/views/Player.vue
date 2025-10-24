@@ -537,6 +537,7 @@ export default defineComponent({
       const quizDetails : QuizAPIResponse = isFormRoute
         ? await FormAPIService.getForm({
           formId: props.quizId,
+          omrMode: isOmrMode.value ?? false,
           singlePageMode: props.singlePageMode
         })
         : await QuizAPIService.getQuiz({
