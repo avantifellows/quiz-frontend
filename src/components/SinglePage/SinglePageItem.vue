@@ -327,9 +327,9 @@
         </div>
       </div>
       <!-- difficulty badge (always shown when present) for full text mode -->
-      <div v-if="showFullText && difficultyLabel" class="mx-6 py-2">
+      <div v-if="showFullText && $props.difficulty" class="mx-6 py-2">
         <span class="text-lg font-bold mb-2 inline-block mr-2">Difficulty:</span>
-        <span :class="difficultyBadgeClass" data-test="difficulty-badge">{{ difficultyLabel }}</span>
+        <span :class="$props.difficultyBadgeClass" data-test="difficulty-badge">{{ $props.difficulty }}</span>
       </div>
       <!-- Solution container for full text mode -->
       <div
@@ -790,6 +790,10 @@ export default defineComponent({
       type: [String, Number],
       default: null,
     },
+    difficultyBadgeClass: {
+      type: String,
+      default: null,
+    },
   },
   setup(props, context) {
     const isQuizAssessment = computed(
@@ -1195,19 +1199,7 @@ export default defineComponent({
       state.questionTypesWithOptions.has(props.questionType)
     );
     const isSolutionTextPresent = computed(() => props.solutionText != "");
-    const difficultyLabel = computed(() => {
-      const value = props.difficulty == null ? null : String(props.difficulty);
-      if (value === "1") return "Easy";
-      if (value === "2") return "Medium";
-      if (value === "3") return "Hard";
-      return null;
-    });
-    const difficultyBadgeClass = computed(() => {
-      if (difficultyLabel.value === "Easy") return "bg-green-400 text-white text-xs font-bold py-0.5 px-2 rounded-full";
-      if (difficultyLabel.value === "Medium") return "bg-amber-400 text-white text-xs font-bold py-0.5 px-2 rounded-full";
-      if (difficultyLabel.value === "Hard") return "bg-rose-400 text-white text-xs font-bold py-0.5 px-2 rounded-full";
-      return "";
-    });
+
     const isQuestionTypeSubjective = computed(
       () => props.questionType == questionType.SUBJECTIVE
     );
@@ -1476,8 +1468,6 @@ export default defineComponent({
       questionImageAreaClass,
       areOptionsVisible,
       isSolutionTextPresent,
-      difficultyLabel,
-      difficultyBadgeClass,
       isQuestionTypeSubjective,
       isQuestionTypeMultiChoice,
       isQuestionTypeSingleChoice,

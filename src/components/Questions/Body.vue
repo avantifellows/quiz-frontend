@@ -394,9 +394,9 @@
       <span v-if="!isAnswerSubmitted" class="bg-red-500 text-white text-xs font-bold py-0.5 px-2 rounded-full mr-1">NOT ANSWERED</span>
       </div>
       <!-- difficulty badge (shown irrespective of displaySolution) -->
-      <div class="mx-6 md:mx-10 pt-4" v-if="difficultyLabel">
+      <div class="mx-6 md:mx-10 pt-4" v-if="$props.difficulty">
         <span class="text-lg font-bold mb-2 inline-block mr-2">Difficulty:</span>
-        <span :class="difficultyBadgeClass" data-test="difficulty-badge">{{ difficultyLabel }}</span>
+        <span :class="$props.difficultyBadgeClass" data-test="difficulty-badge">{{ $props.difficulty }}</span>
       </div>
       <!-- Solution container -->
       <div
@@ -521,6 +521,11 @@ export default defineComponent({
     difficulty: {
       default: null,
       type: [String, Number],
+    },
+    /** optional precomputed badge class for difficulty */
+    difficultyBadgeClass: {
+      default: null,
+      type: String,
     },
     isPortrait: {
       default: false,
@@ -972,19 +977,7 @@ export default defineComponent({
       state.questionTypesWithOptions.has(props.questionType)
     );
     const isSolutionTextPresent = computed(() => props.solutionText != "");
-    const difficultyLabel = computed(() => {
-      const value = props.difficulty == null ? null : String(props.difficulty);
-      if (value === "1") return "Easy";
-      if (value === "2") return "Medium";
-      if (value === "3") return "Hard";
-      return null;
-    });
-    const difficultyBadgeClass = computed(() => {
-      if (difficultyLabel.value === "Easy") return "bg-green-400 text-white text-xs font-bold py-0.5 px-2 rounded-full";
-      if (difficultyLabel.value === "Medium") return "bg-amber-400 text-white text-xs font-bold py-0.5 px-2 rounded-full";
-      if (difficultyLabel.value === "Hard") return "bg-rose-400 text-white text-xs font-bold py-0.5 px-2 rounded-full";
-      return "";
-    });
+
     const isQuestionTypeSubjective = computed(
       () => props.questionType == questionType.SUBJECTIVE
     );
@@ -1225,8 +1218,6 @@ export default defineComponent({
       questionHeaderSuffix,
       stopImageLoading,
       isSolutionTextPresent,
-      difficultyLabel,
-      difficultyBadgeClass,
       optionBackgroundClass,
       isOptionMarked,
       selectOption,

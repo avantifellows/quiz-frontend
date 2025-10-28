@@ -125,6 +125,8 @@ interface QuestionMetadata {
   topic: string;
   competency: string[];
   difficulty: string;
+  difficulty_label?: string; // derived in UI
+  difficulty_badge_class?: string; // derived in UI
   chapter_id: string;
   topic_id: string;
   priority: string;
