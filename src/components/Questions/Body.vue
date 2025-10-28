@@ -517,10 +517,10 @@ export default defineComponent({
       default: true,
       type: Boolean,
     },
-    /** difficulty level for the question: "1" | "2" | "3" or number 1/2/3 */
+    /** difficulty level label for the question: Easy / Medium / Hard */
     difficulty: {
       default: null,
-      type: [String, Number],
+      type: String,
     },
     /** optional precomputed badge class for difficulty */
     difficultyBadgeClass: {
@@ -977,7 +977,6 @@ export default defineComponent({
       state.questionTypesWithOptions.has(props.questionType)
     );
     const isSolutionTextPresent = computed(() => props.solutionText != "");
-
     const isQuestionTypeSubjective = computed(
       () => props.questionType == questionType.SUBJECTIVE
     );

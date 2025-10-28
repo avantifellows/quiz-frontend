@@ -319,7 +319,7 @@ export default defineComponent({
         iconClass: "h-4 w-4 text-white",
       };
     });
-    // Centralized difficulty helpers
+
     const toDifficultyLabel = (d: string | number | null | undefined) => {
       const key = String(d ?? '').trim();
       if (key === '1') return 'Easy';

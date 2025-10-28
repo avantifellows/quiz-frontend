@@ -787,7 +787,7 @@ export default defineComponent({
       default: true,
     },
     difficulty: {
-      type: [String, Number],
+      type: String,
       default: null,
     },
     difficultyBadgeClass: {
@@ -1199,7 +1199,6 @@ export default defineComponent({
       state.questionTypesWithOptions.has(props.questionType)
     );
     const isSolutionTextPresent = computed(() => props.solutionText != "");
-
     const isQuestionTypeSubjective = computed(
       () => props.questionType == questionType.SUBJECTIVE
     );
