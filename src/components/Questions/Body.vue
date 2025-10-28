@@ -393,6 +393,11 @@
       <span v-if="isAnswerSubmitted" class="bg-emerald-600 text-white text-xs font-bold py-0.5 px-2 rounded-full mr-1">ANSWERED</span>
       <span v-if="!isAnswerSubmitted" class="bg-red-500 text-white text-xs font-bold py-0.5 px-2 rounded-full mr-1">NOT ANSWERED</span>
       </div>
+      <!-- difficulty badge (shown irrespective of displaySolution) -->
+      <div class="mx-6 md:mx-10 pt-4" v-if="difficultyLabel">
+        <span class="text-lg font-bold mb-2 inline-block mr-2">Difficulty:</span>
+        <span :class="difficultyBadgeClass" data-test="difficulty-badge">{{ difficultyLabel }}</span>
+      </div>
       <!-- Solution container -->
       <div
         v-if="
@@ -402,10 +407,7 @@
         "
         class="mx-6 md:mx-10 py-4"
       >
-        <div class="flex items-center gap-2">
-          <p class="text-lg base:text-lg font-bold">Solution:</p>
-          <span v-if="difficultyLabel" :class="difficultyBadgeClass" data-test="difficulty-badge">{{ difficultyLabel }}</span>
-        </div>
+        <p class="text-lg base:text-lg font-bold">Solution:</p>
         <p
           :class="solutionTextClass"
           data-test="solution-text"

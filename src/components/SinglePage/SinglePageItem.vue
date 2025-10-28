@@ -326,15 +326,17 @@
           </div>
         </div>
       </div>
+      <!-- difficulty badge (always shown when present) for full text mode -->
+      <div v-if="showFullText && difficultyLabel" class="mx-6 py-2">
+        <span class="text-lg font-bold mb-2 inline-block mr-2">Difficulty:</span>
+        <span :class="difficultyBadgeClass" data-test="difficulty-badge">{{ difficultyLabel }}</span>
+      </div>
       <!-- Solution container for full text mode -->
       <div
         v-if="showFullText && ((!isQuizAssessment && isAnswerSubmitted) || hasQuizEnded) && displaySolution && isSolutionTextPresent"
         class="mx-6 py-4"
       >
-        <div class="flex items-center gap-2">
-          <p class="text-lg font-bold">Solution:</p>
-          <span v-if="difficultyLabel" :class="difficultyBadgeClass" data-test="difficulty-badge">{{ difficultyLabel }}</span>
-        </div>
+        <p class="text-lg font-bold">Solution:</p>
         <p
           class="p-2 text-base md:text-lg whitespace-pre-wrap"
           data-test="solution-text"
