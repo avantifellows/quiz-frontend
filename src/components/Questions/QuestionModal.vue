@@ -45,6 +45,7 @@
         :matrixRows="currentQuestion.matrix_rows"
         :isPortrait="isPortrait"
         :imageData="currentQuestion?.image"
+        :difficulty="currentQuestion.metadata?.difficulty"
         :displaySolution="displaySolution"
         :draftAnswer="draftResponses[questionOrder[currentQuestionIndex]]"
         :submittedAnswer="currentQuestionResponseAnswer"

@@ -331,7 +331,10 @@
         v-if="showFullText && ((!isQuizAssessment && isAnswerSubmitted) || hasQuizEnded) && displaySolution && isSolutionTextPresent"
         class="mx-6 py-4"
       >
-        <p class="text-lg font-bold">Solution:</p>
+        <div class="flex items-center gap-2">
+          <p class="text-lg font-bold">Solution:</p>
+          <span v-if="difficultyLabel" :class="difficultyBadgeClass" data-test="difficulty-badge">{{ difficultyLabel }}</span>
+        </div>
         <p
           class="p-2 text-base md:text-lg whitespace-pre-wrap"
           data-test="solution-text"
@@ -781,6 +784,10 @@ export default defineComponent({
       type: Boolean,
       default: true,
     },
+    difficulty: {
+      type: [String, Number],
+      default: null,
+    },
   },
   setup(props, context) {
     const isQuizAssessment = computed(
@@ -1186,6 +1193,19 @@ export default defineComponent({
       state.questionTypesWithOptions.has(props.questionType)
     );
     const isSolutionTextPresent = computed(() => props.solutionText != "");
+    const difficultyLabel = computed(() => {
+      const value = props.difficulty == null ? null : String(props.difficulty);
+      if (value === "1") return "Easy";
+      if (value === "2") return "Medium";
+      if (value === "3") return "Hard";
+      return null;
+    });
+    const difficultyBadgeClass = computed(() => {
+      if (difficultyLabel.value === "Easy") return "bg-green-400 text-white text-xs font-bold py-0.5 px-2 rounded-full";
+      if (difficultyLabel.value === "Medium") return "bg-amber-400 text-white text-xs font-bold py-0.5 px-2 rounded-full";
+      if (difficultyLabel.value === "Hard") return "bg-rose-400 text-white text-xs font-bold py-0.5 px-2 rounded-full";
+      return "";
+    });
     const isQuestionTypeSubjective = computed(
       () => props.questionType == questionType.SUBJECTIVE
     );
@@ -1454,6 +1474,8 @@ export default defineComponent({
       questionImageAreaClass,
       areOptionsVisible,
       isSolutionTextPresent,
+      difficultyLabel,
+      difficultyBadgeClass,
       isQuestionTypeSubjective,
       isQuestionTypeMultiChoice,
       isQuestionTypeSingleChoice,

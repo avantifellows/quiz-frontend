@@ -43,6 +43,7 @@
                 :questionText="$props.questions[questionState.index].text"
                 :questionImage="$props.questions[questionState.index].image"
                 :solutionText="$props.questions[questionState.index].solution"
+                :difficulty="$props.questions[questionState.index].metadata?.difficulty"
                 :displaySolution="displaySolution"
                 @option-selected="questionOptionSelected"
                 @subjective-answer-entered="subjectiveAnswerUpdated"

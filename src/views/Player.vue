@@ -89,6 +89,7 @@
         :isSessionAnswerRequestProcessing="isSessionAnswerRequestProcessing"
         :continueAfterAnswerSubmit="continueAfterAnswerSubmit"
         :timeRemaining="timeRemaining"
+        :displaySolution="displaySolution"
         :userId="userId"
         :title="title"
         :subject="metadata.subject"

@@ -402,7 +402,10 @@
         "
         class="mx-6 md:mx-10 py-4"
       >
-        <p class="text-lg base:text-lg font-bold">Solution:</p>
+        <div class="flex items-center gap-2">
+          <p class="text-lg base:text-lg font-bold">Solution:</p>
+          <span v-if="difficultyLabel" :class="difficultyBadgeClass" data-test="difficulty-badge">{{ difficultyLabel }}</span>
+        </div>
         <p
           :class="solutionTextClass"
           data-test="solution-text"
@@ -511,6 +514,11 @@ export default defineComponent({
     displaySolution: {
       default: true,
       type: Boolean,
+    },
+    /** difficulty level for the question: "1" | "2" | "3" or number 1/2/3 */
+    difficulty: {
+      default: null,
+      type: [String, Number],
     },
     isPortrait: {
       default: false,
@@ -962,6 +970,19 @@ export default defineComponent({
       state.questionTypesWithOptions.has(props.questionType)
     );
     const isSolutionTextPresent = computed(() => props.solutionText != "");
+    const difficultyLabel = computed(() => {
+      const value = props.difficulty == null ? null : String(props.difficulty);
+      if (value === "1") return "Easy";
+      if (value === "2") return "Medium";
+      if (value === "3") return "Hard";
+      return null;
+    });
+    const difficultyBadgeClass = computed(() => {
+      if (difficultyLabel.value === "Easy") return "bg-green-400 text-white text-xs font-bold py-0.5 px-2 rounded-full";
+      if (difficultyLabel.value === "Medium") return "bg-amber-400 text-white text-xs font-bold py-0.5 px-2 rounded-full";
+      if (difficultyLabel.value === "Hard") return "bg-rose-400 text-white text-xs font-bold py-0.5 px-2 rounded-full";
+      return "";
+    });
     const isQuestionTypeSubjective = computed(
       () => props.questionType == questionType.SUBJECTIVE
     );
@@ -1202,6 +1223,8 @@ export default defineComponent({
       questionHeaderSuffix,
       stopImageLoading,
       isSolutionTextPresent,
+      difficultyLabel,
+      difficultyBadgeClass,
       optionBackgroundClass,
       isOptionMarked,
       selectOption,
