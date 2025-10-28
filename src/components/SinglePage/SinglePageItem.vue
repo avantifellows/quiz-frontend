@@ -326,6 +326,11 @@
           </div>
         </div>
       </div>
+      <!-- difficulty badge (always shown when present) for full text mode -->
+      <div v-if="showFullText && $props.difficulty" class="mx-6 py-2">
+        <span class="text-lg font-bold mb-2 inline-block mr-2">Difficulty:</span>
+        <span :class="$props.difficultyBadgeClass" data-test="difficulty-badge">{{ $props.difficulty }}</span>
+      </div>
       <!-- Solution container for full text mode -->
       <div
         v-if="showFullText && ((!isQuizAssessment && isAnswerSubmitted) || hasQuizEnded) && displaySolution && isSolutionTextPresent"
@@ -780,6 +785,14 @@ export default defineComponent({
     displaySolution: {
       type: Boolean,
       default: true,
+    },
+    difficulty: {
+      type: String,
+      default: null,
+    },
+    difficultyBadgeClass: {
+      type: String,
+      default: null,
     },
   },
   setup(props, context) {

@@ -393,6 +393,11 @@
       <span v-if="isAnswerSubmitted" class="bg-emerald-600 text-white text-xs font-bold py-0.5 px-2 rounded-full mr-1">ANSWERED</span>
       <span v-if="!isAnswerSubmitted" class="bg-red-500 text-white text-xs font-bold py-0.5 px-2 rounded-full mr-1">NOT ANSWERED</span>
       </div>
+      <!-- difficulty badge (shown irrespective of displaySolution) -->
+      <div class="mx-6 md:mx-10 pt-4" v-if="$props.difficulty">
+        <span class="text-lg font-bold mb-2 inline-block mr-2">Difficulty:</span>
+        <span :class="$props.difficultyBadgeClass" data-test="difficulty-badge">{{ $props.difficulty }}</span>
+      </div>
       <!-- Solution container -->
       <div
         v-if="
@@ -511,6 +516,16 @@ export default defineComponent({
     displaySolution: {
       default: true,
       type: Boolean,
+    },
+    /** difficulty level label for the question: Easy / Medium / Hard */
+    difficulty: {
+      default: null,
+      type: String,
+    },
+    /** optional precomputed badge class for difficulty */
+    difficultyBadgeClass: {
+      default: null,
+      type: String,
     },
     isPortrait: {
       default: false,

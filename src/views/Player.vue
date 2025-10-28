@@ -89,6 +89,7 @@
         :isSessionAnswerRequestProcessing="isSessionAnswerRequestProcessing"
         :continueAfterAnswerSubmit="continueAfterAnswerSubmit"
         :timeRemaining="timeRemaining"
+        :displaySolution="displaySolution"
         :userId="userId"
         :title="title"
         :subject="metadata.subject"
@@ -318,6 +319,20 @@ export default defineComponent({
         iconClass: "h-4 w-4 text-white",
       };
     });
+
+    const toDifficultyLabel = (d: string | number | null | undefined) => {
+      const key = String(d ?? '').trim();
+      if (key === '1') return 'Easy';
+      if (key === '2') return 'Medium';
+      if (key === '3') return 'Hard';
+      return null;
+    };
+    const toDifficultyBadgeClass = (label: string | null) => {
+      if (label === 'Easy') return 'bg-green-400 text-white text-xs font-bold py-0.5 px-2 rounded-full';
+      if (label === 'Medium') return 'bg-amber-400 text-white text-xs font-bold py-0.5 px-2 rounded-full';
+      if (label === 'Hard') return 'bg-rose-400 text-white text-xs font-bold py-0.5 px-2 rounded-full';
+      return '';
+    };
 
     const isSplashShown = computed(() => state.currentQuestionIndex == -1);
     const numQuestions = computed(() => state.questions.length);
@@ -556,6 +571,15 @@ export default defineComponent({
         if (idx == 0) state.qsetCumulativeLengths.push(questionSet.questions.length)
         else state.qsetCumulativeLengths.push(state.qsetCumulativeLengths[idx - 1] + questionSet.questions.length)
       }
+      // Normalize difficulty label and badge class once
+      state.questions = state.questions.map((q) => {
+        const label = toDifficultyLabel(q.metadata?.difficulty);
+        const badge = toDifficultyBadgeClass(label);
+        return {
+          ...q,
+          metadata: q.metadata ? { ...q.metadata, difficulty_label: label, difficulty_badge_class: badge } : q.metadata,
+        } as Question;
+      });
       state.quizTimeLimit = quizDetails.time_limit;
       state.metadata = quizDetails.metadata;
 
