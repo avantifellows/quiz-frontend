@@ -9,6 +9,12 @@
     <div class="flex flex-col w-full h-full -z-10" :class="{ 'mt-20 mb-20': isQuizAssessment }">
       <div class="h-full relative">
         <div class="scroll-container flex flex-col grow bg-white w-full justify-between overflow-hidden" :class="{ 'mt-[66px]': isQuizAssessment }">
+          <div
+            v-if="$props.singlePageHeaderText"
+            class="mx-4 mt-8 mb-4 text-lg sm:text-xl font-semibold text-slate-700 whitespace-pre-wrap"
+          >
+            {{ $props.singlePageHeaderText }}
+          </div>
           <div class="flex grow flex-col w-full h-full overflow-y-auto">
             <QuestionPalette v-if="isPaletteVisible" :hasQuizEnded="hasQuizEnded" :questionSetStates="questionSetStates"
               :currentQuestionIndex="currentQuestionIndex" :title="title" :subject="subject" :testFormat="testFormat"
@@ -189,6 +195,10 @@ export default defineComponent({
     testFormat: {
       type: [null, String] as PropType<testFormat>,
       default: null,
+    },
+    singlePageHeaderText: {
+      type: String,
+      default: "",
     },
     maxMarks: {
       type: Number,

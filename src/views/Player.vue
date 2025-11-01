@@ -60,6 +60,7 @@
         :title="title"
         :subject="metadata.subject"
         :testFormat="metadata.test_format || ''"
+        :singlePageHeaderText="singlePageHeaderText"
         :timeRemaining="timeRemaining"
         :maxMarks="maxMarks"
         :showFullText="showFullText"
@@ -276,6 +277,12 @@ export default defineComponent({
     const isFormQuiz = computed(() => state.metadata.quiz_type == "form");
 
     const showFullText = computed(() => !isOmrMode.value && props.singlePageMode);
+
+    const singlePageHeaderText = computed(() => {
+      if (!props.singlePageMode) return "";
+      const header = state.metadata?.single_page_header_text?.trim();
+      return header || "";
+    });
 
     const computedQuizType = computed(() => {
       if (isFormQuiz.value) return "form";
@@ -1202,7 +1209,8 @@ export default defineComponent({
       stoptimeSpentOnQuestionCalc,
       processedNextStepUrl,
       nextStepButtonText,
-      showFullText
+      showFullText,
+      singlePageHeaderText
     };
   },
 });
