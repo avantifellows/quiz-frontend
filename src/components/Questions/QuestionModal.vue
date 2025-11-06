@@ -17,21 +17,23 @@
       @end-test-by-time="endTestByTime"
       data-test="header"
     ></Header>
-    <div v-if="!isQuizAssessment">
-      <div
-        class="bg-white-400 w-full justify between">
-        <div class="p-4 h-14 bg-white">
-          <div class="float-left text-lg sm:text-xl truncate" data-test="test-name">
-          {{ $props.title }}
-          </div>
-          <div class="float-right text-lg sm:text-xl mx-1 px-1 " data-test="user-id">
-          Id: {{ displayId || $props.userId }}
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- Homework header (non-assessment) - reuse Header component -->
+    <Header
+      v-if="!isQuizAssessment"
+      :hasQuizEnded="hasQuizEnded"
+      :hasTimeLimit="false"
+      v-model:isPaletteVisible="isPaletteVisible"
+      :timeRemaining="0"
+      :isSessionAnswerRequestProcessing="$props.isSessionAnswerRequestProcessing"
+      :warningTimeLimit="0"
+      :title="title"
+      :userId="userId"
+      :quizType="quizType"
+      @end-test="endTest"
+      data-test="header"
+    ></Header>
     <div
-      class="scroll-container flex flex-col grow bg-white w-full justify-between overflow-hidden"
+      class="scroll-container flex flex-col grow bg-white w-full justify-between overflow-hidden pt-6"
     >
       <Body
         :text="currentQuestion.text"
@@ -98,6 +100,24 @@
         data-test="footer"
       ></Footer>
     </div>
+
+    <!-- Palette Overlay - positioned above footer -->
+    <QuestionPalette
+      v-if="isPaletteVisible"
+      :hasQuizEnded="hasQuizEnded"
+      :questionSetStates="questionSetStates"
+      :currentQuestionIndex="currentQuestionIndex"
+      :title="title"
+      :subject="subject"
+      :testFormat="testFormat"
+      :maxMarks="maxMarks"
+      :numQuestions="numQuestions"
+      :quizTimeLimit="quizTimeLimit"
+      class="fixed left-0 top-20 h-[calc(100vh-5rem)] w-full sm:w-2/3 lg:w-1/2 xl:w-1/3 z-50 bg-white overflow-y-auto"
+      @navigate="navigateToQuestion"
+      data-test="questionPalette"
+    >
+    </QuestionPalette>
   </div>
 </template>
 
@@ -105,6 +125,7 @@
 import Body from "./Body.vue"
 import Footer from "./Footer.vue"
 import Header from "./Header.vue"
+import QuestionPalette from "./Palette/QuestionPalette.vue"
 import {
   defineComponent,
   PropType,
@@ -136,7 +157,8 @@ export default defineComponent({
   components: {
     Body,
     Footer,
-    Header
+    Header,
+    QuestionPalette
   },
   props: {
     questions: {

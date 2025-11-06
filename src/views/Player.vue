@@ -387,10 +387,9 @@ export default defineComponent({
     );
 
     const toDifficultyLabel = (d: string | number | null | undefined) => {
-      const key = String(d ?? '').trim();
-      if (key === '1') return 'Easy';
-      if (key === '2') return 'Medium';
-      if (key === '3') return 'Hard';
+      if (d == '1' || d == 1) return 'Easy';
+      if (d == '2' || d == 2) return 'Medium';
+      if (d == '3' || d == 3) return 'Hard';
       return null;
     };
     const toDifficultyBadgeClass = (label: string | null) => {

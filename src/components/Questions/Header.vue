@@ -1,8 +1,9 @@
 <template>
-  <div>
-    <div class="fixed top-0 left-0 w-full  ">
-      <div class="flex w-full justify-between bg-gray-200 p-4 z-20">
-        <!-- hamburger for question palette -->
+  <div class="fixed top-0 left-0 w-full z-20">
+    <!-- Main Header Bar -->
+    <div class="flex w-full justify-between items-center bg-gray-200 p-4">
+      <!-- Left: Hamburger -->
+      <div class="flex items-center">
         <icon-button
           :iconConfig="togglePaletteButtonIconConfig"
           :buttonClass="togglePaletteButtonClass"
@@ -10,45 +11,58 @@
           @click="togglePalette"
           data-test="togglePaletteButton"
         ></icon-button>
-        <div class="flex space-x-3">
-          <!-- toggle omr button -->
-          <icon-button
-            v-if="shouldShowOmrToggle"
-            :titleConfig="toggleButtonTextConfig"
-            :iconConfig="toggleButtonIconConfig"
-            :buttonClass="toggleButtonIconClass"
-            class="rounded-2xl shadow-lg"
-            data-test="toggleOmrMode"
-            @click="toggleOmrMode"
-          ></icon-button>
-          <!-- countdown timer / can't click -->
-          <icon-button
-            v-if="!hasQuizEnded && hasTimeLimit"
-            :titleConfig="countdownTimerTitleConfig"
-            :buttonClass="countdownTimerClass"
-            data-test="countdownTimer"
-          ></icon-button>
+      </div>
 
-          <!-- end-test button -->
-          <icon-button
-            :titleConfig="endTestButtonTitleConfig"
-            :buttonClass="endTestButtonClass"
-            :iconConfig="endTestButtonIconConfig"
-            :isDisabled="isSessionAnswerRequestProcessing"
-            @click="endTest"
-            data-test="endTestButton"
-          ></icon-button>
+      <!-- Right: Controls -->
+      <div class="flex items-center gap-3">
+        <!-- toggle omr button -->
+        <icon-button
+          v-if="shouldShowOmrToggle"
+          :titleConfig="toggleButtonTextConfig"
+          :iconConfig="toggleButtonIconConfig"
+          :buttonClass="toggleButtonIconClass"
+          class="rounded-2xl shadow-lg"
+          data-test="toggleOmrMode"
+          @click="toggleOmrMode"
+        ></icon-button>
+        <!-- countdown timer / can't click -->
+        <icon-button
+          v-if="!hasQuizEnded && hasTimeLimit"
+          :titleConfig="countdownTimerTitleConfig"
+          :buttonClass="countdownTimerClass"
+          data-test="countdownTimer"
+        ></icon-button>
+
+        <!-- end-test button -->
+        <icon-button
+          :titleConfig="endTestButtonTitleConfig"
+          :buttonClass="endTestButtonClass"
+          :iconConfig="endTestButtonIconConfig"
+          :isDisabled="isSessionAnswerRequestProcessing"
+          @click="endTest"
+          data-test="endTestButton"
+        ></icon-button>
+      </div>
+    </div>
+
+    <!-- Info Bar: Test Name and User ID (stacked on mobile) -->
+    <div class="bg-gray-200 border-b border-gray-300 px-4 py-3">
+      <!-- Mobile: Test Name (truncated) -->
+      <div class="sm:hidden">
+        <h1 class="text-base font-semibold text-gray-800 truncate" data-test="test-name-mobile">
+          {{ $props.title || "no data" }}
+        </h1>
+        <div class="text-sm text-gray-700 font-semibold mt-2 px-3 py-1.5 bg-gray-300 rounded inline-block" data-test="user-id-mobile">
+          Id: {{ $props.userId || "no data" }}
         </div>
       </div>
-      <div
-        class="bg-white-400 w-full justify between">
-        <div class="py-4 h-12 bg-white px-4">
-          <div class="float-left text-lg sm:text-xl text-base truncate" data-test="test-name">
+      <!-- Tablet+: Test Name and ID side by side (no truncate) -->
+      <div class="hidden sm:flex sm:justify-between sm:items-center gap-4">
+        <h1 class="text-lg font-semibold text-gray-800 flex-1 break-words" data-test="test-name">
           {{ $props.title || "no data" }}
-          </div>
-          <div class="float-right text-lg sm:text-xl text-base mx-1 px-1" data-test="user-id">
-          Id: {{ displayUserId || "no data" }}
-          </div>
+        </h1>
+        <div class="text-base text-gray-700 font-semibold whitespace-nowrap px-4 py-2 bg-gray-300 rounded" data-test="user-id">
+          Id: {{ $props.userId || "no data" }}
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col bg-white w-full h-full overflow-auto justify-between">
+  <div class="flex flex-col bg-indigo-50 w-full h-full overflow-hidden justify-between">
     <Header class="fixed top-0" v-if="isQuizAssessment" :hasQuizEnded="hasQuizEnded"
       :hasTimeLimit="quizTimeLimit != null" :title="title" :userId="userId" :displayId="displayId" :isOmrMode=true
       :isSessionAnswerRequestProcessing="isSessionAnswerRequestProcessing" v-model:isPaletteVisible="isPaletteVisible"
@@ -7,31 +7,25 @@
       @time-limit-warning="displayTimeLimitWarning" @end-test="endTest" @end-test-by-time="endTestByTime"
       data-test="omr-header"></Header>
     <div class="flex flex-col w-full h-full -z-10" :class="{ 'mt-20 mb-20': isQuizAssessment }">
-      <div class="h-full relative">
-        <div class="scroll-container flex flex-col grow bg-white w-full justify-between overflow-hidden" :class="{ 'mt-[66px]': isQuizAssessment }">
-          <div
-            v-if="$props.singlePageHeaderText"
-            class="mx-4 mt-8 mb-4 text-lg sm:text-xl font-semibold text-slate-700 whitespace-pre-wrap"
-          >
-            {{ $props.singlePageHeaderText }}
-          </div>
-          <div class="flex grow flex-col w-full h-full overflow-y-auto">
-            <QuestionPalette v-if="isPaletteVisible" :hasQuizEnded="hasQuizEnded" :questionSetStates="questionSetStates"
-              :currentQuestionIndex="currentQuestionIndex" :title="title" :subject="subject" :testFormat="testFormat"
-              :maxMarks="maxMarks" :numQuestions="numQuestions" :quizTimeLimit="quizTimeLimit" :isOmrMode=true
-              class="absolute w-full h-full sm:w-2/3 lg:w-1/2 xl:w-1/3 z-10 bg-white overflow-y-scroll pb-[56px]"
-              data-test="questionPalette">
-            </QuestionPalette>
-          </div>
-          <div v-for="(questionSetState, index) in questionSetStates" :key="index" class="space-y-2 pb-[56px]">
-            <div class="bg-gray-300">
-              <p :class="titleTextClass" :data-test="`questionSetTitle-${index}`">{{ questionSetState.title }}</p>
-            </div>
-            <p :class="instructionTextClass" v-html="questionSetState.instructionText"
-              :data-test="`questionSetInstruction-${index}`"></p>
-            <div class="mt-4 space-y-4">
-              <!-- it is being stopping endbutton make sur eu -->
-              <SinglePageItem v-for="(questionState, qindex) in questionSetState.paletteItems" :class="{ 'mt-4': qindex == 0 }"
+      <div class="h-full">
+        <div class="scroll-container flex flex-col grow bg-indigo-50 w-full justify-between overflow-y-auto" :class="{ 'mt-24': isQuizAssessment }">
+          <div class="flex justify-center w-full mx-auto py-4 px-4 pb-24">
+            <div class="flex flex-col w-full sm:w-5/6 max-w-4xl bg-white rounded-lg shadow-sm p-2 sm:p-6">
+              <div v-for="(questionSetState, index) in questionSetStates" :key="index" class="space-y-2 pb-[56px]">
+                <div class="bg-gray-300">
+                  <p :class="titleTextClass" :data-test="`questionSetTitle-${index}`">{{ questionSetState.title }}</p>
+                </div>
+                <div
+                  v-if="index === 0 && $props.singlePageHeaderText"
+                  class="mx-4 mt-2 mb-4 text-lg sm:text-xl font-semibold text-slate-700 whitespace-pre-wrap"
+                >
+                  {{ $props.singlePageHeaderText }}
+                </div>
+                <p :class="instructionTextClass" v-html="questionSetState.instructionText"
+                  :data-test="`questionSetInstruction-${index}`"></p>
+                <div class="mt-4 space-y-4">
+                  <!-- it is being stopping endbutton make sur eu -->
+                  <SinglePageItem v-for="(questionState, qindex) in questionSetState.paletteItems" :class="{ 'mt-4': qindex == 0 }"
                 :options="$props.questions[questionState.index].options"
                 :correctAnswer="$props.questions[questionState.index].correct_answer"
                 :questionType="$props.questions[questionState.index].type"
@@ -60,27 +54,33 @@
                 :key="questionState.index"
                 :data-test="`SinglePageItem-${questionState.index}`"
                 :ref="`singlepageitem-${questionState.index}`"></SinglePageItem>
+                </div>
+              </div>
+              <!-- Submit button for non-assessment quizzes (forms/homework) -->
+              <div v-if="!isQuizAssessment && !hasQuizEnded" class="flex justify-center py-8 pb-24">
+                <button
+                  @click="endTest"
+                  :disabled="isSessionAnswerRequestProcessing"
+                  class="bg-emerald-500 hover:bg-emerald-600 text-white text-lg font-bold py-4 px-8 rounded-2xl shadow-xl disabled:opacity-50 disabled:pointer-events-none"
+                  data-test="submit-button"
+                >
+                  Submit
+                </button>
+              </div>
             </div>
-          </div>
-          <!-- footer -->
-          <div class="flex w-full lg:p-6 justify-between z-50 place-self-end fixed bottom-0" :class="{
-            'bg-white p-4': !isQuizAssessment,
-            'bg-gray-200 py-2 px-2': isQuizAssessment,
-          }"></div>
-          <!-- Submit button for non-assessment quizzes (forms/homework) -->
-          <div v-if="!isQuizAssessment && !hasQuizEnded" class="flex justify-center py-8 pb-24">
-            <button
-              @click="endTest"
-              :disabled="isSessionAnswerRequestProcessing"
-              class="bg-emerald-500 hover:bg-emerald-600 text-white text-lg font-bold py-4 px-8 rounded-2xl shadow-xl disabled:opacity-50 disabled:pointer-events-none"
-              data-test="submit-button"
-            >
-              Submit
-            </button>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Palette Overlay - positioned above content -->
+    <QuestionPalette v-if="isPaletteVisible" :hasQuizEnded="hasQuizEnded" :questionSetStates="questionSetStates"
+      :currentQuestionIndex="currentQuestionIndex" :title="title" :subject="subject" :testFormat="testFormat"
+      :maxMarks="maxMarks" :numQuestions="numQuestions" :quizTimeLimit="quizTimeLimit" :isOmrMode=true
+      class="fixed left-0 top-20 h-[calc(100vh-5rem)] w-full sm:w-2/3 lg:w-1/2 xl:w-1/3 z-50 bg-white overflow-y-auto"
+      @navigate="navigateToQuestion"
+      data-test="questionPalette">
+    </QuestionPalette>
   </div>
 </template>
 
@@ -527,6 +527,10 @@ export default defineComponent({
       }
     }
 
+    function navigateToQuestion(questionIndex: number) {
+      state.localCurrentQuestionIndex = questionIndex
+    }
+
     return {
       ...toRefs(state),
       generateId,
@@ -549,7 +553,8 @@ export default defineComponent({
       questionDisabledArray,
       numericalAnswerUpdated,
       timeLimitWarningThreshold,
-      displayTimeLimitWarning
+      displayTimeLimitWarning,
+      navigateToQuestion
     }
   },
   emits: [
@@ -569,7 +574,7 @@ export default defineComponent({
 <style>
 .truncate {
   @apply whitespace-nowrap overflow-hidden overflow-ellipsis;
-  max-width: 10em;
+  max-width: 16em;
   /*(10em) Adjust this value to determine the maximum width in characters */
 }
 
