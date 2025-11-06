@@ -17,7 +17,7 @@
                 </div>
                 <div
                   v-if="index === 0 && $props.singlePageHeaderText"
-                  class="mx-4 mt-2 mb-4 text-lg sm:text-xl font-semibold text-slate-700 whitespace-pre-wrap"
+                  class="mx-4 mt-2 mb-4 text-lg sm:text-xl whitespace-pre-wrap"
                 >
                   {{ $props.singlePageHeaderText }}
                 </div>
