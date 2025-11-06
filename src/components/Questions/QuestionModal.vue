@@ -1,5 +1,6 @@
 <template>
   <div class="h-full flex flex-col bg-white w-full justify-between absolute">
+    <!-- Assessment Header -->
     <Header
       v-if="isQuizAssessment"
       :hasQuizEnded="hasQuizEnded"
@@ -14,21 +15,6 @@
       @time-limit-warning="displayTimeLimitWarning"
       @end-test="endTest"
       @end-test-by-time="endTestByTime"
-      data-test="header"
-    ></Header>
-    <!-- Homework header (non-assessment) - reuse Header component -->
-    <Header
-      v-if="!isQuizAssessment"
-      :hasQuizEnded="hasQuizEnded"
-      :hasTimeLimit="false"
-      v-model:isPaletteVisible="isPaletteVisible"
-      :timeRemaining="0"
-      :isSessionAnswerRequestProcessing="$props.isSessionAnswerRequestProcessing"
-      :warningTimeLimit="0"
-      :title="title"
-      :userId="userId"
-      :quizType="quizType"
-      @end-test="endTest"
       data-test="header"
     ></Header>
     <div
