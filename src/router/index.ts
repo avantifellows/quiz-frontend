@@ -1,6 +1,72 @@
 import { createRouter, createWebHistory } from "vue-router";
+import { getPortalIdentifiers, getCachedPortalIdentifiers } from "@/services/portalAuth";
+import type { PortalIdentifiers, DisplayIdType } from "@/types";
 
-const requiredAuthKeys = ["userId", "apiKey"];
+declare module "vue-router" {
+  interface RouteMeta {
+    portalIdentifiers?: PortalIdentifiers | null;
+  }
+}
+
+const requiredAuthKeys = ["apiKey"];
+
+const getQueryValue = (value: unknown): string | null => {
+  if (typeof value === "string" && value.trim() !== "") {
+    return value.trim();
+  }
+  if (Array.isArray(value) && value.length > 0) {
+    const [first] = value;
+    return typeof first === "string" && first.trim() !== "" ? first.trim() : null;
+  }
+  return null;
+};
+
+const resolvePortalData = (route: any): PortalIdentifiers | null => {
+  return (
+    (route.meta?.portalIdentifiers as PortalIdentifiers | null) ??
+    getCachedPortalIdentifiers()
+  );
+};
+
+const resolveUserId = (route: any): string | null => {
+  const fromQuery = getQueryValue(route.query.userId);
+  if (fromQuery) return fromQuery;
+  return resolvePortalData(route)?.userId ?? null;
+};
+
+const resolveDisplayData = (
+  route: any
+): { displayId: string | null; displayIdType: DisplayIdType } => {
+  const userIdFromQuery = getQueryValue(route.query.userId);
+
+  if (userIdFromQuery) {
+    return {
+      displayId: userIdFromQuery,
+      displayIdType: "user_id",
+    };
+  }
+
+  const portalData = resolvePortalData(route);
+  if (!portalData) {
+    return { displayId: null, displayIdType: null };
+  }
+
+  if (portalData.displayId) {
+    return {
+      displayId: portalData.displayId,
+      displayIdType: portalData.displayIdType ?? null,
+    };
+  }
+
+  if (portalData.userId) {
+    return {
+      displayId: portalData.userId,
+      displayIdType: "user_id",
+    };
+  }
+
+  return { displayId: null, displayIdType: null };
+};
 
 const routes = [
   {
@@ -8,7 +74,8 @@ const routes = [
     name: "Player",
     props: (route: any) => ({
       ...route.params,
-      userId: route.query.userId,
+      userId: resolveUserId(route),
+      ...resolveDisplayData(route),
       apiKey: route.query.apiKey,
       omrMode: route.query.omrMode === "true",
       singlePageMode: route.query.singlePageMode === "true",
@@ -26,7 +93,8 @@ const routes = [
     name: "FormPlayer",
     props: (route: any) => ({
       ...route.params,
-      userId: route.query.userId,
+      userId: resolveUserId(route),
+      ...resolveDisplayData(route),
       apiKey: route.query.apiKey,
       omrMode: route.query.omrMode === "true",
       singlePageMode: route.query.singlePageMode === "true",
@@ -88,19 +156,29 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
   /** Before each router, check if the user is a third party and therefore, needs authentication. */
   if (to.meta.requiresAuth) {
-    const queryParams = Object.keys(to.query);
-    const isAuthenticated =
-      requiredAuthKeys.every((key: any) => queryParams.includes(key) && (to.query[key] != "" && to.query[key] != undefined))
-    if (!isAuthenticated) {
-      return {
-        name: "403",
-      };
+    const hasApiKey = requiredAuthKeys.every((key: string) => getQueryValue(to.query[key]) !== null);
+
+    if (!hasApiKey) {
+      return { name: "403" };
+    }
+
+    const userIdFromQuery = getQueryValue(to.query.userId);
+    // check the cache
+    let identifiers: PortalIdentifiers | null = resolvePortalData(to);
+
+    if (!identifiers) {
+      identifiers = await getPortalIdentifiers({ force: true });
+    }
+
+    to.meta.portalIdentifiers = identifiers;
+
+    if (!userIdFromQuery && !identifiers?.userId) {
+      return { name: "403" };
     }
   }
-}
-);
+});
 
 export default router;

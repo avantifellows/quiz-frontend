@@ -11,6 +11,7 @@
       :title="title"
       :userId="userId"
       :quizType="quizType"
+      :displayId="displayId"
       @time-limit-warning="displayTimeLimitWarning"
       @end-test="endTest"
       @end-test-by-time="endTestByTime"
@@ -24,7 +25,7 @@
           {{ $props.title }}
           </div>
           <div class="float-right text-lg sm:text-xl mx-1 px-1 " data-test="user-id">
-          Id: {{ $props.userId }}
+          Id: {{ displayId || $props.userId }}
           </div>
         </div>
       </div>
@@ -205,6 +206,10 @@ export default defineComponent({
     userId: {
       type: String,
       default: ""
+    },
+    displayId: {
+      type: String,
+      default: "",
     },
     title: {
       required: true,

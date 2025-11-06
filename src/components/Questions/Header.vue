@@ -47,7 +47,7 @@
           {{ $props.title || "no data" }}
           </div>
           <div class="float-right text-lg sm:text-xl text-base mx-1 px-1" data-test="user-id">
-          Id: {{ $props.userId || "no data" }}
+          Id: {{ displayUserId || "no data" }}
           </div>
         </div>
       </div>
@@ -70,6 +70,10 @@ export default defineComponent({
     userId: {
       type: String,
       default: ""
+    },
+    displayId: {
+      type: String,
+      default: "",
     },
     hasQuizEnded: {
       type: Boolean,
@@ -154,6 +158,8 @@ export default defineComponent({
 
     // const shouldShowOmrToggle = computed(() => props.quizType == "assessment")
     const shouldShowOmrToggle = computed(() => false)
+
+    const displayUserId = computed(() => props.displayId || props.userId || "");
 
     const toggleButtonTextConfig = computed(() => {
       const config = {
@@ -316,7 +322,8 @@ export default defineComponent({
       toggleButtonIconClass,
       toggleButtonIconConfig,
       toggleButtonTextConfig,
-      toggleOmrMode
+      toggleOmrMode,
+      displayUserId
     };
   },
   components: {

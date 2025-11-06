@@ -33,6 +33,7 @@ jobs:
       - name: Build
         env:
           VUE_APP_BACKEND: ${{ secrets.VUE_APP_BACKEND }}
+          VUE_APP_PORTAL_BACKEND: ${{ secrets.VUE_APP_PORTAL_BACKEND }}
         run: npm run build
 
       - name: Configure AWS Credentials

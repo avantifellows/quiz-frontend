@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col bg-white w-full h-full overflow-auto justify-between">
     <Header class="fixed top-0" v-if="isQuizAssessment" :hasQuizEnded="hasQuizEnded"
-      :hasTimeLimit="quizTimeLimit != null" :title="title" :userId="userId" :isOmrMode=true
+      :hasTimeLimit="quizTimeLimit != null" :title="title" :userId="userId" :displayId="displayId" :isOmrMode=true
       :isSessionAnswerRequestProcessing="isSessionAnswerRequestProcessing" v-model:isPaletteVisible="isPaletteVisible"
       :timeRemaining="timeRemaining" :warningTimeLimit="timeLimitWarningThreshold"
       @time-limit-warning="displayTimeLimitWarning" @end-test="endTest" @end-test-by-time="endTestByTime"
@@ -183,6 +183,10 @@ export default defineComponent({
     userId: {
       type: String,
       default: ""
+    },
+    displayId: {
+      type: String,
+      default: "",
     },
     title: {
       required: true,

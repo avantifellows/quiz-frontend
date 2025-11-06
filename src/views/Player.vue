@@ -56,7 +56,8 @@
         :qsetIndexLimits="currentQsetIndexLimits"
         :quizTimeLimit="quizTimeLimit"
         :isSessionAnswerRequestProcessing="isSessionAnswerRequestProcessing"
-        :userId="userId"
+        :userId="canonicalUserId || ''"
+        :displayId="displayUserId"
         :title="title"
         :subject="metadata.subject"
         :testFormat="metadata.test_format || ''"
@@ -91,7 +92,8 @@
         :continueAfterAnswerSubmit="continueAfterAnswerSubmit"
         :timeRemaining="timeRemaining"
         :displaySolution="displaySolution"
-        :userId="userId"
+        :userId="canonicalUserId || ''"
+        :displayId="displayUserId"
         :title="title"
         :subject="metadata.subject"
         :testFormat="metadata.test_format || ''"
@@ -123,7 +125,8 @@
         :qsetMetrics="qsetMetrics"
         :isShown="isScorecardShown"
         :title="title"
-        :userId="userId"
+        :userId="canonicalUserId || ''"
+        :displayId="displayUserId"
         :greeting="scorecardGreeting"
         :numQuestionsAnswered="numQuestionsAnswered"
         :hasGradedQuestions="hasGradedQuestions"
@@ -147,7 +150,7 @@ import QuizAPIService from "../services/API/Quiz";
 import FormAPIService from "../services/API/Form";
 import SessionAPIService from "../services/API/Session";
 import QuestionAPIService from "../services/API/Question"
-import { defineComponent, reactive, toRefs, computed, watch, onMounted } from "vue";
+import { defineComponent, reactive, toRefs, computed, watch, onMounted, PropType } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import {
@@ -169,12 +172,14 @@ import {
   TimeSpentEntry,
   UpdateSessionAnswerAPIPayload,
   UpdateSessionAnswersAtSpecificPositionsAPIPayload,
-  QuestionSetMetric
+  QuestionSetMetric,
+  DisplayIdType
 } from "../types";
 import { useToast, POSITION } from "vue-toastification"
 import BaseIcon from "../components/UI/Icons/BaseIcon.vue";
 import IconButton from "../components/UI/Buttons/IconButton.vue";
 import OrganizationAPIService from "../services/API/Organization";
+// import { getPortalIdentifiers } from "@/services/portalAuth";
 
 export default defineComponent({
   name: "Player",
@@ -194,6 +199,14 @@ export default defineComponent({
     userId: {
       default: null,
       type: String,
+    },
+    displayId: {
+      type: String,
+      default: "",
+    },
+    displayIdType: {
+      type: String as PropType<DisplayIdType>,
+      default: null,
     },
     apiKey: {
       default: null,
@@ -258,6 +271,13 @@ export default defineComponent({
       timerInterval: null as number | null, // variable used in computing time spent on question
       qsetMetrics: [] as QuestionSetMetric[],
       toast: useToast(),
+      displayUserId: props.displayId
+        ? String(props.displayId)
+        : props.userId
+          ? String(props.userId)
+          : "",
+      displayIdType: (props.displayIdType ?? (props.displayId || props.userId ? "user_id" : null)) as DisplayIdType,
+      storedCanonicalUserId: props.userId ? String(props.userId) : null,
     });
 
     OrganizationAPIService.checkAuthToken(props.apiKey).catch(() => {
@@ -326,6 +346,45 @@ export default defineComponent({
         iconClass: "h-4 w-4 text-white",
       };
     });
+
+    watch(
+      () => props.displayId,
+      (newValue) => {
+        if (typeof newValue === "string" && newValue.trim() !== "") {
+          state.displayUserId = String(newValue);
+          state.displayIdType = (props.displayIdType ?? "user_id") as DisplayIdType;
+        } else if (props.userId) {
+          state.displayUserId = String(props.userId);
+          state.displayIdType = "user_id";
+        } else {
+          state.displayUserId = "";
+          state.displayIdType = null;
+        }
+      },
+      { immediate: true }
+    );
+
+    watch(
+      () => props.displayIdType,
+      (newValue) => {
+        if (newValue) {
+          state.displayIdType = newValue as DisplayIdType;
+        } else if (!state.displayUserId) {
+          state.displayIdType = null;
+        }
+      }
+    );
+
+    watch(
+      () => props.userId,
+      (newValue) => {
+        state.storedCanonicalUserId = newValue ? String(newValue) : null;
+        if (!props.displayId) {
+          state.displayUserId = newValue ? String(newValue) : "";
+          state.displayIdType = newValue ? "user_id" : null;
+        }
+      }
+    );
 
     const toDifficultyLabel = (d: string | number | null | undefined) => {
       const key = String(d ?? '').trim();
@@ -615,10 +674,35 @@ export default defineComponent({
       }
     }
 
+    const canonicalUserId = computed(() => state.storedCanonicalUserId || (props.userId ? String(props.userId) : null));
+
     async function createSession() {
+      const userIdForSession = canonicalUserId.value;
+      // in case the guard fails -- commenting out for now since this situation is unlikely
+      // if (!userIdForSession) {
+      //   const identifiers = await getPortalIdentifiers({ force: true });
+      //   if (identifiers?.userId) {
+      //     userIdForSession = identifiers.userId;
+      //     state.storedCanonicalUserId = identifiers.userId;
+      //   }
+      // }
+
+      if (!userIdForSession) {
+        state.toast.error(
+          "Unable to identify user. Please sign in again.",
+          {
+            position: POSITION.TOP_LEFT,
+            timeout: 4000,
+            draggablePercent: 0.4,
+          }
+        );
+        router.replace({ name: "403" });
+        return;
+      }
+
       const sessionDetails = await SessionAPIService.createSession(
         props.quizId,
-        props.userId as string,
+        userIdForSession,
         isOmrMode.value
       );
       state.sessionId = sessionDetails._id;
@@ -917,7 +1001,7 @@ export default defineComponent({
       if (!state.metadata?.next_step_url) return "";
 
       let url = state.metadata.next_step_url
-        .replace('{userId}', props.userId || '')
+        .replace('{userId}', canonicalUserId.value || '')
         .replace('{apiKey}', props.apiKey || '');
 
       // Add autoStart parameter if next_step_autostart is true
@@ -1209,6 +1293,7 @@ export default defineComponent({
       stoptimeSpentOnQuestionCalc,
       processedNextStepUrl,
       nextStepButtonText,
+      canonicalUserId,
       showFullText,
       singlePageHeaderText
     };
