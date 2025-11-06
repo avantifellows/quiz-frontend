@@ -49,10 +49,10 @@
     <div class="bg-gray-200 border-b border-gray-300 px-4 py-3">
       <!-- Mobile: Test Name (truncated) -->
       <div class="sm:hidden">
-        <h1 class="text-base font-semibold text-gray-800 truncate" data-test="test-name">
+        <h1 class="text-base font-semibold text-gray-800 truncate" data-test="test-name-mobile">
           {{ $props.title || "no data" }}
         </h1>
-        <div class="text-sm text-gray-700 font-semibold mt-2 px-3 py-1.5 bg-gray-300 rounded inline-block" data-test="user-id">
+        <div class="text-sm text-gray-700 font-semibold mt-2 px-3 py-1.5 bg-gray-300 rounded inline-block" data-test="user-id-mobile">
           Id: {{ $props.userId || "no data" }}
         </div>
       </div>

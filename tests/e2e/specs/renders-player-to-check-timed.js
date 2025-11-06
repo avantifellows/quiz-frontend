@@ -51,17 +51,21 @@ describe("Player for Assessment Timed quizzes", () => {
 
       describe("Quiz Started", () => {
         it("Check if the test name is visible", () => {
-          cy.get('[data-test="test-name"]').should(
-            "have.text",
-            "cypress assessment 1 by Avanti Fellows" // test name
-          );
+          cy.get('[data-test="test-name"]')
+            .should(
+              "have.text",
+              "cypress assessment 1 by Avanti Fellows" // test name
+            )
+            .and("be.visible");
         });
 
         it("Check if the user-id is visible", () => {
-          cy.get('[data-test="user-id"]').should(
-            "have.text",
-            " Id: 1" // Id of the student
-          );
+          cy.get('[data-test="user-id"]')
+            .should(
+              "have.text",
+              " Id: 1" // Id of the student
+            )
+            .and("be.visible");
         });
 
         it("testName is truncating or not", () => {
