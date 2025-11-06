@@ -16,21 +16,29 @@
       @end-test-by-time="endTestByTime"
       data-test="header"
     ></Header>
-    <div v-if="!isQuizAssessment">
-      <div
-        class="bg-white-400 w-full justify between">
-        <div class="p-4 h-14 bg-white">
-          <div class="float-left text-lg sm:text-xl truncate" data-test="test-name">
-          {{ $props.title }}
-          </div>
-          <div class="float-right text-lg sm:text-xl mx-1 px-1 " data-test="user-id">
-          Id: {{ $props.userId }}
-          </div>
+    <!-- Homework header (non-assessment) -->
+    <div v-if="!isQuizAssessment" class="bg-gray-200 border-b border-gray-300 px-4 py-3 fixed top-0 w-full z-20">
+      <!-- Mobile: Test Name (truncated) -->
+      <div class="sm:hidden">
+        <h1 class="text-base font-semibold text-gray-800 truncate" data-test="test-name">
+          {{ $props.title || "no data" }}
+        </h1>
+        <div class="text-sm text-gray-700 font-semibold mt-2 px-3 py-1.5 bg-gray-300 rounded inline-block" data-test="user-id">
+          ID: {{ $props.userId || "no data" }}
+        </div>
+      </div>
+      <!-- Tablet+: Test Name and ID side by side (no truncate) -->
+      <div class="hidden sm:flex sm:justify-between sm:items-center gap-4">
+        <h1 class="text-lg font-semibold text-gray-800 flex-1 break-words" data-test="test-name">
+          {{ $props.title || "no data" }}
+        </h1>
+        <div class="text-base text-gray-700 font-semibold whitespace-nowrap px-4 py-2 bg-gray-300 rounded" data-test="user-id">
+          ID: {{ $props.userId || "no data" }}
         </div>
       </div>
     </div>
     <div
-      class="scroll-container flex flex-col grow bg-white w-full justify-between overflow-hidden"
+      class="scroll-container flex flex-col grow bg-white w-full justify-between overflow-hidden pt-6"
     >
       <Body
         :text="currentQuestion.text"
@@ -97,6 +105,24 @@
         data-test="footer"
       ></Footer>
     </div>
+
+    <!-- Palette Overlay - positioned above footer -->
+    <QuestionPalette
+      v-if="isPaletteVisible"
+      :hasQuizEnded="hasQuizEnded"
+      :questionSetStates="questionSetStates"
+      :currentQuestionIndex="currentQuestionIndex"
+      :title="title"
+      :subject="subject"
+      :testFormat="testFormat"
+      :maxMarks="maxMarks"
+      :numQuestions="numQuestions"
+      :quizTimeLimit="quizTimeLimit"
+      class="fixed left-0 top-20 h-[calc(100vh-5rem)] w-full sm:w-2/3 lg:w-1/2 xl:w-1/3 z-50 bg-white overflow-y-auto"
+      @navigate="navigateToQuestion"
+      data-test="questionPalette"
+    >
+    </QuestionPalette>
   </div>
 </template>
 
@@ -104,6 +130,7 @@
 import Body from "./Body.vue"
 import Footer from "./Footer.vue"
 import Header from "./Header.vue"
+import QuestionPalette from "./Palette/QuestionPalette.vue"
 import {
   defineComponent,
   PropType,
@@ -135,7 +162,8 @@ export default defineComponent({
   components: {
     Body,
     Footer,
-    Header
+    Header,
+    QuestionPalette
   },
   props: {
     questions: {

@@ -1,25 +1,8 @@
 <template>
   <div
-    class="flex relative h-full overflow-y-auto"
+    class="flex h-full overflow-y-auto"
     :class="{ 'bg-gray-50': isPaletteVisible }"
   >
-    <QuestionPalette
-      v-if="isPaletteVisible"
-      :hasQuizEnded="hasQuizEnded"
-      :questionSetStates="questionSetStates"
-      :currentQuestionIndex="currentQuestionIndex"
-      :title="title"
-      :subject="subject"
-      :testFormat="testFormat"
-      :maxMarks="maxMarks"
-      :numQuestions="numQuestions"
-      :quizTimeLimit="quizTimeLimit"
-      class="absolute w-full h-full sm:w-2/3 lg:w-1/2 xl:w-1/3 z-10"
-      @navigate="navigateToQuestion"
-      data-test="questionPalette"
-    >
-    </QuestionPalette>
-
     <div class="overflow-y-auto flex flex-col w-full">
       <div class="bg-gray-300">
         <!-- questionHeaderPrefix shows the question index no. and the type of question -->
@@ -297,7 +280,7 @@
                   v-for="(row, rowIndex) in matrixRows"
                   :key="rowIndex"
                 >
-                  <td class="border border-gray-200 p-2 font-medium">
+                  <td class="border border-gray-200 p-2 font-medium whitespace-nowrap">
                     {{ row }}
                   </td>
                   <td
@@ -350,7 +333,7 @@
                   v-for="(row, rowIndex) in matrixRows"
                   :key="rowIndex"
                 >
-                  <td class="border border-gray-200 p-2 font-medium">
+                  <td class="border border-gray-200 p-2 font-medium whitespace-nowrap">
                     {{ row }}
                   </td>
                   <td class="border border-gray-200 text-center p-2">
@@ -393,8 +376,8 @@
       <span v-if="isAnswerSubmitted" class="bg-emerald-600 text-white text-xs font-bold py-0.5 px-2 rounded-full mr-1">ANSWERED</span>
       <span v-if="!isAnswerSubmitted" class="bg-red-500 text-white text-xs font-bold py-0.5 px-2 rounded-full mr-1">NOT ANSWERED</span>
       </div>
-      <!-- difficulty badge (shown irrespective of displaySolution) -->
-      <div class="mx-6 md:mx-10 pt-4" v-if="$props.difficulty">
+      <!-- difficulty badge (shown only when quiz has ended) -->
+      <div class="mx-6 md:mx-10 pt-4" v-if="$props.difficulty && $props.hasQuizEnded">
         <span class="text-lg font-bold mb-2 inline-block mr-2">Difficulty:</span>
         <span :class="$props.difficultyBadgeClass" data-test="difficulty-badge">{{ $props.difficulty }}</span>
       </div>
@@ -440,7 +423,6 @@ import {
   testFormat,
   TimeLimit,
 } from "@/types";
-import QuestionPalette from "./Palette/QuestionPalette.vue";
 
 const MAX_LENGTH_NUMERICAL_CHARACTERS: number = 10; // max length of characters in numerical answer textbox
 
@@ -448,7 +430,6 @@ export default defineComponent({
   components: {
     BaseIcon,
     Textarea,
-    QuestionPalette,
   },
   props: {
     text: {

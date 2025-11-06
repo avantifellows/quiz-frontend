@@ -1,7 +1,7 @@
 <template>
   <div class="flex h-full">
     <!-- Full text mode layout -->
-    <div v-if="showFullText" class="flex flex-col w-full max-w-4xl mx-auto border rounded-lg p-6 my-4 bg-white shadow-sm">
+    <div v-if="showFullText" class="flex flex-col w-full max-w-4xl mx-auto p-6 my-4 bg-white shadow-sm" :class="{ 'border-b': true, 'md:border md:rounded-lg': true }">
       <!-- Question header with number and text -->
       <div class="mb-4">
         <p class="text-lg md:text-xl font-bold mb-2" data-test="question-header-text">
@@ -224,7 +224,7 @@
             <table class="border-collapse border border-gray-200 mx-auto w-full">
               <thead>
                 <tr>
-                  <th class="border border-gray-200 text-left p-2 bg-gray-50">Item</th>
+                  <th class="border border-gray-200 text-left p-2 bg-gray-50"></th>
                   <th
                     v-for="(option, optionIndex) in options"
                     :key="optionIndex"
@@ -239,7 +239,7 @@
                   v-for="(row, rowIndex) in matrixRows"
                   :key="rowIndex"
                 >
-                  <td class="border border-gray-200 p-2 font-medium">
+                  <td class="border border-gray-200 p-2 font-medium whitespace-nowrap">
                     {{ row }}
                   </td>
                   <td
@@ -292,7 +292,7 @@
                   v-for="(row, rowIndex) in matrixRows"
                   :key="rowIndex"
                 >
-                  <td class="border border-gray-200 p-2 font-medium">
+                  <td class="border border-gray-200 p-2 font-medium whitespace-nowrap">
                     {{ row }}
                   </td>
                   <td class="border border-gray-200 text-center p-2">
@@ -639,7 +639,7 @@
                   v-for="(row, rowIndex) in matrixRows"
                   :key="rowIndex"
                 >
-                  <td class="border border-gray-200 p-2 font-medium">
+                  <td class="border border-gray-200 p-2 font-medium whitespace-nowrap">
                     {{ row }}
                   </td>
                   <td class="border border-gray-200 text-center p-2">
