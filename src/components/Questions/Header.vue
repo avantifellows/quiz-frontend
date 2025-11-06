@@ -53,7 +53,7 @@
           {{ $props.title || "no data" }}
         </h1>
         <div class="text-sm text-gray-700 font-semibold mt-2 px-3 py-1.5 bg-gray-300 rounded inline-block" data-test="user-id">
-          ID: {{ $props.userId || "no data" }}
+          Id: {{ $props.userId || "no data" }}
         </div>
       </div>
       <!-- Tablet+: Test Name and ID side by side (no truncate) -->
@@ -62,7 +62,7 @@
           {{ $props.title || "no data" }}
         </h1>
         <div class="text-base text-gray-700 font-semibold whitespace-nowrap px-4 py-2 bg-gray-300 rounded" data-test="user-id">
-          ID: {{ $props.userId || "no data" }}
+          Id: {{ $props.userId || "no data" }}
         </div>
       </div>
     </div>

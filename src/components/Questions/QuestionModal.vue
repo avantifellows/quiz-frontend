@@ -16,27 +16,21 @@
       @end-test-by-time="endTestByTime"
       data-test="header"
     ></Header>
-    <!-- Homework header (non-assessment) -->
-    <div v-if="!isQuizAssessment" class="bg-gray-200 border-b border-gray-300 px-4 py-3 fixed top-0 w-full z-20">
-      <!-- Mobile: Test Name (truncated) -->
-      <div class="sm:hidden">
-        <h1 class="text-base font-semibold text-gray-800 truncate" data-test="test-name">
-          {{ $props.title || "no data" }}
-        </h1>
-        <div class="text-sm text-gray-700 font-semibold mt-2 px-3 py-1.5 bg-gray-300 rounded inline-block" data-test="user-id">
-          ID: {{ $props.userId || "no data" }}
-        </div>
-      </div>
-      <!-- Tablet+: Test Name and ID side by side (no truncate) -->
-      <div class="hidden sm:flex sm:justify-between sm:items-center gap-4">
-        <h1 class="text-lg font-semibold text-gray-800 flex-1 break-words" data-test="test-name">
-          {{ $props.title || "no data" }}
-        </h1>
-        <div class="text-base text-gray-700 font-semibold whitespace-nowrap px-4 py-2 bg-gray-300 rounded" data-test="user-id">
-          ID: {{ $props.userId || "no data" }}
-        </div>
-      </div>
-    </div>
+    <!-- Homework header (non-assessment) - reuse Header component -->
+    <Header
+      v-if="!isQuizAssessment"
+      :hasQuizEnded="hasQuizEnded"
+      :hasTimeLimit="false"
+      v-model:isPaletteVisible="isPaletteVisible"
+      :timeRemaining="0"
+      :isSessionAnswerRequestProcessing="$props.isSessionAnswerRequestProcessing"
+      :warningTimeLimit="0"
+      :title="title"
+      :userId="userId"
+      :quizType="quizType"
+      @end-test="endTest"
+      data-test="header"
+    ></Header>
     <div
       class="scroll-container flex flex-col grow bg-white w-full justify-between overflow-hidden pt-6"
     >
