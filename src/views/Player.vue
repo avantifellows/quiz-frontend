@@ -66,11 +66,14 @@
         :maxMarks="maxMarks"
         :showFullText="showFullText"
         :displaySolution="displaySolution"
+        :showPortalLogout="shouldShowPortalLogout"
+        :portalLogoutLabel="portalLogoutLabel"
         v-model:currentQuestionIndex="currentQuestionIndex"
         v-model:responses="responses"
         v-model:previousOmrResponses="previousOmrResponses"
         @submit-omr-question="submitOmrQuestion"
         @end-test="endTest"
+        @logout="handlePortalLogout"
         data-test="single-page-modal"
         v-if="isQuestionShown && (isOmrMode || singlePageMode)"
       ></SinglePageModal>
@@ -103,10 +106,13 @@
         v-model:currentQuestionIndex="currentQuestionIndex"
         v-model:responses="responses"
         v-model:previousResponse="previousResponse"
+        :showPortalLogout="shouldShowPortalLogout"
+        :portalLogoutLabel="portalLogoutLabel"
         @submit-question="submitQuestion"
         @update-review-status="updateQuestionResponse"
         @end-test="endTest"
         @fetch-question-bucket="fetchQuestionBucket"
+        @logout="handlePortalLogout"
         v-if="isQuestionShown && !isOmrMode && !singlePageMode"
         data-test="modal"
       ></QuestionModal>
@@ -179,6 +185,7 @@ import { useToast, POSITION } from "vue-toastification"
 import BaseIcon from "../components/UI/Icons/BaseIcon.vue";
 import IconButton from "../components/UI/Buttons/IconButton.vue";
 import OrganizationAPIService from "../services/API/Organization";
+import { logoutFromPortal } from "@/services/portalAuth";
 // import { getPortalIdentifiers } from "@/services/portalAuth";
 
 export default defineComponent({
@@ -223,6 +230,14 @@ export default defineComponent({
     autoStart: {
       default: false,
       type: Boolean
+    },
+    fromPortal: {
+      type: Boolean,
+      default: false
+    },
+    portalGroup: {
+      type: String,
+      default: null
     }
   },
   setup(props) {
@@ -309,6 +324,9 @@ export default defineComponent({
       if (isQuizAssessment.value == false) return "homework";
       return isOmrMode.value ? "omr-assessment" : "assessment";
     });
+
+    const shouldShowPortalLogout = computed(() => props.fromPortal === true);
+    const portalLogoutLabel = "Logout";
 
     // const shouldShowOmrToggle = computed(() => state.metadata.quiz_type == "assessment")
     const shouldShowOmrToggle = computed(() => false)
@@ -423,6 +441,14 @@ export default defineComponent({
 
       window.location.href = url.toString();
     }
+
+    const handlePortalLogout = () => {
+      logoutFromPortal({
+        quizId: props.quizId,
+        group: props.portalGroup ?? null,
+        omrMode: isOmrMode.value,
+      });
+    };
 
     function starttimeSpentOnQuestionCalc() {
       if (state.timerInterval) {
@@ -1294,7 +1320,10 @@ export default defineComponent({
       nextStepButtonText,
       canonicalUserId,
       showFullText,
-      singlePageHeaderText
+      singlePageHeaderText,
+      shouldShowPortalLogout,
+      portalLogoutLabel,
+      handlePortalLogout
     };
   },
 });

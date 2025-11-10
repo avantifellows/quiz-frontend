@@ -4,6 +4,7 @@ const ACCESS_TOKEN_KEY = "access_token";
 const REFRESH_TOKEN_KEY = "refresh_token";
 
 const portalBackendBaseUrl = (process.env.VUE_APP_PORTAL_BACKEND || "").replace(/\/$/, "");
+const portalAuthBaseUrl = (process.env.VUE_APP_PORTAL_FRONTEND || "https://auth.avantifellows.org").replace(/\/$/, "");
 
 let cachedIdentifiers: PortalIdentifiers | null | undefined;
 
@@ -148,6 +149,7 @@ export const getPortalIdentifiers = async (
 
   try {
     const identifiers = await verifyTokens();
+    console.log(identifiers)
     cachedIdentifiers = identifiers ?? null;
     return cachedIdentifiers;
   } catch (error) {
@@ -195,4 +197,51 @@ export const clearPortalTokens = (): void => {
   clearCookie(ACCESS_TOKEN_KEY);
   clearCookie(REFRESH_TOKEN_KEY);
   cachedIdentifiers = undefined;
+};
+
+export const buildPortalSessionUrl = (
+  options: {
+    quizId?: string | null;
+    group?: string | null;
+    omrMode?: boolean;
+  } = {}
+): string => {
+  const browserOrigin =
+    typeof window !== "undefined" && window.location?.origin
+      ? window.location.origin
+      : "";
+  const baseUrl = portalAuthBaseUrl || browserOrigin || "/";
+
+  const { quizId, group, omrMode } = options;
+
+  if (!quizId || !group) {
+    return `${baseUrl}/`;
+  }
+
+  const sessionId = `${group}_${quizId}`;
+  const searchParams = new URLSearchParams({ sessionId });
+
+  if (typeof omrMode === "boolean" && omrMode == true) {
+    searchParams.set("omrMode", String(omrMode));
+  }
+
+  return `${baseUrl}/?${searchParams.toString()}`;
+};
+
+export const logoutFromPortal = (
+  options: {
+    quizId?: string | null;
+    group?: string | null;
+    omrMode?: boolean;
+    redirectUrl?: string;
+  } = {}
+): void => {
+  clearPortalTokens();
+
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const targetUrl = options.redirectUrl || buildPortalSessionUrl(options);
+  window.location.href = targetUrl;
 };

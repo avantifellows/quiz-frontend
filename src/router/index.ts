@@ -28,6 +28,13 @@ const resolvePortalData = (route: any): PortalIdentifiers | null => {
   );
 };
 
+const isFromPortal = (route: any): boolean => {
+  const raw = getQueryValue(route.query.fromPortal);
+  if (!raw) return false;
+  const normalized = raw.trim().toLowerCase();
+  return normalized === "1" || normalized === "true" || normalized === "yes";
+};
+
 const resolveUserId = (route: any): string | null => {
   const fromQuery = getQueryValue(route.query.userId);
   if (fromQuery) return fromQuery;
@@ -79,7 +86,9 @@ const routes = [
       apiKey: route.query.apiKey,
       omrMode: route.query.omrMode === "true",
       singlePageMode: route.query.singlePageMode === "true",
-      autoStart: route.query.autoStart === "true"
+      autoStart: route.query.autoStart === "true",
+      fromPortal: isFromPortal(route),
+      portalGroup: resolvePortalData(route)?.group ?? null,
     }),
     // lazy-loading: https://router.vuejs.org/guide/advanced/lazy-loading.html
     component: () =>
@@ -98,7 +107,9 @@ const routes = [
       apiKey: route.query.apiKey,
       omrMode: route.query.omrMode === "true",
       singlePageMode: route.query.singlePageMode === "true",
-      autoStart: route.query.autoStart === "true"
+      autoStart: route.query.autoStart === "true",
+      fromPortal: isFromPortal(route),
+      portalGroup: resolvePortalData(route)?.group ?? null,
     }),
     // lazy-loading: https://router.vuejs.org/guide/advanced/lazy-loading.html
     component: () =>

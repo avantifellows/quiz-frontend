@@ -13,13 +13,26 @@
       :userId="userId"
       :quizType="quizType"
       :displayId="displayId"
+      :showPortalLogout="showPortalLogout"
+      :portalLogoutLabel="portalLogoutLabel"
       @time-limit-warning="displayTimeLimitWarning"
       @end-test="endTest"
       @end-test-by-time="endTestByTime"
+      @logout="$emit('logout')"
       data-test="header"
     ></Header>
+    <InfoBar
+      v-if="!isQuizAssessment"
+      :title="title"
+      :userId="userId"
+      :displayId="displayId"
+      :showPortalLogout="showPortalLogout"
+      :portalLogoutLabel="portalLogoutLabel"
+      @logout="$emit('logout')"
+      data-test="infoBar"
+    />
     <div
-      class="scroll-container flex flex-col grow bg-white w-full justify-between overflow-hidden pt-6"
+      class="scroll-container flex flex-col grow bg-white w-full justify-between overflow-hidden pt-7"
     >
       <Body
         :text="currentQuestion.text"
@@ -111,6 +124,7 @@
 import Body from "./Body.vue"
 import Footer from "./Footer.vue"
 import Header from "./Header.vue"
+import InfoBar from "./InfoBar.vue"
 import QuestionPalette from "./Palette/QuestionPalette.vue"
 import {
   defineComponent,
@@ -144,6 +158,7 @@ export default defineComponent({
     Body,
     Footer,
     Header,
+    InfoBar,
     QuestionPalette
   },
   props: {
@@ -238,6 +253,14 @@ export default defineComponent({
     displaySolution: {
       type: Boolean,
       default: true
+    },
+    showPortalLogout: {
+      type: Boolean,
+      default: false
+    },
+    portalLogoutLabel: {
+      type: String,
+      default: "Logout"
     }
   },
   setup(props, context) {
@@ -653,6 +676,15 @@ For final submission, click the End Test button again.`,
       }
     }
 
+    const portalLogoutTitleConfig = computed(() => ({
+      value: props.portalLogoutLabel || "Logout",
+      class: "text-white text-sm bp-500:text-md lg:text-lg xl:text-xl font-bold",
+    }));
+
+    const portalLogoutButtonClass = computed(() =>
+      "bg-gray-500 ring-gray-500 p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl hover:bg-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-gray-300"
+    );
+
     return {
       ...toRefs(state),
       questionOptionSelected,
@@ -681,7 +713,9 @@ For final submission, click the End Test button again.`,
       optionalLimitReached,
       numericalAnswerUpdated,
       timeLimitWarningThreshold,
-      displayTimeLimitWarning
+      displayTimeLimitWarning,
+      portalLogoutTitleConfig,
+      portalLogoutButtonClass
     }
   },
   emits: [
@@ -694,7 +728,8 @@ For final submission, click the End Test button again.`,
     "fetch-question-bucket",
     "test-warning-shown",
     "test-optional-warning-shown",
-    "update-review-status"
+    "update-review-status",
+    "logout"
   ],
 });
 </script>
