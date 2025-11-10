@@ -56,8 +56,8 @@
         :qsetIndexLimits="currentQsetIndexLimits"
         :quizTimeLimit="quizTimeLimit"
         :isSessionAnswerRequestProcessing="isSessionAnswerRequestProcessing"
-        :userId="canonicalUserId || ''"
-        :displayId="displayUserId"
+        :userId="userId"
+        :displayId="displayId"
         :title="title"
         :subject="metadata.subject"
         :testFormat="metadata.test_format || ''"
@@ -95,8 +95,8 @@
         :continueAfterAnswerSubmit="continueAfterAnswerSubmit"
         :timeRemaining="timeRemaining"
         :displaySolution="displaySolution"
-        :userId="canonicalUserId || ''"
-        :displayId="displayUserId"
+        :userId="userId"
+        :displayId="displayId"
         :title="title"
         :subject="metadata.subject"
         :testFormat="metadata.test_format || ''"
@@ -131,8 +131,8 @@
         :qsetMetrics="qsetMetrics"
         :isShown="isScorecardShown"
         :title="title"
-        :userId="canonicalUserId || ''"
-        :displayId="displayUserId"
+        :userId="userId"
+        :displayId="displayId"
         :greeting="scorecardGreeting"
         :numQuestionsAnswered="numQuestionsAnswered"
         :hasGradedQuestions="hasGradedQuestions"
@@ -286,13 +286,6 @@ export default defineComponent({
       timerInterval: null as number | null, // variable used in computing time spent on question
       qsetMetrics: [] as QuestionSetMetric[],
       toast: useToast(),
-      displayUserId: props.displayId
-        ? String(props.displayId)
-        : props.userId
-          ? String(props.userId)
-          : "",
-      displayIdType: (props.displayIdType ?? (props.displayId || props.userId ? "user_id" : null)) as DisplayIdType,
-      storedCanonicalUserId: props.userId ? String(props.userId) : null,
     });
 
     OrganizationAPIService.checkAuthToken(props.apiKey).catch(() => {
@@ -365,44 +358,6 @@ export default defineComponent({
       };
     });
 
-    watch(
-      () => props.displayId,
-      (newValue) => {
-        if (typeof newValue === "string" && newValue.trim() !== "") {
-          state.displayUserId = String(newValue);
-          state.displayIdType = (props.displayIdType ?? "user_id") as DisplayIdType;
-        } else if (props.userId) {
-          state.displayUserId = String(props.userId);
-          state.displayIdType = "user_id";
-        } else {
-          state.displayUserId = "";
-          state.displayIdType = null;
-        }
-      },
-      { immediate: true }
-    );
-
-    watch(
-      () => props.displayIdType,
-      (newValue) => {
-        if (newValue) {
-          state.displayIdType = newValue as DisplayIdType;
-        } else if (!state.displayUserId) {
-          state.displayIdType = null;
-        }
-      }
-    );
-
-    watch(
-      () => props.userId,
-      (newValue) => {
-        state.storedCanonicalUserId = newValue ? String(newValue) : null;
-        if (!props.displayId) {
-          state.displayUserId = newValue ? String(newValue) : "";
-          state.displayIdType = newValue ? "user_id" : null;
-        }
-      }
-    );
 
     const toDifficultyLabel = (d: string | number | null | undefined) => {
       if (d == '1' || d == 1) return 'Easy';
@@ -699,35 +654,10 @@ export default defineComponent({
       }
     }
 
-    const canonicalUserId = computed(() => state.storedCanonicalUserId || (props.userId ? String(props.userId) : null));
-
     async function createSession() {
-      const userIdForSession = canonicalUserId.value;
-      // in case the guard fails -- commenting out for now since this situation is unlikely
-      // if (!userIdForSession) {
-      //   const identifiers = await getPortalIdentifiers({ force: true });
-      //   if (identifiers?.userId) {
-      //     userIdForSession = identifiers.userId;
-      //     state.storedCanonicalUserId = identifiers.userId;
-      //   }
-      // }
-
-      if (!userIdForSession) {
-        state.toast.error(
-          "Unable to identify user. Please sign in again.",
-          {
-            position: POSITION.TOP_LEFT,
-            timeout: 4000,
-            draggablePercent: 0.4,
-          }
-        );
-        router.replace({ name: "403" });
-        return;
-      }
-
       const sessionDetails = await SessionAPIService.createSession(
         props.quizId,
-        userIdForSession,
+        props.userId as string,
         isOmrMode.value
       );
       state.sessionId = sessionDetails._id;
@@ -1026,7 +956,7 @@ export default defineComponent({
       if (!state.metadata?.next_step_url) return "";
 
       let url = state.metadata.next_step_url
-        .replace('{userId}', canonicalUserId.value || '')
+        .replace('{userId}', props.userId || '')
         .replace('{apiKey}', props.apiKey || '');
 
       // Add autoStart parameter if next_step_autostart is true
@@ -1318,7 +1248,6 @@ export default defineComponent({
       stoptimeSpentOnQuestionCalc,
       processedNextStepUrl,
       nextStepButtonText,
-      canonicalUserId,
       showFullText,
       singlePageHeaderText,
       shouldShowPortalLogout,

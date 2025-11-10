@@ -9,6 +9,7 @@ declare module "vue-router" {
 }
 
 const requiredAuthKeys = ["apiKey"];
+const ALLOWED_TEST_USER_IDS = ["test_admin", "test_student", "dev_1", "dev_2"];
 
 const getQueryValue = (value: unknown): string | null => {
   if (typeof value === "string" && value.trim() !== "") {
@@ -26,13 +27,6 @@ const resolvePortalData = (route: any): PortalIdentifiers | null => {
     (route.meta?.portalIdentifiers as PortalIdentifiers | null) ??
     getCachedPortalIdentifiers()
   );
-};
-
-const isFromPortal = (route: any): boolean => {
-  const raw = getQueryValue(route.query.fromPortal);
-  if (!raw) return false;
-  const normalized = raw.trim().toLowerCase();
-  return normalized === "1" || normalized === "true" || normalized === "yes";
 };
 
 const resolveUserId = (route: any): string | null => {
@@ -87,7 +81,7 @@ const routes = [
       omrMode: route.query.omrMode === "true",
       singlePageMode: route.query.singlePageMode === "true",
       autoStart: route.query.autoStart === "true",
-      fromPortal: isFromPortal(route),
+      fromPortal: route.query.fromPortal === "true",
       portalGroup: resolvePortalData(route)?.group ?? null,
     }),
     // lazy-loading: https://router.vuejs.org/guide/advanced/lazy-loading.html
@@ -108,7 +102,7 @@ const routes = [
       omrMode: route.query.omrMode === "true",
       singlePageMode: route.query.singlePageMode === "true",
       autoStart: route.query.autoStart === "true",
-      fromPortal: isFromPortal(route),
+      fromPortal: route.query.fromPortal === "true",
       portalGroup: resolvePortalData(route)?.group ?? null,
     }),
     // lazy-loading: https://router.vuejs.org/guide/advanced/lazy-loading.html
@@ -170,13 +164,20 @@ const router = createRouter({
 router.beforeEach(async (to) => {
   /** Before each router, check if the user is a third party and therefore, needs authentication. */
   if (to.meta.requiresAuth) {
+    const userIdFromQuery = getQueryValue(to.query.userId);
+
+    // Allow whitelisted test users to bypass token check
+    if (userIdFromQuery && ALLOWED_TEST_USER_IDS.includes(userIdFromQuery)) {
+      return;
+    }
+
+    // For non-test users, require apiKey
     const hasApiKey = requiredAuthKeys.every((key: string) => getQueryValue(to.query[key]) !== null);
 
     if (!hasApiKey) {
       return { name: "403" };
     }
 
-    const userIdFromQuery = getQueryValue(to.query.userId);
     // check the cache
     let identifiers: PortalIdentifiers | null = resolvePortalData(to);
 

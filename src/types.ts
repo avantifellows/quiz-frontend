@@ -10,7 +10,7 @@ type quizNavigationMode = "linear" | "non-linear";
 export type submittedAnswer = number[] | string[] | string | number | Record<string, number> | Record<string, string> | null;
 export type CorrectAnswerType = number[] | string[] | string | number | Record<string, number> | Record<string, string> | null;
 
-export type DisplayIdType = "student_id" | "apaar_id" | "user_id" | null;
+export type DisplayIdType = "user_id" | "student_id" | "apaar_id" | "candidate_id" | "teacher_id" | null;
 
 export interface PortalIdentifiers {
   userId: string;
