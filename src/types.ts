@@ -10,6 +10,17 @@ type quizNavigationMode = "linear" | "non-linear";
 export type submittedAnswer = number[] | string[] | string | number | Record<string, number> | Record<string, string> | null;
 export type CorrectAnswerType = number[] | string[] | string | number | Record<string, number> | Record<string, string> | null;
 
+export type DisplayIdType = "user_id" | "student_id" | "apaar_id" | "candidate_id" | "teacher_id" | null;
+
+export interface PortalIdentifiers {
+  userId: string;
+  studentId: string | null;
+  apaarId: string | null;
+  group: string | null;
+  displayId: string | null;
+  displayIdType: DisplayIdType;
+}
+
 export enum eventType {
   START_QUIZ = "start-quiz",
   RESUME_QUIZ = "resume-quiz",

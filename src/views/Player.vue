@@ -57,6 +57,7 @@
         :quizTimeLimit="quizTimeLimit"
         :isSessionAnswerRequestProcessing="isSessionAnswerRequestProcessing"
         :userId="userId"
+        :displayId="displayId"
         :title="title"
         :subject="metadata.subject"
         :testFormat="metadata.test_format || ''"
@@ -65,11 +66,14 @@
         :maxMarks="maxMarks"
         :showFullText="showFullText"
         :displaySolution="displaySolution"
+        :showPortalLogout="shouldShowPortalLogout"
+        :portalLogoutLabel="portalLogoutLabel"
         v-model:currentQuestionIndex="currentQuestionIndex"
         v-model:responses="responses"
         v-model:previousOmrResponses="previousOmrResponses"
         @submit-omr-question="submitOmrQuestion"
         @end-test="endTest"
+        @logout="handlePortalLogout"
         data-test="single-page-modal"
         v-if="isQuestionShown && (isOmrMode || singlePageMode)"
       ></SinglePageModal>
@@ -92,6 +96,7 @@
         :timeRemaining="timeRemaining"
         :displaySolution="displaySolution"
         :userId="userId"
+        :displayId="displayId"
         :title="title"
         :subject="metadata.subject"
         :testFormat="metadata.test_format || ''"
@@ -101,10 +106,13 @@
         v-model:currentQuestionIndex="currentQuestionIndex"
         v-model:responses="responses"
         v-model:previousResponse="previousResponse"
+        :showPortalLogout="shouldShowPortalLogout"
+        :portalLogoutLabel="portalLogoutLabel"
         @submit-question="submitQuestion"
         @update-review-status="updateQuestionResponse"
         @end-test="endTest"
         @fetch-question-bucket="fetchQuestionBucket"
+        @logout="handlePortalLogout"
         v-if="isQuestionShown && !isOmrMode && !singlePageMode"
         data-test="modal"
       ></QuestionModal>
@@ -124,6 +132,7 @@
         :isShown="isScorecardShown"
         :title="title"
         :userId="userId"
+        :displayId="displayId"
         :greeting="scorecardGreeting"
         :numQuestionsAnswered="numQuestionsAnswered"
         :hasGradedQuestions="hasGradedQuestions"
@@ -147,7 +156,7 @@ import QuizAPIService from "../services/API/Quiz";
 import FormAPIService from "../services/API/Form";
 import SessionAPIService from "../services/API/Session";
 import QuestionAPIService from "../services/API/Question"
-import { defineComponent, reactive, toRefs, computed, watch, onMounted } from "vue";
+import { defineComponent, reactive, toRefs, computed, watch, onMounted, PropType } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import {
@@ -169,12 +178,15 @@ import {
   TimeSpentEntry,
   UpdateSessionAnswerAPIPayload,
   UpdateSessionAnswersAtSpecificPositionsAPIPayload,
-  QuestionSetMetric
+  QuestionSetMetric,
+  DisplayIdType
 } from "../types";
 import { useToast, POSITION } from "vue-toastification"
 import BaseIcon from "../components/UI/Icons/BaseIcon.vue";
 import IconButton from "../components/UI/Buttons/IconButton.vue";
 import OrganizationAPIService from "../services/API/Organization";
+import { logoutFromPortal } from "@/services/portalAuth";
+// import { getPortalIdentifiers } from "@/services/portalAuth";
 
 export default defineComponent({
   name: "Player",
@@ -195,6 +207,14 @@ export default defineComponent({
       default: null,
       type: String,
     },
+    displayId: {
+      type: String,
+      default: "",
+    },
+    displayIdType: {
+      type: String as PropType<DisplayIdType>,
+      default: null,
+    },
     apiKey: {
       default: null,
       type: String,
@@ -210,6 +230,14 @@ export default defineComponent({
     autoStart: {
       default: false,
       type: Boolean
+    },
+    fromPortal: {
+      type: Boolean,
+      default: false
+    },
+    portalGroup: {
+      type: String,
+      default: null
     }
   },
   setup(props) {
@@ -290,6 +318,9 @@ export default defineComponent({
       return isOmrMode.value ? "omr-assessment" : "assessment";
     });
 
+    const shouldShowPortalLogout = computed(() => props.fromPortal === true);
+    const portalLogoutLabel = "Logout";
+
     // const shouldShowOmrToggle = computed(() => state.metadata.quiz_type == "assessment")
     const shouldShowOmrToggle = computed(() => false)
 
@@ -364,6 +395,14 @@ export default defineComponent({
 
       window.location.href = url.toString();
     }
+
+    const handlePortalLogout = () => {
+      logoutFromPortal({
+        quizId: props.quizId,
+        group: props.portalGroup ?? null,
+        omrMode: isOmrMode.value,
+      });
+    };
 
     function starttimeSpentOnQuestionCalc() {
       if (state.timerInterval) {
@@ -1209,7 +1248,10 @@ export default defineComponent({
       processedNextStepUrl,
       nextStepButtonText,
       showFullText,
-      singlePageHeaderText
+      singlePageHeaderText,
+      shouldShowPortalLogout,
+      portalLogoutLabel,
+      handlePortalLogout
     };
   },
 });

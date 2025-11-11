@@ -1,11 +1,23 @@
 <template>
   <div class="flex flex-col bg-indigo-50 w-full h-full overflow-hidden justify-between">
     <Header class="fixed top-0" v-if="isQuizAssessment" :hasQuizEnded="hasQuizEnded"
-      :hasTimeLimit="quizTimeLimit != null" :title="title" :userId="userId" :isOmrMode=true
+      :hasTimeLimit="quizTimeLimit != null" :title="title" :userId="userId" :displayId="displayId" :isOmrMode=true
       :isSessionAnswerRequestProcessing="isSessionAnswerRequestProcessing" v-model:isPaletteVisible="isPaletteVisible"
       :timeRemaining="timeRemaining" :warningTimeLimit="timeLimitWarningThreshold"
+      :showPortalLogout="showPortalLogout" :portalLogoutLabel="portalLogoutLabel"
       @time-limit-warning="displayTimeLimitWarning" @end-test="endTest" @end-test-by-time="endTestByTime"
+      @logout="$emit('logout')"
       data-test="omr-header"></Header>
+    <InfoBar
+      v-if="!isQuizAssessment"
+      :title="title"
+      :userId="userId"
+      :displayId="displayId"
+      :showPortalLogout="showPortalLogout"
+      :portalLogoutLabel="portalLogoutLabel"
+      @logout="$emit('logout')"
+      data-test="infoBar"
+    />
     <div class="flex flex-col w-full h-full -z-10" :class="{ 'mt-20 mb-20': isQuizAssessment }">
       <div class="h-full">
         <div class="scroll-container flex flex-col grow bg-indigo-50 w-full justify-between overflow-y-auto" :class="{ 'mt-24': isQuizAssessment }">
@@ -86,6 +98,7 @@
 
 <script lang="ts">
 import Header from "../Questions/Header.vue"
+import InfoBar from "../Questions/InfoBar.vue"
 import QuestionPalette from "../Questions/Palette/QuestionPalette.vue"
 import SinglePageItem from "./SinglePageItem.vue"
 import {
@@ -121,6 +134,7 @@ export default defineComponent({
   components: {
     SinglePageItem,
     Header,
+    InfoBar,
     QuestionPalette
   },
   props: {
@@ -184,6 +198,10 @@ export default defineComponent({
       type: String,
       default: ""
     },
+    displayId: {
+      type: String,
+      default: "",
+    },
     title: {
       required: true,
       type: [null, String] as PropType<quizTitleType>,
@@ -211,6 +229,14 @@ export default defineComponent({
     displaySolution: {
       type: Boolean,
       default: true,
+    },
+    showPortalLogout: {
+      type: Boolean,
+      default: false,
+    },
+    portalLogoutLabel: {
+      type: String,
+      default: "Logout",
     },
   },
   setup(props, context) {
@@ -527,6 +553,15 @@ export default defineComponent({
       state.localCurrentQuestionIndex = questionIndex
     }
 
+    const portalLogoutTitleConfig = computed(() => ({
+      value: props.portalLogoutLabel || "Logout",
+      class: "text-white text-sm bp-500:text-md lg:text-lg xl:text-xl font-bold",
+    }));
+
+    const portalLogoutButtonClass = computed(() =>
+      "bg-gray-500 ring-gray-500 p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl hover:bg-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-gray-300"
+    );
+
     return {
       ...toRefs(state),
       generateId,
@@ -550,7 +585,9 @@ export default defineComponent({
       numericalAnswerUpdated,
       timeLimitWarningThreshold,
       displayTimeLimitWarning,
-      navigateToQuestion
+      navigateToQuestion,
+      portalLogoutTitleConfig,
+      portalLogoutButtonClass
     }
   },
   emits: [
@@ -562,7 +599,8 @@ export default defineComponent({
     "fetch-question-bucket",
     "test-warning-shown",
     "test-optional-warning-shown",
-    "submit-omr-question"
+    "submit-omr-question",
+    "logout"
   ],
 });
 </script>
