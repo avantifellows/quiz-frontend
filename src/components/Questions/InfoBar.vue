@@ -28,6 +28,7 @@
           Id: {{ displayUserId || "no data" }}
         </div>
         <icon-button
+          v-if="showPortalLogout"
           :titleConfig="portalLogoutTitleConfig"
           :buttonClass="portalLogoutButtonClass"
           @click="$emit('logout')"

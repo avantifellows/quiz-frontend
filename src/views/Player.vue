@@ -358,7 +358,6 @@ export default defineComponent({
       };
     });
 
-
     const toDifficultyLabel = (d: string | number | null | undefined) => {
       if (d == '1' || d == 1) return 'Easy';
       if (d == '2' || d == 2) return 'Medium';

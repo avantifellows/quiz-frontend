@@ -164,18 +164,23 @@ const router = createRouter({
 router.beforeEach(async (to) => {
   /** Before each router, check if the user is a third party and therefore, needs authentication. */
   if (to.meta.requiresAuth) {
-    const userIdFromQuery = getQueryValue(to.query.userId);
-
-    // Allow whitelisted test users to bypass token check
-    if (userIdFromQuery && ALLOWED_TEST_USER_IDS.includes(userIdFromQuery)) {
-      return;
-    }
-
-    // For non-test users, require apiKey
+    // require apiKey
     const hasApiKey = requiredAuthKeys.every((key: string) => getQueryValue(to.query[key]) !== null);
 
     if (!hasApiKey) {
       return { name: "403" };
+    }
+
+    const userIdFromQuery = getQueryValue(to.query.userId);
+
+    // If userId is in URL, it must be whitelisted
+    if (userIdFromQuery && !ALLOWED_TEST_USER_IDS.includes(userIdFromQuery)) {
+      return { name: "403" };
+    }
+
+    // Allow whitelisted test users without checking tokens
+    if (userIdFromQuery && ALLOWED_TEST_USER_IDS.includes(userIdFromQuery)) {
+      return;
     }
 
     // check the cache
@@ -187,7 +192,7 @@ router.beforeEach(async (to) => {
 
     to.meta.portalIdentifiers = identifiers;
 
-    if (!userIdFromQuery && !identifiers?.userId) {
+    if (!identifiers?.userId) {
       return { name: "403" };
     }
   }
