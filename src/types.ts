@@ -25,7 +25,8 @@ export enum questionType {
   SUBJECTIVE = "subjective",
   MATRIX_MATCH = "matrix-match",
   MATRIX_RATING = "matrix-rating",
-  MATRIX_NUMERICAL = "matrix-numerical"
+  MATRIX_NUMERICAL = "matrix-numerical",
+  MATRIX_SUBJECTIVE = "matrix-subjective"
 }
 
 export enum questionTypeHeaderText {
@@ -36,7 +37,8 @@ export enum questionTypeHeaderText {
     SUBJECTIVE = "Subjective Answer",
     MATRIX_MATCH = "Matrix Matching",
     MATRIX_RATING = "Matrix Rating Scale",
-    MATRIX_NUMERICAL = "Matrix Numerical Input"
+    MATRIX_NUMERICAL = "Matrix Numerical Input",
+    MATRIX_SUBJECTIVE = "Matrix Subjective Input"
  }
 
 export interface IconButtonTitleConfig {
