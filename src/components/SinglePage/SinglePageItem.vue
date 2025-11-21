@@ -325,9 +325,48 @@
             Correct Answer: {{ JSON.stringify(correctAnswer) }}
           </div>
         </div>
+        <!-- Matrix subjective answer -->
+        <div
+          v-if="isQuestionTypeMatrixSubjective"
+          class="flex flex-col items-center"
+          :class="answerContainerClass"
+          data-test="matrixSubjectiveContainer"
+        >
+          <div class="max-w-screen-md w-full">
+            <table class="border-collapse border border-gray-200 mx-auto w-full">
+              <thead>
+                <tr>
+                  <th class="border border-gray-200 text-left p-2 bg-gray-50">Item</th>
+                  <th class="border border-gray-200 text-left p-2 bg-gray-50">Response</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(row, rowIndex) in matrixRows"
+                  :key="rowIndex"
+                >
+                  <td class="border border-gray-200 p-2 font-medium whitespace-nowrap">
+                    {{ row }}
+                  </td>
+                  <td class="border border-gray-200 p-2">
+                    <textarea
+                      rows="2"
+                      :placeholder="`Enter response for ${row}`"
+                      class="w-full px-2 py-1 border rounded focus:border-primary focus:ring-primary disabled:cursor-not-allowed disabled:bg-gray-100"
+                      :disabled="isAnswerDisabled"
+                      :value="getMatrixSubjectiveValue(row)"
+                      @input="updateMatrixSubjectiveValue(row, $event)"
+                      :data-test="`matrixSubjectiveInput-${rowIndex}`"
+                    ></textarea>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
       <!-- difficulty badge (always shown when present) for full text mode -->
-      <div v-if="showFullText && $props.difficulty" class="mx-6 py-2">
+      <div v-if="showFullText && hasQuizEnded && $props.difficulty" class="mx-6 py-2">
         <span class="text-lg font-bold mb-2 inline-block mr-2">Difficulty:</span>
         <span :class="$props.difficultyBadgeClass" data-test="difficulty-badge">{{ $props.difficulty }}</span>
       </div>
@@ -672,6 +711,45 @@
             Correct Answer: {{ JSON.stringify(correctAnswer) }}
           </div>
         </div>
+        <!-- Matrix subjective answer -->
+        <div
+          v-if="isQuestionTypeMatrixSubjective"
+          class="flex flex-col items-center"
+          :class="answerContainerClass"
+          data-test="matrixSubjectiveContainer"
+        >
+          <div class="max-w-screen-md w-full">
+            <table class="border-collapse border border-gray-200 mx-auto w-full">
+              <thead>
+                <tr>
+                  <th class="border border-gray-200 text-left p-2 bg-gray-50">Item</th>
+                  <th class="border border-gray-200 text-left p-2 bg-gray-50">Response</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(row, rowIndex) in matrixRows"
+                  :key="rowIndex"
+                >
+                  <td class="border border-gray-200 p-2 font-medium whitespace-nowrap">
+                    {{ row }}
+                  </td>
+                  <td class="border border-gray-200 p-2">
+                    <textarea
+                      rows="2"
+                      :placeholder="`Enter response for ${row}`"
+                      class="w-full px-2 py-1 border rounded focus:border-primary focus:ring-primary disabled:cursor-not-allowed disabled:bg-gray-100"
+                      :disabled="isAnswerDisabled"
+                      :value="getMatrixSubjectiveValue(row)"
+                      @input="updateMatrixSubjectiveValue(row, $event)"
+                      :data-test="`matrixSubjectiveInput-${rowIndex}`"
+                    ></textarea>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -988,6 +1066,21 @@ export default defineComponent({
       return '';
     }
 
+    function getMatrixSubjectiveValue(row: string) {
+      if (
+        state.draftAnswer &&
+        typeof state.draftAnswer === "object" &&
+        !Array.isArray(state.draftAnswer)
+      ) {
+        const matrixData = state.draftAnswer as Record<string, string | number>;
+        const value = matrixData[row];
+        if (typeof value === "string") {
+          return value;
+        }
+      }
+      return "";
+    }
+
     function updateMatrixNumericalValue(row: string, event: Event) {
       const target = event.target as HTMLInputElement;
       let value = target.value;
@@ -1022,6 +1115,32 @@ export default defineComponent({
       state.draftAnswer = Object.keys(currentDraft).length > 0 ? currentDraft : null;
       context.emit(
         "matrix-numerical-updated",
+        state.draftAnswer,
+        props.currentQuestionIndex
+      );
+    }
+
+    function updateMatrixSubjectiveValue(row: string, event: Event) {
+      const target = event.target as HTMLTextAreaElement;
+      const value = target.value;
+
+      const currentDraft: Record<string, string> = {};
+
+      if (state.draftAnswer && typeof state.draftAnswer === 'object' && !Array.isArray(state.draftAnswer)) {
+        Object.entries(state.draftAnswer).forEach(([key, val]) => {
+          currentDraft[key] = String(val);
+        });
+      }
+
+      if (value.trim() === "") {
+        delete currentDraft[row];
+      } else {
+        currentDraft[row] = value;
+      }
+
+      state.draftAnswer = Object.keys(currentDraft).length > 0 ? currentDraft : null;
+      context.emit(
+        "matrix-subjective-updated",
         state.draftAnswer,
         props.currentQuestionIndex
       );
@@ -1222,6 +1341,9 @@ export default defineComponent({
     );
     const isQuestionTypeMatrixNumerical = computed(
       () => props.questionType == questionType.MATRIX_NUMERICAL
+    );
+    const isQuestionTypeMatrixSubjective = computed(
+      () => props.questionType == questionType.MATRIX_SUBJECTIVE
     );
 
     // styling class to decide orientation of image + options
@@ -1473,6 +1595,7 @@ export default defineComponent({
       isQuestionTypeMatrixMatch,
       isQuestionTypeMatrixRating,
       isQuestionTypeMatrixNumerical,
+      isQuestionTypeMatrixSubjective,
       getRowLabel,
       getColumnLabel,
       convertMatrixMatchOptionToString,
@@ -1481,6 +1604,8 @@ export default defineComponent({
       isMatrixRatingOptionSelected,
       getMatrixNumericalValue,
       updateMatrixNumericalValue,
+      getMatrixSubjectiveValue,
+      updateMatrixSubjectiveValue,
       validateMatrixNumericalInput,
       orientationClass,
       optionInputType,
@@ -1505,6 +1630,7 @@ export default defineComponent({
     "numerical-answer-entered",
     "matrix-option-selected",
     "matrix-numerical-updated",
+    "matrix-subjective-updated",
     "navigate",
   ],
 });

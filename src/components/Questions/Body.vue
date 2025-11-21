@@ -366,6 +366,45 @@
             Correct Answer: {{ JSON.stringify(correctAnswer) }}
           </div>
         </div>
+        <!-- Matrix subjective answer -->
+        <div
+          v-if="isQuestionTypeMatrixSubjective"
+          class="flex flex-col items-center"
+          :class="answerContainerClass"
+          data-test="matrixSubjectiveContainer"
+        >
+          <div class="max-w-screen-md w-full">
+            <table class="border-collapse border border-gray-200 mx-auto w-full">
+              <thead>
+                <tr>
+                  <th class="border border-gray-200 text-left p-2 bg-gray-50">Item</th>
+                  <th class="border border-gray-200 text-left p-2 bg-gray-50">Response</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(row, rowIndex) in matrixRows"
+                  :key="rowIndex"
+                >
+                  <td class="border border-gray-200 p-2 font-medium whitespace-nowrap">
+                    {{ row }}
+                  </td>
+                  <td class="border border-gray-200 p-2">
+                    <textarea
+                      rows="2"
+                      :placeholder="`Enter response for ${row}`"
+                      class="w-full px-2 py-1 border rounded focus:border-primary focus:ring-primary disabled:cursor-not-allowed disabled:bg-gray-100"
+                      :disabled="isAnswerDisabled"
+                      :value="getMatrixSubjectiveValue(row)"
+                      @input="updateMatrixSubjectiveValue(row, $event)"
+                      :data-test="`matrixSubjectiveInput-${rowIndex}`"
+                    ></textarea>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
       <!-- labels -->
       <div
@@ -622,6 +661,7 @@ export default defineComponent({
       [questionType.MATRIX_MATCH, questionTypeHeaderText.MATRIX_MATCH],
       [questionType.MATRIX_RATING, questionTypeHeaderText.MATRIX_RATING],
       [questionType.MATRIX_NUMERICAL, questionTypeHeaderText.MATRIX_NUMERICAL],
+      [questionType.MATRIX_SUBJECTIVE, questionTypeHeaderText.MATRIX_SUBJECTIVE],
     ]);
 
     /** stop the loading spinner when the image has been loaded **/
@@ -735,6 +775,20 @@ export default defineComponent({
       return '';
     }
 
+    function getMatrixSubjectiveValue(row: string) {
+      if (
+        props.draftAnswer &&
+        typeof props.draftAnswer === "object" &&
+        !Array.isArray(props.draftAnswer)
+      ) {
+        const value = props.draftAnswer[row];
+        if (typeof value === "string") {
+          return value;
+        }
+      }
+      return "";
+    }
+
     function updateMatrixNumericalValue(row: string, event: Event) {
       const target = event.target as HTMLInputElement;
       let value = target.value;
@@ -754,6 +808,13 @@ export default defineComponent({
       // Emit the string value to preserve leading zeros (like "00")
       const finalValue = value === "" ? null : value;
       context.emit("matrix-numerical-updated", row, finalValue);
+    }
+
+    function updateMatrixSubjectiveValue(row: string, event: Event) {
+      const target = event.target as HTMLTextAreaElement;
+      const value = target.value;
+      const finalValue = value.trim() === "" ? null : value;
+      context.emit("matrix-subjective-updated", row, finalValue);
     }
 
     function validateMatrixNumericalInput(event: KeyboardEvent) {
@@ -982,6 +1043,9 @@ export default defineComponent({
     const isQuestionTypeMatrixNumerical = computed(
       () => props.questionType == questionType.MATRIX_NUMERICAL
     );
+    const isQuestionTypeMatrixSubjective = computed(
+      () => props.questionType == questionType.MATRIX_SUBJECTIVE
+    );
 
     // styling class to decide orientation of image + options
     // depending on portrait/landscape orientation
@@ -1205,6 +1269,8 @@ export default defineComponent({
       isMatrixRatingOptionSelected,
       getMatrixNumericalValue,
       updateMatrixNumericalValue,
+      getMatrixSubjectiveValue,
+      updateMatrixSubjectiveValue,
       validateMatrixNumericalInput,
       getRowLabel,
       getColumnLabel,
@@ -1223,6 +1289,7 @@ export default defineComponent({
       isQuestionTypeMatrixMatch,
       isQuestionTypeMatrixRating,
       isQuestionTypeMatrixNumerical,
+      isQuestionTypeMatrixSubjective,
       orientationClass,
       optionInputType,
       answerContainerClass,
@@ -1245,6 +1312,7 @@ export default defineComponent({
     "numerical-answer-entered",
     "matrix-option-selected",
     "matrix-numerical-updated",
+    "matrix-subjective-updated",
     "navigate",
   ],
 });

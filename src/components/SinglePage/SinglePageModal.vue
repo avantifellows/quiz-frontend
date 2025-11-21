@@ -51,6 +51,7 @@
                 @numerical-answer-entered="numericalAnswerUpdated"
                 @matrix-option-selected="matrixOptionSelected"
                 @matrix-numerical-updated="matrixNumericalUpdated"
+                @matrix-subjective-updated="matrixSubjectiveUpdated"
                 :key="questionState.index"
                 :data-test="`SinglePageItem-${questionState.index}`"
                 :ref="`singlepageitem-${questionState.index}`"></SinglePageItem>
@@ -337,6 +338,14 @@ export default defineComponent({
       context.emit("submit-omr-question", newQuestionIndex);
     }
 
+    /** update matrix subjective answer */
+    function matrixSubjectiveUpdated(answer: Record<string, string> | null, newQuestionIndex: number) {
+      updateQuestionIndex(newQuestionIndex);
+      state.previousLocalResponses[newQuestionIndex] = clonedeep(state.localResponses[state.localCurrentQuestionIndex]);
+      state.localResponses[state.localCurrentQuestionIndex].answer = answer
+      context.emit("submit-omr-question", newQuestionIndex);
+    }
+
     function endTest() {
       if (!props.hasQuizEnded && state.hasEndTestBeenClickedOnce) {
         let attemptedQuestions = 0;
@@ -423,15 +432,22 @@ export default defineComponent({
       if (isQuestionTypeNumericalInteger.value || isQuestionTypeNumericalFloat.value) {
         return true
       }
-      // Handle matrix questions (matrix-rating and matrix-numerical only)
-      if (currentQuestion.value?.type === "matrix-rating" || currentQuestion.value?.type === "matrix-numerical") {
+      // Handle matrix questions (matrix-rating, matrix-numerical, and matrix-subjective)
+      if (currentQuestion.value?.type === "matrix-rating" || currentQuestion.value?.type === "matrix-numerical" || currentQuestion.value?.type === "matrix-subjective") {
         if (typeof currentDraftResponse !== 'object' || currentDraftResponse === null || Array.isArray(currentDraftResponse)) {
           return false;
         }
-        // Check if all matrix rows are filled for matrix-rating and matrix-numerical
+        // Check if all matrix rows are filled for matrix-based questions
         const matrixRows = currentQuestion.value?.matrix_rows || [];
+        if (!matrixRows || matrixRows.length === 0) {
+          return false;
+        }
+        if (currentQuestion.value?.type === "matrix-subjective") {
+          const filledRows = Object.entries(currentDraftResponse).filter(([, val]) => typeof val === "string" && val.trim() !== "");
+          return filledRows.length === matrixRows.length;
+        }
         const answeredRows = Object.keys(currentDraftResponse);
-        return matrixRows.length > 0 && answeredRows.length === matrixRows.length;
+        return answeredRows.length === matrixRows.length;
       }
       return Array.isArray(currentDraftResponse) && currentDraftResponse.length > 0
     })
@@ -535,6 +551,7 @@ export default defineComponent({
       subjectiveAnswerUpdated,
       matrixOptionSelected,
       matrixNumericalUpdated,
+      matrixSubjectiveUpdated,
       clearAnswer,
       endTest,
       endTestByTime,
