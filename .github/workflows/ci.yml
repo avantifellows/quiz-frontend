@@ -59,7 +59,7 @@ jobs:
           start: npm run serve
           wait-on: "http://localhost:8080"
         env:
-          VUE_APP_BACKEND: http://127.0.0.1:8000
+          VUE_APP_BACKEND: http://127.0.0.1:8001
           # pass the Dashboard record key as an environment variable
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           # pass GitHub token to allow accurately detecting a build vs a re-run build
@@ -100,7 +100,7 @@ jobs:
           start: npm run serve
           wait-on: "http://localhost:8080"
         env:
-          VUE_APP_BACKEND: http://127.0.0.1:8000
+          VUE_APP_BACKEND: http://127.0.0.1:8001
           # pass the Dashboard record key as an environment variable
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           # pass GitHub token to allow accurately detecting a build vs a re-run build
@@ -152,7 +152,7 @@ jobs:
           start: npm run serve
           wait-on: "http://localhost:8080"
         env:
-          VUE_APP_BACKEND: http://127.0.0.1:8000
+          VUE_APP_BACKEND: http://127.0.0.1:8001
           # pass the Dashboard record key as an environment variable
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           # pass GitHub token to allow accurately detecting a build vs a re-run build
