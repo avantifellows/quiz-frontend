@@ -221,47 +221,80 @@
           data-test="matrixRatingContainer"
         >
           <div class="max-w-screen-md w-full">
-            <table class="border-collapse border border-gray-200 mx-auto w-full">
-              <thead>
-                <tr>
-                  <th class="border border-gray-200 text-left p-2 bg-gray-50"></th>
-                  <th
-                    v-for="(option, optionIndex) in options"
-                    :key="optionIndex"
-                    class="border border-gray-200 text-center p-2 bg-gray-50 text-sm"
+            <div class="hidden md:block overflow-x-auto">
+              <table class="border-collapse border border-gray-200 mx-auto w-full table-fixed">
+                <thead>
+                  <tr>
+                    <th class="border border-gray-200 text-left p-2 bg-gray-50 align-top whitespace-normal break-words"></th>
+                    <th
+                      v-for="(option, optionIndex) in options"
+                      :key="optionIndex"
+                      class="border border-gray-200 p-2 bg-gray-50 text-sm text-center align-top whitespace-normal break-words"
+                    >
+                      <span v-html="option.text"></span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="(row, rowIndex) in matrixRows"
+                    :key="rowIndex"
                   >
-                    {{ option.text }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="(row, rowIndex) in matrixRows"
-                  :key="rowIndex"
-                >
-                  <td class="border border-gray-200 p-2 font-medium whitespace-nowrap">
-                    {{ row }}
-                  </td>
-                  <td
+                    <td class="border border-gray-200 p-2 font-medium align-top whitespace-normal break-words">
+                      {{ row }}
+                    </td>
+                    <td
+                      v-for="(option, optionIndex) in options"
+                      :key="optionIndex"
+                      class="border border-gray-200 text-center p-2 align-top whitespace-normal break-words"
+                    >
+                      <input
+                        type="radio"
+                        :name="`matrix-rating-${rowIndex}-${currentQuestionIndex}`"
+                        :value="optionIndex"
+                        class="text-primary focus:ring-0 disabled:cursor-not-allowed"
+                        :disabled="isAnswerDisabled"
+                        style="box-shadow: none"
+                        @click="selectMatrixOption(row, optionIndex)"
+                        :checked="isMatrixRatingOptionSelected(row, optionIndex)"
+                        :data-test="`matrixRatingSelector-${rowIndex}-${optionIndex}`"
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="md:hidden space-y-4">
+              <div
+                v-for="(row, rowIndex) in matrixRows"
+                :key="`mobile-matrix-rating-${rowIndex}`"
+                class="border border-gray-200 rounded-lg bg-white shadow-sm p-3"
+              >
+                <p class="font-medium text-sm break-words">
+                  {{ row }}
+                </p>
+                <div class="mt-3 space-y-2">
+                  <label
                     v-for="(option, optionIndex) in options"
-                    :key="optionIndex"
-                    class="border border-gray-200 text-center p-2"
+                    :key="`mobile-matrix-rating-${rowIndex}-${optionIndex}`"
+                    class="flex items-start gap-2"
                   >
                     <input
                       type="radio"
                       :name="`matrix-rating-${rowIndex}-${currentQuestionIndex}`"
                       :value="optionIndex"
-                      class="text-primary focus:ring-0 disabled:cursor-not-allowed"
+                      class="mt-1 text-primary focus:ring-0 disabled:cursor-not-allowed"
                       :disabled="isAnswerDisabled"
                       style="box-shadow: none"
                       @click="selectMatrixOption(row, optionIndex)"
                       :checked="isMatrixRatingOptionSelected(row, optionIndex)"
                       :data-test="`matrixRatingSelector-${rowIndex}-${optionIndex}`"
                     />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                    <span class="text-sm leading-relaxed break-words" v-html="option.text"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
           </div>
           <!-- answer display -->
           <div
@@ -280,41 +313,73 @@
           data-test="matrixNumericalContainer"
         >
           <div class="max-w-screen-md w-full">
-            <table class="border-collapse border border-gray-200 mx-auto w-full">
-              <thead>
-                <tr>
-                  <th class="border border-gray-200 text-left p-2 bg-gray-50">Item</th>
-                  <th class="border border-gray-200 text-center p-2 bg-gray-50">Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="(row, rowIndex) in matrixRows"
-                  :key="rowIndex"
-                >
-                  <td class="border border-gray-200 p-2 font-medium whitespace-nowrap">
-                    {{ row }}
-                  </td>
-                  <td class="border border-gray-200 text-center p-2">
-                    <input
-                      type="number"
-                      inputmode="numeric"
-                      pattern="[0-9]*"
-                      min="0"
-                      max="100"
-                      maxlength="3"
-                      :placeholder="`Enter value for ${row}`"
-                      class="w-full px-2 py-1 border rounded text-center focus:border-primary focus:ring-primary disabled:cursor-not-allowed disabled:bg-gray-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      :disabled="isAnswerDisabled"
-                      :value="getMatrixNumericalValue(row)"
-                      @input="updateMatrixNumericalValue(row, $event)"
-                      @keypress="validateMatrixNumericalInput"
-                      :data-test="`matrixNumericalInput-${rowIndex}`"
-                    />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <div class="hidden md:block overflow-x-auto">
+              <table class="border-collapse border border-gray-200 mx-auto w-full table-fixed">
+                <thead>
+                  <tr>
+                    <th class="border border-gray-200 text-left p-2 bg-gray-50 align-top whitespace-normal break-words">
+                      Item
+                    </th>
+                    <th class="border border-gray-200 text-center p-2 bg-gray-50 align-top whitespace-normal break-words">
+                      Value
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="(row, rowIndex) in matrixRows"
+                    :key="rowIndex"
+                  >
+                    <td class="border border-gray-200 p-2 font-medium align-top whitespace-normal break-words">
+                      {{ row }}
+                    </td>
+                    <td class="border border-gray-200 p-2 whitespace-normal break-words">
+                      <input
+                        type="number"
+                        inputmode="numeric"
+                        pattern="[0-9]*"
+                        min="0"
+                        max="100"
+                        maxlength="3"
+                        :placeholder="`Enter value for ${row}`"
+                        class="w-full px-2 py-1 border rounded text-center focus:border-primary focus:ring-primary disabled:cursor-not-allowed disabled:bg-gray-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        :disabled="isAnswerDisabled"
+                        :value="getMatrixNumericalValue(row)"
+                        @input="updateMatrixNumericalValue(row, $event)"
+                        @keypress="validateMatrixNumericalInput"
+                        :data-test="`matrixNumericalInput-${rowIndex}`"
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="md:hidden space-y-4">
+              <div
+                v-for="(row, rowIndex) in matrixRows"
+                :key="`mobile-matrix-numerical-${rowIndex}`"
+                class="border border-gray-200 rounded-lg bg-white shadow-sm p-3"
+              >
+                <p class="font-medium text-sm break-words">
+                  {{ row }}
+                </p>
+                <input
+                  type="number"
+                  inputmode="numeric"
+                  pattern="[0-9]*"
+                  min="0"
+                  max="100"
+                  maxlength="3"
+                  :placeholder="`Enter value for ${row}`"
+                  class="mt-2 w-full px-2 py-1 border rounded focus:border-primary focus:ring-primary disabled:cursor-not-allowed disabled:bg-gray-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  :disabled="isAnswerDisabled"
+                  :value="getMatrixNumericalValue(row)"
+                  @input="updateMatrixNumericalValue(row, $event)"
+                  @keypress="validateMatrixNumericalInput"
+                  :data-test="`matrixNumericalInput-${rowIndex}`"
+                />
+              </div>
+            </div>
           </div>
           <!-- answer display -->
           <div
@@ -325,9 +390,74 @@
             Correct Answer: {{ JSON.stringify(correctAnswer) }}
           </div>
         </div>
+        <!-- Matrix subjective answer -->
+        <div
+          v-if="isQuestionTypeMatrixSubjective"
+          class="flex flex-col items-center"
+          :class="answerContainerClass"
+          data-test="matrixSubjectiveContainer"
+        >
+          <div class="max-w-screen-md w-full">
+            <div class="hidden md:block overflow-x-auto">
+              <table class="border-collapse border border-gray-200 mx-auto w-full table-fixed">
+                <thead>
+                  <tr>
+                    <th class="border border-gray-200 text-left p-2 bg-gray-50 align-top whitespace-normal break-words">
+                      Item
+                    </th>
+                    <th class="border border-gray-200 text-left p-2 bg-gray-50 align-top whitespace-normal break-words">
+                      Response
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="(row, rowIndex) in matrixRows"
+                    :key="rowIndex"
+                  >
+                    <td class="border border-gray-200 p-2 font-medium align-top whitespace-normal break-words">
+                      {{ row }}
+                    </td>
+                    <td class="border border-gray-200 p-2 align-top whitespace-normal break-words">
+                      <textarea
+                        rows="2"
+                        :placeholder="`Enter response for ${row}`"
+                        class="w-full px-2 py-1 border rounded focus:border-primary focus:ring-primary disabled:cursor-not-allowed disabled:bg-gray-100"
+                        :disabled="isAnswerDisabled"
+                        :value="getMatrixSubjectiveValue(row)"
+                        @input="updateMatrixSubjectiveValue(row, $event)"
+                        :data-test="`matrixSubjectiveInput-${rowIndex}`"
+                      ></textarea>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="md:hidden space-y-4">
+              <div
+                v-for="(row, rowIndex) in matrixRows"
+                :key="`mobile-matrix-subjective-${rowIndex}`"
+                class="border border-gray-200 rounded-lg bg-white shadow-sm p-3"
+              >
+                <p class="font-medium text-sm break-words">
+                  {{ row }}
+                </p>
+                <textarea
+                  rows="3"
+                  :placeholder="`Enter response for ${row}`"
+                  class="mt-2 w-full px-2 py-1 border rounded focus:border-primary focus:ring-primary disabled:cursor-not-allowed disabled:bg-gray-100"
+                  :disabled="isAnswerDisabled"
+                  :value="getMatrixSubjectiveValue(row)"
+                  @input="updateMatrixSubjectiveValue(row, $event)"
+                  :data-test="`matrixSubjectiveInput-${rowIndex}`"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <!-- difficulty badge (always shown when present) for full text mode -->
-      <div v-if="showFullText && $props.difficulty" class="mx-6 py-2">
+      <div v-if="showFullText && hasQuizEnded && $props.difficulty" class="mx-6 py-2">
         <span class="text-lg font-bold mb-2 inline-block mr-2">Difficulty:</span>
         <span :class="$props.difficultyBadgeClass" data-test="difficulty-badge">{{ $props.difficulty }}</span>
       </div>
@@ -672,6 +802,45 @@
             Correct Answer: {{ JSON.stringify(correctAnswer) }}
           </div>
         </div>
+        <!-- Matrix subjective answer -->
+        <div
+          v-if="isQuestionTypeMatrixSubjective"
+          class="flex flex-col items-center"
+          :class="answerContainerClass"
+          data-test="matrixSubjectiveContainer"
+        >
+          <div class="max-w-screen-md w-full">
+            <table class="border-collapse border border-gray-200 mx-auto w-full">
+              <thead>
+                <tr>
+                  <th class="border border-gray-200 text-left p-2 bg-gray-50">Item</th>
+                  <th class="border border-gray-200 text-left p-2 bg-gray-50">Response</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(row, rowIndex) in matrixRows"
+                  :key="rowIndex"
+                >
+                  <td class="border border-gray-200 p-2 font-medium whitespace-nowrap">
+                    {{ row }}
+                  </td>
+                  <td class="border border-gray-200 p-2">
+                    <textarea
+                      rows="2"
+                      :placeholder="`Enter response for ${row}`"
+                      class="w-full px-2 py-1 border rounded focus:border-primary focus:ring-primary disabled:cursor-not-allowed disabled:bg-gray-100"
+                      :disabled="isAnswerDisabled"
+                      :value="getMatrixSubjectiveValue(row)"
+                      @input="updateMatrixSubjectiveValue(row, $event)"
+                      :data-test="`matrixSubjectiveInput-${rowIndex}`"
+                    ></textarea>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -988,6 +1157,21 @@ export default defineComponent({
       return '';
     }
 
+    function getMatrixSubjectiveValue(row: string) {
+      if (
+        state.draftAnswer &&
+        typeof state.draftAnswer === "object" &&
+        !Array.isArray(state.draftAnswer)
+      ) {
+        const matrixData = state.draftAnswer as Record<string, string | number>;
+        const value = matrixData[row];
+        if (typeof value === "string") {
+          return value;
+        }
+      }
+      return "";
+    }
+
     function updateMatrixNumericalValue(row: string, event: Event) {
       const target = event.target as HTMLInputElement;
       let value = target.value;
@@ -1022,6 +1206,32 @@ export default defineComponent({
       state.draftAnswer = Object.keys(currentDraft).length > 0 ? currentDraft : null;
       context.emit(
         "matrix-numerical-updated",
+        state.draftAnswer,
+        props.currentQuestionIndex
+      );
+    }
+
+    function updateMatrixSubjectiveValue(row: string, event: Event) {
+      const target = event.target as HTMLTextAreaElement;
+      const value = target.value;
+
+      const currentDraft: Record<string, string> = {};
+
+      if (state.draftAnswer && typeof state.draftAnswer === 'object' && !Array.isArray(state.draftAnswer)) {
+        Object.entries(state.draftAnswer).forEach(([key, val]) => {
+          currentDraft[key] = String(val);
+        });
+      }
+
+      if (value.trim() === "") {
+        delete currentDraft[row];
+      } else {
+        currentDraft[row] = value;
+      }
+
+      state.draftAnswer = Object.keys(currentDraft).length > 0 ? currentDraft : null;
+      context.emit(
+        "matrix-subjective-updated",
         state.draftAnswer,
         props.currentQuestionIndex
       );
@@ -1222,6 +1432,9 @@ export default defineComponent({
     );
     const isQuestionTypeMatrixNumerical = computed(
       () => props.questionType == questionType.MATRIX_NUMERICAL
+    );
+    const isQuestionTypeMatrixSubjective = computed(
+      () => props.questionType == questionType.MATRIX_SUBJECTIVE
     );
 
     // styling class to decide orientation of image + options
@@ -1473,6 +1686,7 @@ export default defineComponent({
       isQuestionTypeMatrixMatch,
       isQuestionTypeMatrixRating,
       isQuestionTypeMatrixNumerical,
+      isQuestionTypeMatrixSubjective,
       getRowLabel,
       getColumnLabel,
       convertMatrixMatchOptionToString,
@@ -1481,6 +1695,8 @@ export default defineComponent({
       isMatrixRatingOptionSelected,
       getMatrixNumericalValue,
       updateMatrixNumericalValue,
+      getMatrixSubjectiveValue,
+      updateMatrixSubjectiveValue,
       validateMatrixNumericalInput,
       orientationClass,
       optionInputType,
@@ -1505,6 +1721,7 @@ export default defineComponent({
     "numerical-answer-entered",
     "matrix-option-selected",
     "matrix-numerical-updated",
+    "matrix-subjective-updated",
     "navigate",
   ],
 });

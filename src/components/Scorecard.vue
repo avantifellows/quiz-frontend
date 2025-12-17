@@ -133,6 +133,19 @@
                   @click="proceedToNextStep"
                   data-test="proceed-next"
                 ></icon-button>
+                <p
+                  v-if="autoRedirectCountdown > 0"
+                  class="text-xs text-gray-500 text-center"
+                >
+                  Redirecting in {{ autoRedirectCountdown }}s…
+                  <button
+                    type="button"
+                    class="ml-1 text-xs font-semibold text-emerald-600 hover:underline"
+                    @click="cancelAutoRedirect"
+                  >
+                    Stay here
+                  </button>
+                </p>
               </div>
 
               <!-- when only share is available (no next step) -->
@@ -170,6 +183,19 @@
                       @click="proceedToNextStep"
                       data-test="proceed-next"
                     ></icon-button>
+                    <p
+                      v-if="autoRedirectCountdown > 0"
+                      class="mt-2 text-xs text-gray-500 text-center"
+                    >
+                      Redirecting in {{ autoRedirectCountdown }}s…
+                      <button
+                        type="button"
+                        class="ml-1 text-xs font-semibold text-emerald-600 hover:underline"
+                        @click="cancelAutoRedirect"
+                      >
+                        Stay here
+                      </button>
+                    </p>
                   </div>
                 </div>
               </div>
@@ -189,6 +215,19 @@
                   @click="proceedToNextStep"
                   data-test="proceed-next"
                 ></icon-button>
+                <p
+                  v-if="autoRedirectCountdown > 0"
+                  class="mt-2 text-xs text-gray-500 text-center"
+                >
+                  Redirecting in {{ autoRedirectCountdown }}s…
+                  <button
+                    type="button"
+                    class="ml-1 text-xs font-semibold text-emerald-600 hover:underline"
+                    @click="cancelAutoRedirect"
+                  >
+                    Stay here
+                  </button>
+                </p>
               </div>
             </div>
           </div>
@@ -223,6 +262,7 @@ import { ScorecardMetric, CircularProgressResult, quizTitleType, quizType, Quest
 const confetti = require("canvas-confetti");
 const PROGRESS_BAR_ANIMATION_DELAY_TIME = 500; // a time delay to be used for animating the progress bar
 const MOBILE_SCREEN_HEIGHT_THRESHOLD = 500; // the maximum height of the screen in pixels that is classified as a mobile screen
+const AUTO_REDIRECT_DELAY_MS = 3000; // wait duration before automatically navigating to next step
 
 export default defineComponent({
   name: "Scorecard",
@@ -324,7 +364,11 @@ export default defineComponent({
       isPortrait: true,
       isMobileLandscape: false, // whether the screen corresponds to a mobile screen in landscape mode
       confettiHandler,
+      autoRedirectCountdown: 0,
     });
+
+    let autoRedirectTimer: number | undefined;
+    let autoRedirectCountdownTimer: number | undefined;
 
     function checkScreenOrientation() {
       state.reRenderKey = !state.reRenderKey;
@@ -339,6 +383,7 @@ export default defineComponent({
 
     onUnmounted(() => {
       window.removeEventListener("resize", checkScreenOrientation);
+      clearAutoRedirectTimers();
     });
 
     watch(
@@ -355,6 +400,53 @@ export default defineComponent({
           state.localProgressBarPercent = 0;
         }
       }
+    );
+
+    function clearAutoRedirectTimers() {
+      if (autoRedirectTimer) {
+        clearTimeout(autoRedirectTimer);
+        autoRedirectTimer = undefined;
+      }
+      if (autoRedirectCountdownTimer) {
+        clearInterval(autoRedirectCountdownTimer);
+        autoRedirectCountdownTimer = undefined;
+      }
+      state.autoRedirectCountdown = 0;
+    }
+
+    function cancelAutoRedirect() {
+      clearAutoRedirectTimers();
+    }
+
+    function scheduleAutoRedirect() {
+      clearAutoRedirectTimers();
+      if (!props.nextStepUrl) return;
+      const totalSeconds = Math.ceil(AUTO_REDIRECT_DELAY_MS / 1000);
+      state.autoRedirectCountdown = totalSeconds;
+      autoRedirectTimer = window.setTimeout(() => {
+        state.autoRedirectCountdown = 0;
+        proceedToNextStep();
+      }, AUTO_REDIRECT_DELAY_MS);
+      autoRedirectCountdownTimer = window.setInterval(() => {
+        if (state.autoRedirectCountdown > 0) {
+          state.autoRedirectCountdown -= 1;
+        }
+        if (state.autoRedirectCountdown <= 0) {
+          clearAutoRedirectTimers();
+        }
+      }, 1000);
+    }
+
+    watch(
+      [() => props.nextStepUrl, () => props.isShown],
+      ([nextStepUrl, isShown]) => {
+        if (nextStepUrl && isShown) {
+          scheduleAutoRedirect();
+        } else {
+          clearAutoRedirectTimers();
+        }
+      },
+      { immediate: true }
     );
 
     const isQuizAssessment = computed(() => {
@@ -470,6 +562,7 @@ export default defineComponent({
     /** Navigate to the next step URL */
     function proceedToNextStep() {
       if (props.nextStepUrl) {
+        clearAutoRedirectTimers();
         window.location.href = props.nextStepUrl;
       }
     }
@@ -515,6 +608,7 @@ export default defineComponent({
      * is supported and falls back to sharing a text-based scorecard otherwise
      */
     function shareScorecard() {
+      cancelAutoRedirect();
       if (!navigator.canShare) {
         // if the web share API is not supported, share a text-based scorecard on WhatsApp
         shareOnWhatsApp();
@@ -579,6 +673,7 @@ export default defineComponent({
      * Emits an event to restart the quiz
      */
     function goBack() {
+      cancelAutoRedirect();
       context.emit("go-back");
     }
 
@@ -600,6 +695,7 @@ export default defineComponent({
       enhancedShareButtonClass,
       completionMessage,
       proceedToNextStep,
+      cancelAutoRedirect,
       goBack,
       isCircularProgressShown,
       circularProgressRadius,

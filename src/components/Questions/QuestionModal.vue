@@ -62,6 +62,7 @@
         @numerical-answer-entered="numericalAnswerUpdated"
         @matrix-option-selected="matrixOptionSelected"
         @matrix-numerical-updated="matrixNumericalUpdated"
+        @matrix-subjective-updated="matrixSubjectiveUpdated"
         @navigate="navigateToQuestion"
         :key="reRenderKey"
         data-test="body"
@@ -471,6 +472,26 @@ To attempt Q.${props.currentQuestionIndex + 1}, unselect an answer to another qu
       state.draftResponses[state.localShuffledQuestionIndex] = Object.keys(currentDraft).length > 0 ? currentDraft : null;
     }
 
+    /** update matrix subjective answer */
+    function matrixSubjectiveUpdated(row: string, value: string | null) {
+      const currentDraft: Record<string, string> = {};
+
+      const existing = state.draftResponses[state.localShuffledQuestionIndex];
+      if (existing && typeof existing === 'object' && !Array.isArray(existing)) {
+        Object.entries(existing).forEach(([key, val]) => {
+          currentDraft[key] = String(val);
+        });
+      }
+
+      if (value == null || value.trim() === "") {
+        delete currentDraft[row];
+      } else {
+        currentDraft[row] = value;
+      }
+
+      state.draftResponses[state.localShuffledQuestionIndex] = Object.keys(currentDraft).length > 0 ? currentDraft : null;
+    }
+
     function endTest() {
       if (!props.hasQuizEnded && state.hasEndTestBeenClickedOnce) {
         let attemptedQuestions = 0;
@@ -554,6 +575,9 @@ For final submission, click the End Test button again.`,
     const isQuestionTypeMatrixNumerical = computed(
       () => questionType.value == "matrix-numerical"
     )
+    const isQuestionTypeMatrixSubjective = computed(
+      () => questionType.value == "matrix-subjective"
+    )
 
     const currentQuestionResponse = computed(
       () => props.responses[state.localShuffledQuestionIndex]
@@ -597,14 +621,23 @@ For final submission, click the End Test button again.`,
       if (isQuestionTypeNumericalInteger.value || isQuestionTypeNumericalFloat.value) {
         return true
       }
-      if (isQuestionTypeMatrixRating.value || isQuestionTypeMatrixNumerical.value) {
+      if (isQuestionTypeMatrixRating.value || isQuestionTypeMatrixNumerical.value || isQuestionTypeMatrixSubjective.value) {
         if (typeof currentDraftResponse !== 'object' || currentDraftResponse === null || Array.isArray(currentDraftResponse)) {
           return false;
         }
-        // Check if all matrix rows are filled for matrix-rating and matrix-numerical
+        // Check if all matrix rows are filled for matrix-based questions
         const matrixRows = currentQuestion.value?.matrix_rows || [];
+        if (matrixRows.length === 0) {
+          return false;
+        }
+        if (isQuestionTypeMatrixSubjective.value) {
+          const filledRows = Object.entries(currentDraftResponse).filter(([, val]) => {
+            return typeof val === "string" && val.trim() !== "";
+          });
+          return filledRows.length === matrixRows.length;
+        }
         const answeredRows = Object.keys(currentDraftResponse);
-        return matrixRows.length > 0 && answeredRows.length === matrixRows.length;
+        return answeredRows.length === matrixRows.length;
       }
       return Array.isArray(currentDraftResponse) && currentDraftResponse.length > 0
     })
@@ -657,6 +690,7 @@ For final submission, click the End Test button again.`,
       subjectiveAnswerUpdated,
       matrixOptionSelected,
       matrixNumericalUpdated,
+      matrixSubjectiveUpdated,
       clearAnswer,
       markForReviewQuestion,
       endTest,
@@ -675,6 +709,7 @@ For final submission, click the End Test button again.`,
       isFormQuiz,
       optionalLimitReached,
       numericalAnswerUpdated,
+      isQuestionTypeMatrixSubjective,
       timeLimitWarningThreshold,
       displayTimeLimitWarning
     }
