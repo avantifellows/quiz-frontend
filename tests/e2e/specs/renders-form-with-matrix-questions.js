@@ -60,18 +60,48 @@ describe("Form with Matrix Questions Tests", () => {
     cy.get('[data-test="question-index-type"]').should("contain", "Q.5");
 
     // Test matrix rating interactions - Fill all 5 rows (Math, Physics, Chemistry, Biology, English)
-    cy.get('[data-test="matrixRatingSelector-0-2"]').click(); // Math - Option 3
-    cy.get('[data-test="matrixRatingSelector-1-1"]').click(); // Physics - Option 2
-    cy.get('[data-test="matrixRatingSelector-2-0"]').click(); // Chemistry - Option 1
-    cy.get('[data-test="matrixRatingSelector-3-4"]').click(); // Biology - Option 5
-    cy.get('[data-test="matrixRatingSelector-4-3"]').click(); // English - Option 4
+    cy.get('[data-test="matrixRatingSelector-0-2"]')
+      .filter(":visible")
+      .first()
+      .click(); // Math - Option 3
+    cy.get('[data-test="matrixRatingSelector-1-1"]')
+      .filter(":visible")
+      .first()
+      .click(); // Physics - Option 2
+    cy.get('[data-test="matrixRatingSelector-2-0"]')
+      .filter(":visible")
+      .first()
+      .click(); // Chemistry - Option 1
+    cy.get('[data-test="matrixRatingSelector-3-4"]')
+      .filter(":visible")
+      .first()
+      .click(); // Biology - Option 5
+    cy.get('[data-test="matrixRatingSelector-4-3"]')
+      .filter(":visible")
+      .first()
+      .click(); // English - Option 4
 
     // Verify selections are made
-    cy.get('[data-test="matrixRatingSelector-0-2"]').should("be.checked");
-    cy.get('[data-test="matrixRatingSelector-1-1"]').should("be.checked");
-    cy.get('[data-test="matrixRatingSelector-2-0"]').should("be.checked");
-    cy.get('[data-test="matrixRatingSelector-3-4"]').should("be.checked");
-    cy.get('[data-test="matrixRatingSelector-4-3"]').should("be.checked");
+    cy.get('[data-test="matrixRatingSelector-0-2"]')
+      .filter(":visible")
+      .first()
+      .should("be.checked");
+    cy.get('[data-test="matrixRatingSelector-1-1"]')
+      .filter(":visible")
+      .first()
+      .should("be.checked");
+    cy.get('[data-test="matrixRatingSelector-2-0"]')
+      .filter(":visible")
+      .first()
+      .should("be.checked");
+    cy.get('[data-test="matrixRatingSelector-3-4"]')
+      .filter(":visible")
+      .first()
+      .should("be.checked");
+    cy.get('[data-test="matrixRatingSelector-4-3"]')
+      .filter(":visible")
+      .first()
+      .should("be.checked");
 
     // Move to next question (matrix numerical)
     cy.get('[data-test="submitButton"]').click();
@@ -105,11 +135,26 @@ describe("Form with Matrix Questions Tests", () => {
     cy.wait(500);
 
     // Question 5: matrix rating - answer all rows
-    cy.get('[data-test="matrixRatingSelector-0-2"]').click(); // Math
-    cy.get('[data-test="matrixRatingSelector-1-1"]').click(); // Physics
-    cy.get('[data-test="matrixRatingSelector-2-0"]').click(); // Chemistry
-    cy.get('[data-test="matrixRatingSelector-3-4"]').click(); // Biology
-    cy.get('[data-test="matrixRatingSelector-4-3"]').click(); // English
+    cy.get('[data-test="matrixRatingSelector-0-2"]')
+      .filter(":visible")
+      .first()
+      .click(); // Math
+    cy.get('[data-test="matrixRatingSelector-1-1"]')
+      .filter(":visible")
+      .first()
+      .click(); // Physics
+    cy.get('[data-test="matrixRatingSelector-2-0"]')
+      .filter(":visible")
+      .first()
+      .click(); // Chemistry
+    cy.get('[data-test="matrixRatingSelector-3-4"]')
+      .filter(":visible")
+      .first()
+      .click(); // Biology
+    cy.get('[data-test="matrixRatingSelector-4-3"]')
+      .filter(":visible")
+      .first()
+      .click(); // English
     cy.get('[data-test="submitButton"]').click();
     cy.wait(500);
 
@@ -173,18 +218,28 @@ describe("Form with Matrix Questions Tests", () => {
     cy.get('[data-test="body"]').should("be.visible");
     cy.get('[data-test="matrixRatingContainer"]').should("be.visible");
     cy.get('[data-test="matrixRatingSelector-0-2"]')
+      .filter(":visible")
+      .first()
       .should("be.visible")
       .click(); // Math
     cy.get('[data-test="matrixRatingSelector-1-1"]')
+      .filter(":visible")
+      .first()
       .should("be.visible")
       .click(); // Physics
     cy.get('[data-test="matrixRatingSelector-2-0"]')
+      .filter(":visible")
+      .first()
       .should("be.visible")
       .click();
     cy.get('[data-test="matrixRatingSelector-3-4"]')
+      .filter(":visible")
+      .first()
       .should("be.visible")
       .click(); // Biology
     cy.get('[data-test="matrixRatingSelector-4-3"]')
+      .filter(":visible")
+      .first()
       .should("be.visible")
       .click(); // English
     cy.get('[data-test="submitButton"]').should("not.be.disabled").click();
