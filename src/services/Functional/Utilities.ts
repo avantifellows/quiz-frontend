@@ -91,7 +91,11 @@ export function isQuestionAnswerCorrect(
   if (questionDetail.graded) {
     answerEvaluation.valid = true;
 
-    if (userAnswer != null && typeof userAnswer != "number") {
+    // Handle invalid format: if a number is submitted for single-choice/multi-choice, mark as wrong
+    if (typeof userAnswer == "number" && (questionDetail.type == "single-choice" || questionDetail.type == "multi-choice" || questionDetail.type == "matrix-match")) {
+      answerEvaluation.answered = true;
+      answerEvaluation.isCorrect = false; // Invalid format = wrong answer
+    } else if (userAnswer != null && typeof userAnswer != "number") {
       answerEvaluation.answered = true;
 
       if (questionDetail.type == "single-choice") {
@@ -189,7 +193,11 @@ export function isQuestionAnswerCorrect(
       } else answerEvaluation.isCorrect = false;
     }
   } else {
+    // Ungraded questions: mark as answered if any value provided (including invalid formats)
     if (userAnswer != null && typeof userAnswer != "number") {
+      answerEvaluation.answered = true;
+    } else if (typeof userAnswer == "number") {
+      // For ungraded questions, still mark as answered even if format is invalid
       answerEvaluation.answered = true;
     } else if (
       (questionDetail.type == "matrix-rating" || questionDetail.type == "matrix-numerical" || questionDetail.type == "matrix-subjective") &&
