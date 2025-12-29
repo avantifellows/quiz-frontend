@@ -1176,23 +1176,34 @@ export default defineComponent({
         const bucketStartIndex = store.state.questionBucketingMaps[qsetIndex][bucketToFetch].start
         const bucketEndIndex = store.state.questionBucketingMaps[qsetIndex][bucketToFetch].end
 
-        const fetchedQuestions = await QuestionAPIService.getQuestions(
-          state.questions[questionIndex].question_set_id,
-          bucketStartIndex,
-          store.state.bucketSize
-        )
+        try {
+          const fetchedQuestions = await QuestionAPIService.getQuestions(
+            state.questions[questionIndex].question_set_id,
+            bucketStartIndex,
+            store.state.bucketSize
+          )
 
-        for (let i = bucketStartIndex; i <= bucketEndIndex; i++) {
-          let globalQuestionIndex = i
-          if (qsetIndex != 0) globalQuestionIndex = i + state.qsetCumulativeLengths[qsetIndex - 1]
-          state.questions[globalQuestionIndex] = fetchedQuestions[i - bucketStartIndex]
+          for (let i = bucketStartIndex; i <= bucketEndIndex; i++) {
+            let globalQuestionIndex = i
+            if (qsetIndex != 0) globalQuestionIndex = i + state.qsetCumulativeLengths[qsetIndex - 1]
+            state.questions[globalQuestionIndex] = fetchedQuestions[i - bucketStartIndex]
+          }
+
+          store.dispatch("updateBucketFetchedStatus", {
+            qsetIndex,
+            bucketIndex: bucketToFetch,
+            fetchedStatus: true,
+          })
+        } catch (error) {
+          state.toast.error(
+            'Unable to load questions due to poor connection. Please check your internet connection and try again.',
+            {
+              position: POSITION.TOP_LEFT,
+              timeout: 5000,
+              draggablePercent: 0.4
+            }
+          )
         }
-
-        store.dispatch("updateBucketFetchedStatus", {
-          qsetIndex,
-          bucketIndex: bucketToFetch,
-          fetchedStatus: true,
-        })
       }
     }
 
