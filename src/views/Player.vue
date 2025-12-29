@@ -155,7 +155,6 @@ import {
   Question,
   SubmittedResponse,
   UpdateSessionAPIPayload,
-  UpdateSessionAPIResponse,
   QuizMetadata,
   submittedAnswer,
   quizTitleType,
