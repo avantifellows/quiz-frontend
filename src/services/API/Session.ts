@@ -36,62 +36,70 @@ export default {
   /**
    * @param {string} sessionId - id of the session to be updated
    * @param {UpdateSessionAPIPayload} payload - contains start/resume/end event information
-   * @returns {Promise<UpdateSessionAPIResponse>} data corresponding to the updated session response
+   * @returns {Promise<{status: number, data?: UpdateSessionAPIResponse}>} response status and data
    */
   async updateSession(
     sessionId: string,
     payload: UpdateSessionAPIPayload
-  ): Promise<UpdateSessionAPIResponse> {
-    const updatedPayload: {
-      event: eventType;
-      metrics?: SessionMetricsPayload | null;
-    } = {
-      event: payload.event
-    };
-    if (payload.metrics) {
-      const sessionMetrics: SessionMetricsPayload = {
-        qset_metrics: [],
-        total_answered: 0,
-        total_skipped: 0,
-        total_correct: 0,
-        total_wrong: 0,
-        total_partially_correct: 0,
-        total_marked_for_review: 0,
-        total_marks: 0,
+  ): Promise<{status: number, data?: UpdateSessionAPIResponse}> {
+    try {
+      const updatedPayload: {
+        event: eventType;
+        metrics?: SessionMetricsPayload | null;
+      } = {
+        event: payload.event
       };
-
-      payload.metrics.forEach(metric => {
-        const qsetMetric: QuestionSetMetricPayload = {
-          name: metric.name || "",
-          qset_id: metric.qset_id,
-          marks_scored: metric.marksScored,
-          num_answered: metric.numAnswered,
-          num_skipped: metric.maxQuestionsAllowedToAttempt - metric.numAnswered,
-          num_correct: metric.correctlyAnswered,
-          num_wrong: metric.wronglyAnswered,
-          num_partially_correct: metric.partiallyAnswered,
-          num_marked_for_review: metric.numQuestionsMarkedForReview,
-          attempt_rate: Math.round(metric.attemptRate * 100) / 100,
-          accuracy_rate: Math.round(metric.accuracyRate * 100) / 100,
+      if (payload.metrics) {
+        const sessionMetrics: SessionMetricsPayload = {
+          qset_metrics: [],
+          total_answered: 0,
+          total_skipped: 0,
+          total_correct: 0,
+          total_wrong: 0,
+          total_partially_correct: 0,
+          total_marked_for_review: 0,
+          total_marks: 0,
         };
 
-        sessionMetrics.qset_metrics.push(qsetMetric);
-        sessionMetrics.total_answered += metric.numAnswered;
-        sessionMetrics.total_skipped += metric.maxQuestionsAllowedToAttempt - metric.numAnswered;
-        sessionMetrics.total_correct += metric.correctlyAnswered;
-        sessionMetrics.total_wrong += metric.wronglyAnswered;
-        sessionMetrics.total_partially_correct += metric.partiallyAnswered;
-        sessionMetrics.total_marked_for_review += metric.numQuestionsMarkedForReview;
-        sessionMetrics.total_marks += metric.marksScored;
-      });
+        payload.metrics.forEach(metric => {
+          const qsetMetric: QuestionSetMetricPayload = {
+            name: metric.name || "",
+            qset_id: metric.qset_id,
+            marks_scored: metric.marksScored,
+            num_answered: metric.numAnswered,
+            num_skipped: metric.maxQuestionsAllowedToAttempt - metric.numAnswered,
+            num_correct: metric.correctlyAnswered,
+            num_wrong: metric.wronglyAnswered,
+            num_partially_correct: metric.partiallyAnswered,
+            num_marked_for_review: metric.numQuestionsMarkedForReview,
+            attempt_rate: Math.round(metric.attemptRate * 100) / 100,
+            accuracy_rate: Math.round(metric.accuracyRate * 100) / 100,
+          };
 
-      updatedPayload.metrics = sessionMetrics as SessionMetricsPayload;
+          sessionMetrics.qset_metrics.push(qsetMetric);
+          sessionMetrics.total_answered += metric.numAnswered;
+          sessionMetrics.total_skipped += metric.maxQuestionsAllowedToAttempt - metric.numAnswered;
+          sessionMetrics.total_correct += metric.correctlyAnswered;
+          sessionMetrics.total_wrong += metric.wronglyAnswered;
+          sessionMetrics.total_partially_correct += metric.partiallyAnswered;
+          sessionMetrics.total_marked_for_review += metric.numQuestionsMarkedForReview;
+          sessionMetrics.total_marks += metric.marksScored;
+        });
+
+        updatedPayload.metrics = sessionMetrics as SessionMetricsPayload;
+      }
+      const response = await apiClient().patch(
+        sessionsEndpoint + sessionId,
+        updatedPayload
+      );
+      return { status: response.status, data: response.data };
+    } catch (error: any) {
+      if (error.code == 'ECONNABORTED') {
+        return { status: 500 }; // request timeout
+      } else {
+        return { status: 400 }; // bad request
+      }
     }
-    const response = await apiClient().patch(
-      sessionsEndpoint + sessionId,
-      updatedPayload
-    );
-    return response.data;
   },
 
   /**

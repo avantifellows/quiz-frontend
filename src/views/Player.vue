@@ -155,7 +155,6 @@ import {
   Question,
   SubmittedResponse,
   UpdateSessionAPIPayload,
-  UpdateSessionAPIResponse,
   QuizMetadata,
   submittedAnswer,
   quizTitleType,
@@ -481,11 +480,11 @@ export default defineComponent({
         const payload: UpdateSessionAPIPayload = {
           event: eventType.DUMMY_EVENT
         }
-        const response: UpdateSessionAPIResponse = await SessionAPIService.updateSession(
+        const response = await SessionAPIService.updateSession(
           state.sessionId,
           payload
         );
-        if (response.time_remaining == 0) {
+        if (response.status == 200 && response.data?.time_remaining == 0) {
           endTest()
         }
 
@@ -535,14 +534,16 @@ export default defineComponent({
             event: eventType.RESUME_QUIZ
           }
         }
-        const response: UpdateSessionAPIResponse = await SessionAPIService.updateSession(
+        const response = await SessionAPIService.updateSession(
           state.sessionId,
           payload
         );
-        state.timeRemaining = response.time_remaining;
-        if (state.timeRemaining == 0 && isQuizAssessment.value) {
-        // show results based on submitted session's answers (if any)
-          endTest()
+        if (response.status == 200 && response.data) {
+          state.timeRemaining = response.data.time_remaining;
+          if (state.timeRemaining == 0 && isQuizAssessment.value) {
+          // show results based on submitted session's answers (if any)
+            endTest()
+          }
         }
         state.currentQuestionIndex = 0;
       } else if (state.hasQuizEnded && state.reviewAnswers) {
@@ -767,10 +768,10 @@ export default defineComponent({
 
           if (updateResponse.status != 200) {
             state.toast.error(
-              'Answers are not submitted. Please check internet connection and click "End Test" again without refreshing the page.',
+              'Unable to submit some of your answers due to poor connection. Please retry "End Test" when connection improves.',
               {
                 position: POSITION.TOP_LEFT,
-                timeout: 8000,
+                timeout: 10000,
                 draggablePercent: 0.4
               }
             )
@@ -785,12 +786,25 @@ export default defineComponent({
             if (!isFormQuiz.value) {
               payload.metrics = state.qsetMetrics;
             }
-            SessionAPIService.updateSession(state.sessionId, payload);
-            state.hasQuizEnded = true;
-            state.currentQuestionIndex = numQuestions.value;
+            const endSessionResponse = await SessionAPIService.updateSession(state.sessionId, payload);
+            if (endSessionResponse.status != 200) {
+              state.toast.error(
+                'Unable to complete test submission due to poor connection. Please retry "End Test" to complete.',
+                {
+                  position: POSITION.TOP_LEFT,
+                  timeout: 10000,
+                  draggablePercent: 0.4
+                }
+              )
+            } else {
+              state.hasQuizEnded = true;
+              state.currentQuestionIndex = numQuestions.value;
+            }
           }
           state.isSessionAnswerRequestProcessing = false;
         } else {
+          // Non-OMR mode (homework, form, assessment)
+          state.isSessionAnswerRequestProcessing = true;
           if (!isFormQuiz.value) {
             calculateScorecardMetrics();
           }
@@ -801,9 +815,21 @@ export default defineComponent({
           if (!isFormQuiz.value) {
             payload.metrics = state.qsetMetrics;
           }
-          SessionAPIService.updateSession(state.sessionId, payload);
-          state.hasQuizEnded = true;
-          state.currentQuestionIndex = numQuestions.value;
+          const endSessionResponse = await SessionAPIService.updateSession(state.sessionId, payload);
+          if (endSessionResponse.status != 200) {
+            state.toast.error(
+              'Unable to complete test submission due to poor connection. Please retry "End Test" to complete.',
+              {
+                position: POSITION.TOP_LEFT,
+                timeout: 10000,
+                draggablePercent: 0.4
+              }
+            )
+          } else {
+            state.hasQuizEnded = true;
+            state.currentQuestionIndex = numQuestions.value;
+          }
+          state.isSessionAnswerRequestProcessing = false;
         }
       } else {
         state.currentQuestionIndex = numQuestions.value;
@@ -1150,23 +1176,34 @@ export default defineComponent({
         const bucketStartIndex = store.state.questionBucketingMaps[qsetIndex][bucketToFetch].start
         const bucketEndIndex = store.state.questionBucketingMaps[qsetIndex][bucketToFetch].end
 
-        const fetchedQuestions = await QuestionAPIService.getQuestions(
-          state.questions[questionIndex].question_set_id,
-          bucketStartIndex,
-          store.state.bucketSize
-        )
+        try {
+          const fetchedQuestions = await QuestionAPIService.getQuestions(
+            state.questions[questionIndex].question_set_id,
+            bucketStartIndex,
+            store.state.bucketSize
+          )
 
-        for (let i = bucketStartIndex; i <= bucketEndIndex; i++) {
-          let globalQuestionIndex = i
-          if (qsetIndex != 0) globalQuestionIndex = i + state.qsetCumulativeLengths[qsetIndex - 1]
-          state.questions[globalQuestionIndex] = fetchedQuestions[i - bucketStartIndex]
+          for (let i = bucketStartIndex; i <= bucketEndIndex; i++) {
+            let globalQuestionIndex = i
+            if (qsetIndex != 0) globalQuestionIndex = i + state.qsetCumulativeLengths[qsetIndex - 1]
+            state.questions[globalQuestionIndex] = fetchedQuestions[i - bucketStartIndex]
+          }
+
+          store.dispatch("updateBucketFetchedStatus", {
+            qsetIndex,
+            bucketIndex: bucketToFetch,
+            fetchedStatus: true,
+          })
+        } catch (error) {
+          state.toast.error(
+            'Unable to load questions due to poor connection. Please check your internet connection and try again.',
+            {
+              position: POSITION.TOP_LEFT,
+              timeout: 5000,
+              draggablePercent: 0.4
+            }
+          )
         }
-
-        store.dispatch("updateBucketFetchedStatus", {
-          qsetIndex,
-          bucketIndex: bucketToFetch,
-          fetchedStatus: true,
-        })
       }
     }
 
