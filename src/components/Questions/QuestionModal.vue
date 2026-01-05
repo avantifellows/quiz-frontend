@@ -351,6 +351,9 @@ To attempt Q.${props.currentQuestionIndex + 1}, unselect an answer to another qu
 
     function submitQuestion() {
       if (!state.localResponses.length) return
+      // Save previous response before modifying, so we can revert on API failure
+      state.previousLocalResponse = clonedeep(state.localResponses[state.localShuffledQuestionIndex]);
+
       state.localResponses[state.localShuffledQuestionIndex].answer =
         state.draftResponses[state.localShuffledQuestionIndex]
       if (state.draftResponses[state.localShuffledQuestionIndex] != null) {
