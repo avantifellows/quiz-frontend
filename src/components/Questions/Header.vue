@@ -141,7 +141,11 @@ export default defineComponent({
     onMounted(() => {
       window.setInterval(() => {
         if (!props.hasQuizEnded && props.hasTimeLimit && !props.isSessionAnswerRequestProcessing) {
-          state.timeRemaining -= 1
+          if (state.timeRemaining > 0) {
+            state.timeRemaining -= 1
+          } else {
+            state.timeRemaining = 0
+          }
         }
       }, 1000); // update every second if quiz has not ended
     })
@@ -268,7 +272,7 @@ export default defineComponent({
     watch(
       () => props.timeRemaining,
       (newValue) => {
-        state.timeRemaining = newValue;
+        state.timeRemaining = Math.max(0, newValue);
       }
     )
 
