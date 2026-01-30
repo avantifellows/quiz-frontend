@@ -20,7 +20,7 @@
       ></icon-button>
 
       <Splash
-        v-if="isSplashShown && !autoStart"
+        v-if="isSplashShown && (!autoStart || autoStartFailed)"
         :title="title"
         :subject="metadata.subject"
         :grade="metadata.grade"
@@ -237,6 +237,7 @@ export default defineComponent({
       // whether the current session is the first for the given user-quiz pair
       // a value of null means the data has not been fetched yet
       isFirstSession: null as boolean | null,
+      autoStartFailed: false, // show splash if auto-start couldn't begin
       numCorrect: 0, // number of correctly answered questions
       numWrong: 0, // number of wrongly answered questions
       numPartiallyCorrect: 0, // number of partially correct questions
@@ -524,6 +525,7 @@ export default defineComponent({
 
     async function startQuiz() {
       if (!state.hasQuizEnded) {
+        state.autoStartFailed = false;
         let payload: UpdateSessionAPIPayload;
         if (state.isFirstSession) {
           payload = {
@@ -538,6 +540,18 @@ export default defineComponent({
           state.sessionId,
           payload
         );
+        if (response.status != 200 || !response.data) {
+          state.autoStartFailed = true;
+          state.toast.error(
+            "Unable to start quiz due to poor connection. Please try again.",
+            {
+              position: POSITION.TOP_LEFT,
+              timeout: 4000,
+              draggablePercent: 0.4
+            }
+          );
+          return;
+        }
         if (response.status == 200 && response.data) {
           state.timeRemaining = response.data.time_remaining;
           if (state.timeRemaining == 0 && isQuizAssessment.value) {
