@@ -420,10 +420,8 @@ export default defineComponent({
             endTest() // send an end-quiz event for homeworks and forms
           }
           if (state.hasQuizEnded) {
-            // Always show scorecard for forms, only show for other quiz types if showScores is true
-            if (isFormQuiz.value || (!isFormQuiz.value && state.showScores)) {
-              state.isScorecardShown = true;
-            }
+            // Always show the scorecard screen after quiz ends; content will hide scores if needed.
+            state.isScorecardShown = true;
             // Only calculate metrics for non-form quizzes with graded questions
             if (!isFormQuiz.value && hasGradedQuestions.value) {
               calculateScorecardMetrics();
