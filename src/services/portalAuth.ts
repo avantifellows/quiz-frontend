@@ -5,6 +5,7 @@ const REFRESH_TOKEN_KEY = "refresh_token";
 
 const portalBackendBaseUrl = (process.env.VUE_APP_PORTAL_BACKEND || "").replace(/\/$/, "");
 const portalAuthBaseUrl = (process.env.VUE_APP_PORTAL_FRONTEND || "https://auth.avantifellows.org").replace(/\/$/, "");
+const IS_PROD = process.env.NODE_ENV === "production";
 
 let cachedIdentifiers: PortalIdentifiers | null | undefined;
 
@@ -25,6 +26,7 @@ const getStoredToken = (key: string): string | null => {
   const cookieValue = getCookieValue(key);
   if (cookieValue) return cookieValue;
 
+  if (IS_PROD) return null;
   if (typeof window === "undefined") return null;
 
   try {
@@ -87,7 +89,7 @@ const refreshAccessToken = async (refreshToken: string): Promise<string | null> 
 
   if (!newAccessToken) return null;
 
-  if (typeof window !== "undefined") {
+  if (!IS_PROD && typeof window !== "undefined") {
     try {
       window.localStorage.setItem(ACCESS_TOKEN_KEY, newAccessToken);
     } catch (error) {
@@ -149,7 +151,6 @@ export const getPortalIdentifiers = async (
 
   try {
     const identifiers = await verifyTokens();
-    console.log(identifiers)
     cachedIdentifiers = identifiers ?? null;
     return cachedIdentifiers;
   } catch (error) {

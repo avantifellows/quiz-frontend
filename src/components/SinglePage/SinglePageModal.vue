@@ -4,18 +4,13 @@
       :hasTimeLimit="quizTimeLimit != null" :title="title" :userId="userId" :displayId="displayId" :isOmrMode=true
       :isSessionAnswerRequestProcessing="isSessionAnswerRequestProcessing" v-model:isPaletteVisible="isPaletteVisible"
       :timeRemaining="timeRemaining" :warningTimeLimit="timeLimitWarningThreshold"
-      :showPortalLogout="showPortalLogout" :portalLogoutLabel="portalLogoutLabel"
       @time-limit-warning="displayTimeLimitWarning" @end-test="endTest" @end-test-by-time="endTestByTime"
-      @logout="$emit('logout')"
       data-test="omr-header"></Header>
     <InfoBar
       v-if="!isQuizAssessment"
       :title="title"
       :userId="userId"
       :displayId="displayId"
-      :showPortalLogout="showPortalLogout"
-      :portalLogoutLabel="portalLogoutLabel"
-      @logout="$emit('logout')"
       data-test="infoBar"
     />
     <div class="flex flex-col w-full h-full -z-10" :class="{ 'mt-20 mb-20': isQuizAssessment }">
@@ -90,8 +85,10 @@
     <QuestionPalette v-if="isPaletteVisible" :hasQuizEnded="hasQuizEnded" :questionSetStates="questionSetStates"
       :currentQuestionIndex="currentQuestionIndex" :title="title" :subject="subject" :testFormat="testFormat"
       :maxMarks="maxMarks" :numQuestions="numQuestions" :quizTimeLimit="quizTimeLimit" :isOmrMode=true
+      :showPortalLogout="showPortalLogout" :portalLogoutLabel="portalLogoutLabel"
       class="fixed left-0 top-20 h-[calc(100vh-5rem)] w-full sm:w-2/3 lg:w-1/2 xl:w-1/3 z-50 bg-white overflow-y-auto"
       @navigate="navigateToQuestion"
+      @logout="$emit('logout')"
       data-test="questionPalette">
     </QuestionPalette>
   </div>
@@ -569,15 +566,6 @@ export default defineComponent({
       state.localCurrentQuestionIndex = questionIndex
     }
 
-    const portalLogoutTitleConfig = computed(() => ({
-      value: props.portalLogoutLabel || "Logout",
-      class: "text-white text-sm bp-500:text-md lg:text-lg xl:text-xl font-bold",
-    }));
-
-    const portalLogoutButtonClass = computed(() =>
-      "bg-gray-500 ring-gray-500 p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl hover:bg-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-gray-300"
-    );
-
     return {
       ...toRefs(state),
       generateId,
@@ -602,9 +590,7 @@ export default defineComponent({
       numericalAnswerUpdated,
       timeLimitWarningThreshold,
       displayTimeLimitWarning,
-      navigateToQuestion,
-      portalLogoutTitleConfig,
-      portalLogoutButtonClass
+      navigateToQuestion
     }
   },
   emits: [

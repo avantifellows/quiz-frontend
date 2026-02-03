@@ -26,7 +26,7 @@
           @click="toggleOmrMode"
         ></icon-button>
         <div
-          v-if="showTimerOrLogout"
+          v-if="showTimer"
           class="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:gap-3"
         >
           <icon-button
@@ -34,14 +34,6 @@
             :titleConfig="countdownTimerTitleConfig"
             :buttonClass="countdownTimerClass"
             data-test="countdownTimer"
-          ></icon-button>
-          <icon-button
-            v-if="showPortalLogout"
-            class="sm:flex hidden"
-            :titleConfig="portalLogoutTitleConfig"
-            :buttonClass="portalLogoutButtonClass"
-            @click="triggerPortalLogout"
-            data-test="portalLogoutButton"
           ></icon-button>
         </div>
 
@@ -64,17 +56,10 @@
         <h1 class="text-base font-semibold text-gray-800 truncate" data-test="test-name-mobile">
           {{ $props.title || "no data" }}
         </h1>
-        <div class="flex items-center justify-between">
+        <div class="flex items-center">
           <div class="text-sm text-gray-700 font-semibold px-3 py-1.5 bg-gray-300 rounded inline-block" data-test="user-id-mobile">
-            Id: {{ $props.userId || "no data" }}
+            Id: {{ displayUserId || "no data" }}
           </div>
-          <icon-button
-            v-if="showPortalLogout"
-            :titleConfig="portalLogoutTitleConfig"
-            :buttonClass="portalLogoutButtonClass"
-            @click="triggerPortalLogout"
-            data-test="portalLogoutButtonMobile"
-          />
         </div>
       </div>
       <!-- Tablet+: Test Name and ID side by side (no truncate) -->
@@ -83,7 +68,7 @@
           {{ $props.title || "no data" }}
         </h1>
         <div class="text-base text-gray-700 font-semibold whitespace-nowrap px-4 py-2 bg-gray-300 rounded" data-test="user-id">
-          Id: {{ $props.userId || "no data" }}
+          Id: {{ displayUserId || "no data" }}
         </div>
       </div>
     </div>
@@ -146,14 +131,6 @@ export default defineComponent({
       type: String as PropType<quizType>,
       default: "homework"
     },
-    showPortalLogout: {
-      type: Boolean,
-      default: false
-    },
-    portalLogoutLabel: {
-      type: String,
-      default: "Logout"
-    },
   },
   setup(props, context) {
     const state = reactive({
@@ -208,20 +185,6 @@ export default defineComponent({
 
     const displayUserId = computed(() => props.displayId || props.userId || "");
     const showTimer = computed(() => !props.hasQuizEnded && props.hasTimeLimit);
-    const showTimerOrLogout = computed(
-      () => showTimer.value || props.showPortalLogout
-    );
-    const portalLogoutTitleConfig = computed(() => ({
-      value: props.portalLogoutLabel || "Logout",
-      class: "text-white text-sm bp-500:text-md lg:text-lg xl:text-xl font-bold",
-    }));
-    const portalLogoutButtonClass = computed(() =>
-      "bg-red-600 hover:bg-red-700 ring-red-600 p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl disabled:opacity-50 disabled:pointer-events-none"
-    );
-
-    const triggerPortalLogout = () => {
-      context.emit("logout");
-    };
 
     const toggleButtonTextConfig = computed(() => {
       const config = {
@@ -387,15 +350,11 @@ export default defineComponent({
       toggleOmrMode,
       displayUserId,
       showTimer,
-      showTimerOrLogout,
-      portalLogoutButtonClass,
-      portalLogoutTitleConfig,
-      triggerPortalLogout
     };
   },
   components: {
     IconButton,
   },
-  emits: ["end-test", "end-test-by-time", "update:isPaletteVisible", "time-limit-warning", "logout"],
+  emits: ["end-test", "end-test-by-time", "update:isPaletteVisible", "time-limit-warning"],
 });
 </script>
