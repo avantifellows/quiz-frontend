@@ -35,6 +35,11 @@ const resolveUserId = (route: any): string | null => {
   return resolvePortalData(route)?.userId ?? null;
 };
 
+const isWhitelistedTestUser = (route: any): boolean => {
+  const userIdFromQuery = getQueryValue(route.query.userId);
+  return Boolean(userIdFromQuery && ALLOWED_TEST_USER_IDS.includes(userIdFromQuery));
+};
+
 const resolveDisplayData = (
   route: any
 ): { displayId: string | null; displayIdType: DisplayIdType } => {
@@ -81,7 +86,7 @@ const routes = [
       omrMode: route.query.omrMode === "true",
       singlePageMode: route.query.singlePageMode === "true",
       autoStart: route.query.autoStart === "true",
-      fromPortal: route.query.fromPortal === "true",
+      fromPortal: route.query.fromPortal === "true" && !isWhitelistedTestUser(route),
       portalGroup: resolvePortalData(route)?.group ?? null,
     }),
     // lazy-loading: https://router.vuejs.org/guide/advanced/lazy-loading.html
@@ -102,7 +107,7 @@ const routes = [
       omrMode: route.query.omrMode === "true",
       singlePageMode: route.query.singlePageMode === "true",
       autoStart: route.query.autoStart === "true",
-      fromPortal: route.query.fromPortal === "true",
+      fromPortal: route.query.fromPortal === "true" && !isWhitelistedTestUser(route),
       portalGroup: resolvePortalData(route)?.group ?? null,
     }),
     // lazy-loading: https://router.vuejs.org/guide/advanced/lazy-loading.html
