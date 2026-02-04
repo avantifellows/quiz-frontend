@@ -850,6 +850,7 @@ export default defineComponent({
             } else {
               state.hasQuizEnded = true;
               state.currentQuestionIndex = numQuestions.value;
+              state.isScorecardShown = true;
             }
           }
           state.isSessionAnswerRequestProcessing = false;
@@ -879,11 +880,13 @@ export default defineComponent({
           } else {
             state.hasQuizEnded = true;
             state.currentQuestionIndex = numQuestions.value;
+            state.isScorecardShown = true;
           }
           state.isSessionAnswerRequestProcessing = false;
         }
       } else {
         state.currentQuestionIndex = numQuestions.value;
+        state.isScorecardShown = true;
       }
     }
 
