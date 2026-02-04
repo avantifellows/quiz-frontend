@@ -1,0 +1,10 @@
+{
+  "data": {
+    "user_id": "portal_user_1",
+    "student_id": "student_001",
+    "apaar_id": "apaar_001",
+    "group": "portal_group_1",
+    "display_id": "STU-001",
+    "display_id_type": "student_id"
+  }
+}

@@ -244,5 +244,12 @@ export const logoutFromPortal = (
   }
 
   const targetUrl = options.redirectUrl || buildPortalSessionUrl(options);
-  window.location.href = targetUrl;
+  const win = window as Window & { Cypress?: unknown; __portalLogoutUrl?: string };
+
+  if (win.Cypress) {
+    win.__portalLogoutUrl = targetUrl;
+    return;
+  }
+
+  win.location.assign(targetUrl);
 };
