@@ -109,6 +109,21 @@
         data-test="modal"
       ></QuestionModal>
 
+      <div
+        v-if="isComputingScore"
+        class="absolute inset-0 z-20 flex items-center justify-center bg-white/80"
+      >
+        <div class="flex flex-col items-center space-y-3">
+          <BaseIcon
+            name="spinner-solid"
+            iconClass="animate-spin h-10 w-10 text-gray-600"
+          />
+          <div class="text-base font-semibold text-gray-700">
+            Computing your scores...
+          </div>
+        </div>
+      </div>
+
       <Scorecard
         id="scorecardmodal"
         class="absolute z-10"
@@ -156,7 +171,6 @@ import {
   SubmittedResponse,
   UpdateSessionAPIPayload,
   QuizMetadata,
-  submittedAnswer,
   quizTitleType,
   QuestionSet,
   QuestionSetIndexLimits,
@@ -168,7 +182,9 @@ import {
   TimeSpentEntry,
   UpdateSessionAnswerAPIPayload,
   UpdateSessionAnswersAtSpecificPositionsAPIPayload,
-  QuestionSetMetric
+  QuestionSetMetric,
+  QuestionSetMetricPayload,
+  SessionMetricsPayload
 } from "../types";
 import { useToast, POSITION } from "vue-toastification"
 import BaseIcon from "../components/UI/Icons/BaseIcon.vue";
@@ -246,6 +262,8 @@ export default defineComponent({
       marksScored: 0,
       maxMarks: 0, // maximum marks that can be scored
       isScorecardShown: false, // to show the scorecard or not
+      isComputingScore: false, // whether score computation is in progress
+      hasSessionMetrics: false, // whether session metrics have been loaded
       hasQuizEnded: false, // whether the quiz has ended - only valid for quizType = assessment
       reviewAnswers: true, // whether users can review answers once quiz has ended
       displaySolution: true as boolean, // whether solutions to each question should be displayed
@@ -391,7 +409,7 @@ export default defineComponent({
 
     watch(
       () => state.currentQuestionIndex,
-      (newValue, oldValue) => {
+      async (newValue, oldValue) => {
         stoptimeSpentOnQuestionCalc();
         let shuffledOldValue = oldValue;
         let shuffledNewValue = newValue
@@ -417,14 +435,25 @@ export default defineComponent({
         }
         if (newValue == numQuestions.value) {
           if (!state.hasQuizEnded && (!isQuizAssessment.value || isFormQuiz.value)) {
-            endTest() // send an end-quiz event for homeworks and forms
+            await endTest() // send an end-quiz event for homeworks and forms
           }
           if (state.hasQuizEnded) {
             // Always show the scorecard screen after quiz ends; content will hide scores if needed.
             state.isScorecardShown = true;
-            // Only calculate metrics for non-form quizzes with graded questions
-            if (!isFormQuiz.value && hasGradedQuestions.value) {
-              calculateScorecardMetrics();
+            if (!state.hasSessionMetrics && !state.isComputingScore) {
+              state.isComputingScore = true;
+              const fetchedMetrics = await fetchSessionMetrics();
+              if (!fetchedMetrics) {
+                state.toast.error(
+                  'Score computation is taking longer than expected. Please open the scorecard again after a few seconds.',
+                  {
+                    position: POSITION.TOP_LEFT,
+                    timeout: 8000,
+                    draggablePercent: 0.4
+                  }
+                );
+              }
+              state.isComputingScore = false;
             }
           }
         } else if (shuffledNewValue != -1 && !state.hasQuizEnded) {
@@ -551,10 +580,13 @@ export default defineComponent({
           return;
         }
         if (response.status == 200 && response.data) {
-          state.timeRemaining = response.data.time_remaining;
-          if (state.timeRemaining == 0 && isQuizAssessment.value) {
-          // show results based on submitted session's answers (if any)
-            endTest()
+          const timeRemainingFromServer = response.data.time_remaining;
+          if (timeRemainingFromServer != null) {
+            state.timeRemaining = timeRemainingFromServer;
+            if (timeRemainingFromServer == 0 && isQuizAssessment.value && state.quizTimeLimit != null) {
+              // show results based on submitted session's answers (if any)
+              endTest()
+            }
           }
         }
         state.currentQuestionIndex = 0;
@@ -654,6 +686,46 @@ export default defineComponent({
       }
       state.isFirstSession = sessionDetails.is_first;
       state.hasQuizEnded = sessionDetails.has_quiz_ended || false;
+      state.hasSessionMetrics = false;
+      if (state.hasQuizEnded) {
+        if (sessionDetails.metrics) {
+          applySessionMetrics(sessionDetails.metrics);
+        } else {
+          await fetchSessionMetrics();
+        }
+      }
+    }
+
+    function applySessionMetrics(sessionMetrics: SessionMetricsPayload) {
+      state.qsetMetrics = sessionMetrics.qset_metrics.map((metric: QuestionSetMetricPayload) => ({
+        name: metric.name || "",
+        qset_id: metric.qset_id,
+        marksScored: metric.marks_scored,
+        maxQuestionsAllowedToAttempt: metric.num_answered + metric.num_skipped,
+        numAnswered: metric.num_answered,
+        correctlyAnswered: metric.num_correct,
+        partiallyAnswered: metric.num_partially_correct,
+        wronglyAnswered: metric.num_wrong,
+        numQuestionsMarkedForReview: metric.num_marked_for_review || 0,
+        attemptRate: metric.attempt_rate,
+        accuracyRate: metric.accuracy_rate
+      }));
+      state.numCorrect = sessionMetrics.total_correct;
+      state.numWrong = sessionMetrics.total_wrong;
+      state.numPartiallyCorrect = sessionMetrics.total_partially_correct;
+      state.numSkipped = sessionMetrics.total_skipped;
+      state.numMarkedForReview = sessionMetrics.total_marked_for_review || 0;
+      state.marksScored = sessionMetrics.total_marks;
+      state.hasSessionMetrics = true;
+    }
+
+    async function fetchSessionMetrics(): Promise<SessionMetricsPayload | null> {
+      const response = await SessionAPIService.getSession(state.sessionId);
+      if (response.status != 200 || !response.data?.metrics) {
+        return null;
+      }
+      applySessionMetrics(response.data.metrics);
+      return response.data.metrics;
     }
 
     async function getQuizCreateSession() {
@@ -758,97 +830,88 @@ export default defineComponent({
     }
 
     async function endTest() {
-      if (!state.hasQuizEnded) {
-        if (isOmrMode.value) {
-          // update all session answers only for omr mode as of now
-          state.isSessionAnswerRequestProcessing = true;
-          const responseAnswersWithPositions: UpdateSessionAnswersAtSpecificPositionsAPIPayload = [];
-          for (const [idx, response] of state.responses.entries()) {
-            responseAnswersWithPositions.push([
-              idx,
-              {
-                answer: response.answer,
-                visited: response.visited
-                // no time_spent updates for omr mode as of now
-              }
-            ]);
-          }
-          const updateResponse = await SessionAPIService.updateSessionAnswersAtSpecificPositions(
-            state.sessionId,
-            responseAnswersWithPositions
-          );
-
-          if (updateResponse.status != 200) {
-            state.toast.error(
-              'Unable to submit some of your answers due to poor connection. Please retry "End Test" when connection improves.',
-              {
-                position: POSITION.TOP_LEFT,
-                timeout: 10000,
-                draggablePercent: 0.4
-              }
-            )
-          } else {
-            if (!isFormQuiz.value) {
-              calculateScorecardMetrics();
-            }
-            const payload: any = {
-              event: eventType.END_QUIZ
-            };
-            // Only send metrics for non-form quizzes
-            if (!isFormQuiz.value) {
-              payload.metrics = state.qsetMetrics;
-            }
-            const endSessionResponse = await SessionAPIService.updateSession(state.sessionId, payload);
-            if (endSessionResponse.status != 200) {
-              state.toast.error(
-                'Unable to complete test submission due to poor connection. Please retry "End Test" to complete.',
-                {
-                  position: POSITION.TOP_LEFT,
-                  timeout: 10000,
-                  draggablePercent: 0.4
-                }
-              )
-            } else {
-              state.hasQuizEnded = true;
-              state.currentQuestionIndex = numQuestions.value;
-              state.isScorecardShown = true;
-            }
-          }
-          state.isSessionAnswerRequestProcessing = false;
-        } else {
-          // Non-OMR mode (homework, form, assessment)
-          state.isSessionAnswerRequestProcessing = true;
-          if (!isFormQuiz.value) {
-            calculateScorecardMetrics();
-          }
-          const payload: any = {
-            event: eventType.END_QUIZ
-          };
-          // Only send metrics for non-form quizzes
-          if (!isFormQuiz.value) {
-            payload.metrics = state.qsetMetrics;
-          }
-          const endSessionResponse = await SessionAPIService.updateSession(state.sessionId, payload);
-          if (endSessionResponse.status != 200) {
-            state.toast.error(
-              'Unable to complete test submission due to poor connection. Please retry "End Test" to complete.',
-              {
-                position: POSITION.TOP_LEFT,
-                timeout: 10000,
-                draggablePercent: 0.4
-              }
-            )
-          } else {
-            state.hasQuizEnded = true;
-            state.currentQuestionIndex = numQuestions.value;
-            state.isScorecardShown = true;
-          }
-          state.isSessionAnswerRequestProcessing = false;
-        }
-      } else {
+      if (state.hasQuizEnded) {
         state.currentQuestionIndex = numQuestions.value;
         state.isScorecardShown = true;
+        return;
       }
+
+      state.isSessionAnswerRequestProcessing = true;
+      stoptimeSpentOnQuestionCalc();
+
+      const responseAnswersWithPositions: UpdateSessionAnswersAtSpecificPositionsAPIPayload = [];
+      for (const [idx, response] of state.responses.entries()) {
+        const answerPayload: UpdateSessionAnswerAPIPayload = {
+          answer: response.answer,
+          visited: response.visited,
+          marked_for_review: response.marked_for_review
+        };
+        if (!isOmrMode.value) {
+          answerPayload.time_spent = state.timeSpentOnQuestion[idx].timeSpent;
+        }
+        responseAnswersWithPositions.push([idx, answerPayload]);
+      }
+
+      const updateResponse = await SessionAPIService.updateSessionAnswersAtSpecificPositions(
+        state.sessionId,
+        responseAnswersWithPositions
+      );
+
+      if (updateResponse.status != 200) {
+        state.toast.error(
+          'Unable to submit some of your answers due to poor connection. Please retry "End Test" when connection improves.',
+          {
+            position: POSITION.TOP_LEFT,
+            timeout: 10000,
+            draggablePercent: 0.4
+          }
+        );
+        state.isSessionAnswerRequestProcessing = false;
+        return;
+      }
+
+      state.isComputingScore = true;
+      const payload: UpdateSessionAPIPayload = {
+        event: eventType.END_QUIZ
+      };
+      const endSessionResponse = await SessionAPIService.updateSession(state.sessionId, payload);
+      if (endSessionResponse.status != 200) {
+        state.toast.error(
+          'Unable to complete test submission due to poor connection. Please retry "End Test" to complete.',
+          {
+            position: POSITION.TOP_LEFT,
+            timeout: 10000,
+            draggablePercent: 0.4
+          }
+        );
+        state.isComputingScore = false;
+        state.isSessionAnswerRequestProcessing = false;
+        return;
+      }
+
+      state.hasQuizEnded = true;
+      state.currentQuestionIndex = numQuestions.value;
+
+      const responseMetrics = endSessionResponse.data?.metrics || null;
+      if (responseMetrics) {
+        applySessionMetrics(responseMetrics);
+      } else {
+        const fetchedMetrics = await fetchSessionMetrics();
+        if (!fetchedMetrics) {
+          state.toast.error(
+            'Score computation is taking longer than expected. Please open the scorecard after the test session is complete.',
+            {
+              position: POSITION.TOP_LEFT,
+              timeout: 8000,
+              draggablePercent: 0.4
+            }
+          );
+        }
+      }
+
+      state.isScorecardShown = true;
+      state.isComputingScore = false;
+      state.isSessionAnswerRequestProcessing = false;
     }
 
     getQuizCreateSession();
@@ -973,117 +1036,6 @@ export default defineComponent({
     const nextStepButtonText = computed(() => {
       return state.metadata?.next_step_text || "Proceed to Next Step";
     });
-
-    function calculateScorecardMetrics() {
-      let index = 0;
-
-      // set initial values
-      state.numSkipped = numGradedQuestions.value;
-      state.numCorrect = 0;
-      state.numWrong = 0;
-      state.numPartiallyCorrect = 0;
-      state.numMarkedForReview = 0;
-      state.marksScored = 0;
-
-      // Initialize metrics for each question set
-      state.qsetMetrics = state.questionSets.map((qset) => ({
-        name: qset.title,
-        qset_id: qset._id,
-        marksScored: 0,
-        maxQuestionsAllowedToAttempt: qset.max_questions_allowed_to_attempt,
-        numAnswered: 0,
-        correctlyAnswered: 0,
-        wronglyAnswered: 0,
-        partiallyAnswered: 0,
-        numQuestionsMarkedForReview: 0,
-        attemptRate: 0,
-        accuracyRate: 0
-      }));
-
-      state.questions.forEach((questionDetail, questionIndex) => {
-        const [currentQsetIndex] = getQsetLimits(questionIndex);
-        const qsetMetricsObj = state.qsetMetrics[currentQsetIndex];
-        if (!questionDetail.graded) qsetMetricsObj.maxQuestionsAllowedToAttempt -= 1
-        if (state.responses[index].marked_for_review === true) {
-          qsetMetricsObj.numQuestionsMarkedForReview += 1;
-          state.numMarkedForReview += 1;
-        }
-        updateQuestionMetrics(questionDetail, state.responses[index].answer, qsetMetricsObj);
-        if (qsetMetricsObj.numAnswered != 0) qsetMetricsObj.accuracyRate = (qsetMetricsObj.correctlyAnswered + 0.5 * qsetMetricsObj.partiallyAnswered) / qsetMetricsObj.numAnswered;
-        state.qsetMetrics[currentQsetIndex].attemptRate = qsetMetricsObj.numAnswered / qsetMetricsObj.maxQuestionsAllowedToAttempt;
-        state.qsetMetrics[currentQsetIndex] = qsetMetricsObj;
-        index += 1;
-      });
-    }
-
-    function updateQuestionMetrics(
-      questionDetail: Question,
-      userAnswer: submittedAnswer,
-      qsetMetricObj: QuestionSetMetric
-    ) {
-      const markingScheme = questionDetail.marking_scheme;
-      const doesPartialMarkingExist = markingScheme?.partial != null;
-
-      function updateMetricsForCorrectAnswer() {
-        state.numCorrect += 1;
-        // default marks for correctly answered questions = 1
-        state.marksScored += markingScheme?.correct || 1;
-        qsetMetricObj.marksScored += markingScheme?.correct || 1;
-        qsetMetricObj.numAnswered += 1;
-        qsetMetricObj.correctlyAnswered += 1;
-      }
-
-      function updateMetricsForWrongAnswer() {
-        state.numWrong += 1;
-        // default marks for wrongly answered questions = 0
-        state.marksScored += markingScheme?.wrong || 0;
-        qsetMetricObj.marksScored += markingScheme?.wrong || 0;
-        qsetMetricObj.numAnswered += 1;
-        qsetMetricObj.wronglyAnswered += 1;
-      }
-
-      function updateMetricsForPartiallyCorrectAnswer() {
-        state.numPartiallyCorrect += 1;
-        if (["multi-choice", "matrix-match"].includes(questionDetail.type) && Array.isArray(userAnswer) && markingScheme?.partial != null) {
-          let conditionMatched = false;
-          for (const partialMarkRule of markingScheme.partial) {
-            for (const condition of partialMarkRule.conditions) {
-              if (userAnswer.length === condition.num_correct_selected) {
-                conditionMatched = true;
-                state.marksScored += partialMarkRule.marks;
-                qsetMetricObj.marksScored += partialMarkRule.marks;
-                qsetMetricObj.numAnswered += 1;
-                qsetMetricObj.partiallyAnswered += 1;
-                break;
-              }
-            }
-            if (conditionMatched) break;
-          }
-        }
-      }
-
-      const answerEvaluation = isQuestionAnswerCorrect(questionDetail, userAnswer, doesPartialMarkingExist);
-      if (!answerEvaluation.valid) {
-        return;
-      }
-      if (answerEvaluation.answered && questionDetail.graded) {
-        state.numSkipped -= 1;
-        if (answerEvaluation.isCorrect != null) {
-          if (answerEvaluation.isCorrect == true) {
-            updateMetricsForCorrectAnswer();
-          } else if (answerEvaluation.isPartiallyCorrect != null && answerEvaluation.isPartiallyCorrect == true) {
-            updateMetricsForPartiallyCorrectAnswer();
-          } else {
-            updateMetricsForWrongAnswer();
-          }
-        }
-      } else {
-        // default marks for skipped questions = 0
-        // note that optional unanswered questions come here
-        // and calculation will be wrong if "skipped" has a score other than zero
-        state.marksScored += markingScheme?.skipped || 0;
-      }
-    }
 
     /**
      * remove the scorecard, display previous question and remove the confetti

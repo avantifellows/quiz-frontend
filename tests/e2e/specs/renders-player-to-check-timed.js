@@ -11,7 +11,38 @@ function convertTimetoInt(tx) {
   return currentTimeRemaining;
 }
 
+const TIMED_QSET_ID = "62540adb0f748c8e206c1613";
+const TIMED_QSET_NAME = "Question Set 0";
+const TIMED_MAX_ALLOWED = 24;
+
+const timedMetrics = {
+  qset_metrics: [
+    {
+      name: TIMED_QSET_NAME,
+      qset_id: TIMED_QSET_ID,
+      marks_scored: 0,
+      num_answered: 0,
+      num_skipped: TIMED_MAX_ALLOWED,
+      num_correct: 0,
+      num_wrong: 0,
+      num_partially_correct: 0,
+      num_marked_for_review: 0,
+      attempt_rate: 0,
+      accuracy_rate: 0,
+    },
+  ],
+  total_answered: 0,
+  total_skipped: TIMED_MAX_ALLOWED,
+  total_correct: 0,
+  total_wrong: 0,
+  total_partially_correct: 0,
+  total_marked_for_review: 0,
+  total_marks: 0,
+};
+
 describe("Player for Assessment Timed quizzes", () => {
+  let sessionMetrics = timedMetrics;
+
   beforeEach(() => {
     // stub the response to /quiz/{quizId}
     cy.intercept("GET", Cypress.env("backend") + "/quiz/*", {
@@ -27,7 +58,13 @@ describe("Player for Assessment Timed quizzes", () => {
       });
 
       cy.intercept("PATCH", "/session_answers/**", { status: 200 });
-      cy.intercept("PATCH", "/sessions/*", { time_remaining: 200 });
+      cy.intercept("PATCH", "/sessions/*", (req) => {
+        if (req.body && req.body.event === "end-quiz") {
+          req.reply({ body: { time_remaining: 200, metrics: sessionMetrics } });
+        } else {
+          req.reply({ body: { time_remaining: 200 } });
+        }
+      });
 
       cy.intercept(
         "GET",
@@ -156,35 +193,9 @@ describe("Player for Assessment Timed quizzes", () => {
         // wait for END_QUIZ patch to be called
         cy.wait("@patch_session");
         // check if payload has END_QUIZ event
-        cy.get("@patch_session")
-          .its("request.body")
-          .should("deep.equal", {
-            event: eventType.END_QUIZ,
-            metrics: {
-              qset_metrics: [
-                {
-                  name: "Question Set 0",
-                  qset_id: "62540adb0f748c8e206c1613",
-                  marks_scored: 0,
-                  num_answered: 0,
-                  num_skipped: 24,
-                  num_correct: 0,
-                  num_wrong: 0,
-                  num_partially_correct: 0,
-                  num_marked_for_review: 0,
-                  attempt_rate: 0,
-                  accuracy_rate: 0,
-                },
-              ],
-              total_answered: 0,
-              total_skipped: 24,
-              total_correct: 0,
-              total_wrong: 0,
-              total_partially_correct: 0,
-              total_marked_for_review: 0,
-              total_marks: 0,
-            },
-          });
+        cy.get("@patch_session").its("request.body").should("deep.equal", {
+          event: eventType.END_QUIZ,
+        });
       });
     });
   });
@@ -197,7 +208,13 @@ describe("Player for Assessment Timed quizzes", () => {
       });
 
       cy.intercept("PATCH", "/session_answers/**", { status: 200 });
-      cy.intercept("PATCH", "/sessions/*", {});
+      cy.intercept("PATCH", "/sessions/*", (req) => {
+        if (req.body && req.body.event === "end-quiz") {
+          req.reply({ body: { metrics: sessionMetrics } });
+        } else {
+          req.reply({ body: {} });
+        }
+      });
 
       cy.intercept(
         "GET",
@@ -231,7 +248,13 @@ describe("Player for Assessment Timed quizzes", () => {
       });
 
       cy.intercept("PATCH", "/session_answers/**", { status: 200 });
-      cy.intercept("PATCH", "/sessions/*", { time_remaining: 1 });
+      cy.intercept("PATCH", "/sessions/*", (req) => {
+        if (req.body && req.body.event === "end-quiz") {
+          req.reply({ body: { time_remaining: 1, metrics: sessionMetrics } });
+        } else {
+          req.reply({ body: { time_remaining: 1 } });
+        }
+      });
 
       cy.intercept(
         "GET",
@@ -294,7 +317,13 @@ describe("Player for Homework Quizzes", () => {
       });
 
       cy.intercept("PATCH", "/session_answers/**", { status: 200 });
-      cy.intercept("PATCH", "/sessions/*", { time_remaining: 200 });
+      cy.intercept("PATCH", "/sessions/*", (req) => {
+        if (req.body && req.body.event === "end-quiz") {
+          req.reply({ body: { time_remaining: 200, metrics: sessionMetrics } });
+        } else {
+          req.reply({ body: { time_remaining: 200 } });
+        }
+      });
 
       cy.intercept(
         "GET",
