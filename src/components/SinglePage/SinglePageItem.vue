@@ -1500,12 +1500,22 @@ export default defineComponent({
     });
     const defaultSubjectiveAnswer = computed(() => {
       // the default answer to be shown for the subjective question
+      if (!isQuestionTypeSubjective.value) return "";
       if (state.draftAnswer != null && typeof state.draftAnswer == "string") {
         return state.draftAnswer;
+      }
+      if (state.draftAnswer != null && typeof state.draftAnswer == "number") {
+        return String(state.draftAnswer);
       }
       return "";
     });
     const defaultNumericalAnswer = computed(() => {
+      if (
+        !isQuestionTypeNumericalInteger.value &&
+        !isQuestionTypeNumericalFloat.value
+      ) {
+        return null;
+      }
       if (state.draftAnswer != null && typeof state.draftAnswer == "number") {
         return state.draftAnswer;
       }

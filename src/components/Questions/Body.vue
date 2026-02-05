@@ -1191,19 +1191,30 @@ export default defineComponent({
     });
     const defaultSubjectiveAnswer = computed(() => {
       // the default answer to be shown for the subjective question
-      if (
-        props.submittedAnswer != null &&
-        typeof props.submittedAnswer == "string" &&
-        !props.isDraftAnswerCleared
-      ) {
-        return props.submittedAnswer;
+      if (!isQuestionTypeSubjective.value) return "";
+      if (props.submittedAnswer != null && !props.isDraftAnswerCleared) {
+        if (typeof props.submittedAnswer == "string") {
+          return props.submittedAnswer;
+        }
+        if (typeof props.submittedAnswer == "number") {
+          return String(props.submittedAnswer);
+        }
       }
       if (typeof props.draftAnswer == "string") {
         return props.draftAnswer;
       }
+      if (typeof props.draftAnswer == "number") {
+        return String(props.draftAnswer);
+      }
       return "";
     });
     const defaultNumericalAnswer = computed(() => {
+      if (
+        !isQuestionTypeNumericalInteger.value &&
+        !isQuestionTypeNumericalFloat.value
+      ) {
+        return null;
+      }
       if (
         props.submittedAnswer != null &&
         typeof props.submittedAnswer == "number" &&
@@ -1293,14 +1304,26 @@ export default defineComponent({
           typeof newValue == "string" ||
           (newValue == null && typeof oldValue == "string")
         ) {
-          state.subjectiveAnswer = newValue;
+          if (isQuestionTypeSubjective.value) {
+            state.subjectiveAnswer = newValue;
+          }
         }
         if (
           typeof newValue == "number" ||
           (newValue == null && typeof oldValue == "number")
         ) {
-          if (newValue != Number(state.numericalAnswer)) {
-            state.numericalAnswer = newValue;
+          if (isQuestionTypeSubjective.value) {
+            state.subjectiveAnswer =
+              newValue == null ? null : String(newValue);
+            return;
+          }
+          if (
+            isQuestionTypeNumericalInteger.value ||
+            isQuestionTypeNumericalFloat.value
+          ) {
+            if (newValue != Number(state.numericalAnswer)) {
+              state.numericalAnswer = newValue;
+            }
           }
         }
       }
