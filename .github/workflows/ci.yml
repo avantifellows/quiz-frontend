@@ -56,8 +56,8 @@ jobs:
           install: false
           record: true
           tag: chrome-desktop
-          start: npm run serve
-          wait-on: "http://localhost:8080"
+          start: npm run serve -- --port 8081
+          wait-on: "http://localhost:8081"
         env:
           VUE_APP_BACKEND: http://127.0.0.1:8001
           # pass the Dashboard record key as an environment variable
@@ -97,8 +97,8 @@ jobs:
           install: false
           record: true
           tag: chrome-mobile
-          start: npm run serve
-          wait-on: "http://localhost:8080"
+          start: npm run serve -- --port 8081
+          wait-on: "http://localhost:8081"
         env:
           VUE_APP_BACKEND: http://127.0.0.1:8001
           # pass the Dashboard record key as an environment variable
@@ -149,7 +149,7 @@ jobs:
           install: false
           record: true
           tag: firefox-desktop
-          start: npm run serve
+          start: npm run serve -- --port 8081
           wait-on: "http://localhost:8080"
         env:
           VUE_APP_BACKEND: http://127.0.0.1:8001
