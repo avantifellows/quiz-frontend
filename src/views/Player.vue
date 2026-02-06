@@ -442,7 +442,7 @@ export default defineComponent({
             state.isScorecardShown = true;
             if (!state.hasSessionMetrics && !state.isComputingScore) {
               state.isComputingScore = true;
-              const fetchedMetrics = await fetchSessionMetrics();
+              const fetchedMetrics = await fetchSessionMetricsWithRetry();
               if (!fetchedMetrics) {
                 state.toast.error(
                   'Score computation is taking longer than expected. Please open the scorecard again after a few seconds.',
@@ -691,7 +691,7 @@ export default defineComponent({
         if (sessionDetails.metrics) {
           applySessionMetrics(sessionDetails.metrics);
         } else {
-          await fetchSessionMetrics();
+          await fetchSessionMetricsWithRetry();
         }
       }
     }
@@ -726,6 +726,27 @@ export default defineComponent({
       }
       applySessionMetrics(response.data.metrics);
       return response.data.metrics;
+    }
+
+    function wait(ms: number): Promise<void> {
+      return new Promise(resolve => window.setTimeout(resolve, ms));
+    }
+
+    async function fetchSessionMetricsWithRetry(
+      maxAttempts = 3,
+      initialDelayMs = 1200,
+      backoffMultiplier = 2
+    ): Promise<SessionMetricsPayload | null> {
+      let delayMs = initialDelayMs;
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        const metrics = await fetchSessionMetrics();
+        if (metrics) return metrics;
+        if (attempt < maxAttempts) {
+          await wait(delayMs);
+          delayMs *= backoffMultiplier;
+        }
+      }
+      return null;
     }
 
     async function getQuizCreateSession() {
@@ -896,7 +917,7 @@ export default defineComponent({
       if (responseMetrics) {
         applySessionMetrics(responseMetrics);
       } else {
-        const fetchedMetrics = await fetchSessionMetrics();
+        const fetchedMetrics = await fetchSessionMetricsWithRetry();
         if (!fetchedMetrics) {
           state.toast.error(
             'Score computation is taking longer than expected. Please open the scorecard after the test session is complete.',
