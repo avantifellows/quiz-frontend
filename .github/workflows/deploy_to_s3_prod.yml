@@ -33,6 +33,7 @@ jobs:
       - name: Build
         env:
           VUE_APP_BACKEND: ${{ secrets.VUE_APP_BACKEND }}
+          VUE_APP_BACKEND_ECS: https://quiz-backend.avantifellows.org
         run: npm run build
 
       - name: Configure AWS Credentials
