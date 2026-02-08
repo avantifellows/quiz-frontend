@@ -32,7 +32,8 @@ npm run lint:fix                 # Fix linting issues
 ## Environment Setup
 
 Copy `.env.example` to `.env.local` and configure:
-- `VUE_APP_BACKEND`: Backend API URL (default: http://127.0.0.1:8000)
+- `VUE_APP_BACKEND`: Backend API URL (default: http://127.0.0.1:8001)
+- `VUE_APP_BACKEND_ECS`: Optional ECS backend URL. When set, appending `?new_backend=true` to any quiz URL routes all API calls to this backend instead of the default.
 
 For staging/production builds, use `.env.staging` or `.env.production` respectively.
 
@@ -57,7 +58,7 @@ For staging/production builds, use `.env.staging` or `.env.production` respectiv
 
 #### Service Layer
 - `src/services/API/` - API clients and endpoints
-  - `RootClient.ts` - Axios configuration and error handling
+  - `RootClient.ts` - Axios client factory. Creates two clients (default + ECS backend). `apiClient()` checks `?new_backend` URL query param to select which client to use. Falls back to default if `VUE_APP_BACKEND_ECS` is unset.
   - `Quiz.ts`, `Question.ts`, `Session.ts` - Domain-specific API clients
 - `src/services/Functional/Utilities.ts` - Utility functions
 

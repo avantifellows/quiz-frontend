@@ -2,6 +2,7 @@
 node_modules
 dist/
 .planning/
+context_for_ai/
 
 /tests/e2e/videos/
 /tests/e2e/screenshots/
