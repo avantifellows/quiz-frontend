@@ -35,7 +35,7 @@
             class="text-center mb-6"
           >
             <div class="inline-block bg-gray-100 rounded-lg px-4 py-2">
-              <span class="text-base font-semibold text-gray-800" data-test="scorecard-user-id"> Id: {{ userId }}</span>
+              <span class="text-base font-semibold text-gray-800" data-test="scorecard-user-id"> Id: {{ displayUserId }}</span>
             </div>
           </div>
 
@@ -321,6 +321,10 @@ export default defineComponent({
       type: String,
       default: ""
     },
+    displayId: {
+      type: String,
+      default: "",
+    },
     result: {
       type: Object as PropType<CircularProgressResult>,
       default: () => {},
@@ -367,6 +371,7 @@ export default defineComponent({
       autoRedirectCountdown: 0,
     });
 
+    const displayUserId = computed(() => props.displayId || props.userId || "");
     let autoRedirectTimer: number | undefined;
     let autoRedirectCountdownTimer: number | undefined;
 
@@ -701,6 +706,7 @@ export default defineComponent({
       circularProgressRadius,
       circularProgressStroke,
       formatPercentage,
+      displayUserId,
     };
   },
   emits: ["go-back"],

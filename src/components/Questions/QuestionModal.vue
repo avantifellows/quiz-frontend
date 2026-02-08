@@ -12,13 +12,21 @@
       :title="title"
       :userId="userId"
       :quizType="quizType"
+      :displayId="displayId"
       @time-limit-warning="displayTimeLimitWarning"
       @end-test="endTest"
       @end-test-by-time="endTestByTime"
       data-test="header"
     ></Header>
+    <InfoBar
+      v-if="!isQuizAssessment"
+      :title="title"
+      :userId="userId"
+      :displayId="displayId"
+      data-test="infoBar"
+    />
     <div
-      class="scroll-container flex flex-col grow bg-white w-full justify-between overflow-hidden pt-6"
+      class="scroll-container flex flex-col grow bg-white w-full justify-between overflow-hidden pt-7"
     >
       <Body
         :text="currentQuestion.text"
@@ -99,8 +107,11 @@
       :maxMarks="maxMarks"
       :numQuestions="numQuestions"
       :quizTimeLimit="quizTimeLimit"
+      :showPortalLogout="showPortalLogout"
+      :portalLogoutLabel="portalLogoutLabel"
       class="fixed left-0 top-20 h-[calc(100vh-5rem)] w-full sm:w-2/3 lg:w-1/2 xl:w-1/3 z-50 bg-white overflow-y-auto"
       @navigate="navigateToQuestion"
+      @logout="$emit('logout')"
       data-test="questionPalette"
     >
     </QuestionPalette>
@@ -111,6 +122,7 @@
 import Body from "./Body.vue"
 import Footer from "./Footer.vue"
 import Header from "./Header.vue"
+import InfoBar from "./InfoBar.vue"
 import QuestionPalette from "./Palette/QuestionPalette.vue"
 import {
   defineComponent,
@@ -144,6 +156,7 @@ export default defineComponent({
     Body,
     Footer,
     Header,
+    InfoBar,
     QuestionPalette
   },
   props: {
@@ -215,6 +228,10 @@ export default defineComponent({
       type: String,
       default: ""
     },
+    displayId: {
+      type: String,
+      default: "",
+    },
     title: {
       required: true,
       type: [null, String] as PropType<quizTitleType>,
@@ -234,6 +251,14 @@ export default defineComponent({
     displaySolution: {
       type: Boolean,
       default: true
+    },
+    showPortalLogout: {
+      type: Boolean,
+      default: false
+    },
+    portalLogoutLabel: {
+      type: String,
+      default: "Logout"
     }
   },
   setup(props, context) {
@@ -727,7 +752,8 @@ For final submission, click the End Test button again.`,
     "fetch-question-bucket",
     "test-warning-shown",
     "test-optional-warning-shown",
-    "update-review-status"
+    "update-review-status",
+    "logout"
   ],
 });
 </script>

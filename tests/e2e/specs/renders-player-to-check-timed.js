@@ -36,7 +36,7 @@ describe("Player for Assessment Timed quizzes", () => {
           fixture: "org_authentication.json",
         }
       );
-      cy.visit("/quiz/abcd?userId=1&apiKey=pqr");
+      cy.visit("/quiz/abcd?userId=test_student&apiKey=pqr");
 
       // define aliasas
       cy.get('[data-test="startQuiz"]').as("startQuizButton");
@@ -63,7 +63,7 @@ describe("Player for Assessment Timed quizzes", () => {
           cy.get('[data-test="user-id"]')
             .should(
               "have.text",
-              " Id: 1" // Id of the student
+              " Id: test_student" // Id of the student
             )
             .and("be.visible");
         });
@@ -206,7 +206,7 @@ describe("Player for Assessment Timed quizzes", () => {
           fixture: "org_authentication.json",
         }
       );
-      cy.visit("/quiz/abcd?userId=1&apiKey=pqr");
+      cy.visit("/quiz/abcd?userId=test_student&apiKey=pqr");
 
       // define aliasas
       cy.get('[data-test="startQuiz"]').as("startQuizButton");
@@ -240,7 +240,7 @@ describe("Player for Assessment Timed quizzes", () => {
           fixture: "org_authentication.json",
         }
       );
-      cy.visit("/quiz/abcd?userId=1&apiKey=pqr");
+      cy.visit("/quiz/abcd?userId=test_student&apiKey=pqr");
 
       // define aliasas
       cy.get('[data-test="startQuiz"]').as("startQuizButton");
@@ -303,7 +303,7 @@ describe("Player for Homework Quizzes", () => {
           fixture: "org_authentication.json",
         }
       );
-      cy.visit("/quiz/abcd?userId=1&apiKey=pqr");
+      cy.visit("/quiz/abcd?userId=test_student&apiKey=pqr");
 
       cy.clock();
       cy.server();

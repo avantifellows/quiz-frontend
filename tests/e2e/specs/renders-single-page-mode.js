@@ -30,7 +30,7 @@ describe("Player for Single Page Mode with Full Text", () => {
         }
       );
       // Visit with singlePageMode=true query parameter
-      cy.visit("/quiz/abcd?userId=1&apiKey=pqr&singlePageMode=true");
+      cy.visit("/quiz/abcd?userId=test_student&apiKey=pqr&singlePageMode=true");
 
       cy.server();
       cy.clock();
@@ -338,7 +338,7 @@ describe("Player for Single Page Mode with Full Text", () => {
           fixture: "org_authentication.json",
         }
       );
-      cy.visit("/quiz/abcd?userId=1&apiKey=pqr&singlePageMode=true");
+      cy.visit("/quiz/abcd?userId=test_student&apiKey=pqr&singlePageMode=true");
 
       // define aliases
       cy.get('[data-test="startQuiz"]').as("startQuizButton");

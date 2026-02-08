@@ -1,11 +1,18 @@
 <template>
   <div class="flex flex-col bg-indigo-50 w-full h-full overflow-hidden justify-between">
     <Header class="fixed top-0" v-if="isQuizAssessment" :hasQuizEnded="hasQuizEnded"
-      :hasTimeLimit="quizTimeLimit != null" :title="title" :userId="userId" :isOmrMode=true
+      :hasTimeLimit="quizTimeLimit != null" :title="title" :userId="userId" :displayId="displayId" :isOmrMode=true
       :isSessionAnswerRequestProcessing="isSessionAnswerRequestProcessing" v-model:isPaletteVisible="isPaletteVisible"
       :timeRemaining="timeRemaining" :warningTimeLimit="timeLimitWarningThreshold"
       @time-limit-warning="displayTimeLimitWarning" @end-test="endTest" @end-test-by-time="endTestByTime"
       data-test="omr-header"></Header>
+    <InfoBar
+      v-if="!isQuizAssessment"
+      :title="title"
+      :userId="userId"
+      :displayId="displayId"
+      data-test="infoBar"
+    />
     <div class="flex flex-col w-full h-full -z-10" :class="{ 'mt-20 mb-20': isQuizAssessment }">
       <div class="h-full">
         <div class="scroll-container flex flex-col grow bg-indigo-50 w-full justify-between overflow-y-auto" :class="{ 'mt-24': isQuizAssessment }">
@@ -78,8 +85,10 @@
     <QuestionPalette v-if="isPaletteVisible" :hasQuizEnded="hasQuizEnded" :questionSetStates="questionSetStates"
       :currentQuestionIndex="currentQuestionIndex" :title="title" :subject="subject" :testFormat="testFormat"
       :maxMarks="maxMarks" :numQuestions="numQuestions" :quizTimeLimit="quizTimeLimit" :isOmrMode=true
+      :showPortalLogout="showPortalLogout" :portalLogoutLabel="portalLogoutLabel"
       class="fixed left-0 top-20 h-[calc(100vh-5rem)] w-full sm:w-2/3 lg:w-1/2 xl:w-1/3 z-50 bg-white overflow-y-auto"
       @navigate="navigateToQuestion"
+      @logout="$emit('logout')"
       data-test="questionPalette">
     </QuestionPalette>
   </div>
@@ -87,6 +96,7 @@
 
 <script lang="ts">
 import Header from "../Questions/Header.vue"
+import InfoBar from "../Questions/InfoBar.vue"
 import QuestionPalette from "../Questions/Palette/QuestionPalette.vue"
 import SinglePageItem from "./SinglePageItem.vue"
 import {
@@ -122,6 +132,7 @@ export default defineComponent({
   components: {
     SinglePageItem,
     Header,
+    InfoBar,
     QuestionPalette
   },
   props: {
@@ -185,6 +196,10 @@ export default defineComponent({
       type: String,
       default: ""
     },
+    displayId: {
+      type: String,
+      default: "",
+    },
     title: {
       required: true,
       type: [null, String] as PropType<quizTitleType>,
@@ -212,6 +227,14 @@ export default defineComponent({
     displaySolution: {
       type: Boolean,
       default: true,
+    },
+    showPortalLogout: {
+      type: Boolean,
+      default: false,
+    },
+    portalLogoutLabel: {
+      type: String,
+      default: "Logout",
     },
   },
   setup(props, context) {
@@ -579,7 +602,8 @@ export default defineComponent({
     "fetch-question-bucket",
     "test-warning-shown",
     "test-optional-warning-shown",
-    "submit-omr-question"
+    "submit-omr-question",
+    "logout"
   ],
 });
 </script>

@@ -1,5 +1,5 @@
 {
-  "baseUrl": "http://localhost:8080",
+  "baseUrl": "http://localhost:8081",
   "pluginsFile": "tests/e2e/plugins/index.js",
   "projectId": "ux33ap",
   "fixturesFolder": "tests/e2e/fixtures",
