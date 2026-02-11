@@ -17,7 +17,7 @@ describe("Player for Assessment quizzes", () => {
       cy.intercept("PATCH", "/session_answers/**", { body: {} }).as(
         "patchSessionAnswerRequest"
       );
-      cy.intercept("PATCH", "/sessions/*", { body: { timeRemaining: 100 } });
+      cy.intercept("PATCH", "/sessions/*", { body: { time_remaining: 100 } });
       cy.intercept(
         "GET",
         Cypress.env("backend") + "/organizations/authenticate/*",
@@ -79,7 +79,7 @@ describe("Player for Assessment quizzes", () => {
       cy.intercept("PATCH", "/session_answers/**", { body: {} }).as(
         "patchSessionAnswerRequest"
       );
-      cy.intercept("PATCH", "/sessions/*", { body: { timeRemaining: 100 } });
+      cy.intercept("PATCH", "/sessions/*", { body: { time_remaining: 100 } });
 
       cy.intercept(
         "GET",

@@ -217,22 +217,6 @@ export interface QuizAPIResponse {
   question_sets: QuestionSet[];
 }
 
-export interface SessionAPIResponse {
-  _id: string;
-  user_id: string;
-  quiz_id: string;
-  is_first: boolean;
-  omr_mode: boolean;
-  question_order: number[];
-  session_answers: SubmittedResponse[];
-  has_quiz_ended: boolean;
-  time_remaining?: number;
-}
-
-export interface UpdateSessionAPIPayload {
-  event: eventType;
-  metrics?: QuestionSetMetric[];
-}
 export interface QuestionSetMetricPayload {
   name: string;
   qset_id: string;
@@ -257,8 +241,26 @@ export interface SessionMetricsPayload {
   total_marked_for_review: number;
   total_marks: number;
 }
+
+export interface SessionAPIResponse {
+  _id: string;
+  user_id: string;
+  quiz_id: string;
+  is_first: boolean;
+  omr_mode: boolean;
+  question_order: number[];
+  session_answers: SubmittedResponse[];
+  has_quiz_ended: boolean;
+  time_remaining?: number;
+  metrics?: SessionMetricsPayload | null;
+}
+
+export interface UpdateSessionAPIPayload {
+  event: eventType;
+}
 export interface UpdateSessionAPIResponse {
-  time_remaining: number; // how much time is remaining for quiz to complete
+  time_remaining?: number; // how much time is remaining for quiz to complete
+  metrics?: SessionMetricsPayload | null;
 }
 
 export interface SessionAnswerAPIResponse {
