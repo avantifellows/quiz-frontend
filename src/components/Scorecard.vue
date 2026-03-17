@@ -51,7 +51,7 @@
               :stroke="circularProgressStroke"
               :result="result"
               :progressBarPercent="localProgressBarPercent"
-              :key="reRenderKey"
+              :key="reRenderKey ? 1 : 0"
               data-test="progress"
             >
             </CircularProgress>
@@ -64,7 +64,7 @@
               <div
                 v-for="(metric, metricIndex) in metrics"
                 class="rounded-lg bg-gradient-to-r from-amber-400 to-orange-400 flex flex-row items-center px-4 py-3 shadow-md"
-                :key="metric"
+                :key="metricIndex"
               >
                 <!-- metric icon -->
                 <BaseIcon
@@ -96,7 +96,7 @@
                 <div :class="tableCellClass">Attempt Rate (%)</div>
                 <div :class="tableCellClass">Accuracy Rate (%)</div>
               </div>
-              <div v-for="metric in $props.qsetMetrics" :key="metric.name" class="flex border-b border-gray-100 p-2">
+              <div v-for="metric in $props.qsetMetrics" :key="metric.qset_id" class="flex border-b border-gray-100 p-2">
                 <div :class="tableCellClass">{{ metric.name }}</div>
                 <div :class="tableCellClass">{{ metric.marksScored }}</div>
                 <div v-if="!isPortrait" :class="tableCellClass">{{ metric.maxQuestionsAllowedToAttempt }}</div>
@@ -109,7 +109,8 @@
             <div v-if="showScores" class="flex justify-center mt-6" ignore-share-scorecard>
               <!-- when both next step and share are available -->
               <div v-if="nextStepUrl" class="flex flex-col gap-4 items-center w-full max-w-xs">
-                <!-- see answers button (when review is allowed) -->
+                <!-- See Answers button (temporarily disabled; keep code for later) -->
+                <!--
                 <icon-button
                   v-if="reviewAnswers"
                   :titleConfig="backButtonTitleConfig"
@@ -117,6 +118,7 @@
                   @click="goBack"
                   data-test="see-answers"
                 ></icon-button>
+                -->
 
                 <!-- share button -->
                 <icon-button
@@ -150,7 +152,8 @@
 
               <!-- when only share is available (no next step) -->
               <div v-else class="flex flex-col gap-4 items-center w-full max-w-xs">
-                <!-- see answers button (when review is allowed) -->
+                <!-- See Answers button (temporarily disabled; keep code for later) -->
+                <!--
                 <icon-button
                   v-if="reviewAnswers"
                   :titleConfig="backButtonTitleConfig"
@@ -158,6 +161,7 @@
                   @click="goBack"
                   data-test="see-answers"
                 ></icon-button>
+                -->
 
                 <!-- share button -->
                 <icon-button
@@ -357,7 +361,7 @@ export default defineComponent({
       reRenderKey: false, // a key to re-render a component
       // classes for watch again button
       backButtonClass:
-        "bg-back-color hover:bg-primary-hover bp-500:w-40 px-6 py-3 bp-500:p-4 bp-500:px-10 sm:p-6 rounded-2xl md:rounded-xl shadow-xl disabled:opacity-50 disabled:pointer-events-none invisible",
+        "bg-back-color hover:bg-primary-hover bp-500:w-40 px-6 py-3 bp-500:p-4 bp-500:px-10 sm:p-6 rounded-2xl md:rounded-xl shadow-xl disabled:opacity-50 disabled:pointer-events-none",
       shareButtonClass:
         "flex justify-center bg-emerald-500 hover:bg-emerald-600 px-6 py-3 rounded-2xl md:rounded-xl shadow-xl cursor-pointer",
       tableCellClass: "px-2 sm:px-4 flex-1 whitespace-normal break-words",

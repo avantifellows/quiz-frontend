@@ -13,12 +13,14 @@ export default {
   async getQuestions(
     questionSetId: string,
     skip: number | undefined = undefined,
-    limit: number | undefined = undefined
+    limit: number | undefined = undefined,
+    includeAnswers: boolean | undefined = undefined,
   ): Promise<Question[]> {
       type queryParamsType = {
          question_set_id: string,
          skip?: number,
          limit?: number,
+         include_answers?: boolean,
       }
 
       const queryParams: queryParamsType = {
@@ -27,6 +29,7 @@ export default {
 
       if (skip != undefined) queryParams.skip = skip
       if (limit != undefined) queryParams.limit = limit
+      if (includeAnswers != undefined) queryParams.include_answers = includeAnswers
 
       const response = await apiClient().get(
         questionsEndpoint,
