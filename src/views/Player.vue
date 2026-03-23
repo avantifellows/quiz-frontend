@@ -599,7 +599,9 @@ export default defineComponent({
       window.scrollTo(0, 0); // scroll up top incase users scroll down in splash screen
     }
 
-    async function getQuizWithIncludeAnswers(includeAnswers: boolean) {
+    async function getQuiz(
+      { includeAnswers = false }: { includeAnswers?: boolean } = {}
+    ) {
       // Use Form API service if current route is a form route
       const isFormRoute = router.currentRoute.value.path.startsWith("/form/");
       const quizDetails : QuizAPIResponse = isFormRoute
@@ -674,7 +676,7 @@ export default defineComponent({
     async function fetchQuizWithAnswersIfAllowed() {
       if (!state.hasQuizEnded || !state.reviewAnswers || isFormQuiz.value) return;
       try {
-        await getQuizWithIncludeAnswers(true);
+        await getQuiz({ includeAnswers: true });
       } catch (e) {
         // Ignore failures; review can be retried later
       }
@@ -787,7 +789,7 @@ export default defineComponent({
         }
       }
 
-      await getQuizWithIncludeAnswers(includeAnswers);
+      await getQuiz({ includeAnswers });
       await createSession();
 
       // Auto-start quiz if autoStart prop is true
