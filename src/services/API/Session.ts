@@ -3,6 +3,8 @@ import { sessionsEndpoint, sessionAnswersEndpoint } from "./Endpoints";
 import {
   SessionAPIResponse,
   SessionAnswerAPIResponse,
+  RevealAnswerAPIResponse,
+  QuizPreflightAPIResponse,
   UpdateSessionAPIPayload,
   UpdateSessionAPIResponse,
   UpdateSessionAnswerAPIPayload,
@@ -10,6 +12,33 @@ import {
 } from "@/types";
 
 export default {
+  /**
+   * Preflight helper (Alt 1): tell FE whether to request quiz with answers included.
+   */
+  async quizPreflight(
+    quizId: string,
+    userId: string,
+  ): Promise<{ status: number; data?: QuizPreflightAPIResponse }> {
+    try {
+      const response = await apiClient().get(
+        `${sessionsEndpoint}preflight`,
+        {
+          params: {
+            quiz_id: quizId,
+            user_id: userId,
+          }
+        }
+      );
+      return { status: response.status, data: response.data };
+    } catch (error: any) {
+      if (error.code == 'ECONNABORTED') {
+        return { status: 500 }; // request timeout
+      } else {
+        return { status: 400 }; // bad request
+      }
+    }
+  },
+
   /**
    * returns the details for a quiz
    * @param {string} quizId - id of the quiz for which the session is to be created
@@ -120,6 +149,29 @@ export default {
         payload
       );
       return { status: response.status };
+    } catch (error: any) {
+      if (error.code == 'ECONNABORTED') {
+        return { status: 500 }; // request timeout
+      } else {
+        return { status: 400 }; // bad request
+      }
+    }
+  },
+
+  /**
+   * Homework reveal endpoint (Option B2): fetch raw correct_answer (and solution if enabled)
+   * for a single question after it has been submitted.
+   */
+  async revealAnswer(
+    sessionId: string,
+    positionIndex: number,
+  ): Promise<{ status: number; data?: RevealAnswerAPIResponse }> {
+    try {
+      const response = await apiClient().get(
+        `${sessionsEndpoint}${sessionId}/reveal/${positionIndex}`,
+        {}
+      );
+      return { status: response.status, data: response.data };
     } catch (error: any) {
       if (error.code == 'ECONNABORTED') {
         return { status: 500 }; // request timeout

@@ -266,6 +266,7 @@ export default defineComponent({
       hasSessionMetrics: false, // whether session metrics have been loaded
       hasQuizEnded: false, // whether the quiz has ended - only valid for quizType = assessment
       reviewAnswers: true, // whether users can review answers once quiz has ended
+      quizLoadedWithAnswers: false, // whether last quiz fetch included correct_answer/solution
       displaySolution: true as boolean, // whether solutions to each question should be displayed
       showScores: true as boolean, // whether we should show scores after quiz has ended
       sessionEndTimeText: "", // session end time in text if available
@@ -340,6 +341,7 @@ export default defineComponent({
 
     const toggleButtonIconConfig = computed(() => {
       return {
+        enabled: true,
         iconName: isOmrMode.value ? "check-circle-solid" : "sync-alt-solid",
         iconClass: "h-4 w-4 text-white",
       };
@@ -407,6 +409,27 @@ export default defineComponent({
       }
     }
 
+    async function ensureHomeworkRevealLoaded(positionIndex: number) {
+      if (state.metadata?.quiz_type !== "homework") return;
+      if (positionIndex < 0 || positionIndex >= state.responses.length) return;
+      const response = state.responses[positionIndex];
+      if (response?.answer == null) return; // only after submit
+
+      const question = state.questions[positionIndex];
+      // Base /quiz payload hides correct_answer for homework; after resume we need to re-fetch
+      // revealed answers for already-submitted questions so UI can render correctness safely.
+      if (question?.correct_answer != null) return;
+
+      const reveal = await SessionAPIService.revealAnswer(
+        state.sessionId,
+        positionIndex
+      );
+      if (reveal.status === 200 && reveal.data) {
+        state.questions[positionIndex].correct_answer = reveal.data.correct_answer;
+        state.questions[positionIndex].solution = reveal.data.solution;
+      }
+    }
+
     watch(
       () => state.currentQuestionIndex,
       async (newValue, oldValue) => {
@@ -457,6 +480,10 @@ export default defineComponent({
             }
           }
         } else if (shuffledNewValue != -1 && !state.hasQuizEnded) {
+          // Homework: if this question was already submitted (resume flow), fetch reveal payload
+          // so correctness/solutions can render correctly.
+          await ensureHomeworkRevealLoaded(shuffledNewValue);
+
           if (!state.responses[shuffledNewValue].visited) {
             // if not visited yet
             starttimeSpentOnQuestionCalc(); // for homework and assessment
@@ -597,7 +624,9 @@ export default defineComponent({
       window.scrollTo(0, 0); // scroll up top incase users scroll down in splash screen
     }
 
-    async function getQuiz() {
+    async function getQuiz(
+      { includeAnswers = false }: { includeAnswers?: boolean } = {}
+    ) {
       // Use Form API service if current route is a form route
       const isFormRoute = router.currentRoute.value.path.startsWith("/form/");
       const quizDetails : QuizAPIResponse = isFormRoute
@@ -609,19 +638,31 @@ export default defineComponent({
         : await QuizAPIService.getQuiz({
           quizId: props.quizId,
           omrMode: isOmrMode.value ?? false,
-          singlePageMode: props.singlePageMode
+          singlePageMode: props.singlePageMode,
+          includeAnswers,
         });
-      // since we know that there is going to be only one
-      // question set for now
+      state.quizLoadedWithAnswers = includeAnswers;
+      // Bucketing stays enabled even when includeAnswers=true (large exams, slow networks).
+      applyQuizDetails(quizDetails, { enableBucketing: !props.singlePageMode });
+    }
+
+    function applyQuizDetails(quizDetails: QuizAPIResponse, { enableBucketing }: { enableBucketing: boolean }) {
+      // Reset quiz-derived state (used for initial load and for review payload reload)
+      state.questionSets = [];
+      state.questions = [];
+      state.qsetCumulativeLengths = [];
+      state.maxQuestionsAllowedToAttempt = 0;
+
       state.questionSets = quizDetails.question_sets;
       const totalQuestionsInEachSet = [];
       for (const [idx, questionSet] of state.questionSets.entries()) {
         state.maxQuestionsAllowedToAttempt += questionSet.max_questions_allowed_to_attempt;
-        state.questions.push(...questionSet.questions) // spread to add questions
-        totalQuestionsInEachSet.push(questionSet.questions.length)
-        if (idx == 0) state.qsetCumulativeLengths.push(questionSet.questions.length)
-        else state.qsetCumulativeLengths.push(state.qsetCumulativeLengths[idx - 1] + questionSet.questions.length)
+        state.questions.push(...questionSet.questions); // spread to add questions
+        totalQuestionsInEachSet.push(questionSet.questions.length);
+        if (idx == 0) state.qsetCumulativeLengths.push(questionSet.questions.length);
+        else state.qsetCumulativeLengths.push(state.qsetCumulativeLengths[idx - 1] + questionSet.questions.length);
       }
+
       // Normalize difficulty label and badge class once
       state.questions = state.questions.map((q) => {
         const label = toDifficultyLabel(q.metadata?.difficulty);
@@ -631,17 +672,19 @@ export default defineComponent({
           metadata: q.metadata ? { ...q.metadata, difficulty_label: label, difficulty_badge_class: badge } : q.metadata,
         } as Question;
       });
+
       state.quizTimeLimit = quizDetails.time_limit;
       state.metadata = quizDetails.metadata;
 
-      state.maxMarks =
-        quizDetails.max_marks || quizDetails.num_graded_questions;
+      state.maxMarks = quizDetails.max_marks || quizDetails.num_graded_questions;
       state.title = quizDetails.title;
       state.displaySolution = quizDetails?.display_solution ?? true;
       state.showScores = quizDetails?.show_scores ?? true;
-      // Skip bucketing for single page mode (all questions are already loaded)
-      if (!props.singlePageMode) {
+
+      if (enableBucketing) {
         createQuestionBuckets(totalQuestionsInEachSet);
+      } else {
+        store.dispatch("setQuestionBucketMap", []);
       }
 
       if (quizDetails?.review_immediate == false) {
@@ -650,12 +693,17 @@ export default defineComponent({
           const sessionEndTime = new Date(state.metadata.session_end_time);
           const dateOptions: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true };
           state.sessionEndTimeText = new Intl.DateTimeFormat('en-US', dateOptions).format(sessionEndTime);
-          if (new Date() > sessionEndTime) {
-            state.reviewAnswers = true;
-          } else {
-            state.reviewAnswers = false;
-          }
+          state.reviewAnswers = new Date() > sessionEndTime;
         }
+      }
+    }
+
+    async function fetchQuizWithAnswersIfAllowed() {
+      if (!state.hasQuizEnded || !state.reviewAnswers || isFormQuiz.value) return;
+      try {
+        await getQuiz({ includeAnswers: true });
+      } catch (e) {
+        // Ignore failures; review can be retried later
       }
     }
 
@@ -692,6 +740,10 @@ export default defineComponent({
           applySessionMetrics(sessionDetails.metrics);
         } else {
           await fetchSessionMetricsWithRetry();
+        }
+        // If quiz was not loaded with answers (e.g., preflight failed), retry once here.
+        if (!state.quizLoadedWithAnswers) {
+          await fetchQuizWithAnswersIfAllowed();
         }
       }
     }
@@ -750,7 +802,19 @@ export default defineComponent({
     }
 
     async function getQuizCreateSession() {
-      await getQuiz();
+      let includeAnswers = false;
+      // Preflight before GET /quiz
+      if (!router.currentRoute.value.path.startsWith("/form/")) {
+        const preflight = await SessionAPIService.quizPreflight(
+          props.quizId,
+          props.userId as string,
+        );
+        if (preflight.status === 200 && preflight.data) {
+          includeAnswers = preflight.data.include_answers;
+        }
+      }
+
+      await getQuiz({ includeAnswers });
       await createSession();
 
       // Auto-start quiz if autoStart prop is true
@@ -822,6 +886,18 @@ export default defineComponent({
       } else {
         // successful response
         state.continueAfterAnswerSubmit = true;
+
+        // For homework, reveal correct answer only after submit
+        if (state.metadata.quiz_type === "homework") {
+          const reveal = await SessionAPIService.revealAnswer(
+            state.sessionId,
+            state.shuffledQuestionIndex
+          );
+          if (reveal.status === 200 && reveal.data) {
+            state.questions[state.shuffledQuestionIndex].correct_answer = reveal.data.correct_answer;
+            state.questions[state.shuffledQuestionIndex].solution = reveal.data.solution;
+          }
+        }
       }
       state.isSessionAnswerRequestProcessing = false;
     }
@@ -1061,9 +1137,11 @@ export default defineComponent({
     /**
      * remove the scorecard, display previous question and remove the confetti
      */
-    function goToPreviousQuestion() {
+    async function goToPreviousQuestion() {
+      // Scorecard "See Answers": lazily load answers when review is allowed.
+      await fetchQuizWithAnswersIfAllowed();
       state.isScorecardShown = false;
-      state.currentQuestionIndex -= 1;
+      state.currentQuestionIndex = 0;
       resetConfetti();
     }
 
@@ -1168,13 +1246,28 @@ export default defineComponent({
           const fetchedQuestions = await QuestionAPIService.getQuestions(
             state.questions[questionIndex].question_set_id,
             bucketStartIndex,
-            store.state.bucketSize
+            store.state.bucketSize,
+            state.quizLoadedWithAnswers
           )
 
           for (let i = bucketStartIndex; i <= bucketEndIndex; i++) {
             let globalQuestionIndex = i
             if (qsetIndex != 0) globalQuestionIndex = i + state.qsetCumulativeLengths[qsetIndex - 1]
-            state.questions[globalQuestionIndex] = fetchedQuestions[i - bucketStartIndex]
+            // The base /questions endpoint will no longer return answers.
+            // If homework reveal already populated correct_answer/solution for a question, preserve it.
+            const existing = state.questions[globalQuestionIndex]
+            const incoming = fetchedQuestions[i - bucketStartIndex]
+            state.questions[globalQuestionIndex] = {
+              ...incoming,
+              // If quiz was loaded with answers (review mode), prefer incoming (which also includes solutions).
+              // Otherwise (attempt/homework reveal), preserve any already-revealed answers.
+              correct_answer: state.quizLoadedWithAnswers
+                ? incoming.correct_answer
+                : (existing?.correct_answer ?? incoming.correct_answer),
+              solution: state.quizLoadedWithAnswers
+                ? incoming.solution
+                : (existing?.solution ?? incoming.solution),
+            } as Question
           }
 
           store.dispatch("updateBucketFetchedStatus", {

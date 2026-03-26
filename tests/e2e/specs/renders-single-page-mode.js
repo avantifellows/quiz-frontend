@@ -44,7 +44,7 @@ describe("Player for Single Page Mode with Full Text", () => {
   beforeEach(() => {
     // stub the response to /quiz/{quizId}
     cy.intercept("GET", Cypress.env("backend") + "/quiz/*", {
-      fixture: "multi_qset_omr.json", // 2 question sets -- each has 12 questions
+      fixture: "multi_qset_omr_without_answers.json", // 2 question sets -- each has 12 questions
       // in set 1 -- all questions can be answered
       // in set 2 -- only upto 3 questions can be answered
     });

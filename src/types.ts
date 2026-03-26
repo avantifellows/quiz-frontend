@@ -217,6 +217,16 @@ export interface QuizAPIResponse {
   question_sets: QuestionSet[];
 }
 
+export interface RevealAnswerAPIResponse {
+  question_id: string;
+  correct_answer: CorrectAnswerType;
+  solution: string[];
+}
+
+export interface QuizPreflightAPIResponse {
+  include_answers: boolean;
+}
+
 export interface QuestionSetMetricPayload {
   name: string;
   qset_id: string;
