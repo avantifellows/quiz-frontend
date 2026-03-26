@@ -35,6 +35,9 @@ jobs:
   e2e-tests-chrome-desktop:
     name: E2E tests on Chrome Desktop
     runs-on: ubuntu-latest
+    container:
+      image: cypress/browsers:node14.17.0-chrome88-ff89
+      options: --user 1001
     steps:
       - uses: actions/checkout@v3
 
@@ -75,6 +78,9 @@ jobs:
   e2e-tests-chrome-mobile:
     name: E2E tests on Chrome Mobile
     runs-on: ubuntu-latest
+    container:
+      image: cypress/browsers:node14.17.0-chrome88-ff89
+      options: --user 1001
     steps:
       - uses: actions/checkout@v3
 
@@ -150,7 +156,7 @@ jobs:
           record: true
           tag: firefox-desktop
           start: npm run serve -- --port 8081
-          wait-on: "http://localhost:8080"
+          wait-on: "http://localhost:8081"
         env:
           VUE_APP_BACKEND: http://127.0.0.1:8001
           # pass the Dashboard record key as an environment variable
