@@ -2,7 +2,7 @@ describe("Player for Assessment quizzes", () => {
   beforeEach(() => {
     // stub the response to /quiz/{quizId}
     cy.intercept("GET", Cypress.env("backend") + "/quiz/*", {
-      fixture: "multi_qset_quiz.json", // 2 question sets -- each has 12 questions
+      fixture: "multi_qset_quiz_without_answers.json", // 2 question sets -- each has 12 questions
       // in set 1 -- all questions can be answered
       // in set 2 -- only upto 3 questions can be answered
     });
@@ -38,7 +38,7 @@ describe("Player for Assessment quizzes", () => {
         cy.get('[data-test="togglePaletteButton"]').trigger("click");
 
         cy.intercept("GET", "/questions/*", {
-          fixture: "question_bucket_fetched_multiset.json",
+          fixture: "question_bucket_fetched_multiset_without_answers.json",
         }).as("question_bucket_call");
 
         cy.get('[data-test="paletteItem-10"]').trigger("click"); // 11th question

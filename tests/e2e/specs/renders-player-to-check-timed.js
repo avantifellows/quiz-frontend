@@ -46,7 +46,7 @@ describe("Player for Assessment Timed quizzes", () => {
   beforeEach(() => {
     // stub the response to /quiz/{quizId}
     cy.intercept("GET", Cypress.env("backend") + "/quiz/*", {
-      fixture: "assessment_quiz.json",
+      fixture: "assessment_quiz_without_answers.json",
     });
   });
 
@@ -305,7 +305,7 @@ describe("Player for Homework Quizzes", () => {
   beforeEach(() => {
     // stub the response to /quiz/{quizId}
     cy.intercept("GET", Cypress.env("backend") + "/quiz/*", {
-      fixture: "homework_quiz.json",
+      fixture: "homework_quiz_without_answers.json",
     });
   });
 
@@ -315,6 +315,11 @@ describe("Player for Homework Quizzes", () => {
       cy.intercept("POST", "/sessions/", {
         fixture: "new_homework_session.json",
       });
+
+      // homework submit now triggers a reveal call to fetch correct_answer/solution
+      cy.intercept("GET", "/sessions/*/reveal/*", {
+        fixture: "reveal_answer.json",
+      }).as("reveal_answer");
 
       cy.intercept("PATCH", "/session_answers/**", { status: 200 });
       cy.intercept("PATCH", "/sessions/*", (req) => {
@@ -369,6 +374,7 @@ describe("Player for Homework Quizzes", () => {
 
         // wait for patch session answer to happen
         cy.wait("@patch_session_answers");
+        cy.wait("@reveal_answer");
         // now check if the payload sent is correct
         cy.get("@patch_session_answers")
           .its("request.body")
@@ -394,6 +400,7 @@ describe("Player for Homework Quizzes", () => {
           .get('[data-test="submitButton"]')
           .trigger("click");
         cy.wait("@patch_session_answers");
+        cy.wait("@reveal_answer");
         cy.get("@patch_session_answers")
           .its("request.body")
           .should("deep.equal", {
@@ -434,6 +441,7 @@ describe("Player for Homework Quizzes", () => {
 
         // wait for patch session answer to happen
         cy.wait("@patch_session_answers");
+        cy.wait("@reveal_answer");
         // now check if the payload sent is correct
         cy.get("@patch_session_answers")
           .its("request.body")

@@ -50,7 +50,7 @@ describe("Player for Assessment quizzes with partial marks", () => {
   beforeEach(() => {
     // stub the response to /quiz/{quizId}
     cy.intercept("GET", Cypress.env("backend") + "/quiz/*", {
-      fixture: "partial_mark_assessment_quiz.json",
+      fixture: "partial_mark_assessment_quiz_without_answers.json",
     });
   });
 

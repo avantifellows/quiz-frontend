@@ -52,7 +52,7 @@ describe("Player for Assessment quizzes", () => {
   beforeEach(() => {
     // stub the response to /quiz/{quizId}
     cy.intercept("GET", Cypress.env("backend") + "/quiz/*", {
-      fixture: "assessment_quiz.json",
+      fixture: "assessment_quiz_without_answers.json",
     });
   });
 
@@ -340,7 +340,7 @@ describe("Player for Assessment quizzes", () => {
 
           // check if question_set subset pattern is working well
           cy.intercept("GET", "/questions/*", {
-            fixture: "question_bucket_fetched.json",
+            fixture: "question_bucket_fetched_without_answers.json",
           }).as("question_bucket_call");
 
           // click the last question present in the question palette
