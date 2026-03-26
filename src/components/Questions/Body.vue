@@ -785,6 +785,16 @@ export default defineComponent({
       ) {
         return;
       }
+
+      // When answers are intentionally hidden (e.g. homework base payload), correctAnswer can be null.
+      // Guard against calling `.indexOf` on null / non-array values.
+      if (!Array.isArray(props.correctAnswer)) {
+        return;
+      }
+      if (props.submittedAnswer != null && !Array.isArray(props.submittedAnswer)) {
+        return;
+      }
+
       if (
         (!isQuizAssessment.value || props.hasQuizEnded) && // display colors if its a homework or if its assessment and quiz ended
         props.isGradedQuestion &&

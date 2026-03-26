@@ -409,6 +409,27 @@ export default defineComponent({
       }
     }
 
+    async function ensureHomeworkRevealLoaded(positionIndex: number) {
+      if (state.metadata?.quiz_type !== "homework") return;
+      if (positionIndex < 0 || positionIndex >= state.responses.length) return;
+      const response = state.responses[positionIndex];
+      if (response?.answer == null) return; // only after submit
+
+      const question = state.questions[positionIndex];
+      // Base /quiz payload hides correct_answer for homework; after resume we need to re-fetch
+      // revealed answers for already-submitted questions so UI can render correctness safely.
+      if (question?.correct_answer != null) return;
+
+      const reveal = await SessionAPIService.revealAnswer(
+        state.sessionId,
+        positionIndex
+      );
+      if (reveal.status === 200 && reveal.data) {
+        state.questions[positionIndex].correct_answer = reveal.data.correct_answer;
+        state.questions[positionIndex].solution = reveal.data.solution;
+      }
+    }
+
     watch(
       () => state.currentQuestionIndex,
       async (newValue, oldValue) => {
@@ -459,6 +480,10 @@ export default defineComponent({
             }
           }
         } else if (shuffledNewValue != -1 && !state.hasQuizEnded) {
+          // Homework: if this question was already submitted (resume flow), fetch reveal payload
+          // so correctness/solutions can render correctly.
+          await ensureHomeworkRevealLoaded(shuffledNewValue);
+
           if (!state.responses[shuffledNewValue].visited) {
             // if not visited yet
             starttimeSpentOnQuestionCalc(); // for homework and assessment
