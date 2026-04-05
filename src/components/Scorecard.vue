@@ -395,7 +395,10 @@ export default defineComponent({
       (newValue) => {
         if (newValue) {
           setTimeout(() => {
-            state.localProgressBarPercent = props.progressPercentage;
+            state.localProgressBarPercent = Math.min(
+            Math.max(props.progressPercentage, 0),
+                100
+              );
           }, PROGRESS_BAR_ANIMATION_DELAY_TIME);
           // throw some confetti in there
           throwConfetti(state.confettiHandler);
