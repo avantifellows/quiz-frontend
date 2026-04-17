@@ -90,6 +90,24 @@ export function isQuestionAnswerCorrect(
 
   if (questionDetail.graded) {
     answerEvaluation.valid = true;
+    const hasAnswerKey = questionDetail.correct_answer != null;
+    const requiresAnswerKey = (
+      questionDetail.type == "single-choice" ||
+      questionDetail.type == "multi-choice" ||
+      questionDetail.type == "matrix-match" ||
+      questionDetail.type == "matrix-rating" ||
+      questionDetail.type == "matrix-numerical" ||
+      questionDetail.type == "numerical-integer" ||
+      questionDetail.type == "numerical-float"
+    );
+
+    // Active quiz payloads can intentionally hide answer keys.
+    // In that case, skip correctness evaluation for answer-key based question types.
+    if (requiresAnswerKey && !hasAnswerKey) {
+      answerEvaluation.valid = false;
+      answerEvaluation.answered = userAnswer != null;
+      return answerEvaluation;
+    }
 
     // Handle invalid format: if a number is submitted for single-choice/multi-choice, mark as wrong
     if (typeof userAnswer == "number" && (questionDetail.type == "single-choice" || questionDetail.type == "multi-choice" || questionDetail.type == "matrix-match")) {

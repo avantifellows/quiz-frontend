@@ -653,7 +653,21 @@ export default defineComponent({
       state.qsetCumulativeLengths = [];
       state.maxQuestionsAllowedToAttempt = 0;
 
-      state.questionSets = quizDetails.question_sets;
+      const shouldHideAnswerKeys = !state.quizLoadedWithAnswers;
+      const sanitizedQuestionSets = quizDetails.question_sets.map((questionSet) => ({
+        ...questionSet,
+        questions: questionSet.questions.map((question) => (
+          shouldHideAnswerKeys
+            ? {
+              ...question,
+              correct_answer: null,
+              solution: null,
+            }
+            : question
+        )),
+      }));
+
+      state.questionSets = sanitizedQuestionSets;
       const totalQuestionsInEachSet = [];
       for (const [idx, questionSet] of state.questionSets.entries()) {
         state.maxQuestionsAllowedToAttempt += questionSet.max_questions_allowed_to_attempt;
@@ -1170,6 +1184,19 @@ export default defineComponent({
           let dynamicIndex = qindex;
           if (!isOmrMode.value) dynamicIndex = state.questionOrder[qindex];
           if (state.hasQuizEnded) {
+            if (
+              state.questions[dynamicIndex].graded &&
+              state.questions[dynamicIndex].correct_answer == null
+            ) {
+              // Answers may be hidden when review payload fetch fails.
+              // Avoid inferring correctness locally without answer keys.
+              qstate = "neutral";
+              states.push({
+                index: qindex,
+                value: qstate
+              })
+              continue;
+            }
             const questionAnswerEvaluation = isQuestionAnswerCorrect(
               state.questions[dynamicIndex],
               state.responses[dynamicIndex].answer,
