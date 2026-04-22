@@ -2,6 +2,7 @@ import { PortalIdentifiers } from "@/types";
 
 const ACCESS_TOKEN_KEY = "access_token";
 const REFRESH_TOKEN_KEY = "refresh_token";
+const QUIZ_PORTAL_SESSION_KEY = "quiz_portal_session";
 
 const portalBackendBaseUrl = (process.env.VUE_APP_PORTAL_BACKEND || "").replace(/\/$/, "");
 const portalAuthBaseUrl = (process.env.VUE_APP_PORTAL_FRONTEND || "https://auth.avantifellows.org").replace(/\/$/, "");
@@ -9,6 +10,11 @@ const IS_PROD = process.env.NODE_ENV === "production";
 
 let cachedIdentifiers: PortalIdentifiers | null | undefined;
 let cachedTokenKey: string | null | undefined;
+
+interface QuizPortalSessionState {
+  quizId: string;
+  identifiers: PortalIdentifiers;
+}
 
 const getCookieValue = (name: string): string | null => {
   if (typeof document === "undefined") return null;
@@ -35,6 +41,57 @@ const getStoredToken = (key: string): string | null => {
   } catch (error) {
     console.warn("Unable to read token from localStorage", error);
     return null;
+  }
+};
+
+const getSessionStorage = (): Storage | null => {
+  if (typeof window === "undefined") return null;
+
+  try {
+    return window.sessionStorage;
+  } catch (error) {
+    console.warn("Unable to access sessionStorage", error);
+    return null;
+  }
+};
+
+const readQuizPortalSession = (): QuizPortalSessionState | null => {
+  const storage = getSessionStorage();
+  if (!storage) return null;
+
+  try {
+    const rawValue = storage.getItem(QUIZ_PORTAL_SESSION_KEY);
+    if (!rawValue) return null;
+    const parsed = JSON.parse(rawValue);
+    if (
+      !parsed ||
+      typeof parsed.quizId !== "string" ||
+      !parsed.identifiers ||
+      typeof parsed.identifiers.userId !== "string"
+    ) {
+      return null;
+    }
+
+    return parsed as QuizPortalSessionState;
+  } catch (error) {
+    console.warn("Unable to read quiz portal session", error);
+    return null;
+  }
+};
+
+const writeQuizPortalSession = (value: QuizPortalSessionState | null): void => {
+  const storage = getSessionStorage();
+  if (!storage) return;
+
+  try {
+    if (!value) {
+      storage.removeItem(QUIZ_PORTAL_SESSION_KEY);
+      return;
+    }
+
+    storage.setItem(QUIZ_PORTAL_SESSION_KEY, JSON.stringify(value));
+  } catch (error) {
+    console.warn("Unable to persist quiz portal session", error);
   }
 };
 
@@ -171,6 +228,46 @@ export const getCachedPortalIdentifiers = (): PortalIdentifiers | null => {
     return null;
   }
   return cachedIdentifiers;
+};
+
+export const getStoredQuizPortalSession = (): QuizPortalSessionState | null => {
+  return readQuizPortalSession();
+};
+
+export const getStoredQuizPortalIdentifiers = (
+  quizId: string | null
+): PortalIdentifiers | null => {
+  if (!quizId) return null;
+
+  const storedSession = readQuizPortalSession();
+  if (!storedSession || storedSession.quizId !== quizId) {
+    return null;
+  }
+
+  return storedSession.identifiers;
+};
+
+export const persistQuizPortalSession = (
+  quizId: string,
+  identifiers: PortalIdentifiers
+): void => {
+  writeQuizPortalSession({
+    quizId,
+    identifiers,
+  });
+  cachedIdentifiers = identifiers;
+  cachedTokenKey = `quiz:${quizId}`;
+};
+
+export const clearQuizPortalSession = (quizId?: string | null): void => {
+  const storedSession = readQuizPortalSession();
+  if (quizId && storedSession && storedSession.quizId !== quizId) {
+    return;
+  }
+
+  writeQuizPortalSession(null);
+  cachedIdentifiers = undefined;
+  cachedTokenKey = undefined;
 };
 
 const clearCookie = (name: string) => {

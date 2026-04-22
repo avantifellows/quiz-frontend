@@ -1,5 +1,10 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { getPortalIdentifiers, getCachedPortalIdentifiers } from "@/services/portalAuth";
+import {
+  getPortalIdentifiers,
+  getStoredQuizPortalIdentifiers,
+  getStoredQuizPortalSession,
+  persistQuizPortalSession,
+} from "@/services/portalAuth";
 import type { PortalIdentifiers, DisplayIdType } from "@/types";
 
 declare module "vue-router" {
@@ -26,6 +31,17 @@ const resolveLaunchToken = (route: any): string | null => {
   return getQueryValue(route.query.launchToken);
 };
 
+const resolveQuizId = (route: any): string | null => {
+  const value = route?.params?.quizId;
+  return typeof value === "string" && value.trim() !== "" ? value.trim() : null;
+};
+
+const stripLaunchToken = (query: Record<string, unknown>) => {
+  const sanitizedQuery = { ...query };
+  delete sanitizedQuery.launchToken;
+  return sanitizedQuery;
+};
+
 const resolvePortalData = (route: any): PortalIdentifiers | null => {
   if (route.meta?.portalIdentifiers !== undefined) {
     return route.meta.portalIdentifiers as PortalIdentifiers | null;
@@ -35,7 +51,7 @@ const resolvePortalData = (route: any): PortalIdentifiers | null => {
     return null;
   }
 
-  return getCachedPortalIdentifiers();
+  return getStoredQuizPortalIdentifiers(resolveQuizId(route));
 };
 
 const resolveUserId = (route: any): string | null => {
@@ -197,11 +213,12 @@ router.beforeEach(async (to) => {
       return;
     }
 
-    // check the cache
-    let identifiers: PortalIdentifiers | null = resolvePortalData(to);
     const launchToken = resolveLaunchToken(to);
+    const quizId = resolveQuizId(to);
 
-    if (!identifiers) {
+    let identifiers: PortalIdentifiers | null = resolvePortalData(to);
+
+    if (!identifiers && launchToken) {
       identifiers = await getPortalIdentifiers({ force: true, launchToken });
     }
 
@@ -209,6 +226,36 @@ router.beforeEach(async (to) => {
 
     if (!identifiers?.userId) {
       return { name: "403" };
+    }
+
+    if (launchToken && quizId) {
+      const storedQuizSession = getStoredQuizPortalSession();
+      const hasConflictingActiveSession =
+        storedQuizSession &&
+        storedQuizSession.identifiers.userId !== identifiers.userId;
+
+      if (hasConflictingActiveSession && typeof window !== "undefined") {
+        const currentDisplayId =
+          storedQuizSession.identifiers.displayId ||
+          storedQuizSession.identifiers.userId;
+        const nextDisplayId = identifiers.displayId || identifiers.userId;
+        const shouldSwitchStudent = window.confirm(
+          `This tab already has an active quiz session for ${currentDisplayId}. Switch to ${nextDisplayId}?`
+        );
+
+        if (!shouldSwitchStudent) {
+          return false;
+        }
+      }
+
+      persistQuizPortalSession(quizId, identifiers);
+
+      return {
+        path: to.path,
+        query: stripLaunchToken(to.query as Record<string, unknown>),
+        hash: to.hash,
+        replace: true,
+      };
     }
   }
 });

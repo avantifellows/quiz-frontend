@@ -200,7 +200,7 @@ import { useToast, POSITION } from "vue-toastification"
 import BaseIcon from "../components/UI/Icons/BaseIcon.vue";
 import IconButton from "../components/UI/Buttons/IconButton.vue";
 import OrganizationAPIService from "../services/API/Organization";
-import { logoutFromPortal } from "@/services/portalAuth";
+import { clearQuizPortalSession, logoutFromPortal } from "@/services/portalAuth";
 // import { getPortalIdentifiers } from "@/services/portalAuth";
 
 export default defineComponent({
@@ -417,6 +417,7 @@ export default defineComponent({
     }
 
     const handlePortalLogout = () => {
+      clearQuizPortalSession(props.quizId);
       logoutFromPortal({
         quizId: props.quizId,
         group: props.portalGroup ?? null,
@@ -775,6 +776,7 @@ export default defineComponent({
       state.hasQuizEnded = sessionDetails.has_quiz_ended || false;
       state.hasSessionMetrics = false;
       if (state.hasQuizEnded) {
+        clearQuizPortalSession(props.quizId);
         if (sessionDetails.metrics) {
           applySessionMetrics(sessionDetails.metrics);
         } else {
@@ -1026,6 +1028,7 @@ export default defineComponent({
       }
 
       state.hasQuizEnded = true;
+      clearQuizPortalSession(props.quizId);
       state.currentQuestionIndex = numQuestions.value;
 
       const responseMetrics = endSessionResponse.data?.metrics || null;
