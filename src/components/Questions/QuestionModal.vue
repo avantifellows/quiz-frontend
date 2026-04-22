@@ -107,11 +107,8 @@
       :maxMarks="maxMarks"
       :numQuestions="numQuestions"
       :quizTimeLimit="quizTimeLimit"
-      :showPortalLogout="showPortalLogout"
-      :portalLogoutLabel="portalLogoutLabel"
       class="fixed left-0 top-20 h-[calc(100vh-5rem)] w-full sm:w-2/3 lg:w-1/2 xl:w-1/3 z-50 bg-white overflow-y-auto"
       @navigate="navigateToQuestion"
-      @logout="$emit('logout')"
       data-test="questionPalette"
     >
     </QuestionPalette>
@@ -251,14 +248,6 @@ export default defineComponent({
     displaySolution: {
       type: Boolean,
       default: true
-    },
-    showPortalLogout: {
-      type: Boolean,
-      default: false
-    },
-    portalLogoutLabel: {
-      type: String,
-      default: "Logout"
     }
   },
   setup(props, context) {
@@ -752,8 +741,7 @@ For final submission, click the End Test button again.`,
     "fetch-question-bucket",
     "test-warning-shown",
     "test-optional-warning-shown",
-    "update-review-status",
-    "logout"
+    "update-review-status"
   ],
 });
 </script>

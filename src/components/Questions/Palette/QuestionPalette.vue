@@ -79,18 +79,6 @@
           </div>
       </div>
     </div>
-    <div
-      v-if="showPortalLogout"
-      class="mt-8 border-t border-gray-200 pt-4"
-      data-test="palette-logout"
-    >
-      <icon-button
-        :titleConfig="portalLogoutTitleConfig"
-        :buttonClass="portalLogoutButtonClass"
-        @click="$emit('logout')"
-        data-test="portalLogoutButton"
-      />
-    </div>
   </div>
 </template>
 
@@ -103,7 +91,6 @@ import Review from "./Review.vue";
 import PaletteItem from "./Item.vue";
 import InstructionPage from "@/components/InstructionPage.vue";
 import { TimeLimit, questionSetPalette, quizTitleType, testFormat } from "@/types";
-import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { defineComponent, computed, PropType, reactive } from "vue";
 
 export default defineComponent({
@@ -114,8 +101,7 @@ export default defineComponent({
     Neutral,
     Review,
     PaletteItem,
-    InstructionPage,
-    IconButton
+    InstructionPage
   },
   props: {
     hasQuizEnded: {
@@ -158,14 +144,6 @@ export default defineComponent({
     isOmrMode: {
       type: Boolean,
       default: false,
-    },
-    showPortalLogout: {
-      type: Boolean,
-      default: false,
-    },
-    portalLogoutLabel: {
-      type: String,
-      default: "Logout",
     },
   },
   setup(props, context) {
@@ -215,15 +193,6 @@ export default defineComponent({
     const showInstructionButton = computed(() => state.showInstructions == true)
     const showPaletteButton = computed(() => state.showPalette == true)
 
-    const portalLogoutTitleConfig = computed(() => ({
-      value: props.portalLogoutLabel || "Logout",
-      class: "text-red-700 text-xs bp-500:text-sm font-semibold",
-    }));
-
-    const portalLogoutButtonClass = computed(() =>
-      "bg-red-50 hover:bg-red-100 ring-red-100 p-2 px-3 bp-500:px-4 rounded-lg shadow-sm border border-red-200 w-full"
-    );
-
     const toggleInstructionsButtonClass = computed(() => [
       {
         "bg-primary": props.isOmrMode || !showInstructionButton.value,
@@ -252,11 +221,9 @@ export default defineComponent({
       toggleInstructionsButtonClass,
       togglePaletteButtonClass,
       legendErrorText,
-      legendNeutralText,
-      portalLogoutTitleConfig,
-      portalLogoutButtonClass
+      legendNeutralText
     };
   },
-  emits: ["navigate", "logout"],
+  emits: ["navigate"],
 });
 </script>
