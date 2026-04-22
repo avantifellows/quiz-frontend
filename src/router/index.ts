@@ -112,8 +112,6 @@ const routes = [
       omrMode: route.query.omrMode === "true",
       singlePageMode: route.query.singlePageMode === "true",
       autoStart: route.query.autoStart === "true",
-      fromPortal: route.query.fromPortal === "true" && !isWhitelistedTestUser(route),
-      portalGroup: resolvePortalData(route)?.group ?? null,
     }),
     // lazy-loading: https://router.vuejs.org/guide/advanced/lazy-loading.html
     component: () =>
@@ -133,8 +131,6 @@ const routes = [
       omrMode: route.query.omrMode === "true",
       singlePageMode: route.query.singlePageMode === "true",
       autoStart: route.query.autoStart === "true",
-      fromPortal: route.query.fromPortal === "true" && !isWhitelistedTestUser(route),
-      portalGroup: resolvePortalData(route)?.group ?? null,
     }),
     // lazy-loading: https://router.vuejs.org/guide/advanced/lazy-loading.html
     component: () =>

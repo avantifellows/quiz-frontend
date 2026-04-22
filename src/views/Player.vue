@@ -237,10 +237,6 @@ export default defineComponent({
     autoStart: {
       default: false,
       type: Boolean
-    },
-    fromPortal: {
-      type: Boolean,
-      default: false
     }
   },
   setup(props) {

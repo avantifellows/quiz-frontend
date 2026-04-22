@@ -5,7 +5,6 @@ const REFRESH_TOKEN_KEY = "refresh_token";
 const QUIZ_PORTAL_SESSION_KEY = "quiz_portal_session";
 
 const portalBackendBaseUrl = (process.env.VUE_APP_PORTAL_BACKEND || "").replace(/\/$/, "");
-const portalAuthBaseUrl = (process.env.VUE_APP_PORTAL_FRONTEND || "https://auth.avantifellows.org").replace(/\/$/, "");
 const IS_PROD = process.env.NODE_ENV === "production";
 
 let cachedIdentifiers: PortalIdentifiers | null | undefined;
@@ -223,13 +222,6 @@ export const getPortalIdentifiers = async (
   }
 };
 
-export const getCachedPortalIdentifiers = (): PortalIdentifiers | null => {
-  if (cachedIdentifiers === undefined) {
-    return null;
-  }
-  return cachedIdentifiers;
-};
-
 export const getStoredQuizPortalSession = (): QuizPortalSessionState | null => {
   return readQuizPortalSession();
 };
@@ -268,92 +260,4 @@ export const clearQuizPortalSession = (quizId?: string | null): void => {
   writeQuizPortalSession(null);
   cachedIdentifiers = undefined;
   cachedTokenKey = undefined;
-};
-
-const clearCookie = (name: string) => {
-  if (typeof document === "undefined") return;
-
-  const attributes = [
-    `${name}=`,
-    "Path=/",
-    "Expires=Thu, 01 Jan 1970 00:00:01 GMT",
-    "SameSite=None",
-    "Secure",
-  ];
-
-  if (window?.location?.hostname && !window.location.hostname.includes("localhost")) {
-    attributes.push("Domain=.avantifellows.org");
-  }
-
-  document.cookie = attributes.join("; ");
-};
-
-export const clearPortalTokens = (): void => {
-  if (typeof window !== "undefined") {
-    try {
-      window.localStorage.removeItem(ACCESS_TOKEN_KEY);
-      window.localStorage.removeItem(REFRESH_TOKEN_KEY);
-    } catch (error) {
-      console.warn("Unable to clear stored portal tokens", error);
-    }
-  }
-
-  clearCookie(ACCESS_TOKEN_KEY);
-  clearCookie(REFRESH_TOKEN_KEY);
-  cachedIdentifiers = undefined;
-  cachedTokenKey = undefined;
-};
-
-export const buildPortalSessionUrl = (
-  options: {
-    quizId?: string | null;
-    group?: string | null;
-    omrMode?: boolean;
-  } = {}
-): string => {
-  const browserOrigin =
-    typeof window !== "undefined" && window.location?.origin
-      ? window.location.origin
-      : "";
-  const baseUrl = portalAuthBaseUrl || browserOrigin || "/";
-
-  const { quizId, group, omrMode } = options;
-
-  if (!quizId || !group) {
-    return `${baseUrl}/`;
-  }
-
-  const sessionId = `${group}_${quizId}`;
-  const searchParams = new URLSearchParams({ sessionId });
-
-  if (typeof omrMode === "boolean" && omrMode == true) {
-    searchParams.set("omrMode", String(omrMode));
-  }
-
-  return `${baseUrl}/?${searchParams.toString()}`;
-};
-
-export const logoutFromPortal = (
-  options: {
-    quizId?: string | null;
-    group?: string | null;
-    omrMode?: boolean;
-    redirectUrl?: string;
-  } = {}
-): void => {
-  clearPortalTokens();
-
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  const targetUrl = options.redirectUrl || buildPortalSessionUrl(options);
-  const win = window as Window & { Cypress?: unknown; __portalLogoutUrl?: string };
-
-  if (win.Cypress) {
-    win.__portalLogoutUrl = targetUrl;
-    return;
-  }
-
-  win.location.assign(targetUrl);
 };
