@@ -22,11 +22,20 @@ const getQueryValue = (value: unknown): string | null => {
   return null;
 };
 
+const resolveLaunchToken = (route: any): string | null => {
+  return getQueryValue(route.query.launchToken);
+};
+
 const resolvePortalData = (route: any): PortalIdentifiers | null => {
-  return (
-    (route.meta?.portalIdentifiers as PortalIdentifiers | null) ??
-    getCachedPortalIdentifiers()
-  );
+  if (route.meta?.portalIdentifiers !== undefined) {
+    return route.meta.portalIdentifiers as PortalIdentifiers | null;
+  }
+
+  if (resolveLaunchToken(route)) {
+    return null;
+  }
+
+  return getCachedPortalIdentifiers();
 };
 
 const resolveUserId = (route: any): string | null => {
@@ -190,9 +199,10 @@ router.beforeEach(async (to) => {
 
     // check the cache
     let identifiers: PortalIdentifiers | null = resolvePortalData(to);
+    const launchToken = resolveLaunchToken(to);
 
     if (!identifiers) {
-      identifiers = await getPortalIdentifiers({ force: true });
+      identifiers = await getPortalIdentifiers({ force: true, launchToken });
     }
 
     to.meta.portalIdentifiers = identifiers;

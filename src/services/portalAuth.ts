@@ -8,6 +8,7 @@ const portalAuthBaseUrl = (process.env.VUE_APP_PORTAL_FRONTEND || "https://auth.
 const IS_PROD = process.env.NODE_ENV === "production";
 
 let cachedIdentifiers: PortalIdentifiers | null | undefined;
+let cachedTokenKey: string | null | undefined;
 
 const getCookieValue = (name: string): string | null => {
   if (typeof document === "undefined") return null;
@@ -141,21 +142,26 @@ const verifyTokens = async (): Promise<PortalIdentifiers | null> => {
 };
 
 export const getPortalIdentifiers = async (
-  options: { force?: boolean } = {}
+  options: { force?: boolean; launchToken?: string | null } = {}
 ): Promise<PortalIdentifiers | null> => {
-  const { force = false } = options;
+  const { force = false, launchToken = null } = options;
+  const cacheKey = launchToken || "persistent";
 
-  if (!force && cachedIdentifiers !== undefined) {
+  if (!force && cachedIdentifiers !== undefined && cachedTokenKey === cacheKey) {
     return cachedIdentifiers;
   }
 
   try {
-    const identifiers = await verifyTokens();
+    const identifiers = launchToken
+      ? await decodeToken(launchToken)
+      : await verifyTokens();
     cachedIdentifiers = identifiers ?? null;
+    cachedTokenKey = cacheKey;
     return cachedIdentifiers;
   } catch (error) {
     console.warn("Unable to resolve portal identifiers", error);
     cachedIdentifiers = null;
+    cachedTokenKey = cacheKey;
     return null;
   }
 };
@@ -198,6 +204,7 @@ export const clearPortalTokens = (): void => {
   clearCookie(ACCESS_TOKEN_KEY);
   clearCookie(REFRESH_TOKEN_KEY);
   cachedIdentifiers = undefined;
+  cachedTokenKey = undefined;
 };
 
 export const buildPortalSessionUrl = (

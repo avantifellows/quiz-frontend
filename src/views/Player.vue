@@ -337,7 +337,7 @@ export default defineComponent({
       return isOmrMode.value ? "omr-assessment" : "assessment";
     });
 
-    const shouldShowPortalLogout = computed(() => props.fromPortal === true);
+    const shouldShowPortalLogout = computed(() => false);
     const portalLogoutLabel = "Logout";
 
     // const shouldShowOmrToggle = computed(() => state.metadata.quiz_type == "assessment")
