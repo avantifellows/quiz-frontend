@@ -1,10 +1,56 @@
 // https://docs.cypress.io/api/introduction/api.html
 
+const PARTIAL_QSET_ID = "62540adb0f748c8e206c1613";
+const PARTIAL_QSET_NAME = "Question Set 0";
+const PARTIAL_MAX_ALLOWED = 2;
+
+const buildPartialMetrics = ({
+  correct = 0,
+  wrong = 0,
+  partial = 0,
+  skipped,
+  marks = 0,
+  markedForReview = 0,
+} = {}) => {
+  const answered = correct + wrong + partial;
+  const numSkipped =
+    skipped != null ? skipped : Math.max(PARTIAL_MAX_ALLOWED - answered, 0);
+  const attemptRate =
+    PARTIAL_MAX_ALLOWED > 0 ? answered / PARTIAL_MAX_ALLOWED : 0;
+  const accuracyRate = answered > 0 ? (correct + 0.5 * partial) / answered : 0;
+  return {
+    qset_metrics: [
+      {
+        name: PARTIAL_QSET_NAME,
+        qset_id: PARTIAL_QSET_ID,
+        marks_scored: marks,
+        num_answered: answered,
+        num_skipped: numSkipped,
+        num_correct: correct,
+        num_wrong: wrong,
+        num_partially_correct: partial,
+        num_marked_for_review: markedForReview,
+        attempt_rate: attemptRate,
+        accuracy_rate: accuracyRate,
+      },
+    ],
+    total_answered: answered,
+    total_skipped: numSkipped,
+    total_correct: correct,
+    total_wrong: wrong,
+    total_partially_correct: partial,
+    total_marked_for_review: markedForReview,
+    total_marks: marks,
+  };
+};
+
 describe("Player for Assessment quizzes with partial marks", () => {
+  let sessionMetrics = buildPartialMetrics();
+
   beforeEach(() => {
     // stub the response to /quiz/{quizId}
     cy.intercept("GET", Cypress.env("backend") + "/quiz/*", {
-      fixture: "partial_mark_assessment_quiz.json",
+      fixture: "partial_mark_assessment_quiz_without_answers.json",
     });
   });
 
@@ -18,7 +64,13 @@ describe("Player for Assessment quizzes with partial marks", () => {
       cy.intercept("PATCH", "/session_answers/**", { body: {} }).as(
         "patchSessionAnswerRequest"
       );
-      cy.intercept("PATCH", "/sessions/*", { body: { timeRemaining: 100 } });
+      cy.intercept("PATCH", "/sessions/*", (req) => {
+        if (req.body && req.body.event === "end-quiz") {
+          req.reply({ body: { time_remaining: 100, metrics: sessionMetrics } });
+        } else {
+          req.reply({ body: { time_remaining: 100 } });
+        }
+      });
 
       cy.intercept(
         "GET",
@@ -43,6 +95,12 @@ describe("Player for Assessment quizzes with partial marks", () => {
       });
 
       it("shows correct number of partially correct and skipped questions", () => {
+        sessionMetrics = buildPartialMetrics({
+          partial: 1,
+          skipped: 1,
+          marks: 0,
+        });
+
         // question 1
         cy.get('[data-test="modal"]')
           .get('[data-test="optionSelector-0"]')
@@ -76,6 +134,12 @@ describe("Player for Assessment quizzes with partial marks", () => {
       });
 
       it("should not be partially correct if even a single wrong option is selected", () => {
+        sessionMetrics = buildPartialMetrics({
+          wrong: 1,
+          skipped: 1,
+          marks: -3,
+        });
+
         // question 1 - option 2 is wrong (but chosen here)
         cy.get('[data-test="modal"]')
           .get('[data-test="optionSelector-1"]')
@@ -107,6 +171,12 @@ describe("Player for Assessment quizzes with partial marks", () => {
       });
 
       it("partially correct should be awarded partial marks", () => {
+        sessionMetrics = buildPartialMetrics({
+          partial: 1,
+          skipped: 1,
+          marks: 0,
+        });
+
         // question 1 - option 1 is correct (and chosen here)
         // actual answer is option 1 and option 3
         cy.get('[data-test="modal"]')

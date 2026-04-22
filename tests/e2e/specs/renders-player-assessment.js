@@ -1,10 +1,58 @@
 // https://docs.cypress.io/api/introduction/api.html
 
+const ASSESSMENT_QSET_ID = "62540adb0f748c8e206c1613";
+const ASSESSMENT_QSET_NAME = "Question Set 0";
+const ASSESSMENT_MAX_ALLOWED = 24;
+
+const buildAssessmentMetrics = ({
+  correct = 0,
+  wrong = 0,
+  partial = 0,
+  skipped,
+  marks,
+  markedForReview = 0,
+} = {}) => {
+  const answered = correct + wrong + partial;
+  const numSkipped =
+    skipped != null ? skipped : Math.max(ASSESSMENT_MAX_ALLOWED - answered, 0);
+  const totalMarks =
+    marks != null ? marks : correct * 4 + wrong * -2 + numSkipped * -1;
+  const attemptRate =
+    ASSESSMENT_MAX_ALLOWED > 0 ? answered / ASSESSMENT_MAX_ALLOWED : 0;
+  const accuracyRate = answered > 0 ? (correct + 0.5 * partial) / answered : 0;
+  return {
+    qset_metrics: [
+      {
+        name: ASSESSMENT_QSET_NAME,
+        qset_id: ASSESSMENT_QSET_ID,
+        marks_scored: totalMarks,
+        num_answered: answered,
+        num_skipped: numSkipped,
+        num_correct: correct,
+        num_wrong: wrong,
+        num_partially_correct: partial,
+        num_marked_for_review: markedForReview,
+        attempt_rate: attemptRate,
+        accuracy_rate: accuracyRate,
+      },
+    ],
+    total_answered: answered,
+    total_skipped: numSkipped,
+    total_correct: correct,
+    total_wrong: wrong,
+    total_partially_correct: partial,
+    total_marked_for_review: markedForReview,
+    total_marks: totalMarks,
+  };
+};
+
 describe("Player for Assessment quizzes", () => {
+  let sessionMetrics = buildAssessmentMetrics();
+
   beforeEach(() => {
     // stub the response to /quiz/{quizId}
     cy.intercept("GET", Cypress.env("backend") + "/quiz/*", {
-      fixture: "assessment_quiz.json",
+      fixture: "assessment_quiz_without_answers.json",
     });
   });
 
@@ -18,7 +66,13 @@ describe("Player for Assessment quizzes", () => {
       cy.intercept("PATCH", "/session_answers/**", { status: 200 }).as(
         "patchSessionAnswerRequest"
       );
-      cy.intercept("PATCH", "/sessions/*", { body: { timeRemaining: 100 } });
+      cy.intercept("PATCH", "/sessions/*", (req) => {
+        if (req.body && req.body.event === "end-quiz") {
+          req.reply({ body: { time_remaining: 100, metrics: sessionMetrics } });
+        } else {
+          req.reply({ body: { time_remaining: 100 } });
+        }
+      });
 
       cy.intercept(
         "GET",
@@ -146,6 +200,12 @@ describe("Player for Assessment quizzes", () => {
       });
 
       it("shows number of skipped questions in the scorecard too", () => {
+        sessionMetrics = buildAssessmentMetrics({
+          correct: 1,
+          wrong: 2,
+          skipped: 21,
+        });
+
         // question 1
         cy.get('[data-test="modal"]')
           .get('[data-test="optionSelector-0"]')
@@ -280,7 +340,7 @@ describe("Player for Assessment quizzes", () => {
 
           // check if question_set subset pattern is working well
           cy.intercept("GET", "/questions/*", {
-            fixture: "question_bucket_fetched.json",
+            fixture: "question_bucket_fetched_without_answers.json",
           }).as("question_bucket_call");
 
           // click the last question present in the question palette
@@ -402,6 +462,11 @@ describe("Player for Assessment quizzes", () => {
         });
 
         it("selecting correct matches should fetch points", () => {
+          sessionMetrics = buildAssessmentMetrics({
+            correct: 1,
+            skipped: 23,
+          });
+
           cy.get('[data-test="modal"]')
             .get('[data-test="matrixMatchSelector-0-0"]') // AP
             .trigger("click");
@@ -445,7 +510,13 @@ describe("Player for Assessment quizzes", () => {
       cy.intercept("PATCH", "/session_answers/**", { body: {} }).as(
         "patchSessionAnswerRequest"
       );
-      cy.intercept("PATCH", "/sessions/*", { body: { timeRemaining: 100 } });
+      cy.intercept("PATCH", "/sessions/*", (req) => {
+        if (req.body && req.body.event === "end-quiz") {
+          req.reply({ body: { time_remaining: 100, metrics: sessionMetrics } });
+        } else {
+          req.reply({ body: { time_remaining: 100 } });
+        }
+      });
 
       cy.intercept(
         "GET",

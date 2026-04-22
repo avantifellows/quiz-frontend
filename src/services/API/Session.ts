@@ -3,16 +3,42 @@ import { sessionsEndpoint, sessionAnswersEndpoint } from "./Endpoints";
 import {
   SessionAPIResponse,
   SessionAnswerAPIResponse,
+  RevealAnswerAPIResponse,
+  QuizPreflightAPIResponse,
   UpdateSessionAPIPayload,
   UpdateSessionAPIResponse,
   UpdateSessionAnswerAPIPayload,
-  UpdateSessionAnswersAtSpecificPositionsAPIPayload,
-  eventType,
-  QuestionSetMetricPayload,
-  SessionMetricsPayload
+  UpdateSessionAnswersAtSpecificPositionsAPIPayload
 } from "@/types";
 
 export default {
+  /**
+   * Preflight helper (Alt 1): tell FE whether to request quiz with answers included.
+   */
+  async quizPreflight(
+    quizId: string,
+    userId: string,
+  ): Promise<{ status: number; data?: QuizPreflightAPIResponse }> {
+    try {
+      const response = await apiClient().get(
+        `${sessionsEndpoint}preflight`,
+        {
+          params: {
+            quiz_id: quizId,
+            user_id: userId,
+          }
+        }
+      );
+      return { status: response.status, data: response.data };
+    } catch (error: any) {
+      if (error.code == 'ECONNABORTED') {
+        return { status: 500 }; // request timeout
+      } else {
+        return { status: 400 }; // bad request
+      }
+    }
+  },
+
   /**
    * returns the details for a quiz
    * @param {string} quizId - id of the quiz for which the session is to be created
@@ -43,54 +69,30 @@ export default {
     payload: UpdateSessionAPIPayload
   ): Promise<{status: number, data?: UpdateSessionAPIResponse}> {
     try {
-      const updatedPayload: {
-        event: eventType;
-        metrics?: SessionMetricsPayload | null;
-      } = {
-        event: payload.event
-      };
-      if (payload.metrics) {
-        const sessionMetrics: SessionMetricsPayload = {
-          qset_metrics: [],
-          total_answered: 0,
-          total_skipped: 0,
-          total_correct: 0,
-          total_wrong: 0,
-          total_partially_correct: 0,
-          total_marked_for_review: 0,
-          total_marks: 0,
-        };
-
-        payload.metrics.forEach(metric => {
-          const qsetMetric: QuestionSetMetricPayload = {
-            name: metric.name || "",
-            qset_id: metric.qset_id,
-            marks_scored: metric.marksScored,
-            num_answered: metric.numAnswered,
-            num_skipped: metric.maxQuestionsAllowedToAttempt - metric.numAnswered,
-            num_correct: metric.correctlyAnswered,
-            num_wrong: metric.wronglyAnswered,
-            num_partially_correct: metric.partiallyAnswered,
-            num_marked_for_review: metric.numQuestionsMarkedForReview,
-            attempt_rate: Math.round(metric.attemptRate * 100) / 100,
-            accuracy_rate: Math.round(metric.accuracyRate * 100) / 100,
-          };
-
-          sessionMetrics.qset_metrics.push(qsetMetric);
-          sessionMetrics.total_answered += metric.numAnswered;
-          sessionMetrics.total_skipped += metric.maxQuestionsAllowedToAttempt - metric.numAnswered;
-          sessionMetrics.total_correct += metric.correctlyAnswered;
-          sessionMetrics.total_wrong += metric.wronglyAnswered;
-          sessionMetrics.total_partially_correct += metric.partiallyAnswered;
-          sessionMetrics.total_marked_for_review += metric.numQuestionsMarkedForReview;
-          sessionMetrics.total_marks += metric.marksScored;
-        });
-
-        updatedPayload.metrics = sessionMetrics as SessionMetricsPayload;
-      }
       const response = await apiClient().patch(
         sessionsEndpoint + sessionId,
-        updatedPayload
+        payload
+      );
+      return { status: response.status, data: response.data };
+    } catch (error: any) {
+      if (error.code == 'ECONNABORTED') {
+        return { status: 500 }; // request timeout
+      } else {
+        return { status: 400 }; // bad request
+      }
+    }
+  },
+
+  /**
+   * @param {string} sessionId - id of the session to be fetched
+   * @returns {Promise<{status: number, data?: SessionAPIResponse}>} response status and data
+   */
+  async getSession(
+    sessionId: string
+  ): Promise<{status: number, data?: SessionAPIResponse}> {
+    try {
+      const response = await apiClient().get(
+        sessionsEndpoint + sessionId
       );
       return { status: response.status, data: response.data };
     } catch (error: any) {
@@ -147,6 +149,29 @@ export default {
         payload
       );
       return { status: response.status };
+    } catch (error: any) {
+      if (error.code == 'ECONNABORTED') {
+        return { status: 500 }; // request timeout
+      } else {
+        return { status: 400 }; // bad request
+      }
+    }
+  },
+
+  /**
+   * Homework reveal endpoint (Option B2): fetch raw correct_answer (and solution if enabled)
+   * for a single question after it has been submitted.
+   */
+  async revealAnswer(
+    sessionId: string,
+    positionIndex: number,
+  ): Promise<{ status: number; data?: RevealAnswerAPIResponse }> {
+    try {
+      const response = await apiClient().get(
+        `${sessionsEndpoint}${sessionId}/reveal/${positionIndex}`,
+        {}
+      );
+      return { status: response.status, data: response.data };
     } catch (error: any) {
       if (error.code == 'ECONNABORTED') {
         return { status: 500 }; // request timeout

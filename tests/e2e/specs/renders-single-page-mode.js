@@ -1,10 +1,50 @@
 // https://docs.cypress.io/api/introduction/api.html
 
+const SINGLE_PAGE_METRICS = {
+  qset_metrics: [
+    {
+      name: "Question Set 0",
+      qset_id: "62540adb0f748c8e206c1613",
+      marks_scored: 0,
+      num_answered: 0,
+      num_skipped: 12,
+      num_correct: 0,
+      num_wrong: 0,
+      num_partially_correct: 0,
+      num_marked_for_review: 0,
+      attempt_rate: 0,
+      accuracy_rate: 0,
+    },
+    {
+      name: "Question Set 1",
+      qset_id: "6285554a1016dc7050373fbf",
+      marks_scored: 0,
+      num_answered: 0,
+      num_skipped: 3,
+      num_correct: 0,
+      num_wrong: 0,
+      num_partially_correct: 0,
+      num_marked_for_review: 0,
+      attempt_rate: 0,
+      accuracy_rate: 0,
+    },
+  ],
+  total_answered: 0,
+  total_skipped: 15,
+  total_correct: 0,
+  total_wrong: 0,
+  total_partially_correct: 0,
+  total_marked_for_review: 0,
+  total_marks: 0,
+};
+
 describe("Player for Single Page Mode with Full Text", () => {
+  let sessionMetrics = SINGLE_PAGE_METRICS;
+
   beforeEach(() => {
     // stub the response to /quiz/{quizId}
     cy.intercept("GET", Cypress.env("backend") + "/quiz/*", {
-      fixture: "multi_qset_omr.json", // 2 question sets -- each has 12 questions
+      fixture: "multi_qset_omr_without_answers.json", // 2 question sets -- each has 12 questions
       // in set 1 -- all questions can be answered
       // in set 2 -- only upto 3 questions can be answered
     });
@@ -20,7 +60,13 @@ describe("Player for Single Page Mode with Full Text", () => {
       cy.intercept("PATCH", "/session_answers/**", { body: {} }).as(
         "patchSessionAnswerRequest"
       );
-      cy.intercept("PATCH", "/sessions/*", { body: { timeRemaining: 100 } });
+      cy.intercept("PATCH", "/sessions/*", (req) => {
+        if (req.body && req.body.event === "end-quiz") {
+          req.reply({ body: { time_remaining: 100, metrics: sessionMetrics } });
+        } else {
+          req.reply({ body: { time_remaining: 100 } });
+        }
+      });
 
       cy.intercept(
         "GET",
@@ -330,7 +376,13 @@ describe("Player for Single Page Mode with Full Text", () => {
       cy.intercept("PATCH", "/session_answers/**", { body: {} }).as(
         "patchSessionAnswerRequest"
       );
-      cy.intercept("PATCH", "/sessions/*", { body: { timeRemaining: 100 } });
+      cy.intercept("PATCH", "/sessions/*", (req) => {
+        if (req.body && req.body.event === "end-quiz") {
+          req.reply({ body: { time_remaining: 100, metrics: sessionMetrics } });
+        } else {
+          req.reply({ body: { time_remaining: 100 } });
+        }
+      });
       cy.intercept(
         "GET",
         Cypress.env("backend") + "/organizations/authenticate/*",

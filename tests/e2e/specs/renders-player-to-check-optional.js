@@ -1,8 +1,80 @@
+const OPTIONAL_QSET_METRICS = [
+  { id: "62540adb0f748c8e206c1613", name: "Question Set 0", maxAllowed: 12 },
+  { id: "6285554a1016dc7050373fbf", name: "Question Set 1", maxAllowed: 3 },
+];
+
+const buildOptionalMetrics = ({
+  qset0Answered = 0,
+  qset1Answered = 0,
+  correct = 0,
+  wrong = 0,
+  partial = 0,
+  marks = 0,
+  markedForReview = 0,
+} = {}) => {
+  const qset0Skipped = Math.max(
+    OPTIONAL_QSET_METRICS[0].maxAllowed - qset0Answered,
+    0
+  );
+  const qset1Skipped = Math.max(
+    OPTIONAL_QSET_METRICS[1].maxAllowed - qset1Answered,
+    0
+  );
+  const totalAnswered = correct + wrong + partial;
+  const totalSkipped = qset0Skipped + qset1Skipped;
+  return {
+    qset_metrics: [
+      {
+        name: OPTIONAL_QSET_METRICS[0].name,
+        qset_id: OPTIONAL_QSET_METRICS[0].id,
+        marks_scored: 0,
+        num_answered: qset0Answered,
+        num_skipped: qset0Skipped,
+        num_correct: 0,
+        num_wrong: 0,
+        num_partially_correct: 0,
+        num_marked_for_review: 0,
+        attempt_rate:
+          OPTIONAL_QSET_METRICS[0].maxAllowed > 0
+            ? qset0Answered / OPTIONAL_QSET_METRICS[0].maxAllowed
+            : 0,
+        accuracy_rate: 0,
+      },
+      {
+        name: OPTIONAL_QSET_METRICS[1].name,
+        qset_id: OPTIONAL_QSET_METRICS[1].id,
+        marks_scored: 0,
+        num_answered: qset1Answered,
+        num_skipped: qset1Skipped,
+        num_correct: correct,
+        num_wrong: wrong,
+        num_partially_correct: partial,
+        num_marked_for_review: markedForReview,
+        attempt_rate:
+          OPTIONAL_QSET_METRICS[1].maxAllowed > 0
+            ? qset1Answered / OPTIONAL_QSET_METRICS[1].maxAllowed
+            : 0,
+        accuracy_rate:
+          totalAnswered > 0 ? (correct + 0.5 * partial) / totalAnswered : 0,
+      },
+    ],
+    total_answered: totalAnswered,
+    total_skipped: totalSkipped,
+    total_correct: correct,
+    total_wrong: wrong,
+    total_partially_correct: partial,
+    total_marked_for_review: markedForReview,
+    total_marks: marks,
+  };
+};
+
 describe("Player for Assessment quizzes", () => {
+  let sessionMetrics = buildOptionalMetrics();
+
   beforeEach(() => {
     // stub the response to /quiz/{quizId}
     cy.intercept("GET", Cypress.env("backend") + "/quiz/*", {
-      fixture: "multi_qset_quiz.json", // 2 question sets -- each has 12 questions
+      fixture: "multi_qset_quiz_without_answers.json", // 2 question sets -- each has 12 questions
       // in set 1 -- all questions can be answered
       // in set 2 -- only upto 3 questions can be answered
     });
@@ -19,7 +91,13 @@ describe("Player for Assessment quizzes", () => {
       cy.intercept("PATCH", "/session_answers/**", { body: {} }).as(
         "patchSessionAnswerRequest"
       );
-      cy.intercept("PATCH", "/sessions/*", { body: { timeRemaining: 100 } });
+      cy.intercept("PATCH", "/sessions/*", (req) => {
+        if (req.body && req.body.event === "end-quiz") {
+          req.reply({ body: { time_remaining: 100, metrics: sessionMetrics } });
+        } else {
+          req.reply({ body: { time_remaining: 100 } });
+        }
+      });
 
       cy.intercept(
         "GET",
@@ -140,6 +218,13 @@ describe("Player for Assessment quizzes", () => {
       });
 
       it("check if scorecard eventually becomes visible", () => {
+        sessionMetrics = buildOptionalMetrics({
+          qset0Answered: 0,
+          qset1Answered: 3,
+          correct: 3,
+          marks: 0,
+        });
+
         // Remove or hide any toast notifications
         cy.get(".Vue-Toastification__toast-body").should("not.exist");
 

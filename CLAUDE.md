@@ -32,7 +32,8 @@ npm run lint:fix                 # Fix linting issues
 ## Environment Setup
 
 Copy `.env.example` to `.env.local` and configure:
-- `VUE_APP_BACKEND`: Backend API URL (default: http://127.0.0.1:8000)
+- `VUE_APP_BACKEND`: Backend API URL (default: http://127.0.0.1:8001)
+- `VUE_APP_BACKEND_ECS`: Optional ECS backend URL (used when `?new_backend` query param is present)
 
 For staging/production builds, use `.env.staging` or `.env.production` respectively.
 
@@ -50,16 +51,22 @@ For staging/production builds, use `.env.staging` or `.env.production` respectiv
 ### Key Application Structure
 
 #### Core Components
-- `src/views/Player.vue` - Main quiz player interface
-- `src/components/Questions/` - Question rendering components
-- `src/components/Omr/` - OMR (Optical Mark Recognition) mode components
-- `src/components/UI/` - Reusable UI components
+- `src/views/Player.vue` - Main quiz player interface (orchestrator, ~1260 lines)
+- `src/components/Questions/` - Question rendering (QuestionModal, Body, Header, Footer, Palette)
+- `src/components/SinglePage/` - OMR / single-page mode (SinglePageModal, SinglePageItem)
+- `src/components/Splash.vue` - Pre-quiz splash screen
+- `src/components/InstructionPage.vue` - Assessment instructions (English/Hindi)
+- `src/components/Scorecard.vue` - Post-quiz results with metrics and sharing
+- `src/components/LocalePicker.vue` - Language toggle
+- `src/components/UI/` - Reusable UI components (buttons, icons, progress, text inputs)
 
 #### Service Layer
 - `src/services/API/` - API clients and endpoints
-  - `RootClient.ts` - Axios configuration and error handling
-  - `Quiz.ts`, `Question.ts`, `Session.ts` - Domain-specific API clients
-- `src/services/Functional/Utilities.ts` - Utility functions
+  - `RootClient.ts` - Axios client factory (default Lambda + optional ECS backend)
+  - `Endpoints.ts` - API endpoint constants
+  - `Quiz.ts`, `Question.ts`, `Session.ts`, `Organization.ts`, `Form.ts` - Domain-specific API clients
+  - `ErrorHandling.ts` - Global error handler (404 redirect)
+- `src/services/Functional/Utilities.ts` - Answer evaluation, confetti, bucketing, screen helpers
 
 #### State Management
 - `src/store/index.ts` - Vuex store with:
@@ -78,14 +85,16 @@ For staging/production builds, use `.env.staging` or `.env.production` respectiv
 - **Question bucketing** for performance optimization
 - **OMR mode** for optical mark recognition
 - **Session management** with resume capability
-- **Different quiz types**: assessment, homework, omr-assessment
+- **Different quiz types**: assessment, homework, omr-assessment, form
+- **Form/questionnaire support** with no grading or scoring
 - **Responsive design** with custom Tailwind breakpoints
 - **MathJax integration** for mathematical expressions
 
 ### Authentication & Routing
 - Routes require `userId` and `apiKey` query parameters
-- Main route: `/quiz/:quizId` with authentication checks
-- Error handling for 404 and 403 scenarios
+- Main routes: `/quiz/:quizId` and `/form/:quizId` with authentication checks
+- Optional query params: `omrMode`, `singlePageMode`, `autoStart`, `new_backend`
+- Error handling for 404, 403, quiz-not-available, form-not-available
 
 ### Styling Notes
 - Uses custom Tailwind configuration with disabled preflight

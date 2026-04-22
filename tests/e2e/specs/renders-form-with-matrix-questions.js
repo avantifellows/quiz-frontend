@@ -1,6 +1,33 @@
 // https://docs.cypress.io/api/introduction/api.html
 
+const FORM_METRICS = {
+  qset_metrics: [
+    {
+      name: "Student Baseline Assessment",
+      qset_id: "form_qset_789012",
+      marks_scored: 0,
+      num_answered: 0,
+      num_skipped: 8,
+      num_correct: 0,
+      num_wrong: 0,
+      num_partially_correct: 0,
+      num_marked_for_review: 0,
+      attempt_rate: 0,
+      accuracy_rate: 0,
+    },
+  ],
+  total_answered: 0,
+  total_skipped: 8,
+  total_correct: 0,
+  total_wrong: 0,
+  total_partially_correct: 0,
+  total_marked_for_review: 0,
+  total_marks: 0,
+};
+
 describe("Form with Matrix Questions Tests", () => {
+  let sessionMetrics = FORM_METRICS;
+
   beforeEach(() => {
     cy.on("uncaught:exception", (err) => {
       if (err.message.includes("Network Error")) {
@@ -33,7 +60,7 @@ describe("Form with Matrix Questions Tests", () => {
       }).as("patchSessionAnswer");
 
       cy.intercept("PATCH", Cypress.env("backend") + "/sessions/*", {
-        body: { timeRemaining: 1800 },
+        body: { time_remaining: 1800, metrics: sessionMetrics },
       }).as("patchSession");
 
       cy.visit("/form/form_quiz_123456?userId=test_student&apiKey=pqr");
