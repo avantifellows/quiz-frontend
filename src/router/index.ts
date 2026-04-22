@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
+import type { LocationQueryRaw } from "vue-router";
 import {
   getPortalIdentifiers,
   getStoredQuizPortalIdentifiers,
@@ -36,8 +37,8 @@ const resolveQuizId = (route: any): string | null => {
   return typeof value === "string" && value.trim() !== "" ? value.trim() : null;
 };
 
-const stripLaunchToken = (query: Record<string, unknown>) => {
-  const sanitizedQuery = { ...query };
+const stripLaunchToken = (query: LocationQueryRaw): LocationQueryRaw => {
+  const sanitizedQuery: LocationQueryRaw = { ...query };
   delete sanitizedQuery.launchToken;
   return sanitizedQuery;
 };
@@ -252,7 +253,7 @@ router.beforeEach(async (to) => {
 
       return {
         path: to.path,
-        query: stripLaunchToken(to.query as Record<string, unknown>),
+        query: stripLaunchToken(to.query),
         hash: to.hash,
         replace: true,
       };
