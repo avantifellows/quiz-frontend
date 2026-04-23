@@ -519,13 +519,13 @@ export default defineComponent({
         cumulativeLength => cumulativeLength > questionIndex
       )
 
+      if (qsetIndex == -1) qsetIndex = 0; // set to default question set index
+
       const qsetIndexLimits: QuestionSetIndexLimits = { low: 0, high: 0 };
       if (qsetIndex > 0) {
         qsetIndexLimits.low = state.qsetCumulativeLengths[qsetIndex - 1]
       } else qsetIndexLimits.low = 0
       qsetIndexLimits.high = state.qsetCumulativeLengths[qsetIndex]
-
-      if (qsetIndex == -1) qsetIndex = 0; // set to default question set index
 
       return [qsetIndex, qsetIndexLimits];
     }
@@ -1149,11 +1149,11 @@ export default defineComponent({
      * compute details of current question set
      */
     const currentMaxQuestionsAllowedToAttempt = computed(() => {
-      return state.questionSets[state.currentQsetIndex].max_questions_allowed_to_attempt
+      return state.questionSets[state.currentQsetIndex]?.max_questions_allowed_to_attempt
     })
 
     const currentQsetTitle = computed(() => {
-      return state.questionSets[state.currentQsetIndex].title
+      return state.questionSets[state.currentQsetIndex]?.title
     })
 
     /**
@@ -1232,9 +1232,10 @@ export default defineComponent({
     })
 
     async function fetchQuestionBucket(questionIndex: number) {
-      const qsetIndex = state.qsetCumulativeLengths.findIndex(
+      let qsetIndex = state.qsetCumulativeLengths.findIndex(
         cumulativeLength => cumulativeLength > questionIndex
       )
+      if (qsetIndex == -1) qsetIndex = 0;
       let questionIndexInSet = questionIndex;
       if (qsetIndex != 0) questionIndexInSet = questionIndex - state.qsetCumulativeLengths[qsetIndex - 1];
       if (!isQuestionFetched(qsetIndex, questionIndexInSet)) {
