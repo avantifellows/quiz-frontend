@@ -1,4 +1,6 @@
 describe("Player from Portal", () => {
+  const launchToken = "portal-launch-token";
+
   beforeEach(() => {
     cy.intercept("GET", Cypress.env("backend") + "/quiz/*", {
       fixture: "assessment_quiz.json",
@@ -21,35 +23,32 @@ describe("Player from Portal", () => {
 
     cy.intercept("GET", "**/auth/verify", {
       fixture: "portal_auth_verify.json",
-    });
+    }).as("verifyPortalToken");
 
-    cy.visit("/quiz/abcd?apiKey=pqr&fromPortal=true", {
+    cy.visit(`/quiz/abcd?apiKey=pqr&launchToken=${launchToken}`, {
       onBeforeLoad(win) {
-        win.localStorage.setItem("access_token", "portal-access-token");
-        win.localStorage.setItem("refresh_token", "portal-refresh-token");
+        win.sessionStorage.clear();
       },
     });
   });
 
-  it("shows portal display id without a whitelisted query userId", () => {
+  it("strips launchToken from the URL and shows the portal display id", () => {
+    cy.wait("@verifyPortalToken");
+    cy.location("search").should("eq", "?apiKey=pqr");
+
     cy.get('[data-test="startQuiz"]').trigger("click");
     cy.get('[data-test="user-id"]').should("contain", "STU-001");
+
+    cy.get('[data-test="togglePaletteButton"]').trigger("click");
+    cy.get('[data-test="portalLogoutButton"]').should("not.exist");
   });
 
-  it("shows logout in palette and redirects to portal session URL", () => {
+  it("restores portal identity on same-tab refresh without the launch token", () => {
+    cy.wait("@verifyPortalToken");
+    cy.location("search").should("eq", "?apiKey=pqr");
+
+    cy.reload();
     cy.get('[data-test="startQuiz"]').trigger("click");
-    cy.get('[data-test="togglePaletteButton"]').trigger("click");
-
-    cy.get('[data-test="portalLogoutButton"]')
-      .find('[data-test="title"]')
-      .should("have.text", "Logout");
-
-    cy.get('[data-test="portalLogoutButton"]').trigger("click");
-
-    cy.window().then((win) => {
-      expect(win.__portalLogoutUrl).to.contain("sessionId=portal_group_1_abcd");
-      expect(win.localStorage.getItem("access_token")).to.eq(null);
-      expect(win.localStorage.getItem("refresh_token")).to.eq(null);
-    });
+    cy.get('[data-test="user-id"]').should("contain", "STU-001");
   });
 });
