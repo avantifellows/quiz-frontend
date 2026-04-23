@@ -12,13 +12,21 @@
       :title="title"
       :userId="userId"
       :quizType="quizType"
+      :displayId="displayId"
       @time-limit-warning="displayTimeLimitWarning"
       @end-test="endTest"
       @end-test-by-time="endTestByTime"
       data-test="header"
     ></Header>
+    <InfoBar
+      v-if="!isQuizAssessment"
+      :title="title"
+      :userId="userId"
+      :displayId="displayId"
+      data-test="infoBar"
+    />
     <div
-      class="scroll-container flex flex-col grow bg-white w-full justify-between overflow-hidden pt-6"
+      class="scroll-container flex flex-col grow bg-white w-full justify-between overflow-hidden pt-7"
     >
       <Body
         :text="currentQuestion.text"
@@ -111,6 +119,7 @@
 import Body from "./Body.vue"
 import Footer from "./Footer.vue"
 import Header from "./Header.vue"
+import InfoBar from "./InfoBar.vue"
 import QuestionPalette from "./Palette/QuestionPalette.vue"
 import {
   defineComponent,
@@ -144,6 +153,7 @@ export default defineComponent({
     Body,
     Footer,
     Header,
+    InfoBar,
     QuestionPalette
   },
   props: {
@@ -214,6 +224,10 @@ export default defineComponent({
     userId: {
       type: String,
       default: ""
+    },
+    displayId: {
+      type: String,
+      default: "",
     },
     title: {
       required: true,

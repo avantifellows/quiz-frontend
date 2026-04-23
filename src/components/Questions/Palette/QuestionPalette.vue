@@ -221,7 +221,7 @@ export default defineComponent({
       toggleInstructionsButtonClass,
       togglePaletteButtonClass,
       legendErrorText,
-      legendNeutralText,
+      legendNeutralText
     };
   },
   emits: ["navigate"],

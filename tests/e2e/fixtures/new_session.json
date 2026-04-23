@@ -1,6 +1,6 @@
 {
   "_id": "62625e0f773b5fb92fde890b",
-  "user_id": "1",
+  "user_id": "test_student",
   "quiz_id": "abcd",
   "omr_mode": false,
   "has_quiz_ended": false,
