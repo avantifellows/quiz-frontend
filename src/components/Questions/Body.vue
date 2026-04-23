@@ -824,8 +824,7 @@ export default defineComponent({
     function isOptionMarked(optionIndex: Number) {
       return (
         props.draftAnswer != null &&
-        typeof props.draftAnswer != "string" &&
-        typeof props.draftAnswer != "number" &&
+        Array.isArray(props.draftAnswer) &&
         props.draftAnswer.indexOf(optionIndex) != -1
       );
     }
