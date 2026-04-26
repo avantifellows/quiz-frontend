@@ -26,7 +26,7 @@ const FORM_METRICS = {
 };
 
 describe("Form with Matrix Questions Tests", () => {
-  let sessionMetrics = FORM_METRICS;
+  const sessionMetrics = FORM_METRICS;
 
   beforeEach(() => {
     cy.on("uncaught:exception", (err) => {

@@ -1,5 +1,6 @@
 <template>
   <div
+    ref="mathJaxRoot"
     class="flex h-full overflow-y-auto"
     :class="{ 'bg-gray-50': isPaletteVisible }"
   >
@@ -544,8 +545,10 @@ import {
   PropType,
   onMounted,
   onUpdated,
+  ref,
 } from "vue";
 import BaseIcon from "../UI/Icons/BaseIcon.vue";
+import { queueMathJaxTypeset } from "@/services/Functional/MathJax";
 import {
   quizType,
   questionSetPalette,
@@ -711,6 +714,7 @@ export default defineComponent({
     },
   },
   setup(props, context) {
+    const mathJaxRoot = ref<HTMLElement | null>(null);
     const isQuizAssessment = computed(() => props.quizType == "assessment");
     const isFormQuiz = computed(() => props.quizType == "form");
     const state = reactive({
@@ -1371,19 +1375,16 @@ export default defineComponent({
     if (isQuestionImagePresent.value) startImageLoading();
 
     onMounted(() => {
-      // Force render any math on the page when component is mounted
-      // @ts-ignore
-      if ("MathJax" in window) (window.MathJax as any).typeset();
+      queueMathJaxTypeset(mathJaxRoot.value);
     });
 
     onUpdated(() => {
-      // Force render any math on the page when component is updated
-      // @ts-ignore
-      if ("MathJax" in window) (window.MathJax as any).typeset();
+      queueMathJaxTypeset(mathJaxRoot.value);
     });
 
     return {
       ...toRefs(state),
+      mathJaxRoot,
       questionHeaderPrefix,
       questionHeaderSuffix,
       stopImageLoading,
