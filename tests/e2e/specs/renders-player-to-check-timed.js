@@ -41,7 +41,7 @@ const timedMetrics = {
 };
 
 describe("Player for Assessment Timed quizzes", () => {
-  let sessionMetrics = timedMetrics;
+  const sessionMetrics = timedMetrics;
 
   beforeEach(() => {
     // stub the response to /quiz/{quizId}
@@ -324,7 +324,7 @@ describe("Player for Homework Quizzes", () => {
       cy.intercept("PATCH", "/session_answers/**", { status: 200 });
       cy.intercept("PATCH", "/sessions/*", (req) => {
         if (req.body && req.body.event === "end-quiz") {
-          req.reply({ body: { time_remaining: 200, metrics: sessionMetrics } });
+          req.reply({ body: { time_remaining: 200, metrics: timedMetrics } });
         } else {
           req.reply({ body: { time_remaining: 200 } });
         }
