@@ -216,6 +216,8 @@ router.beforeEach(async (to) => {
     let identifiers: PortalIdentifiers | null = resolvePortalData(to);
 
     if (!identifiers && launchToken) {
+      // TODO: validate launch token mode/audience once reporting mints quiz-scoped
+      // review tokens. Today report -> quiz review reuses the report launch token.
       identifiers = await getPortalIdentifiers({ force: true, launchToken });
     }
 
