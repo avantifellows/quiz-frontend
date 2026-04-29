@@ -39,7 +39,7 @@ const SINGLE_PAGE_METRICS = {
 };
 
 describe("Player for Single Page Mode with Full Text", () => {
-  let sessionMetrics = SINGLE_PAGE_METRICS;
+  const sessionMetrics = SINGLE_PAGE_METRICS;
 
   beforeEach(() => {
     // stub the response to /quiz/{quizId}

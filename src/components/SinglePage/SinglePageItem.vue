@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-full">
+  <div ref="mathJaxRoot" class="flex h-full">
     <!-- Full text mode layout -->
     <div v-if="showFullText" class="flex flex-col w-full max-w-4xl mx-auto p-6 my-4 bg-white shadow-sm" :class="{ 'border-b': true, 'md:border md:rounded-lg': true }">
       <!-- Question header with number and text -->
@@ -857,10 +857,12 @@ import {
   PropType,
   onMounted,
   onUpdated,
+  ref,
 } from "vue";
 
 import { quizType, questionType, DraftResponse } from "@/types"
 import { lazyLoadImages } from "@/directives/lazyLoadImages";
+import { queueMathJaxTypeset } from "@/services/Functional/MathJax";
 
 const MAX_LENGTH_NUMERICAL_CHARACTERS: number = 10; // max length of characters in numerical answer textbox
 
@@ -965,6 +967,7 @@ export default defineComponent({
     },
   },
   setup(props, context) {
+    const mathJaxRoot = ref<HTMLElement | null>(null);
     const isQuizAssessment = computed(
       () => props.quizType == "assessment" || props.quizType == "omr-assessment"
     );
@@ -1667,19 +1670,16 @@ export default defineComponent({
     );
 
     onMounted(() => {
-      // Force render any math on the page when component is mounted
-      // @ts-ignore
-      if ("MathJax" in window) (window.MathJax as any).typeset();
+      queueMathJaxTypeset(mathJaxRoot.value);
     });
 
     onUpdated(() => {
-      // Force render any math on the page when component is updated
-      // @ts-ignore
-      if ("MathJax" in window) (window.MathJax as any).typeset();
+      queueMathJaxTypeset(mathJaxRoot.value);
     });
 
     return {
       ...toRefs(state),
+      mathJaxRoot,
       questionHeaderText,
       optionBackgroundClass,
       isOptionMarked,
