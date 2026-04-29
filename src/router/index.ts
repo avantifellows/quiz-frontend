@@ -61,11 +61,6 @@ const resolveUserId = (route: any): string | null => {
   return resolvePortalData(route)?.userId ?? null;
 };
 
-const isWhitelistedTestUser = (route: any): boolean => {
-  const userIdFromQuery = getQueryValue(route.query.userId);
-  return Boolean(userIdFromQuery && ALLOWED_TEST_USER_IDS.includes(userIdFromQuery));
-};
-
 const resolveDisplayData = (
   route: any
 ): { displayId: string | null; displayIdType: DisplayIdType } => {
