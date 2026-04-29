@@ -12,6 +12,8 @@ export type CorrectAnswerType = number[] | string[] | string | number | Record<s
 
 export type DisplayIdType = "user_id" | "student_id" | "apaar_id" | "candidate_id" | "teacher_id" | null;
 
+// Quiz only persists the minimum identity needed for session APIs and display.
+// Rich portal profile data is intentionally not stored in quiz sessionStorage.
 export interface PortalIdentifiers {
   userId: string;
   studentId: string | null;
