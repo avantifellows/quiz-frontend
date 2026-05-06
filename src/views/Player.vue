@@ -57,6 +57,7 @@
         :quizTimeLimit="quizTimeLimit"
         :isSessionAnswerRequestProcessing="isSessionAnswerRequestProcessing"
         :userId="userId"
+        :displayId="displayId"
         :title="title"
         :subject="metadata.subject"
         :testFormat="metadata.test_format || ''"
@@ -92,6 +93,7 @@
         :timeRemaining="timeRemaining"
         :displaySolution="displaySolution"
         :userId="userId"
+        :displayId="displayId"
         :title="title"
         :subject="metadata.subject"
         :testFormat="metadata.test_format || ''"
@@ -139,6 +141,7 @@
         :isShown="isScorecardShown"
         :title="title"
         :userId="userId"
+        :displayId="displayId"
         :greeting="scorecardGreeting"
         :numQuestionsAnswered="numQuestionsAnswered"
         :hasGradedQuestions="hasGradedQuestions"
@@ -162,7 +165,7 @@ import QuizAPIService from "../services/API/Quiz";
 import FormAPIService from "../services/API/Form";
 import SessionAPIService from "../services/API/Session";
 import QuestionAPIService from "../services/API/Question"
-import { defineComponent, reactive, toRefs, computed, watch, onMounted } from "vue";
+import { defineComponent, reactive, toRefs, computed, watch, onMounted, PropType } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import {
@@ -184,7 +187,8 @@ import {
   UpdateSessionAnswersAtSpecificPositionsAPIPayload,
   QuestionSetMetric,
   QuestionSetMetricPayload,
-  SessionMetricsPayload
+  SessionMetricsPayload,
+  DisplayIdType
 } from "../types";
 import { useToast, POSITION } from "vue-toastification"
 import BaseIcon from "../components/UI/Icons/BaseIcon.vue";
@@ -209,6 +213,14 @@ export default defineComponent({
     userId: {
       default: null,
       type: String,
+    },
+    displayId: {
+      type: String,
+      default: "",
+    },
+    displayIdType: {
+      type: String as PropType<DisplayIdType>,
+      default: null,
     },
     apiKey: {
       default: null,
@@ -1327,7 +1339,7 @@ export default defineComponent({
       processedNextStepUrl,
       nextStepButtonText,
       showFullText,
-      singlePageHeaderText
+      singlePageHeaderText,
     };
   },
 });

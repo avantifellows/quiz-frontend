@@ -1,11 +1,18 @@
 <template>
   <div class="flex flex-col bg-indigo-50 w-full h-full overflow-hidden justify-between">
     <Header class="fixed top-0" v-if="isQuizAssessment" :hasQuizEnded="hasQuizEnded"
-      :hasTimeLimit="quizTimeLimit != null" :title="title" :userId="userId" :isOmrMode=true
+      :hasTimeLimit="quizTimeLimit != null" :title="title" :userId="userId" :displayId="displayId" :isOmrMode=true
       :isSessionAnswerRequestProcessing="isSessionAnswerRequestProcessing" v-model:isPaletteVisible="isPaletteVisible"
       :timeRemaining="timeRemaining" :warningTimeLimit="timeLimitWarningThreshold"
       @time-limit-warning="displayTimeLimitWarning" @end-test="endTest" @end-test-by-time="endTestByTime"
       data-test="omr-header"></Header>
+    <InfoBar
+      v-if="!isQuizAssessment"
+      :title="title"
+      :userId="userId"
+      :displayId="displayId"
+      data-test="infoBar"
+    />
     <div class="flex flex-col w-full h-full -z-10" :class="{ 'mt-20 mb-20': isQuizAssessment }">
       <div class="h-full">
         <div class="scroll-container flex flex-col grow bg-indigo-50 w-full justify-between overflow-y-auto" :class="{ 'mt-24': isQuizAssessment }">
@@ -87,6 +94,7 @@
 
 <script lang="ts">
 import Header from "../Questions/Header.vue"
+import InfoBar from "../Questions/InfoBar.vue"
 import QuestionPalette from "../Questions/Palette/QuestionPalette.vue"
 import SinglePageItem from "./SinglePageItem.vue"
 import {
@@ -122,6 +130,7 @@ export default defineComponent({
   components: {
     SinglePageItem,
     Header,
+    InfoBar,
     QuestionPalette
   },
   props: {
@@ -184,6 +193,10 @@ export default defineComponent({
     userId: {
       type: String,
       default: ""
+    },
+    displayId: {
+      type: String,
+      default: "",
     },
     title: {
       required: true,

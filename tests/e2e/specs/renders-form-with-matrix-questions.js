@@ -63,7 +63,7 @@ describe("Form with Matrix Questions Tests", () => {
         body: { time_remaining: 1800, metrics: sessionMetrics },
       }).as("patchSession");
 
-      cy.visit("/form/form_quiz_123456?userId=1&apiKey=pqr");
+      cy.visit("/form/form_quiz_123456?userId=test_student&apiKey=pqr");
       cy.wait("@getForm");
       cy.get('[data-test="startQuiz"]', { timeout: 10000 }).as(
         "startQuizButton"

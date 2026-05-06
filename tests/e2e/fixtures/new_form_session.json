@@ -1,6 +1,6 @@
 {
   "_id": "form_session_12345",
-  "user_id": "user_123",
+  "user_id": "test_student",
   "quiz_id": "form_quiz_456",
   "is_first": true,
   "omr_mode": false,

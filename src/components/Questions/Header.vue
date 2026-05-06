@@ -25,13 +25,17 @@
           data-test="toggleOmrMode"
           @click="toggleOmrMode"
         ></icon-button>
-        <!-- countdown timer / can't click -->
-        <icon-button
-          v-if="!hasQuizEnded && hasTimeLimit"
-          :titleConfig="countdownTimerTitleConfig"
-          :buttonClass="countdownTimerClass"
-          data-test="countdownTimer"
-        ></icon-button>
+        <div
+          v-if="showTimer"
+          class="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:gap-3"
+        >
+          <icon-button
+            v-if="showTimer"
+            :titleConfig="countdownTimerTitleConfig"
+            :buttonClass="countdownTimerClass"
+            data-test="countdownTimer"
+          ></icon-button>
+        </div>
 
         <!-- end-test button -->
         <icon-button
@@ -48,12 +52,14 @@
     <!-- Info Bar: Test Name and User ID (stacked on mobile) -->
     <div class="bg-gray-200 border-b border-gray-300 px-4 py-3">
       <!-- Mobile: Test Name (truncated) -->
-      <div class="sm:hidden">
+      <div class="sm:hidden flex flex-col gap-2">
         <h1 class="text-base font-semibold text-gray-800 truncate" data-test="test-name-mobile">
           {{ $props.title || "no data" }}
         </h1>
-        <div class="text-sm text-gray-700 font-semibold mt-2 px-3 py-1.5 bg-gray-300 rounded inline-block" data-test="user-id-mobile">
-          Id: {{ $props.userId || "no data" }}
+        <div class="flex items-center">
+          <div class="text-sm text-gray-700 font-semibold px-3 py-1.5 bg-gray-300 rounded inline-block" data-test="user-id-mobile">
+            Id: {{ displayUserId || "no data" }}
+          </div>
         </div>
       </div>
       <!-- Tablet+: Test Name and ID side by side (no truncate) -->
@@ -62,7 +68,7 @@
           {{ $props.title || "no data" }}
         </h1>
         <div class="text-base text-gray-700 font-semibold whitespace-nowrap px-4 py-2 bg-gray-300 rounded" data-test="user-id">
-          Id: {{ $props.userId || "no data" }}
+          Id: {{ displayUserId || "no data" }}
         </div>
       </div>
     </div>
@@ -84,6 +90,10 @@ export default defineComponent({
     userId: {
       type: String,
       default: ""
+    },
+    displayId: {
+      type: String,
+      default: "",
     },
     hasQuizEnded: {
       type: Boolean,
@@ -172,6 +182,9 @@ export default defineComponent({
 
     // const shouldShowOmrToggle = computed(() => props.quizType == "assessment")
     const shouldShowOmrToggle = computed(() => false)
+
+    const displayUserId = computed(() => props.displayId || props.userId || "");
+    const showTimer = computed(() => !props.hasQuizEnded && props.hasTimeLimit);
 
     const toggleButtonTextConfig = computed(() => {
       const config = {
@@ -334,7 +347,9 @@ export default defineComponent({
       toggleButtonIconClass,
       toggleButtonIconConfig,
       toggleButtonTextConfig,
-      toggleOmrMode
+      toggleOmrMode,
+      displayUserId,
+      showTimer,
     };
   },
   components: {
