@@ -241,6 +241,10 @@ export function createQuestionBuckets(totalQuestionsInEachSet: Array<number>) {
 
   // calculate total buckets possible
   for (const [mapIndex, totalQuestions] of totalQuestionsInEachSet.entries()) {
+    if (totalQuestions === 0) {
+      questionBucketingMaps.push({});
+      continue;
+    }
     const totalBucketsPossible = Math.ceil(totalQuestions / store.state.bucketSize)
 
     // create the bucket map
