@@ -6,6 +6,8 @@
   >
     <div class="overflow-y-auto flex flex-col w-full">
       <div class="bg-gray-300">
+        <!-- section name above question -->
+        <p v-if="questionSetTitle" class="text-xs font-bold uppercase tracking-widest text-primary px-4 pt-2" data-test="section-name">{{ questionSetTitle }} · Q.{{ currentQuestionIndex + 1 }}</p>
         <!-- questionHeaderPrefix shows the question index no. and the type of question -->
         <p
           :class="questionHeaderPrefixClass"

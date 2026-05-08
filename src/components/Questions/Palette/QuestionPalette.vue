@@ -61,7 +61,7 @@
 
       <div
         v-for="(questionSetState, index) in questionSetStates" :key="index" class="space-y-2">
-          <p :class="titleTextClass" :data-test="`paletteTitle-${index}`">{{ questionSetState.title }}</p>
+          <p v-if="questionSetState.title" class="text-sm font-bold uppercase tracking-widest text-primary border-l-4 border-primary pl-2 mt-6" :data-test="`paletteTitle-${index}`">{{ questionSetState.title }}</p>
           <div :class="instructionTextClass" :data-test="`paletteInstruction-${index}`" v-html="questionSetState.instructionText"></div>
           <div class="grid grid-cols-5 bp-500:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 mt-4 space-y-4">
             <PaletteItem
