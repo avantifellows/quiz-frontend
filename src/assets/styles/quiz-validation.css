@@ -1,0 +1,127 @@
+/**
+ * Quiz Validation UI Styles
+ *
+ * Styles for the async answer validation flow:
+ * - Loading states while validation is in-flight
+ * - Correct/wrong answer feedback
+ * - Validation error with retry
+ * - Spinner animation
+ *
+ * These styles are scaffolded and ready to be applied to
+ * QuestionModal.vue and Body.vue when Phase 5 (backend integration) lands.
+ */
+
+/* ─── Option States ─────────────────────────────────────────────── */
+
+.option--validating {
+  opacity: 0.7;
+  cursor: not-allowed;
+  pointer-events: none;
+  position: relative;
+}
+
+.option--correct {
+  background-color: var(--color-success, #22c55e) !important;
+  color: white !important;
+  border-color: var(--color-success, #22c55e) !important;
+  transition: background-color 0.3s ease;
+}
+
+.option--wrong {
+  background-color: var(--color-error, #ef4444) !important;
+  color: white !important;
+  border-color: var(--color-error, #ef4444) !important;
+  transition: background-color 0.3s ease;
+}
+
+.option--selected {
+  border-color: var(--color-primary, #F78000) !important;
+  box-shadow: 0 0 0 2px var(--color-primary, #F78000);
+}
+
+/* ─── Loading Spinner ───────────────────────────────────────────── */
+
+.validation-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: validation-spin 0.6s linear infinite;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+@keyframes validation-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ─── Validation Error ──────────────────────────────────────────── */
+
+.validation-error {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.875rem;
+  color: #991b1b;
+}
+
+.validation-error p {
+  margin: 0;
+  flex: 1;
+}
+
+.retry-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 16px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.retry-btn:hover {
+  background: #dc2626;
+}
+
+.retry-btn:active {
+  background: #b91c1c;
+}
+
+/* ─── Explanation Block ─────────────────────────────────────────── */
+
+.validation-explanation {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-top: 12px;
+  font-size: 0.875rem;
+  color: #166534;
+  line-height: 1.5;
+}
+
+.validation-explanation--wrong {
+  background: #fef2f2;
+  border-color: #fca5a5;
+  color: #991b1b;
+}
+
+/* ─── Disabled State (during validation) ────────────────────────── */
+
+.options-disabled {
+  pointer-events: none;
+  opacity: 0.6;
+}

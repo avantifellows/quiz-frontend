@@ -179,6 +179,11 @@ interface Option {
   image: Image | null;
 }
 
+/**
+ * @deprecated Use `ActiveQuestion` during active quiz or `ReviewQuestion` for post-completion review.
+ * This legacy interface exposes `correct_answer` to the frontend, which is a security concern.
+ * Retained for backward compatibility until all consumers are migrated.
+ */
 export interface Question {
   type: questionType;
   text: string;
@@ -345,3 +350,101 @@ export interface CircularProgressResult {
 export interface JnvDict {
   [index : string] : string[];
 }
+
+// ─── Phase-Based Type System (Secure Answer Validation) ─────────────
+
+/**
+ * Used during an active quiz attempt — correct_answer is intentionally absent.
+ * This prevents answer leakage via DevTools, network tab, or component inspector.
+ */
+export interface ActiveQuestion {
+  _id: string;
+  type: questionType;
+  text: string;
+  options: Option[] | null;
+  image: Image | null;
+  max_char_limit: number | null;
+  matrix_size: number[] | null;
+  matrix_rows: string[] | null;
+  graded: boolean;
+  instructions: string | null;
+  marking_scheme: MarkingScheme | null;
+  metadata: QuestionMetadata | null;
+  question_set_id: string;
+  source_id: string | null;
+  section?: string;
+  marks?: number;
+}
+
+/**
+ * Used in review mode after quiz completion — includes correct_answer and user_answer.
+ * Only available from the backend review endpoint after the quiz is confirmed complete.
+ */
+export interface ReviewQuestion extends ActiveQuestion {
+  correct_answer: CorrectAnswerType;
+  user_answer: submittedAnswer;
+  is_correct: boolean;
+  explanation?: string;
+  solution: string[] | null;
+}
+
+/**
+ * Response from POST /quiz/{quizId}/validate
+ * Returned by the backend after evaluating a single answer server-side.
+ */
+export interface ValidationResponse {
+  correct: boolean;
+  explanation?: string;
+  score_delta?: number;
+}
+
+/**
+ * Typed error for validation endpoint failures.
+ * `retryable` indicates whether the frontend should offer a retry button.
+ */
+export interface ValidationError {
+  code: "NETWORK_ERROR" | "TIMEOUT" | "SESSION_EXPIRED" | "INVALID_QUESTION";
+  message: string;
+  retryable: boolean;
+}
+
+/**
+ * State machine for the quiz flow.
+ * Replaces ad-hoc boolean flags with a single enum, making impossible states unrepresentable.
+ *
+ * Transitions:
+ *   IDLE → ACTIVE (quiz loaded)
+ *   ACTIVE → VALIDATING (user selects answer)
+ *   VALIDATING → ANSWERED (success) | VALIDATION_ERROR (failure)
+ *   ANSWERED → ACTIVE (next question) | COMPLETE (last question)
+ *   VALIDATION_ERROR → VALIDATING (retry)
+ *   COMPLETE → REVIEW (review enabled)
+ */
+export type QuizPhase =
+  | "IDLE"
+  | "ACTIVE"
+  | "VALIDATING"
+  | "ANSWERED"
+  | "VALIDATION_ERROR"
+  | "COMPLETE"
+  | "REVIEW";
+
+// ─── Offline Mode Placeholder Types (Phase 6 — Future) ─────────────
+
+/**
+ * Placeholder for offline quiz package metadata.
+ * Full implementation tracked in TODO_offline_quiz.md.
+ */
+export interface OfflinePackage {
+  package_id: string;
+  quiz_id: string;
+  encrypted_data: string;
+  checksum: string;
+  expires_at: string;
+  encryption_key_hint: string;
+}
+
+/**
+ * Network status for offline mode detection.
+ */
+export type NetworkStatus = "online" | "offline" | "blocked";
