@@ -179,11 +179,16 @@ interface Option {
   image: Image | null;
 }
 
+/**
+ * `correct_answer` and `solution` are optional — the backend omits them
+ * during active attempts to prevent answer leakage. They're only present
+ * in review mode or after homework reveal.
+ */
 export interface Question {
   type: questionType;
   text: string;
   options: Option[] | null;
-  correct_answer: CorrectAnswerType;
+  correct_answer?: CorrectAnswerType;
   image: Image | null;
   max_char_limit: number | null;
   matrix_size: number[] | null;
@@ -191,7 +196,7 @@ export interface Question {
   graded: boolean;
   instructions: string | null;
   marking_scheme: MarkingScheme | null;
-  solution: string[] | null;
+  solution?: string[] | null;
   _id: string;
   metadata: QuestionMetadata | null;
   question_set_id: string;

@@ -1182,18 +1182,19 @@ export default defineComponent({
           let dynamicIndex = qindex;
           if (!isOmrMode.value) dynamicIndex = state.questionOrder[qindex];
           if (state.hasQuizEnded) {
+            // returns { valid: false } when correct_answer isn't available
             const questionAnswerEvaluation = isQuestionAnswerCorrect(
               state.questions[dynamicIndex],
               state.responses[dynamicIndex].answer,
               state.questions[dynamicIndex].marking_scheme?.partial != null // doesPartialMarkingExist
             )
-            if (!questionAnswerEvaluation.valid && state.questions[dynamicIndex].graded) continue
 
             if (!state.questions[dynamicIndex].graded) {
               qstate = "neutral"
             } else if (
+              !questionAnswerEvaluation.valid ||
               !questionAnswerEvaluation.answered ||
-          questionAnswerEvaluation.isCorrect == null
+              questionAnswerEvaluation.isCorrect == null
             ) {
               qstate = "neutral"
             } else {
