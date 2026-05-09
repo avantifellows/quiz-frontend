@@ -9,6 +9,7 @@ A generic quiz engine for serving different types of questions (mcq, subjective,
 
 **Table of Contents**
 
+- [Infrastructure](#infrastructure)
 - [Project Setup](#project-setup)
   - [Pre-requisites](#pre-requisites)
     - [Backend](#backend)
@@ -21,6 +22,16 @@ A generic quiz engine for serving different types of questions (mcq, subjective,
   - [Deployment](#deployment)
   - [Run the unit tests](#run-the-unit-tests)
   - [Run the end-to-end tests](#run-the-end-to-end-tests)
+
+## Infrastructure
+
+The quiz frontend relies on the following infrastructure and architecture:
+
+- **Environment Management**: Environment variables are used to configure backend endpoints (`VUE_APP_BACKEND`, `VUE_APP_PORTAL_BACKEND`, etc.). See `docs/ENV.md` for details.
+- **Node Versioning**: The Node.js version is pinned to `20.12.0` via `.nvmrc` to ensure consistent builds across all developer environments.
+- **Docker**: A `Dockerfile.dev` and `docker-compose.yml` are provided to easily spin up both the frontend and backend services together for local development.
+- **CI/CD Pipelines**: Automated workflows in GitHub Actions (`.github/workflows`) handle linting, unit tests, end-to-end tests, and production/staging deployments to AWS S3. A weekly dependency audit workflow runs to catch vulnerabilities.
+- **Main Entry Point**: The primary orchestrator component for the quiz application is located at `src/views/Player.vue`.
 
 ## Project Setup
 
