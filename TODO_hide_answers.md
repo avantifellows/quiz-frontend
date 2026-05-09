@@ -45,10 +45,10 @@ Students can access correct answers via browser developer tools through multiple
 ## Frontend Changes (Required)
 
 ### 1. Update Type Definitions (`src/types.ts`)
-- [ ] **NEW**: Create `SecureQuestion` interface without `correct_answer` field
+- [x] **MODIFY**: Make `correct_answer` optional on `Question` interface (backend omits it during active attempts)
+- [x] **MODIFY**: Make `solution` optional on `Question` interface
 - [ ] **NEW**: Create `QuestionValidationResponse` interface
-- [ ] **MODIFY**: Update `QuizAPIResponse` to use `SecureQuestion[]` during active quiz
-- [ ] **NEW**: Create `CompletedQuestion` interface with answers (for review mode)
+- [ ] **MODIFY**: Update `QuizAPIResponse` to use secure question type during active quiz
 
 ### 2. API Service Updates
 
@@ -64,16 +64,21 @@ Students can access correct answers via browser developer tools through multiple
 ### 3. Component Updates
 
 #### `src/views/Player.vue`
-- [ ] **MODIFY**: Replace client-side answer evaluation with server validation
+- [x] **MODIFY**: questionSetStates palette degrades to 'neutral' when correct_answer is missing
 - [ ] **NEW**: Add `validateAnswer()` method for homework mode
 - [ ] **MODIFY**: State management to handle validation responses
-- [ ] **MODIFY**: Only load complete question data when quiz is completed
+- [x] **MODIFY**: fetchQuestionBucket preserves homework-revealed answers
 
 #### `src/components/Questions/Body.vue`
-- [ ] **MODIFY**: `optionBackgroundClass()` to use validation results instead of `correct_answer`
-- [ ] **NEW**: Add loading states for answer validation
-- [ ] **MODIFY**: Remove direct access to `correct_answer` prop
+- [x] **MODIFY**: `optionBackgroundClass()` already guards against null correctAnswer
+- [x] **MODIFY**: `numericalAnswerBoxStyling` skips green/red when correctAnswer is null
+- [x] **MODIFY**: Answer display sections gated on `correctAnswer != null`
 - [ ] **NEW**: Handle validation response for styling
+
+#### `src/components/SinglePage/SinglePageItem.vue`
+- [x] **MODIFY**: `optionBackgroundClass()` now guards against null correctAnswer
+- [x] **MODIFY**: `numericalAnswerBoxStyling` skips green/red when correctAnswer is null
+- [x] **MODIFY**: Answer display sections gated on `correctAnswer != null`
 
 #### `src/components/Questions/QuestionModal.vue`
 - [ ] **MODIFY**: Submit flow to call validation API for homework mode
@@ -83,7 +88,7 @@ Students can access correct answers via browser developer tools through multiple
 ### 4. Utility Function Updates
 
 #### `src/services/Functional/Utilities.ts`
-- [ ] **REMOVE**: `isQuestionAnswerCorrect()` function (move to backend)
+- [x] **MODIFY**: `isQuestionAnswerCorrect()` returns invalid eval when correct_answer is missing
 - [ ] **NEW**: `processValidationResponse()` for handling server responses
 - [ ] **NEW**: `formatValidationFeedback()` for UI display
 
