@@ -33,7 +33,7 @@ npm run lint:fix                 # Fix linting issues
 
 Copy `.env.example` to `.env.local` and configure:
 - `VUE_APP_BACKEND`: Backend API URL (default: http://127.0.0.1:8001)
-- `VUE_APP_BACKEND_ECS`: Optional ECS backend URL (used when `?new_backend` query param is present)
+ - `VUE_APP_BACKEND`: Backend API URL (default: http://127.0.0.1:8001)
 
 For staging/production builds, use `.env.staging` or `.env.production` respectively.
 
@@ -62,7 +62,7 @@ For staging/production builds, use `.env.staging` or `.env.production` respectiv
 
 #### Service Layer
 - `src/services/API/` - API clients and endpoints
-  - `RootClient.ts` - Axios client factory (default Lambda + optional ECS backend)
+  - `RootClient.ts` - Axios client factory (backend API client)
   - `Endpoints.ts` - API endpoint constants
   - `Quiz.ts`, `Question.ts`, `Session.ts`, `Organization.ts`, `Form.ts` - Domain-specific API clients
   - `ErrorHandling.ts` - Global error handler (404 redirect)
@@ -93,7 +93,7 @@ For staging/production builds, use `.env.staging` or `.env.production` respectiv
 ### Authentication & Routing
 - Routes require `userId` and `apiKey` query parameters
 - Main routes: `/quiz/:quizId` and `/form/:quizId` with authentication checks
-- Optional query params: `omrMode`, `singlePageMode`, `autoStart`, `new_backend`
+- Optional query params: `omrMode`, `singlePageMode`, `autoStart`
 - Error handling for 404, 403, quiz-not-available, form-not-available
 
 ### Styling Notes
