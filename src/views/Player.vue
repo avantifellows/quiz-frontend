@@ -748,6 +748,11 @@ export default defineComponent({
       state.hasQuizEnded = sessionDetails.has_quiz_ended || false;
       state.hasSessionMetrics = false;
       if (state.hasQuizEnded) {
+        if (isFormQuiz.value) {
+          state.currentQuestionIndex = numQuestions.value;
+          state.isScorecardShown = true;
+          return;
+        }
         if (sessionDetails.metrics) {
           applySessionMetrics(sessionDetails.metrics);
         } else {
