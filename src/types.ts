@@ -7,8 +7,12 @@ export type quizTitleType = string | null;
 export type textAreaValueType = string | number | null;
 export type isFirstSessionType = boolean | null;
 type quizNavigationMode = "linear" | "non-linear";
-export type submittedAnswer = number[] | string[] | string | number | Record<string, number> | Record<string, string> | null;
-export type CorrectAnswerType = number[] | string[] | string | number | Record<string, number> | Record<string, string> | null;
+export interface MatrixSubjectiveGridResponse {
+  [row: string]: Record<string, string>;
+}
+
+export type submittedAnswer = number[] | string[] | string | number | Record<string, number> | Record<string, string> | MatrixSubjectiveGridResponse | null;
+export type CorrectAnswerType = number[] | string[] | string | number | Record<string, number> | Record<string, string> | MatrixSubjectiveGridResponse | null;
 
 export type DisplayIdType = "user_id" | "student_id" | "apaar_id" | "candidate_id" | "teacher_id" | null;
 
@@ -39,7 +43,8 @@ export enum questionType {
   MATRIX_MATCH = "matrix-match",
   MATRIX_RATING = "matrix-rating",
   MATRIX_NUMERICAL = "matrix-numerical",
-  MATRIX_SUBJECTIVE = "matrix-subjective"
+  MATRIX_SUBJECTIVE = "matrix-subjective",
+  MATRIX_SUBJECTIVE_GRID = "matrix-subjective-grid"
 }
 
 export enum questionTypeHeaderText {
@@ -51,7 +56,8 @@ export enum questionTypeHeaderText {
     MATRIX_MATCH = "Matrix Matching",
     MATRIX_RATING = "Matrix Rating Scale",
     MATRIX_NUMERICAL = "Matrix Numerical Input",
-    MATRIX_SUBJECTIVE = "Matrix Subjective Input"
+    MATRIX_SUBJECTIVE = "Matrix Subjective Input",
+    MATRIX_SUBJECTIVE_GRID = "Matrix Subjective Grid"
  }
 
 export interface IconButtonTitleConfig {
@@ -72,7 +78,7 @@ export interface InputTextValidationConfig {
   invalidMessage: String;
 }
 
-export type DraftResponse = number[] | string[] | number | string | Record<string, number> | Record<string, string> | null;
+export type DraftResponse = number[] | string[] | number | string | Record<string, number> | Record<string, string> | MatrixSubjectiveGridResponse | null;
 
 export interface SubmittedResponse {
   _id: string;
@@ -188,6 +194,7 @@ export interface Question {
   max_char_limit: number | null;
   matrix_size: number[] | null;
   matrix_rows: string[] | null;
+  matrix_columns: string[] | null;
   graded: boolean;
   instructions: string | null;
   marking_scheme: MarkingScheme | null;
