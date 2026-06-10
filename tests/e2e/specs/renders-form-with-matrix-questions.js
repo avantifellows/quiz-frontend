@@ -183,4 +183,25 @@ describe("Form with Matrix Questions Tests", () => {
       cy.get('[data-test="question-index-type"]').should("contain", "Q.6");
     });
   });
+
+  describe("Completed Form Session", () => {
+    beforeEach(() => {
+      cy.intercept("POST", Cypress.env("backend") + "/sessions/", {
+        fixture: "ended_form_session.json",
+      }).as("createEndedSession");
+
+      cy.visit("/form/form_quiz_123456?userId=test_student&apiKey=pqr");
+      cy.wait("@getForm");
+      cy.wait("@createEndedSession");
+    });
+
+    it("shows review entry instead of opening the scorecard directly", () => {
+      cy.get('[data-test="scorecard"]').should("not.be.visible");
+      cy.get('[data-test="startQuiz"]').should("have.text", "Review").click();
+      cy.get('[data-test="question-index-type"]').should("contain", "Q.1");
+      cy.get('[data-test="subjectiveAnswer"] [data-test="input"]')
+        .should("have.value", "John Doe")
+        .and("be.disabled");
+    });
+  });
 });
