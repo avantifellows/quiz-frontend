@@ -98,11 +98,45 @@ describe("Scorecard.vue", () => {
     expect(wrapper.vm.circularProgressStroke).toBe(15);
   });
 
-  // commenting out because back button is removed for now
-  // it("should emit a signal when watch again is clicked", async () => {
-  //   await wrapper.find('[data-test="backButton"]').trigger("click");
-  //   expect(wrapper.emitted()).toHaveProperty("go-back");
-  // });
+  it("shows See Answers and emits go-back when review is allowed", async () => {
+    const wrapper = mount(Scorecard, {
+      props: {
+        numQuestionsAnswered: 2,
+        title: "Test Quiz",
+        progressPercentage: 100,
+        metrics: [],
+        result: { title: "Score", value: "80%" },
+        showScores: true,
+        quizType: "assessment",
+        reviewAnswers: true,
+        nextStepUrl: "",
+      },
+      global: { provide: { store } },
+    });
+
+    expect(wrapper.find('[data-test="see-answers"]').exists()).toBe(true);
+    await wrapper.find('[data-test="see-answers"]').trigger("click");
+    expect(wrapper.emitted()).toHaveProperty("go-back");
+  });
+
+  it("hides See Answers when review is not allowed", async () => {
+    const wrapper = mount(Scorecard, {
+      props: {
+        numQuestionsAnswered: 2,
+        title: "Test Quiz",
+        progressPercentage: 100,
+        metrics: [],
+        result: { title: "Score", value: "80%" },
+        showScores: true,
+        quizType: "assessment",
+        reviewAnswers: false,
+        nextStepUrl: "",
+      },
+      global: { provide: { store } },
+    });
+
+    expect(wrapper.find('[data-test="see-answers"]').exists()).toBe(false);
+  });
 
   it("triggers sharing text on whatsapp upon clicking share button", async () => {
     await wrapper.find('[data-test="share"]').trigger("click");
@@ -308,6 +342,27 @@ describe("Scorecard.vue", () => {
       });
 
       expect(quizWrapper.find('[data-test="share"]').exists()).toBe(true);
+      expect(quizWrapper.find('[data-test="proceed-next"]').exists()).toBe(false);
+    });
+
+    it("shows See Answers on completion screen when scores are hidden and review is allowed", async () => {
+      const quizWrapper = mount(Scorecard, {
+        props: {
+          numQuestionsAnswered: 2,
+          title: "Test Quiz",
+          progressPercentage: 100,
+          metrics: [],
+          result: { title: "Score", value: "80%" },
+          showScores: false,
+          quizType: "assessment",
+          reviewAnswers: true,
+          nextStepUrl: "",
+        },
+        global: { provide: { store } },
+      });
+
+      expect(quizWrapper.find('[data-test="see-answers"]').exists()).toBe(true);
+      expect(quizWrapper.find('[data-test="share"]').exists()).toBe(false);
       expect(quizWrapper.find('[data-test="proceed-next"]').exists()).toBe(false);
     });
 

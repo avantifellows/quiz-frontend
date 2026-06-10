@@ -109,8 +109,6 @@
             <div v-if="showScores" class="flex justify-center mt-6" ignore-share-scorecard>
               <!-- when both next step and share are available -->
               <div v-if="nextStepUrl" class="flex flex-col gap-4 items-center w-full max-w-xs">
-                <!-- See Answers button (temporarily disabled; keep code for later) -->
-                <!--
                 <icon-button
                   v-if="reviewAnswers"
                   :titleConfig="backButtonTitleConfig"
@@ -118,7 +116,6 @@
                   @click="goBack"
                   data-test="see-answers"
                 ></icon-button>
-                -->
 
                 <!-- share button -->
                 <icon-button
@@ -152,8 +149,6 @@
 
               <!-- when only share is available (no next step) -->
               <div v-else class="flex flex-col gap-4 items-center w-full max-w-xs">
-                <!-- See Answers button (temporarily disabled; keep code for later) -->
-                <!--
                 <icon-button
                   v-if="reviewAnswers"
                   :titleConfig="backButtonTitleConfig"
@@ -161,7 +156,6 @@
                   @click="goBack"
                   data-test="see-answers"
                 ></icon-button>
-                -->
 
                 <!-- share button -->
                 <icon-button
@@ -179,9 +173,17 @@
                 <div class="text-lg md:text-xl lg:text-2xl font-semibold text-gray-700 mb-4">
                   {{ completionMessage }}
                 </div>
-                <div v-if="nextStepUrl" class="flex justify-center">
-                  <div class="w-full max-w-xs">
+                <div v-if="reviewAnswers || nextStepUrl" class="flex justify-center">
+                  <div class="w-full max-w-xs flex flex-col gap-4 items-center">
                     <icon-button
+                      v-if="reviewAnswers"
+                      :titleConfig="backButtonTitleConfig"
+                      :buttonClass="backButtonClass + ' w-full'"
+                      @click="goBack"
+                      data-test="see-answers"
+                    ></icon-button>
+                    <icon-button
+                      v-if="nextStepUrl"
                       :titleConfig="nextStepButtonTitleConfig"
                       :buttonClass="nextStepButtonClass + ' w-full'"
                       @click="proceedToNextStep"
@@ -211,9 +213,17 @@
             <div class="text-lg md:text-xl lg:text-2xl font-semibold text-gray-700 mb-4">
               {{ completionMessage }}
             </div>
-            <div v-if="nextStepUrl" class="flex justify-center">
-              <div class="w-full max-w-xs">
+            <div v-if="reviewAnswers || nextStepUrl" class="flex justify-center">
+              <div class="w-full max-w-xs flex flex-col gap-4 items-center">
                 <icon-button
+                  v-if="reviewAnswers"
+                  :titleConfig="backButtonTitleConfig"
+                  :buttonClass="backButtonClass + ' w-full'"
+                  @click="goBack"
+                  data-test="see-answers"
+                ></icon-button>
+                <icon-button
+                  v-if="nextStepUrl"
                   :titleConfig="nextStepButtonTitleConfig"
                   :buttonClass="nextStepButtonClass + ' w-full'"
                   @click="proceedToNextStep"
