@@ -220,8 +220,8 @@
           :class="answerContainerClass"
           data-test="matrixRatingContainer"
         >
-          <div v-if="isSingleRowMatrixRating" class="max-w-screen-sm w-full px-2">
-            <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+          <div v-if="isSingleRowMatrixRating" class="w-full px-1 py-2 sm:px-2">
+            <div class="mx-auto max-w-screen-sm">
               <div class="grid gap-3" :style="matrixRatingGridStyle">
                 <div
                   v-for="(option, optionIndex) in options"
@@ -727,8 +727,8 @@
           :class="answerContainerClass"
           data-test="matrixRatingContainer"
         >
-          <div v-if="isSingleRowMatrixRating" class="max-w-screen-sm w-full px-2">
-            <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+          <div v-if="isSingleRowMatrixRating" class="w-full px-1 py-2 sm:px-2">
+            <div class="mx-auto max-w-screen-sm">
               <div class="grid gap-3" :style="matrixRatingGridStyle">
                 <div
                   v-for="(option, optionIndex) in options"
