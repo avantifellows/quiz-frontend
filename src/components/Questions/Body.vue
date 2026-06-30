@@ -264,9 +264,9 @@
         >
           <div v-if="isSingleRowMatrixRating" class="w-full px-1 py-2 sm:px-2">
             <div class="mx-auto max-w-screen-sm">
-              <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4">
-                <span class="mb-1 hidden w-32 shrink-0 whitespace-nowrap text-right text-sm font-medium leading-snug text-gray-600 sm:block md:w-40" v-html="firstMatrixRatingLabel"></span>
-                <div class="grid flex-1 gap-2 sm:gap-3" :style="matrixRatingGridStyle">
+              <div class="flex items-end justify-center gap-2 sm:gap-4">
+                <span class="mb-1 w-[4.75rem] shrink-0 whitespace-nowrap text-right text-[11px] font-medium leading-snug text-gray-600 sm:w-32 sm:text-sm md:w-40" v-html="firstMatrixRatingLabel"></span>
+                <div class="grid w-36 shrink-0 gap-1 sm:w-auto sm:flex-1 sm:gap-3" :style="matrixRatingGridStyle">
                   <div
                     v-for="(option, optionIndex) in options"
                     :key="`single-row-matrix-rating-${optionIndex}`"
@@ -288,11 +288,7 @@
                     />
                   </div>
                 </div>
-                <span class="mb-1 hidden w-32 shrink-0 whitespace-nowrap text-left text-sm font-medium leading-snug text-gray-600 sm:block md:w-40" v-html="lastMatrixRatingLabel"></span>
-                <div class="flex items-start justify-between gap-4 text-xs font-medium leading-snug text-gray-600 sm:hidden">
-                  <span class="max-w-[45%] text-left" v-html="firstMatrixRatingLabel"></span>
-                  <span class="max-w-[45%] text-right" v-html="lastMatrixRatingLabel"></span>
-                </div>
+                <span class="mb-1 w-[4.75rem] shrink-0 whitespace-nowrap text-left text-[11px] font-medium leading-snug text-gray-600 sm:w-32 sm:text-sm md:w-40" v-html="lastMatrixRatingLabel"></span>
               </div>
             </div>
           </div>
