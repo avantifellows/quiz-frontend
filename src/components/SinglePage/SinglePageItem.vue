@@ -222,31 +222,31 @@
         >
           <div v-if="isSingleRowMatrixRating" class="w-full px-1 py-2 sm:px-2">
             <div class="mx-auto max-w-screen-sm">
-              <div class="grid gap-3" :style="matrixRatingGridStyle">
-                <div
-                  v-for="(option, optionIndex) in options"
-                  :key="`single-row-matrix-rating-${optionIndex}`"
-                  class="flex min-w-0 flex-col items-center"
-                >
-                  <div class="mb-2 text-sm font-semibold text-gray-700">
-                    {{ optionIndex + 1 }}
+              <div class="flex items-end gap-2 sm:gap-4">
+                <span class="mb-1 w-24 shrink-0 whitespace-nowrap text-right text-xs font-medium leading-snug text-gray-600 sm:w-32 sm:text-sm md:w-40" v-html="firstMatrixRatingLabel"></span>
+                <div class="grid flex-1 gap-2 sm:gap-3" :style="matrixRatingGridStyle">
+                  <div
+                    v-for="(option, optionIndex) in options"
+                    :key="`single-row-matrix-rating-${optionIndex}`"
+                    class="flex min-w-0 flex-col items-center"
+                  >
+                    <div class="mb-2 text-sm font-semibold text-gray-700">
+                      {{ optionIndex + 1 }}
+                    </div>
+                    <input
+                      type="radio"
+                      :name="`matrix-rating-single-${currentQuestionIndex}`"
+                      :value="optionIndex"
+                      class="h-5 w-5 text-primary focus:ring-0 disabled:cursor-not-allowed"
+                      :disabled="isAnswerDisabled"
+                      style="box-shadow: none"
+                      @click="selectMatrixOption(singleRowMatrixRatingKey, optionIndex)"
+                      :checked="isMatrixRatingOptionSelected(singleRowMatrixRatingKey, optionIndex)"
+                      :data-test="`matrixRatingSelector-0-${optionIndex}`"
+                    />
                   </div>
-                  <input
-                    type="radio"
-                    :name="`matrix-rating-single-${currentQuestionIndex}`"
-                    :value="optionIndex"
-                    class="h-5 w-5 text-primary focus:ring-0 disabled:cursor-not-allowed"
-                    :disabled="isAnswerDisabled"
-                    style="box-shadow: none"
-                    @click="selectMatrixOption(singleRowMatrixRatingKey, optionIndex)"
-                    :checked="isMatrixRatingOptionSelected(singleRowMatrixRatingKey, optionIndex)"
-                    :data-test="`matrixRatingSelector-0-${optionIndex}`"
-                  />
                 </div>
-              </div>
-              <div class="mt-3 flex items-start justify-between gap-4 text-xs font-medium leading-snug text-gray-600 sm:text-sm">
-                <span class="w-1/2 text-left sm:text-center" v-html="firstMatrixRatingLabel"></span>
-                <span class="w-1/2 text-right sm:text-center" v-html="lastMatrixRatingLabel"></span>
+                <span class="mb-1 w-24 shrink-0 whitespace-nowrap text-left text-xs font-medium leading-snug text-gray-600 sm:w-32 sm:text-sm md:w-40" v-html="lastMatrixRatingLabel"></span>
               </div>
             </div>
           </div>
@@ -729,31 +729,31 @@
         >
           <div v-if="isSingleRowMatrixRating" class="w-full px-1 py-2 sm:px-2">
             <div class="mx-auto max-w-screen-sm">
-              <div class="grid gap-3" :style="matrixRatingGridStyle">
-                <div
-                  v-for="(option, optionIndex) in options"
-                  :key="`bubble-single-row-matrix-rating-${optionIndex}`"
-                  class="flex min-w-0 flex-col items-center"
-                >
-                  <div class="mb-2 text-sm font-semibold text-gray-700">
-                    {{ optionIndex + 1 }}
+              <div class="flex items-end gap-2 sm:gap-4">
+                <span class="mb-1 w-24 shrink-0 whitespace-nowrap text-right text-xs font-medium leading-snug text-gray-600 sm:w-32 sm:text-sm md:w-40" v-html="firstMatrixRatingLabel"></span>
+                <div class="grid flex-1 gap-2 sm:gap-3" :style="matrixRatingGridStyle">
+                  <div
+                    v-for="(option, optionIndex) in options"
+                    :key="`bubble-single-row-matrix-rating-${optionIndex}`"
+                    class="flex min-w-0 flex-col items-center"
+                  >
+                    <div class="mb-2 text-sm font-semibold text-gray-700">
+                      {{ optionIndex + 1 }}
+                    </div>
+                    <input
+                      type="radio"
+                      :name="`matrix-rating-single-${currentQuestionIndex}`"
+                      :value="optionIndex"
+                      class="h-5 w-5 text-primary focus:ring-0 disabled:cursor-not-allowed"
+                      :disabled="isAnswerDisabled"
+                      style="box-shadow: none"
+                      @click="selectMatrixOption(singleRowMatrixRatingKey, optionIndex)"
+                      :checked="isMatrixRatingOptionSelected(singleRowMatrixRatingKey, optionIndex)"
+                      :data-test="`matrixRatingSelector-0-${optionIndex}`"
+                    />
                   </div>
-                  <input
-                    type="radio"
-                    :name="`matrix-rating-single-${currentQuestionIndex}`"
-                    :value="optionIndex"
-                    class="h-5 w-5 text-primary focus:ring-0 disabled:cursor-not-allowed"
-                    :disabled="isAnswerDisabled"
-                    style="box-shadow: none"
-                    @click="selectMatrixOption(singleRowMatrixRatingKey, optionIndex)"
-                    :checked="isMatrixRatingOptionSelected(singleRowMatrixRatingKey, optionIndex)"
-                    :data-test="`matrixRatingSelector-0-${optionIndex}`"
-                  />
                 </div>
-              </div>
-              <div class="mt-3 flex items-start justify-between gap-4 text-xs font-medium leading-snug text-gray-600 sm:text-sm">
-                <span class="w-1/2 text-left sm:text-center" v-html="firstMatrixRatingLabel"></span>
-                <span class="w-1/2 text-right sm:text-center" v-html="lastMatrixRatingLabel"></span>
+                <span class="mb-1 w-24 shrink-0 whitespace-nowrap text-left text-xs font-medium leading-snug text-gray-600 sm:w-32 sm:text-sm md:w-40" v-html="lastMatrixRatingLabel"></span>
               </div>
             </div>
           </div>
