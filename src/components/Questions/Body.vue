@@ -262,7 +262,37 @@
           :class="answerContainerClass"
           data-test="matrixRatingContainer"
         >
-          <div class="max-w-screen-md w-full">
+          <div v-if="isSingleRowMatrixRating" class="w-full px-1 py-2 sm:px-2">
+            <div class="mx-auto max-w-screen-sm">
+              <div class="flex items-end justify-center gap-2 sm:gap-4">
+                <span class="mb-1 w-[4.75rem] shrink-0 whitespace-nowrap text-right text-[11px] font-medium leading-snug text-gray-600 sm:w-32 sm:text-sm md:w-40" v-html="firstMatrixRatingLabel"></span>
+                <div class="grid w-36 shrink-0 gap-1 sm:w-auto sm:flex-1 sm:gap-3" :style="matrixRatingGridStyle">
+                  <div
+                    v-for="(option, optionIndex) in options"
+                    :key="`single-row-matrix-rating-${optionIndex}`"
+                    class="flex min-w-0 flex-col items-center"
+                  >
+                    <div class="mb-2 text-sm font-semibold text-gray-700">
+                      {{ optionIndex + 1 }}
+                    </div>
+                    <input
+                      type="radio"
+                      :name="`matrix-rating-single-${currentQuestionIndex}`"
+                      :value="optionIndex"
+                      class="h-5 w-5 text-primary focus:ring-0 disabled:cursor-not-allowed"
+                      :disabled="isAnswerDisabled"
+                      style="box-shadow: none"
+                      @click="selectMatrixOption(singleRowMatrixRatingKey, optionIndex)"
+                      :checked="isMatrixRatingOptionSelected(singleRowMatrixRatingKey, optionIndex)"
+                      :data-test="`matrixRatingSelector-0-${optionIndex}`"
+                    />
+                  </div>
+                </div>
+                <span class="mb-1 w-[4.75rem] shrink-0 whitespace-nowrap text-left text-[11px] font-medium leading-snug text-gray-600 sm:w-32 sm:text-sm md:w-40" v-html="lastMatrixRatingLabel"></span>
+              </div>
+            </div>
+          </div>
+          <div v-else class="max-w-screen-md w-full">
             <div class="hidden md:block overflow-x-auto">
               <table class="border-collapse border border-gray-200 mx-auto w-full table-fixed">
                 <thead>
@@ -581,17 +611,17 @@ export default defineComponent({
     },
     correctAnswer: {
       default: null,
-      type: [String, Number, Array],
+      type: [String, Number, Array, Object],
     },
     /** answer for the question which has been submitted */
     submittedAnswer: {
       default: null,
-      type: [String, Number, Array],
+      type: [String, Number, Array, Object],
     },
     /** answer for the question which has been entered but not submitted */
     draftAnswer: {
       default: null,
-      type: [String, Number, Array],
+      type: [String, Number, Array, Object],
     },
     isAnswerSubmitted: {
       default: false,
@@ -864,13 +894,17 @@ export default defineComponent({
       context.emit("option-selected", answer);
     }
 
+    function matrixRatingAnswerKey(row: string) {
+      return row && row.trim() ? row : "__default__";
+    }
+
     function selectMatrixOption(row: string, optionIndex: number) {
-      context.emit("matrix-option-selected", row, optionIndex);
+      context.emit("matrix-option-selected", matrixRatingAnswerKey(row), optionIndex);
     }
 
     function isMatrixRatingOptionSelected(row: string, optionIndex: number) {
       if (props.draftAnswer && typeof props.draftAnswer === 'object' && !Array.isArray(props.draftAnswer)) {
-        return props.draftAnswer[row] === optionIndex;
+        return props.draftAnswer[matrixRatingAnswerKey(row)] === optionIndex;
       }
       return false;
     }
@@ -1147,6 +1181,21 @@ export default defineComponent({
     const isQuestionTypeMatrixRating = computed(
       () => props.questionType == questionType.MATRIX_RATING
     );
+    const singleRowMatrixRatingKey = computed(() => props.matrixRows?.[0] || "");
+    const isSingleRowMatrixRating = computed(
+      () =>
+        isQuestionTypeMatrixRating.value &&
+        props.matrixRows?.length === 1 &&
+        !String(props.matrixRows[0] || "").trim()
+    );
+    const matrixRatingOptions = computed(() => props.options as { text?: string }[]);
+    const matrixRatingGridStyle = computed(() => ({
+      gridTemplateColumns: `repeat(${matrixRatingOptions.value.length || 1}, minmax(0, 1fr))`,
+    }));
+    const firstMatrixRatingLabel = computed(() => matrixRatingOptions.value[0]?.text || "");
+    const lastMatrixRatingLabel = computed(
+      () => matrixRatingOptions.value[matrixRatingOptions.value.length - 1]?.text || ""
+    );
     const isQuestionTypeMatrixNumerical = computed(
       () => props.questionType == questionType.MATRIX_NUMERICAL
     );
@@ -1415,6 +1464,11 @@ export default defineComponent({
       isQuestionTypeSingleChoice,
       isQuestionTypeMatrixMatch,
       isQuestionTypeMatrixRating,
+      isSingleRowMatrixRating,
+      singleRowMatrixRatingKey,
+      matrixRatingGridStyle,
+      firstMatrixRatingLabel,
+      lastMatrixRatingLabel,
       isQuestionTypeMatrixNumerical,
       isQuestionTypeMatrixSubjective,
       orientationClass,
