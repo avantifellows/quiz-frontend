@@ -286,9 +286,9 @@
                   />
                 </div>
               </div>
-              <div class="mt-3 flex items-start justify-between gap-3 text-xs font-medium leading-snug text-gray-600 sm:text-sm">
-                <span class="max-w-[45%] text-left" v-html="firstMatrixRatingLabel"></span>
-                <span class="max-w-[45%] text-right" v-html="lastMatrixRatingLabel"></span>
+              <div class="mt-3 grid gap-3 text-xs font-medium leading-snug text-gray-600 sm:text-sm" :style="matrixRatingGridStyle">
+                <span class="text-center" :style="firstMatrixRatingLabelStyle" v-html="firstMatrixRatingLabel"></span>
+                <span class="text-center" :style="lastMatrixRatingLabelStyle" v-html="lastMatrixRatingLabel"></span>
               </div>
             </div>
           </div>
@@ -1196,6 +1196,12 @@ export default defineComponent({
     const lastMatrixRatingLabel = computed(
       () => matrixRatingOptions.value[matrixRatingOptions.value.length - 1]?.text || ""
     );
+    const firstMatrixRatingLabelStyle = computed(() => ({ gridColumn: "1 / 2" }));
+    const lastMatrixRatingLabelStyle = computed(() => ({
+      gridColumn: `${matrixRatingOptions.value.length || 1} / ${
+        (matrixRatingOptions.value.length || 1) + 1
+      }`,
+    }));
     const isQuestionTypeMatrixNumerical = computed(
       () => props.questionType == questionType.MATRIX_NUMERICAL
     );
@@ -1469,6 +1475,8 @@ export default defineComponent({
       matrixRatingGridStyle,
       firstMatrixRatingLabel,
       lastMatrixRatingLabel,
+      firstMatrixRatingLabelStyle,
+      lastMatrixRatingLabelStyle,
       isQuestionTypeMatrixNumerical,
       isQuestionTypeMatrixSubjective,
       orientationClass,
