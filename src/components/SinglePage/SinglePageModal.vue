@@ -19,7 +19,7 @@
           <div class="flex justify-center w-full mx-auto py-4 px-4 pb-24">
             <div class="flex flex-col w-full sm:w-5/6 max-w-4xl bg-white rounded-lg shadow-sm p-2 sm:p-6 mb-12">
               <div v-for="(questionSetState, index) in questionSetStates" :key="index" class="space-y-2 pb-[56px]">
-                <div class="bg-gray-300">
+                <div v-if="shouldShowQuestionSetHeaders" class="bg-gray-300">
                   <p :class="titleTextClass" :data-test="`questionSetTitle-${index}`">{{ questionSetState.title }}</p>
                 </div>
                 <div
@@ -466,6 +466,9 @@ export default defineComponent({
     })
 
     const isQuizAssessment = computed(() => props.quizType == "assessment" || props.quizType == "omr-assessment")
+    const shouldShowQuestionSetHeaders = computed(
+      () => !(props.quizType == "form" && props.showFullText)
+    )
 
     const optionalLimitReachedArray = computed(() => {
       const arr = [] as Array<Boolean>;
@@ -575,6 +578,7 @@ export default defineComponent({
       currentQuestionResponseAnswer,
       isAttemptValid,
       isQuizAssessment,
+      shouldShowQuestionSetHeaders,
       optionalLimitReachedArray,
       questionDisabledArray,
       numericalAnswerUpdated,
