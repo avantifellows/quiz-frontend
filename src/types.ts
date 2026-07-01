@@ -285,6 +285,10 @@ export interface UpdateSessionAPIPayload {
 export interface UpdateSessionAPIResponse {
   time_remaining?: number; // how much time is remaining for quiz to complete
   metrics?: SessionMetricsPayload | null;
+  detail?: {
+    message?: string;
+    missing_positions?: number[];
+  };
 }
 
 export interface SessionAnswerAPIResponse {

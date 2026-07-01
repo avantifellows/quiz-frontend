@@ -326,6 +326,29 @@ export default defineComponent({
       return isOmrMode.value ? "omr-assessment" : "assessment";
     });
 
+    function displayIndexForQuestionPosition(positionIndex: number) {
+      if (isOmrMode.value) return positionIndex;
+      const displayIndex = state.questionOrder.indexOf(positionIndex);
+      return displayIndex == -1 ? positionIndex : displayIndex;
+    }
+
+    function navigateToIncompleteQuestion(positionIndex: number) {
+      const displayIndex = displayIndexForQuestionPosition(positionIndex);
+      state.currentQuestionIndex = displayIndex;
+    }
+
+    function showIncompleteRequiredQuestionWarning(positionIndex: number) {
+      state.toast.warning(
+        `Please answer all required questions before submitting. Question ${displayIndexForQuestionPosition(positionIndex) + 1} is incomplete.`,
+        {
+          position: POSITION.TOP_CENTER,
+          timeout: 7000,
+          draggablePercent: 0.4
+        }
+      );
+      navigateToIncompleteQuestion(positionIndex);
+    }
+
     // const shouldShowOmrToggle = computed(() => state.metadata.quiz_type == "assessment")
     const shouldShowOmrToggle = computed(() => false)
 
@@ -955,15 +978,7 @@ export default defineComponent({
         return !isQuestionResponseComplete(question, state.responses[idx]?.answer ?? null);
       });
       if (areAllQuestionsRequired.value && incompleteQuestionIndex != -1) {
-        state.toast.warning(
-          `Please answer all required questions before submitting. Question ${incompleteQuestionIndex + 1} is incomplete.`,
-          {
-            position: POSITION.TOP_CENTER,
-            timeout: 7000,
-            draggablePercent: 0.4
-          }
-        );
-        state.currentQuestionIndex = incompleteQuestionIndex;
+        showIncompleteRequiredQuestionWarning(incompleteQuestionIndex);
         return;
       }
 
@@ -1007,6 +1022,13 @@ export default defineComponent({
       };
       const endSessionResponse = await SessionAPIService.updateSession(state.sessionId, payload);
       if (endSessionResponse.status != 200) {
+        const missingPositions = endSessionResponse.data?.detail?.missing_positions;
+        if (areAllQuestionsRequired.value && Array.isArray(missingPositions) && missingPositions.length > 0) {
+          showIncompleteRequiredQuestionWarning(missingPositions[0]);
+          state.isComputingScore = false;
+          state.isSessionAnswerRequestProcessing = false;
+          return;
+        }
         state.toast.error(
           'Unable to complete test submission due to poor connection. Please retry "End Test" to complete.',
           {
