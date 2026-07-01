@@ -93,13 +93,14 @@ export function isQuestionResponseComplete(
     if (typeof userAnswer != "object" || Array.isArray(userAnswer)) return false;
     const matrixRows = questionDetail.matrix_rows || [];
     if (matrixRows.length == 0) return false;
-    if (questionDetail.type == "matrix-subjective") {
-      const filledRows = Object.entries(userAnswer).filter(([, val]) => {
-        return typeof val == "string" && val.trim() != "";
-      });
-      return filledRows.length == matrixRows.length;
+    const rowValues = matrixRows.map((row) => userAnswer[row]);
+    if (
+      questionDetail.type == "matrix-subjective" ||
+      questionDetail.type == "matrix-numerical"
+    ) {
+      return rowValues.every((val) => typeof val == "string" && val.trim() != "");
     }
-    return Object.keys(userAnswer).length == matrixRows.length;
+    return rowValues.every((val) => typeof val == "number");
   }
 
   return Array.isArray(userAnswer) && userAnswer.length > 0;
