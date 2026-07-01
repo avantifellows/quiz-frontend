@@ -8,8 +8,8 @@
           {{ questionHeaderText }}
         </p>
         <div v-if="questionText" class="text-base md:text-lg mb-2 leading-relaxed whitespace-pre-wrap" v-lazy-images>
-          <span v-if="isRequiredQuestion" class="text-red-600 font-bold" aria-label="Required question">*</span>
           <span v-html="questionText"></span>
+          <span v-if="isRequiredQuestion" class="ml-1 text-red-600 font-bold" aria-label="Required question">*</span>
         </div>
       </div>
       <!-- Question image if present -->

@@ -22,8 +22,8 @@
       <!-- question text -->
       <div class="mx-6 md:mx-10" v-bind="isQuizAssessment && !hasQuizEnded ? { inert: true } : {}">
         <div :class="questionTextClass" data-test="text">
-          <span v-if="isRequiredQuestion" class="text-red-600" aria-label="Required question">*</span>
           <span v-html="text"></span>
+          <span v-if="isRequiredQuestion" class="ml-1 text-red-600" aria-label="Required question">*</span>
         </div>
       </div>
       <div :class="orientationClass">
