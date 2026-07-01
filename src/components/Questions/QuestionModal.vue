@@ -65,6 +65,7 @@
         :quizTimeLimit="quizTimeLimit"
         :numQuestions = "numQuestions"
         :questionOrder="questionOrder"
+        :isRequiredQuestion="areAllQuestionsRequired"
         @option-selected="questionOptionSelected"
         @subjective-answer-entered="subjectiveAnswerUpdated"
         @numerical-answer-entered="numericalAnswerUpdated"
@@ -248,6 +249,10 @@ export default defineComponent({
     displaySolution: {
       type: Boolean,
       default: true
+    },
+    areAllQuestionsRequired: {
+      type: Boolean,
+      default: false
     }
   },
   setup(props, context) {

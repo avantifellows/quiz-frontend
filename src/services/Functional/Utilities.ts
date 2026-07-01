@@ -68,6 +68,43 @@ export function resetConfetti() {
   }
 }
 
+export function isQuestionResponseComplete(
+  questionDetail: Question,
+  userAnswer: submittedAnswer
+): boolean {
+  if (userAnswer == null) return false;
+
+  if (questionDetail.type == "subjective") {
+    return typeof userAnswer == "string" && userAnswer.trim() != "";
+  }
+
+  if (
+    questionDetail.type == "numerical-integer" ||
+    questionDetail.type == "numerical-float"
+  ) {
+    return typeof userAnswer == "number";
+  }
+
+  if (
+    questionDetail.type == "matrix-rating" ||
+    questionDetail.type == "matrix-numerical" ||
+    questionDetail.type == "matrix-subjective"
+  ) {
+    if (typeof userAnswer != "object" || Array.isArray(userAnswer)) return false;
+    const matrixRows = questionDetail.matrix_rows || [];
+    if (matrixRows.length == 0) return false;
+    if (questionDetail.type == "matrix-subjective") {
+      const filledRows = Object.entries(userAnswer).filter(([, val]) => {
+        return typeof val == "string" && val.trim() != "";
+      });
+      return filledRows.length == matrixRows.length;
+    }
+    return Object.keys(userAnswer).length == matrixRows.length;
+  }
+
+  return Array.isArray(userAnswer) && userAnswer.length > 0;
+}
+
 /**
  * Given a question and its corresponding answer, this method checks if the answer is correct.
  * If the question is ungraded, the method returns that the evaluation is invalid.

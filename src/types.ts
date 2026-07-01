@@ -227,6 +227,7 @@ export interface QuizAPIResponse {
   review_immediate?: boolean;
   show_scores?: boolean;
   display_solution?: boolean;
+  require_all_questions?: boolean;
   question_sets: QuestionSet[];
 }
 
