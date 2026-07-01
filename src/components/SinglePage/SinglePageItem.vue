@@ -7,7 +7,10 @@
         <p class="text-lg md:text-xl font-bold mb-2" data-test="question-header-text">
           {{ questionHeaderText }}
         </p>
-        <p v-if="questionText" class="text-base md:text-lg mb-2 leading-relaxed whitespace-pre-wrap" v-html="questionText" v-lazy-images></p>
+        <div v-if="questionText" class="text-base md:text-lg mb-2 leading-relaxed whitespace-pre-wrap" v-lazy-images>
+          <span v-html="questionText"></span>
+          <span v-if="isRequiredQuestion" class="ml-1 text-red-600 font-bold" aria-label="Required question">*</span>
+        </div>
       </div>
       <!-- Question image if present -->
       <div v-if="questionImage && questionImage.url" class="mb-4 flex justify-center">
@@ -1024,6 +1027,10 @@ export default defineComponent({
     difficultyBadgeClass: {
       type: String,
       default: null,
+    },
+    isRequiredQuestion: {
+      type: Boolean,
+      default: false,
     },
   },
   setup(props, context) {

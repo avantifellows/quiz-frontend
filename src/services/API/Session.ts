@@ -33,6 +33,8 @@ export default {
     } catch (error: any) {
       if (error.code == 'ECONNABORTED') {
         return { status: 500 }; // request timeout
+      } else if (error.response?.status != null) {
+        return { status: error.response.status, data: error.response.data };
       } else {
         return { status: 400 }; // bad request
       }

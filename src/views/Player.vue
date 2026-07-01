@@ -66,6 +66,7 @@
         :maxMarks="maxMarks"
         :showFullText="showFullText"
         :displaySolution="displaySolution"
+        :areAllQuestionsRequired="areAllQuestionsRequired"
         v-model:currentQuestionIndex="currentQuestionIndex"
         v-model:responses="responses"
         v-model:previousOmrResponses="previousOmrResponses"
@@ -99,6 +100,7 @@
         :testFormat="metadata.test_format || ''"
         :maxMarks="maxMarks"
         :questionOrder="questionOrder"
+        :areAllQuestionsRequired="areAllQuestionsRequired"
         v-model:shuffledQuestionIndex="shuffledQuestionIndex"
         v-model:currentQuestionIndex="currentQuestionIndex"
         v-model:responses="responses"
@@ -160,7 +162,7 @@ import QuestionModal from "../components/Questions/QuestionModal.vue";
 import SinglePageModal from "../components/SinglePage/SinglePageModal.vue"
 import Splash from "../components/Splash.vue";
 import Scorecard from "../components/Scorecard.vue";
-import { resetConfetti, isQuestionAnswerCorrect, isQuestionFetched, createQuestionBuckets } from "../services/Functional/Utilities";
+import { resetConfetti, isQuestionAnswerCorrect, isQuestionFetched, createQuestionBuckets, isQuestionResponseComplete } from "../services/Functional/Utilities";
 import QuizAPIService from "../services/API/Quiz";
 import FormAPIService from "../services/API/Form";
 import SessionAPIService from "../services/API/Session";
@@ -281,6 +283,7 @@ export default defineComponent({
       quizLoadedWithAnswers: false, // whether last quiz fetch included correct_answer/solution
       displaySolution: true as boolean, // whether solutions to each question should be displayed
       showScores: true as boolean, // whether we should show scores after quiz has ended
+      requireAllQuestions: false as boolean,
       sessionEndTimeText: "", // session end time in text if available
       sessionId: "", // id of the session created for a user-quiz combination
       isSessionAnswerRequestProcessing: false, // whether session answer api request is processing
@@ -307,6 +310,8 @@ export default defineComponent({
 
     const isFormQuiz = computed(() => state.metadata.quiz_type == "form");
 
+    const areAllQuestionsRequired = computed(() => isFormQuiz.value && state.requireAllQuestions);
+
     const showFullText = computed(() => !isOmrMode.value && props.singlePageMode);
 
     const singlePageHeaderText = computed(() => {
@@ -320,6 +325,29 @@ export default defineComponent({
       if (isQuizAssessment.value == false) return "homework";
       return isOmrMode.value ? "omr-assessment" : "assessment";
     });
+
+    function displayIndexForQuestionPosition(positionIndex: number) {
+      if (isOmrMode.value) return positionIndex;
+      const displayIndex = state.questionOrder.indexOf(positionIndex);
+      return displayIndex == -1 ? positionIndex : displayIndex;
+    }
+
+    function navigateToIncompleteQuestion(positionIndex: number) {
+      const displayIndex = displayIndexForQuestionPosition(positionIndex);
+      state.currentQuestionIndex = displayIndex;
+    }
+
+    function showIncompleteRequiredQuestionWarning(positionIndex: number) {
+      state.toast.warning(
+        `Please answer all required questions before submitting. Question ${displayIndexForQuestionPosition(positionIndex) + 1} is incomplete.`,
+        {
+          position: POSITION.TOP_CENTER,
+          timeout: 7000,
+          draggablePercent: 0.4
+        }
+      );
+      navigateToIncompleteQuestion(positionIndex);
+    }
 
     // const shouldShowOmrToggle = computed(() => state.metadata.quiz_type == "assessment")
     const shouldShowOmrToggle = computed(() => false)
@@ -692,6 +720,7 @@ export default defineComponent({
       state.title = quizDetails.title;
       state.displaySolution = quizDetails?.display_solution ?? true;
       state.showScores = quizDetails?.show_scores ?? true;
+      state.requireAllQuestions = quizDetails?.require_all_questions ?? false;
 
       if (enableBucketing) {
         createQuestionBuckets(totalQuestionsInEachSet);
@@ -945,6 +974,14 @@ export default defineComponent({
         return;
       }
 
+      const incompleteQuestionIndex = state.questions.findIndex((question, idx) => {
+        return !isQuestionResponseComplete(question, state.responses[idx]?.answer ?? null);
+      });
+      if (areAllQuestionsRequired.value && incompleteQuestionIndex != -1) {
+        showIncompleteRequiredQuestionWarning(incompleteQuestionIndex);
+        return;
+      }
+
       state.isSessionAnswerRequestProcessing = true;
       stoptimeSpentOnQuestionCalc();
 
@@ -985,6 +1022,13 @@ export default defineComponent({
       };
       const endSessionResponse = await SessionAPIService.updateSession(state.sessionId, payload);
       if (endSessionResponse.status != 200) {
+        const missingPositions = endSessionResponse.data?.detail?.missing_positions;
+        if (areAllQuestionsRequired.value && Array.isArray(missingPositions) && missingPositions.length > 0) {
+          showIncompleteRequiredQuestionWarning(missingPositions[0]);
+          state.isComputingScore = false;
+          state.isSessionAnswerRequestProcessing = false;
+          return;
+        }
         state.toast.error(
           'Unable to complete test submission due to poor connection. Please retry "End Test" to complete.',
           {
@@ -1306,6 +1350,7 @@ export default defineComponent({
       isSplashShown,
       isQuizAssessment,
       isFormQuiz,
+      areAllQuestionsRequired,
       scorecardMetrics,
       scorecardProgress,
       numQuestionsAnswered,
