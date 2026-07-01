@@ -227,6 +227,7 @@ export interface QuizAPIResponse {
   review_immediate?: boolean;
   show_scores?: boolean;
   display_solution?: boolean;
+  require_all_questions?: boolean;
   question_sets: QuestionSet[];
 }
 
@@ -284,6 +285,10 @@ export interface UpdateSessionAPIPayload {
 export interface UpdateSessionAPIResponse {
   time_remaining?: number; // how much time is remaining for quiz to complete
   metrics?: SessionMetricsPayload | null;
+  detail?: {
+    message?: string;
+    missing_positions?: number[];
+  };
 }
 
 export interface SessionAnswerAPIResponse {
