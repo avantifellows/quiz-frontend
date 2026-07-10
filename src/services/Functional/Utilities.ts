@@ -201,6 +201,26 @@ export function isQuestionAnswerCorrect(
         } else {
           answerEvaluation.isCorrect = false;
         }
+      } else if (questionDetail.type == "matrix-subjective-grid") {
+        if (
+          userAnswer &&
+          typeof userAnswer === "object" &&
+          !Array.isArray(userAnswer)
+        ) {
+          const hasResponse = Object.values(userAnswer).some((row) => {
+            return (
+              row &&
+              typeof row === "object" &&
+              !Array.isArray(row) &&
+              Object.values(row).some(
+                (val) => typeof val === "string" && val.trim() !== ""
+              )
+            );
+          });
+          answerEvaluation.isCorrect = hasResponse;
+        } else {
+          answerEvaluation.isCorrect = false;
+        }
       } else if (
         questionDetail.type == "subjective" &&
         typeof userAnswer == "string" &&
@@ -238,7 +258,7 @@ export function isQuestionAnswerCorrect(
       // For ungraded questions, still mark as answered even if format is invalid
       answerEvaluation.answered = true;
     } else if (
-      (questionDetail.type == "matrix-rating" || questionDetail.type == "matrix-numerical" || questionDetail.type == "matrix-subjective") &&
+      (questionDetail.type == "matrix-rating" || questionDetail.type == "matrix-numerical" || questionDetail.type == "matrix-subjective" || questionDetail.type == "matrix-subjective-grid") &&
       userAnswer != null &&
       typeof userAnswer == "object" &&
       !Array.isArray(userAnswer) &&

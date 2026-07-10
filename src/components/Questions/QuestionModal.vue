@@ -39,6 +39,7 @@
         :maxCharLimit="currentQuestion.max_char_limit"
         :matrixSize="currentQuestion.matrix_size"
         :matrixRows="currentQuestion.matrix_rows"
+        :matrixColumns="currentQuestion.matrix_columns"
         :isPortrait="isPortrait"
         :imageData="currentQuestion?.image"
         :difficulty="currentQuestion.metadata?.difficulty_label || currentQuestion.metadata?.difficulty"
@@ -72,6 +73,7 @@
         @matrix-option-selected="matrixOptionSelected"
         @matrix-numerical-updated="matrixNumericalUpdated"
         @matrix-subjective-updated="matrixSubjectiveUpdated"
+        @matrix-subjective-grid-updated="matrixSubjectiveGridUpdated"
         @navigate="navigateToQuestion"
         :key="reRenderKey"
         data-test="body"
@@ -514,6 +516,10 @@ To attempt Q.${props.currentQuestionIndex + 1}, unselect an answer to another qu
       state.draftResponses[state.localShuffledQuestionIndex] = Object.keys(currentDraft).length > 0 ? currentDraft : null;
     }
 
+    function matrixSubjectiveGridUpdated(answer: Record<string, Record<string, string>> | null) {
+      state.draftResponses[state.localShuffledQuestionIndex] = answer;
+    }
+
     function endTest() {
       if (!props.hasQuizEnded && state.hasEndTestBeenClickedOnce) {
         let attemptedQuestions = 0;
@@ -600,6 +606,9 @@ For final submission, click the End Test button again.`,
     const isQuestionTypeMatrixSubjective = computed(
       () => questionType.value == "matrix-subjective"
     )
+    const isQuestionTypeMatrixSubjectiveGrid = computed(
+      () => questionType.value == "matrix-subjective-grid"
+    )
 
     const currentQuestionResponse = computed(
       () => props.responses[state.localShuffledQuestionIndex]
@@ -661,6 +670,19 @@ For final submission, click the End Test button again.`,
         const answeredRows = Object.keys(currentDraftResponse);
         return answeredRows.length === matrixRows.length;
       }
+      if (isQuestionTypeMatrixSubjectiveGrid.value) {
+        if (typeof currentDraftResponse !== 'object' || currentDraftResponse === null || Array.isArray(currentDraftResponse)) {
+          return false;
+        }
+        return Object.values(currentDraftResponse).some((row) => {
+          return (
+            typeof row === "object" &&
+            row !== null &&
+            !Array.isArray(row) &&
+            Object.values(row).some((val) => typeof val === "string" && val.trim() !== "")
+          );
+        });
+      }
       return Array.isArray(currentDraftResponse) && currentDraftResponse.length > 0
     })
 
@@ -713,6 +735,7 @@ For final submission, click the End Test button again.`,
       matrixOptionSelected,
       matrixNumericalUpdated,
       matrixSubjectiveUpdated,
+      matrixSubjectiveGridUpdated,
       clearAnswer,
       markForReviewQuestion,
       endTest,
@@ -732,6 +755,7 @@ For final submission, click the End Test button again.`,
       optionalLimitReached,
       numericalAnswerUpdated,
       isQuestionTypeMatrixSubjective,
+      isQuestionTypeMatrixSubjectiveGrid,
       timeLimitWarningThreshold,
       displayTimeLimitWarning
     }
