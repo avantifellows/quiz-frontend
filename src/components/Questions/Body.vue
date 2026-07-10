@@ -125,7 +125,7 @@
           </div>
           <!-- answer display -->
           <div
-            v-if="hasQuizEnded && !isFormQuiz"
+            v-if="hasQuizEnded && !isFormQuiz && correctAnswer != null"
             class="px-2 text-lg mt-2"
             data-test="subjectiveCorrectAnswer"
           >
@@ -153,7 +153,7 @@
           ></Textarea>
           <!-- answer display -->
           <div
-            v-if="hasQuizEnded && !isFormQuiz"
+            v-if="hasQuizEnded && !isFormQuiz && correctAnswer != null"
             class="px-2 text-lg mt-2"
             data-test="numericalCorrectAnswer"
           >
@@ -251,7 +251,7 @@
           </ul>
           <!-- answer display -->
           <div
-            v-if="hasQuizEnded && !isFormQuiz"
+            v-if="hasQuizEnded && !isFormQuiz && correctAnswer != null"
             class="px-2 text-lg mt-2"
             data-test="matrixMatchCorrectAnswer"
           >
@@ -375,7 +375,7 @@
           </div>
           <!-- answer display -->
           <div
-            v-if="hasQuizEnded && !isFormQuiz"
+            v-if="hasQuizEnded && !isFormQuiz && correctAnswer != null"
             class="px-2 text-lg mt-2"
             data-test="matrixRatingCorrectAnswer"
           >
@@ -460,7 +460,7 @@
           </div>
           <!-- answer display -->
           <div
-            v-if="hasQuizEnded && !isFormQuiz"
+            v-if="hasQuizEnded && !isFormQuiz && correctAnswer != null"
             class="px-2 text-lg mt-2"
             data-test="matrixNumericalCorrectAnswer"
           >
@@ -1321,36 +1321,42 @@ export default defineComponent({
       "bp-420:h-16 sm:h-20 md:h-24 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed",
     ]);
 
-    const numericalAnswerBoxStyling = computed(() => [
-      {
-        "text-green-500 border-green-500":
-          ((props.submittedAnswer == props.correctAnswer &&
-            isQuestionTypeNumericalInteger.value) ||
-            (typeof props.submittedAnswer == "number" &&
-              typeof props.correctAnswer == "number" &&
-              Math.abs(props.submittedAnswer - props.correctAnswer) < 0.05 &&
-              isQuestionTypeNumericalFloat.value)) &&
-          props.isAnswerSubmitted &&
-          props.isGradedQuestion &&
-          (!isQuizAssessment.value ||
-            (isQuizAssessment.value && props.hasQuizEnded)),
-        "text-red-500 border-red-400":
-          ((props.submittedAnswer != props.correctAnswer &&
-            isQuestionTypeNumericalInteger.value) ||
-            (typeof props.submittedAnswer == "number" &&
-              typeof props.correctAnswer == "number" &&
-              Math.abs(props.submittedAnswer - props.correctAnswer) >= 0.05 &&
-              isQuestionTypeNumericalFloat.value)) &&
-          props.isAnswerSubmitted &&
-          props.isGradedQuestion &&
-          (!isQuizAssessment.value ||
-            (isQuizAssessment.value && props.hasQuizEnded)),
-        "bg-gray-100":
-          (props.isAnswerSubmitted && !props.isGradedQuestion) ||
-          (isQuizAssessment.value && !props.hasQuizEnded),
-      },
-      "h-12 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed",
-    ]);
+    const numericalAnswerBoxStyling = computed(() => {
+      // skip correctness styling when correct_answer isn't available
+      const hasAnswer = props.correctAnswer !== undefined && props.correctAnswer !== null;
+      return [
+        {
+          "text-green-500 border-green-500":
+            hasAnswer &&
+            ((props.submittedAnswer == props.correctAnswer &&
+              isQuestionTypeNumericalInteger.value) ||
+              (typeof props.submittedAnswer == "number" &&
+                typeof props.correctAnswer == "number" &&
+                Math.abs(props.submittedAnswer - props.correctAnswer) < 0.05 &&
+                isQuestionTypeNumericalFloat.value)) &&
+            props.isAnswerSubmitted &&
+            props.isGradedQuestion &&
+            (!isQuizAssessment.value ||
+              (isQuizAssessment.value && props.hasQuizEnded)),
+          "text-red-500 border-red-400":
+            hasAnswer &&
+            ((props.submittedAnswer != props.correctAnswer &&
+              isQuestionTypeNumericalInteger.value) ||
+              (typeof props.submittedAnswer == "number" &&
+                typeof props.correctAnswer == "number" &&
+                Math.abs(props.submittedAnswer - props.correctAnswer) >= 0.05 &&
+                isQuestionTypeNumericalFloat.value)) &&
+            props.isAnswerSubmitted &&
+            props.isGradedQuestion &&
+            (!isQuizAssessment.value ||
+              (isQuizAssessment.value && props.hasQuizEnded)),
+          "bg-gray-100":
+            (props.isAnswerSubmitted && !props.isGradedQuestion) ||
+            (isQuizAssessment.value && !props.hasQuizEnded),
+        },
+        "h-12 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed",
+      ];
+    });
 
     state.subjectiveAnswer = defaultSubjectiveAnswer.value;
     state.numericalAnswer = defaultNumericalAnswer.value;

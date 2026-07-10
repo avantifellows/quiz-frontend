@@ -126,6 +126,18 @@ export function isQuestionAnswerCorrect(
     answered: false,
   } as answerEvaluation;
 
+  // correct_answer is omitted by backend during active attempts;
+  // can't evaluate correctness without it
+  if (
+    questionDetail.correct_answer === undefined ||
+    questionDetail.correct_answer === null
+  ) {
+    if (userAnswer != null) {
+      answerEvaluation.answered = true;
+    }
+    return answerEvaluation;
+  }
+
   if (questionDetail.graded) {
     answerEvaluation.valid = true;
 
