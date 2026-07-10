@@ -195,12 +195,7 @@ router.beforeEach(async (to) => {
 
     const userIdFromQuery = getQueryValue(to.query.userId);
 
-    // If userId is in URL, it must be whitelisted
-    if (userIdFromQuery && !ALLOWED_TEST_USER_IDS.includes(userIdFromQuery)) {
-      return { name: "403" };
-    }
-
-    // Allow whitelisted test users without checking tokens
+    // Test user IDs bypass portal auth entirely
     if (userIdFromQuery && ALLOWED_TEST_USER_IDS.includes(userIdFromQuery)) {
       return;
     }
