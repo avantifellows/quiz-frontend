@@ -579,8 +579,12 @@ export default defineComponent({
           state.sessionId,
           payload
         );
-        if (response.status == 200 && response.data?.time_remaining == 0) {
-          endTest()
+        if (response.status == 200 && response.data?.time_remaining != null) {
+          if (response.data.time_remaining == 0) {
+            endTest()
+          } else {
+            state.timeRemaining = response.data.time_remaining
+          }
         }
 
         // updates time spent on question for homeworks and assessments
