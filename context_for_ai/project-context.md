@@ -37,7 +37,7 @@ This is the **Quiz Frontend** for [Avanti Fellows](https://avantifellows.org/), 
 | `omrMode` | Optional. `true` to display in OMR/bubble-sheet mode. |
 | `singlePageMode` | Optional. `true` to show all questions on one page with full text. |
 | `autoStart` | Optional. `true` to skip the splash screen and start immediately. |
-| `new_backend` | Optional. When present (any value), routes API calls to the ECS backend instead of the default Lambda backend. Requires `VUE_APP_BACKEND_ECS` env var to be set. |
+| `new_backend` | (deprecated) Previously used for routing to an alternate ECS backend; not used in the current codebase. |
 
 ---
 
@@ -121,7 +121,7 @@ quiz-frontend/
 │   │   └── index.ts            # Vuex store (spinner, bucketing, locale)
 │   ├── services/
 │   │   ├── API/
-│   │   │   ├── RootClient.ts   # Axios client factory (default + ECS backend)
+│   │   │   ├── RootClient.ts   # Axios client factory (backend API client)
 │   │   │   ├── Endpoints.ts    # API endpoint constants
 │   │   │   ├── Quiz.ts         # Quiz API (getQuiz)
 │   │   │   ├── Form.ts         # Form API (getForm)
@@ -230,15 +230,11 @@ timeSpentOnQuestion: TimeSpentEntry[]  // per-question time tracking
 qsetMetrics: QuestionSetMetric[] // per-question-set scoring metrics
 ```
 
-### `src/services/API/RootClient.ts` - Dual Backend Support
+### `src/services/API/RootClient.ts` - Axios client factory
 
-Creates two Axios instances: one for the default backend (Lambda, `VUE_APP_BACKEND`) and one for the ECS backend (`VUE_APP_BACKEND_ECS`). The `apiClient()` function checks for `?new_backend` in the URL to decide which client to use. This allows A/B testing between backend implementations.
+Creates the Axios instance used for all API calls. The `apiClient()` function returns the configured Axios client (using `VUE_APP_BACKEND`), which is used across the service layer to make requests to the backend API.
 
-```typescript
-export function apiClient(): AxiosInstance {
-  return useEcsBackend() ? ecsClient! : defaultClient;
-}
-```
+Note: historical references to a secondary ECS backend and runtime switching were removed from the codebase; the repository currently uses a single backend client.
 
 ### `src/services/Functional/Utilities.ts` - Answer Evaluation
 
@@ -382,7 +378,7 @@ npm run serve
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `VUE_APP_BACKEND` | Default backend API URL | `http://127.0.0.1:8001` |
-| `VUE_APP_BACKEND_ECS` | Optional ECS backend URL. When set, `?new_backend=true` query param routes calls here | (empty) |
+<!-- `VUE_APP_BACKEND_ECS` was removed; runtime dual-backend switching is not used -->
 
 ### Common Commands
 
