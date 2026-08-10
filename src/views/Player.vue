@@ -575,37 +575,42 @@ export default defineComponent({
         const payload: UpdateSessionAPIPayload = {
           event: eventType.DUMMY_EVENT
         }
-        const response = await SessionAPIService.updateSession(
-          state.sessionId,
-          payload
-        );
-        if (response.status == 200 && response.data?.time_remaining == 0) {
-          endTest()
-        }
 
-        // updates time spent on question for homeworks and assessments
-        // this syncs state.timeSpentOnQuestion[] array with backend periodically
-        // for array elements that haven't been synced yet
+        // Fold the periodic time-spent sync into the SAME request as the dummy event, so the
+        // 20s heartbeat is a single API call + single backend write instead of two.
+        // Collect per-question time_spent for entries not yet synced.
+        // (OMR mode has no reliable per-question timing, so it sends the event only.)
         // useful when network is off or window is closed midway during a question
+        let syncedPositions: number[] = [];
         if (!isOmrMode.value) {
-          const responseAnswersWithPositions: UpdateSessionAnswersAtSpecificPositionsAPIPayload = [];
+          const answerUpdates: UpdateSessionAnswersAtSpecificPositionsAPIPayload = [];
           for (let idx = 0; idx < state.timeSpentOnQuestion.length; idx++) {
             if (state.timeSpentOnQuestion[idx].hasSynced == true) continue;
-            responseAnswersWithPositions.push([
+            answerUpdates.push([
               idx,
               {
                 time_spent: state.timeSpentOnQuestion[idx].timeSpent
               }
             ]);
           }
-          if (responseAnswersWithPositions.length > 0) {
-            await SessionAPIService.updateSessionAnswersAtSpecificPositions(
-              state.sessionId,
-              responseAnswersWithPositions
-            );
-            for (const [idx] of responseAnswersWithPositions) {
-              state.timeSpentOnQuestion[idx].hasSynced = true;
-            }
+          if (answerUpdates.length > 0) {
+            payload.answer_updates = answerUpdates;
+            syncedPositions = answerUpdates.map(([idx]) => idx);
+          }
+        }
+
+        const response = await SessionAPIService.updateSession(
+          state.sessionId,
+          payload
+        );
+        if (response.status == 200) {
+          // Only mark synced once the combined write actually succeeded; otherwise these
+          // entries stay unsynced and are retried on the next tick.
+          for (const idx of syncedPositions) {
+            state.timeSpentOnQuestion[idx].hasSynced = true;
+          }
+          if (response.data?.time_remaining == 0) {
+            endTest()
           }
         }
       }
