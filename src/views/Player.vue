@@ -581,21 +581,21 @@ export default defineComponent({
         // Collect per-question time_spent for entries not yet synced.
         // (OMR mode has no reliable per-question timing, so it sends the event only.)
         // useful when network is off or window is closed midway during a question
-        let syncedPositions: number[] = [];
+        // Remember the exact time_spent we send per position. The 1s timer keeps incrementing
+        // the current question while this request is in flight, so we compare after the
+        // response and only mark a position synced if it hasn't advanced — otherwise those
+        // mid-flight seconds would be dropped.
+        const sentTimeSpent = new Map<number, number>();
         if (!isOmrMode.value) {
           const answerUpdates: UpdateSessionAnswersAtSpecificPositionsAPIPayload = [];
           for (let idx = 0; idx < state.timeSpentOnQuestion.length; idx++) {
             if (state.timeSpentOnQuestion[idx].hasSynced == true) continue;
-            answerUpdates.push([
-              idx,
-              {
-                time_spent: state.timeSpentOnQuestion[idx].timeSpent
-              }
-            ]);
+            const timeSpent = state.timeSpentOnQuestion[idx].timeSpent;
+            answerUpdates.push([idx, { time_spent: timeSpent }]);
+            sentTimeSpent.set(idx, timeSpent);
           }
           if (answerUpdates.length > 0) {
             payload.answer_updates = answerUpdates;
-            syncedPositions = answerUpdates.map(([idx]) => idx);
           }
         }
 
@@ -604,10 +604,14 @@ export default defineComponent({
           payload
         );
         if (response.status == 200) {
-          // Only mark synced once the combined write actually succeeded; otherwise these
-          // entries stay unsynced and are retried on the next tick.
-          for (const idx of syncedPositions) {
-            state.timeSpentOnQuestion[idx].hasSynced = true;
+          // Mark a position synced only if the combined write succeeded AND no further time
+          // accumulated while the request was in flight. If the 1s timer advanced timeSpent
+          // mid-request, leave it unsynced so the next tick sends the newer value instead of
+          // silently dropping those seconds.
+          for (const [idx, sent] of sentTimeSpent) {
+            if (state.timeSpentOnQuestion[idx].timeSpent === sent) {
+              state.timeSpentOnQuestion[idx].hasSynced = true;
+            }
           }
           if (response.data?.time_remaining == 0) {
             endTest()
