@@ -616,6 +616,17 @@ export default defineComponent({
           if (response.data?.time_remaining == 0) {
             endTest()
           }
+        } else if (payload.answer_updates) {
+          const eventOnlyResponse = await SessionAPIService.updateSession(
+            state.sessionId,
+            { event: eventType.DUMMY_EVENT }
+          );
+          if (
+            eventOnlyResponse.status == 200 &&
+            eventOnlyResponse.data?.time_remaining == 0
+          ) {
+            endTest()
+          }
         }
       }
     };
