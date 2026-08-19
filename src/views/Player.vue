@@ -575,37 +575,57 @@ export default defineComponent({
         const payload: UpdateSessionAPIPayload = {
           event: eventType.DUMMY_EVENT
         }
+
+        // Fold the periodic time-spent sync into the SAME request as the dummy event, so the
+        // 20s heartbeat is a single API call + single backend write instead of two.
+        // Collect per-question time_spent for entries not yet synced.
+        // (OMR mode has no reliable per-question timing, so it sends the event only.)
+        // useful when network is off or window is closed midway during a question
+        // Remember the exact time_spent we send per position. The 1s timer keeps incrementing
+        // the current question while this request is in flight, so we compare after the
+        // response and only mark a position synced if it hasn't advanced — otherwise those
+        // mid-flight seconds would be dropped.
+        const sentTimeSpent = new Map<number, number>();
+        if (!isOmrMode.value) {
+          const answerUpdates: UpdateSessionAnswersAtSpecificPositionsAPIPayload = [];
+          for (let idx = 0; idx < state.timeSpentOnQuestion.length; idx++) {
+            if (state.timeSpentOnQuestion[idx].hasSynced == true) continue;
+            const timeSpent = state.timeSpentOnQuestion[idx].timeSpent;
+            answerUpdates.push([idx, { time_spent: timeSpent }]);
+            sentTimeSpent.set(idx, timeSpent);
+          }
+          if (answerUpdates.length > 0) {
+            payload.answer_updates = answerUpdates;
+          }
+        }
+
         const response = await SessionAPIService.updateSession(
           state.sessionId,
           payload
         );
-        if (response.status == 200 && response.data?.time_remaining == 0) {
-          endTest()
-        }
-
-        // updates time spent on question for homeworks and assessments
-        // this syncs state.timeSpentOnQuestion[] array with backend periodically
-        // for array elements that haven't been synced yet
-        // useful when network is off or window is closed midway during a question
-        if (!isOmrMode.value) {
-          const responseAnswersWithPositions: UpdateSessionAnswersAtSpecificPositionsAPIPayload = [];
-          for (let idx = 0; idx < state.timeSpentOnQuestion.length; idx++) {
-            if (state.timeSpentOnQuestion[idx].hasSynced == true) continue;
-            responseAnswersWithPositions.push([
-              idx,
-              {
-                time_spent: state.timeSpentOnQuestion[idx].timeSpent
-              }
-            ]);
-          }
-          if (responseAnswersWithPositions.length > 0) {
-            await SessionAPIService.updateSessionAnswersAtSpecificPositions(
-              state.sessionId,
-              responseAnswersWithPositions
-            );
-            for (const [idx] of responseAnswersWithPositions) {
+        if (response.status == 200) {
+          // Mark a position synced only if the combined write succeeded AND no further time
+          // accumulated while the request was in flight. If the 1s timer advanced timeSpent
+          // mid-request, leave it unsynced so the next tick sends the newer value instead of
+          // silently dropping those seconds.
+          for (const [idx, sent] of sentTimeSpent) {
+            if (state.timeSpentOnQuestion[idx].timeSpent === sent) {
               state.timeSpentOnQuestion[idx].hasSynced = true;
             }
+          }
+          if (response.data?.time_remaining == 0) {
+            endTest()
+          }
+        } else if (payload.answer_updates) {
+          const eventOnlyResponse = await SessionAPIService.updateSession(
+            state.sessionId,
+            { event: eventType.DUMMY_EVENT }
+          );
+          if (
+            eventOnlyResponse.status == 200 &&
+            eventOnlyResponse.data?.time_remaining == 0
+          ) {
+            endTest()
           }
         }
       }

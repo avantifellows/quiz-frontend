@@ -63,7 +63,8 @@ export default {
 
   /**
    * @param {string} sessionId - id of the session to be updated
-   * @param {UpdateSessionAPIPayload} payload - contains start/resume/end event information
+   * @param {UpdateSessionAPIPayload} payload - the event (start/resume/end/dummy) plus optional
+   *   answer_updates folded onto the same request (per-question time_spent sent with the heartbeat)
    * @returns {Promise<{status: number, data?: UpdateSessionAPIResponse}>} response status and data
    */
   async updateSession(
