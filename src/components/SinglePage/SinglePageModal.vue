@@ -40,6 +40,7 @@
                 :maxCharLimit="$props.questions[questionState.index].max_char_limit"
                 :matrixSize="$props.questions[questionState.index].matrix_size"
                 :matrixRows="$props.questions[questionState.index].matrix_rows"
+                :matrixColumns="$props.questions[questionState.index].matrix_columns"
                 :isPortrait="isPortrait"
                 :quizType="quizType"
                 :hasQuizEnded="hasQuizEnded"
@@ -60,6 +61,7 @@
                 @matrix-option-selected="matrixOptionSelected"
                 @matrix-numerical-updated="matrixNumericalUpdated"
                 @matrix-subjective-updated="matrixSubjectiveUpdated"
+                @matrix-subjective-grid-updated="matrixSubjectiveGridUpdated"
                 :key="questionState.index"
                 :data-test="`SinglePageItem-${questionState.index}`"
                 :ref="`singlepageitem-${questionState.index}`"></SinglePageItem>
@@ -364,6 +366,13 @@ export default defineComponent({
       context.emit("submit-omr-question", newQuestionIndex);
     }
 
+    function matrixSubjectiveGridUpdated(answer: Record<string, Record<string, string>> | null, newQuestionIndex: number) {
+      updateQuestionIndex(newQuestionIndex);
+      state.previousLocalResponses[newQuestionIndex] = clonedeep(state.localResponses[state.localCurrentQuestionIndex]);
+      state.localResponses[state.localCurrentQuestionIndex].answer = answer
+      context.emit("submit-omr-question", newQuestionIndex);
+    }
+
     function endTest() {
       if (!props.hasQuizEnded && state.hasEndTestBeenClickedOnce) {
         let attemptedQuestions = 0;
@@ -450,10 +459,20 @@ export default defineComponent({
       if (isQuestionTypeNumericalInteger.value || isQuestionTypeNumericalFloat.value) {
         return true
       }
-      // Handle matrix questions (matrix-rating, matrix-numerical, and matrix-subjective)
-      if (currentQuestion.value?.type === "matrix-rating" || currentQuestion.value?.type === "matrix-numerical" || currentQuestion.value?.type === "matrix-subjective") {
+      // Handle matrix questions (matrix-rating, matrix-numerical, matrix-subjective, and matrix-subjective-grid)
+      if (currentQuestion.value?.type === "matrix-rating" || currentQuestion.value?.type === "matrix-numerical" || currentQuestion.value?.type === "matrix-subjective" || currentQuestion.value?.type === "matrix-subjective-grid") {
         if (typeof currentDraftResponse !== 'object' || currentDraftResponse === null || Array.isArray(currentDraftResponse)) {
           return false;
+        }
+        if (currentQuestion.value?.type === "matrix-subjective-grid") {
+          return Object.values(currentDraftResponse).some((row) => {
+            return (
+              typeof row === "object" &&
+              row !== null &&
+              !Array.isArray(row) &&
+              Object.values(row).some((val) => typeof val === "string" && val.trim() !== "")
+            );
+          });
         }
         // Check if all matrix rows are filled for matrix-based questions
         const matrixRows = currentQuestion.value?.matrix_rows || [];
@@ -573,6 +592,7 @@ export default defineComponent({
       matrixOptionSelected,
       matrixNumericalUpdated,
       matrixSubjectiveUpdated,
+      matrixSubjectiveGridUpdated,
       clearAnswer,
       endTest,
       endTestByTime,

@@ -488,6 +488,20 @@
             </div>
           </div>
         </div>
+        <div
+          v-if="isQuestionTypeMatrixSubjectiveGrid"
+          class="flex flex-col items-center"
+          :class="answerContainerClass"
+          data-test="matrixSubjectiveGridContainer"
+        >
+          <MatrixSubjectiveGridAnswer
+            :rows="matrixRows"
+            :columns="matrixColumns"
+            :answer="matrixSubjectiveGridAnswer"
+            :isDisabled="isAnswerDisabled"
+            @update="updateMatrixSubjectiveGrid"
+          />
+        </div>
       </div>
       <!-- difficulty badge (always shown when present) for full text mode -->
       <div v-if="showFullText && hasQuizEnded && $props.difficulty" class="mx-6 py-2">
@@ -904,6 +918,20 @@
             </table>
           </div>
         </div>
+        <div
+          v-if="isQuestionTypeMatrixSubjectiveGrid"
+          class="flex flex-col items-center"
+          :class="answerContainerClass"
+          data-test="matrixSubjectiveGridContainer"
+        >
+          <MatrixSubjectiveGridAnswer
+            :rows="matrixRows"
+            :columns="matrixColumns"
+            :answer="matrixSubjectiveGridAnswer"
+            :isDisabled="isAnswerDisabled"
+            @update="updateMatrixSubjectiveGrid"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -911,6 +939,7 @@
 
 <script lang="ts">
 import Textarea from "../UI/Text/Textarea.vue";
+import MatrixSubjectiveGridAnswer from "../Questions/MatrixSubjectiveGridAnswer.vue";
 import {
   defineComponent,
   reactive,
@@ -923,7 +952,7 @@ import {
   ref,
 } from "vue";
 
-import { quizType, questionType, DraftResponse } from "@/types"
+import { quizType, questionType, DraftResponse, MatrixSubjectiveGridResponse } from "@/types"
 import { lazyLoadImages } from "@/directives/lazyLoadImages";
 import { queueMathJaxTypeset } from "@/services/Functional/MathJax";
 
@@ -934,6 +963,7 @@ const clonedeep = require("lodash.clonedeep");
 export default defineComponent({
   name: "SinglePageItem",
   components: {
+    MatrixSubjectiveGridAnswer,
     Textarea,
   },
   directives: {
@@ -969,6 +999,10 @@ export default defineComponent({
     },
     /** matrix rows for matrix rating/numerical questions */
     matrixRows: {
+      default: () => [],
+      type: Array,
+    },
+    matrixColumns: {
       default: () => [],
       type: Array,
     },
@@ -1311,6 +1345,11 @@ export default defineComponent({
       );
     }
 
+    function updateMatrixSubjectiveGrid(answer: MatrixSubjectiveGridResponse | null) {
+      state.draftAnswer = answer;
+      context.emit("matrix-subjective-grid-updated", answer, props.currentQuestionIndex);
+    }
+
     function validateMatrixNumericalInput(event: KeyboardEvent) {
       const target = event.target as HTMLInputElement;
       const char = String.fromCharCode(event.which);
@@ -1525,6 +1564,19 @@ export default defineComponent({
     const isQuestionTypeMatrixSubjective = computed(
       () => props.questionType == questionType.MATRIX_SUBJECTIVE
     );
+    const isQuestionTypeMatrixSubjectiveGrid = computed(
+      () => props.questionType == questionType.MATRIX_SUBJECTIVE_GRID
+    );
+    const matrixSubjectiveGridAnswer = computed(() => {
+      if (
+        state.draftAnswer &&
+        typeof state.draftAnswer === "object" &&
+        !Array.isArray(state.draftAnswer)
+      ) {
+        return state.draftAnswer as MatrixSubjectiveGridResponse;
+      }
+      return null;
+    });
 
     // styling class to decide orientation of image + options
     // depending on portrait/landscape orientation
@@ -1788,6 +1840,8 @@ export default defineComponent({
       lastMatrixRatingLabel,
       isQuestionTypeMatrixNumerical,
       isQuestionTypeMatrixSubjective,
+      isQuestionTypeMatrixSubjectiveGrid,
+      matrixSubjectiveGridAnswer,
       getRowLabel,
       getColumnLabel,
       convertMatrixMatchOptionToString,
@@ -1798,6 +1852,7 @@ export default defineComponent({
       updateMatrixNumericalValue,
       getMatrixSubjectiveValue,
       updateMatrixSubjectiveValue,
+      updateMatrixSubjectiveGrid,
       validateMatrixNumericalInput,
       orientationClass,
       optionInputType,
@@ -1823,6 +1878,7 @@ export default defineComponent({
     "matrix-option-selected",
     "matrix-numerical-updated",
     "matrix-subjective-updated",
+    "matrix-subjective-grid-updated",
     "navigate",
   ],
 });

@@ -532,6 +532,21 @@
             </div>
           </div>
         </div>
+        <!-- Matrix subjective grid answer -->
+        <div
+          v-if="isQuestionTypeMatrixSubjectiveGrid"
+          class="flex flex-col items-center"
+          :class="answerContainerClass"
+          data-test="matrixSubjectiveGridContainer"
+        >
+          <MatrixSubjectiveGridAnswer
+            :rows="matrixRows"
+            :columns="matrixColumns"
+            :answer="matrixSubjectiveGridAnswer"
+            :isDisabled="isAnswerDisabled"
+            @update="updateMatrixSubjectiveGrid"
+          />
+        </div>
       </div>
       <!-- labels -->
       <div
@@ -569,6 +584,7 @@
 
 <script lang="ts">
 import Textarea from "../UI/Text/Textarea.vue";
+import MatrixSubjectiveGridAnswer from "./MatrixSubjectiveGridAnswer.vue";
 import {
   defineComponent,
   reactive,
@@ -590,6 +606,7 @@ import {
   quizTitleType,
   testFormat,
   TimeLimit,
+  MatrixSubjectiveGridResponse,
 } from "@/types";
 
 const MAX_LENGTH_NUMERICAL_CHARACTERS: number = 10; // max length of characters in numerical answer textbox
@@ -597,6 +614,7 @@ const MAX_LENGTH_NUMERICAL_CHARACTERS: number = 10; // max length of characters 
 export default defineComponent({
   components: {
     BaseIcon,
+    MatrixSubjectiveGridAnswer,
     Textarea,
   },
   props: {
@@ -654,6 +672,10 @@ export default defineComponent({
     },
     /** matrix rows for matrix rating/numerical questions */
     matrixRows: {
+      default: () => [],
+      type: Array,
+    },
+    matrixColumns: {
       default: () => [],
       type: Array,
     },
@@ -796,6 +818,7 @@ export default defineComponent({
       [questionType.MATRIX_RATING, questionTypeHeaderText.MATRIX_RATING],
       [questionType.MATRIX_NUMERICAL, questionTypeHeaderText.MATRIX_NUMERICAL],
       [questionType.MATRIX_SUBJECTIVE, questionTypeHeaderText.MATRIX_SUBJECTIVE],
+      [questionType.MATRIX_SUBJECTIVE_GRID, questionTypeHeaderText.MATRIX_SUBJECTIVE_GRID],
     ]);
 
     /** stop the loading spinner when the image has been loaded **/
@@ -963,6 +986,10 @@ export default defineComponent({
       const value = target.value;
       const finalValue = value.trim() === "" ? null : value;
       context.emit("matrix-subjective-updated", row, finalValue);
+    }
+
+    function updateMatrixSubjectiveGrid(answer: MatrixSubjectiveGridResponse | null) {
+      context.emit("matrix-subjective-grid-updated", answer);
     }
 
     function validateMatrixNumericalInput(event: KeyboardEvent) {
@@ -1209,6 +1236,26 @@ export default defineComponent({
     const isQuestionTypeMatrixSubjective = computed(
       () => props.questionType == questionType.MATRIX_SUBJECTIVE
     );
+    const isQuestionTypeMatrixSubjectiveGrid = computed(
+      () => props.questionType == questionType.MATRIX_SUBJECTIVE_GRID
+    );
+    const matrixSubjectiveGridAnswer = computed(() => {
+      if (
+        props.draftAnswer &&
+        typeof props.draftAnswer === "object" &&
+        !Array.isArray(props.draftAnswer)
+      ) {
+        return props.draftAnswer as MatrixSubjectiveGridResponse;
+      }
+      if (
+        props.submittedAnswer &&
+        typeof props.submittedAnswer === "object" &&
+        !Array.isArray(props.submittedAnswer)
+      ) {
+        return props.submittedAnswer as MatrixSubjectiveGridResponse;
+      }
+      return null;
+    });
 
     // styling class to decide orientation of image + options
     // depending on portrait/landscape orientation
@@ -1454,6 +1501,7 @@ export default defineComponent({
       updateMatrixNumericalValue,
       getMatrixSubjectiveValue,
       updateMatrixSubjectiveValue,
+      updateMatrixSubjectiveGrid,
       validateMatrixNumericalInput,
       getRowLabel,
       getColumnLabel,
@@ -1478,6 +1526,8 @@ export default defineComponent({
       lastMatrixRatingLabel,
       isQuestionTypeMatrixNumerical,
       isQuestionTypeMatrixSubjective,
+      isQuestionTypeMatrixSubjectiveGrid,
+      matrixSubjectiveGridAnswer,
       orientationClass,
       optionInputType,
       answerContainerClass,
@@ -1501,6 +1551,7 @@ export default defineComponent({
     "matrix-option-selected",
     "matrix-numerical-updated",
     "matrix-subjective-updated",
+    "matrix-subjective-grid-updated",
     "navigate",
   ],
 });
