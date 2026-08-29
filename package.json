@@ -2,13 +2,19 @@
   "name": "content-set-player",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "build-staging": "vue-cli-service build --mode staging",
     "test:unit": "vue-cli-service test:unit --coverageProvider=v8 --silent",
     "lint": "vue-cli-service lint",
-    "lint:fix": "vue-cli-service lint --fix"
+    "lint:fix": "vue-cli-service lint --fix",
+    "audit:fix": "npm audit fix",
+    "deps:check": "npx npm-check-updates"
   },
   "dependencies": {
     "@types/mathjax": "^0.0.37",

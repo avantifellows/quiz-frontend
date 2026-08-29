@@ -1,5 +1,5 @@
 import store from "@/store/index";
-import { Question, submittedAnswer, CorrectAnswerType, answerEvaluation, QuestionBucketingMap } from "@/types";
+import { Question, submittedAnswer, CorrectAnswerType, answerEvaluation, QuestionBucketingMap, QuizPhase, ValidationResponse } from "@/types";
 const isEqual = require("deep-eql");
 
 /**
@@ -111,6 +111,10 @@ export function isQuestionResponseComplete(
  * If the question is ungraded, the method returns that the evaluation is invalid.
  * For graded questions, it returns whether the question has been answered and if it has been,
  * it also returns whether the answer is correct.
+ *
+ * @deprecated This function performs local answer evaluation, which will be replaced by
+ * server-side validation via POST /validate in a future phase. Currently still used by
+ * the scorecard palette logic in Player.vue. Do not add new call sites.
  *
  * @param {Question} questionDetail - the data corresponding to the question which needs to be checked
  * @param {submittedAnswer} userAnswer - the answer which needs to be evaluated
@@ -299,4 +303,68 @@ export function createQuestionBuckets(totalQuestionsInEachSet: Array<number>) {
   }
 
   store.dispatch("setQuestionBucketMap", questionBucketingMaps)
+}
+
+// ─── Secure Validation Utilities (Phase 1) ─────────────────────────
+
+/**
+ * Formats a score for display.
+ * Score is now tracked server-side; this utility just formats the display.
+ */
+export function formatScore(correct: number, total: number): string {
+  return `${correct} / ${total}`;
+}
+
+/**
+ * Whether the quiz is currently validating an answer against the backend.
+ */
+export function isValidating(phase: QuizPhase): boolean {
+  return phase === "VALIDATING";
+}
+
+/**
+ * Whether the current question has been answered (successfully or with error).
+ */
+export function isAnswered(phase: QuizPhase): boolean {
+  return phase === "ANSWERED" || phase === "VALIDATION_ERROR";
+}
+
+/**
+ * Process a ValidationResponse from the server into a UI-friendly format.
+ * Used by components to determine styling and feedback text.
+ */
+export function processValidationResponse(result: ValidationResponse): {
+  isCorrect: boolean;
+  feedbackText: string;
+  scoreDelta: number;
+} {
+  return {
+    isCorrect: result.correct,
+    feedbackText: result.explanation || (result.correct ? "Correct!" : "Incorrect"),
+    scoreDelta: result.score_delta ?? (result.correct ? 1 : 0),
+  };
+}
+
+/**
+ * Format validation feedback for user-facing display.
+ */
+export function formatValidationFeedback(
+  isCorrect: boolean,
+  explanation?: string
+): string {
+  if (explanation) return explanation;
+  return isCorrect
+    ? "Great job! That's the correct answer."
+    : "That's not quite right. Try reviewing this topic.";
+}
+
+/**
+ * Defensively strips `correct_answer` and `solution` from a question object.
+ * Used as a safety net when the backend might still send answers during active quiz.
+ */
+// eslint-disable-next-line camelcase
+export function stripAnswerData<T extends Record<string, any>>(question: T): Omit<T, 'correct_answer' | 'solution'> {
+  // eslint-disable-next-line camelcase
+  const { correct_answer: _correctAnswer, solution: _solution, ...safeQuestion } = question;
+  return safeQuestion as Omit<T, 'correct_answer' | 'solution'>;
 }

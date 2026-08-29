@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.1.0
+    rev: v4.6.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
@@ -8,8 +8,19 @@ repos:
       - id: check-yaml
       - id: check-merge-conflict
       - id: check-added-large-files
-  - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v2.5.1
+
+  - repo: local
     hooks:
-      - id: prettier
-        types: [javascript]
+      - id: eslint
+        name: ESLint
+        language: node
+        entry: npx eslint --fix
+        types: [file]
+        files: \.(vue|ts|js)$
+
+      - id: jest
+        name: Unit Tests (changed files)
+        language: node
+        entry: npm run test:unit --
+        pass_filenames: false
+        stages: [pre-push]
