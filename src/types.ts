@@ -279,8 +279,21 @@ export interface SessionAPIResponse {
   metrics?: SessionMetricsPayload | null;
 }
 
+export interface UpdateSessionAnswerAPIPayload {
+  answer?: submittedAnswer;
+  visited?: boolean;
+  time_spent?: number; // time spent on question in seconds
+  marked_for_review?: boolean;
+}
+
+export type UpdateSessionAnswersAtSpecificPositionsAPIPayload = [number, UpdateSessionAnswerAPIPayload][];
+
 export interface UpdateSessionAPIPayload {
   event: eventType;
+  // Optional per-question updates (e.g. time_spent) folded into the same request as the
+  // event, so the periodic heartbeat is a single call instead of two. Same shape as the
+  // batch answer endpoint. Omitted => event-only update.
+  answer_updates?: UpdateSessionAnswersAtSpecificPositionsAPIPayload;
 }
 export interface UpdateSessionAPIResponse {
   time_remaining?: number; // how much time is remaining for quiz to complete
@@ -295,19 +308,10 @@ export interface SessionAnswerAPIResponse {
   status: number;
 }
 
-export interface UpdateSessionAnswerAPIPayload {
-  answer?: submittedAnswer;
-  visited?: boolean;
-  time_spent?: number; // time spent on question in seconds
-  marked_for_review?: boolean;
-}
-
 export type TimeSpentEntry = {
   timeSpent: number;
   hasSynced: boolean;
 };
-
-export type UpdateSessionAnswersAtSpecificPositionsAPIPayload = [number, UpdateSessionAnswerAPIPayload][];
 
 export interface answerEvaluation {
   valid: boolean; // whether the evaluation of the question is valid in the first place (invalid for ungraded questions)
