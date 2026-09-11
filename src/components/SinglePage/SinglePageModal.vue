@@ -148,7 +148,8 @@ import {
   nextTick
 } from "vue"
 import {
-  isScreenPortrait
+  isScreenPortrait,
+  isQuestionResponseComplete
 } from "@/services/Functional/Utilities";
 import {
   Question,
@@ -541,7 +542,30 @@ export default defineComponent({
     }
 
     function goToNextSet() {
-      if (!isLastSetPage.value) goToSet(state.currentSetPageIndex + 1);
+      if (isLastSetPage.value) return;
+      if (props.areAllQuestionsRequired) {
+        const paletteItems = props.questionSetStates[state.currentSetPageIndex].paletteItems;
+        const incompleteItem = paletteItems.find(
+          (item) => !isQuestionResponseComplete(
+            props.questions[item.index],
+            state.localResponses[item.index]?.answer ?? null
+          )
+        );
+        if (incompleteItem != null) {
+          state.toast.warning(
+            `Please answer all questions in this section before continuing. Question ${incompleteItem.index + 1} is incomplete.`,
+            {
+              position: POSITION.TOP_CENTER,
+              timeout: 5000,
+              draggablePercent: 0.4
+            }
+          );
+          const questionElement = document.querySelector(`[data-test="SinglePageItem-${incompleteItem.index}"]`);
+          if (questionElement != null) questionElement.scrollIntoView({ block: "start" });
+          return;
+        }
+      }
+      goToSet(state.currentSetPageIndex + 1);
     }
 
     function goToPreviousSet() {
