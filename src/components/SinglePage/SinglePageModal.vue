@@ -19,7 +19,7 @@
           <div class="flex justify-center w-full mx-auto py-4 px-4 pb-24">
             <div class="flex flex-col w-full sm:w-5/6 max-w-4xl bg-white rounded-lg shadow-sm p-2 sm:p-6 mb-12">
               <div
-                v-if="$props.singlePageHeaderText"
+                v-if="$props.singlePageHeaderText && (!isSetPaginationEnabled || currentSetPageIndex === 0)"
                 class="mx-4 mt-2 mb-4 text-lg sm:text-xl whitespace-pre-wrap"
                 data-test="singlePageHeaderText"
               >
