@@ -15,11 +15,12 @@
     />
     <div class="flex flex-col w-full h-full -z-10" :class="{ 'mt-20 mb-20': isQuizAssessment }">
       <div class="h-full">
-        <div class="scroll-container flex flex-col grow bg-indigo-50 w-full justify-between overflow-y-auto" :class="{ 'mt-24': isQuizAssessment }">
+        <div class="scroll-container flex flex-col grow bg-indigo-50 w-full justify-between overflow-y-auto" :class="{ 'mt-24': isQuizAssessment }" ref="scrollContainer">
           <div class="flex justify-center w-full mx-auto py-4 px-4 pb-24">
             <div class="flex flex-col w-full sm:w-5/6 max-w-4xl bg-white rounded-lg shadow-sm p-2 sm:p-6 mb-12">
-              <div v-for="(questionSetState, index) in questionSetStates" :key="index" class="space-y-2 pb-[56px]">
-                <div v-if="shouldShowQuestionSetHeaders" class="bg-gray-300">
+              <div v-for="(questionSetState, index) in questionSetStates" :key="index" class="space-y-2 pb-[56px]"
+                v-show="!isSetPaginationEnabled || index === currentSetPageIndex">
+                <div v-if="questionSetState.title" class="bg-gray-300">
                   <p :class="titleTextClass" :data-test="`questionSetTitle-${index}`">{{ questionSetState.title }}</p>
                 </div>
                 <div
@@ -65,8 +66,44 @@
                 :ref="`singlepageitem-${questionState.index}`"></SinglePageItem>
                 </div>
               </div>
+              <!-- Section navigation for forms paginated by question set -->
+              <div
+                v-if="isSetPaginationEnabled && !hasQuizEnded"
+                class="flex justify-between items-center gap-2 py-8 pb-24 px-2 sm:px-4"
+                data-test="sectionNavigation"
+              >
+                <button
+                  v-if="currentSetPageIndex > 0"
+                  @click="goToPreviousSet"
+                  class="bg-white border border-gray-400 text-gray-700 hover:bg-gray-100 text-lg font-bold py-4 px-8 rounded-2xl shadow-xl"
+                  data-test="previousSectionButton"
+                >
+                  Previous
+                </button>
+                <div v-else></div>
+                <p class="text-slate-500 text-sm sm:text-base" data-test="sectionPageIndicator">
+                  Section {{ currentSetPageIndex + 1 }} of {{ questionSetStates.length }}
+                </p>
+                <button
+                  v-if="!isLastSetPage"
+                  @click="goToNextSet"
+                  class="bg-emerald-500 hover:bg-emerald-600 text-white text-lg font-bold py-4 px-8 rounded-2xl shadow-xl"
+                  data-test="nextSectionButton"
+                >
+                  Next
+                </button>
+                <button
+                  v-else
+                  @click="endTest"
+                  :disabled="isSessionAnswerRequestProcessing"
+                  class="bg-emerald-500 hover:bg-emerald-600 text-white text-lg font-bold py-4 px-8 rounded-2xl shadow-xl disabled:opacity-50 disabled:pointer-events-none"
+                  data-test="submit-button"
+                >
+                  Submit
+                </button>
+              </div>
               <!-- Submit button for non-assessment quizzes (forms/homework) -->
-              <div v-if="!isQuizAssessment && !hasQuizEnded" class="flex justify-center py-8 pb-24">
+              <div v-else-if="!isQuizAssessment && !hasQuizEnded" class="flex justify-center py-8 pb-24">
                 <button
                   @click="endTest"
                   :disabled="isSessionAnswerRequestProcessing"
@@ -105,7 +142,9 @@ import {
   toRefs,
   onUnmounted,
   computed,
-  watch
+  watch,
+  ref,
+  nextTick
 } from "vue"
 import {
   isScreenPortrait
@@ -248,7 +287,10 @@ export default defineComponent({
         "text-lg sm:text-xl text-base mx-4 m-2 leading-tight whitespace-pre-wrap text-slate-500",
       titleTextClass:
         "text-lg sm:text-xl text-base mx-4 py-2 font-medium leading-tight whitespace-pre-wrap bg-gray-300",
+      currentSetPageIndex: 0, // index of the question set currently shown when forms are paginated by set
     })
+
+    const scrollContainer = ref<HTMLElement | null>(null)
 
     // display warning when time remaining goes below this threshold (in minutes)
     const timeLimitWarningThreshold: number = 3
@@ -471,8 +513,55 @@ export default defineComponent({
     })
 
     const isQuizAssessment = computed(() => props.quizType == "assessment" || props.quizType == "omr-assessment")
-    const shouldShowQuestionSetHeaders = computed(
-      () => !(props.quizType == "form" && props.showFullText)
+
+    // forms with multiple question sets show one set (section) per page
+    const isSetPaginationEnabled = computed(
+      () => props.quizType == "form" && !props.hasQuizEnded && props.questionSetStates.length > 1
+    )
+
+    const isLastSetPage = computed(
+      () => state.currentSetPageIndex >= props.questionSetStates.length - 1
+    )
+
+    function getSetIndexForQuestion(questionIndex: number) {
+      return props.questionSetStates.findIndex((questionSetState) => {
+        const paletteItems = questionSetState.paletteItems;
+        if (!paletteItems.length) return false;
+        const lowIndex = paletteItems[0].index;
+        return questionIndex >= lowIndex && questionIndex < lowIndex + paletteItems.length;
+      });
+    }
+
+    function goToSet(setIndex: number) {
+      state.currentSetPageIndex = setIndex;
+      nextTick(() => {
+        if (scrollContainer.value != null) scrollContainer.value.scrollTop = 0;
+      });
+    }
+
+    function goToNextSet() {
+      if (!isLastSetPage.value) goToSet(state.currentSetPageIndex + 1);
+    }
+
+    function goToPreviousSet() {
+      if (state.currentSetPageIndex > 0) goToSet(state.currentSetPageIndex - 1);
+    }
+
+    // when the parent navigates to a question on another page (e.g. an unanswered
+    // required question on submit), switch to that section's page and scroll to it
+    watch(
+      () => props.currentQuestionIndex,
+      (newIndex: number) => {
+        if (!isSetPaginationEnabled.value) return;
+        const setIndex = getSetIndexForQuestion(newIndex);
+        if (setIndex == -1 || setIndex == state.currentSetPageIndex) return;
+        state.currentSetPageIndex = setIndex;
+        nextTick(() => {
+          const questionElement = document.querySelector(`[data-test="SinglePageItem-${newIndex}"]`);
+          if (questionElement != null) questionElement.scrollIntoView({ block: "start" });
+          else if (scrollContainer.value != null) scrollContainer.value.scrollTop = 0;
+        });
+      }
     )
 
     const optionalLimitReachedArray = computed(() => {
@@ -583,7 +672,11 @@ export default defineComponent({
       currentQuestionResponseAnswer,
       isAttemptValid,
       isQuizAssessment,
-      shouldShowQuestionSetHeaders,
+      isSetPaginationEnabled,
+      isLastSetPage,
+      goToNextSet,
+      goToPreviousSet,
+      scrollContainer,
       optionalLimitReachedArray,
       questionDisabledArray,
       numericalAnswerUpdated,
