@@ -18,16 +18,17 @@
         <div class="scroll-container flex flex-col grow bg-indigo-50 w-full justify-between overflow-y-auto" :class="{ 'mt-24': isQuizAssessment }" ref="scrollContainer">
           <div class="flex justify-center w-full mx-auto py-4 px-4 pb-24">
             <div class="flex flex-col w-full sm:w-5/6 max-w-4xl bg-white rounded-lg shadow-sm p-2 sm:p-6 mb-12">
+              <div
+                v-if="$props.singlePageHeaderText"
+                class="mx-4 mt-2 mb-4 text-lg sm:text-xl whitespace-pre-wrap"
+                data-test="singlePageHeaderText"
+              >
+                {{ $props.singlePageHeaderText }}
+              </div>
               <div v-for="(questionSetState, index) in questionSetStates" :key="index" class="space-y-2 pb-[56px]"
                 v-show="!isSetPaginationEnabled || index === currentSetPageIndex">
                 <div v-if="questionSetState.title" class="bg-gray-300">
                   <p :class="titleTextClass" :data-test="`questionSetTitle-${index}`">{{ questionSetState.title }}</p>
-                </div>
-                <div
-                  v-if="index === 0 && $props.singlePageHeaderText"
-                  class="mx-4 mt-2 mb-4 text-lg sm:text-xl whitespace-pre-wrap"
-                >
-                  {{ $props.singlePageHeaderText }}
                 </div>
                 <p :class="instructionTextClass" v-html="questionSetState.instructionText"
                   :data-test="`questionSetInstruction-${index}`"></p>
