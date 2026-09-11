@@ -93,7 +93,11 @@ export function isQuestionResponseComplete(
     if (typeof userAnswer != "object" || Array.isArray(userAnswer)) return false;
     const matrixRows = questionDetail.matrix_rows || [];
     if (matrixRows.length == 0) return false;
-    const rowValues = matrixRows.map((row) => userAnswer[row]);
+    // blank row labels are stored under the "__default__" key by the answer
+    // entry components (e.g. single-row matrix ratings)
+    const rowValues = matrixRows.map((row) =>
+      row in userAnswer ? userAnswer[row] : (!row || !row.trim() ? userAnswer.__default__ : undefined)
+    );
     if (
       questionDetail.type == "matrix-subjective" ||
       questionDetail.type == "matrix-numerical"
