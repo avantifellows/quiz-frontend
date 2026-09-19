@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  quiz-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - VUE_APP_BACKEND=http://quiz-backend:8001
+      - VUE_APP_PORTAL_BACKEND=http://quiz-backend:8000
+      - VUE_APP_PORTAL_FRONTEND=http://localhost:8080
+    depends_on:
+      - quiz-backend
+
+  quiz-backend:
+    image: ghcr.io/avantifellows/quiz-backend:latest
+    ports:
+      - "8001:8001"

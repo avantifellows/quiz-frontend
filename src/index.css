@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Quiz validation UI styles (Phase 4 — scaffolded for Phase 5 integration) */
+@import "./assets/styles/quiz-validation.css";
+
+
 /*
 using tailwind's preflight styles as it is, without a plugin because we wanted to to
 remove one line `list-style-type: none` from the defaults
