@@ -45,5 +45,15 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-south-1
 
+      # Hashed js/css are immutable; index.html must never be cached, or students
+      # keep running an old bundle against a newer API after a release.
       - name: Deploy static site to S3 bucket
-        run: aws s3 sync ./dist s3://question-set-player-staging --delete --acl public-read
+        run: |
+          aws s3 sync ./dist s3://question-set-player-staging --delete --acl public-read --exclude "js/*" --exclude "css/*" --exclude "index.html"
+          aws s3 sync ./dist/js s3://question-set-player-staging/js --delete --acl public-read --cache-control "public, max-age=31536000, immutable"
+          aws s3 sync ./dist/css s3://question-set-player-staging/css --delete --acl public-read --cache-control "public, max-age=31536000, immutable"
+          aws s3 cp ./dist/index.html s3://question-set-player-staging/index.html --acl public-read --cache-control "no-cache"
+
+      - name: Invalidate CloudFront cache
+        continue-on-error: true
+        run: aws cloudfront create-invalidation --distribution-id E1HNFHAZ8KYJ7R --paths "/index.html" "/"
