@@ -216,6 +216,31 @@ router.beforeEach(async (to) => {
       identifiers = await getPortalIdentifiers({ force: true, launchToken });
     }
 
+    if (!identifiers && !launchToken) {
+      // A portal student arriving without a launch token and without a stored
+      // session for THIS quiz id - e.g. a next_step_url link from another
+      // quiz's scorecard, or a survey/form chained after a test. Fall back to
+      // the portal access token on this device (cookie on .avantifellows.org,
+      // server-verified via /auth/verify; expired tokens go through one
+      // refresh). force: true so a previously cached null can't 403 a user
+      // whose cookie has since been set.
+      identifiers = await getPortalIdentifiers({ force: true });
+
+      if (identifiers?.userId && quizId) {
+        const storedQuizSession = getStoredQuizPortalSession();
+        // Persist so a refresh on this page keeps working - but never clobber
+        // another student's live session in this tab; their mid-quiz refresh
+        // must keep resolving to them. This navigation still proceeds with the
+        // cookie identity via to.meta below.
+        if (
+          !storedQuizSession ||
+          storedQuizSession.identifiers.userId === identifiers.userId
+        ) {
+          persistQuizPortalSession(quizId, identifiers);
+        }
+      }
+    }
+
     to.meta.portalIdentifiers = identifiers;
 
     if (!identifiers?.userId) {
