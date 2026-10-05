@@ -55,7 +55,7 @@
                 :difficulty="$props.questions[questionState.index].metadata?.difficulty_label || $props.questions[questionState.index].metadata?.difficulty"
                 :difficultyBadgeClass="$props.questions[questionState.index].metadata?.difficulty_badge_class"
                 :displaySolution="displaySolution"
-                :isRequiredQuestion="areAllQuestionsRequired"
+                :isRequiredQuestion="areAllQuestionsRequired && $props.questions[questionState.index].required !== false"
                 @option-selected="questionOptionSelected"
                 @subjective-answer-entered="subjectiveAnswerUpdated"
                 @numerical-answer-entered="numericalAnswerUpdated"
@@ -546,10 +546,11 @@ export default defineComponent({
       if (props.areAllQuestionsRequired) {
         const paletteItems = props.questionSetStates[state.currentSetPageIndex].paletteItems;
         const incompleteItem = paletteItems.find(
-          (item) => !isQuestionResponseComplete(
-            props.questions[item.index],
-            state.localResponses[item.index]?.answer ?? null
-          )
+          (item) => props.questions[item.index].required !== false &&
+            !isQuestionResponseComplete(
+              props.questions[item.index],
+              state.localResponses[item.index]?.answer ?? null
+            )
         );
         if (incompleteItem != null) {
           state.toast.warning(

@@ -65,7 +65,7 @@
         :quizTimeLimit="quizTimeLimit"
         :numQuestions = "numQuestions"
         :questionOrder="questionOrder"
-        :isRequiredQuestion="areAllQuestionsRequired"
+        :isRequiredQuestion="areAllQuestionsRequired && currentQuestion.required !== false"
         @option-selected="questionOptionSelected"
         @subjective-answer-entered="subjectiveAnswerUpdated"
         @numerical-answer-entered="numericalAnswerUpdated"
