@@ -51,7 +51,7 @@
                 :showFullText="showFullText"
                 :questionText="$props.questions[questionState.index].text"
                 :questionImage="$props.questions[questionState.index].image"
-                :solutionText="$props.questions[questionState.index].solution"
+                :solutionText="($props.questions[questionState.index].solution || []).join('<br>')"
                 :difficulty="$props.questions[questionState.index].metadata?.difficulty_label || $props.questions[questionState.index].metadata?.difficulty"
                 :difficultyBadgeClass="$props.questions[questionState.index].metadata?.difficulty_badge_class"
                 :displaySolution="displaySolution"
