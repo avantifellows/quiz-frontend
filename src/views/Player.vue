@@ -1197,6 +1197,16 @@ export default defineComponent({
         .replace('{userId}', props.userId || '')
         .replace('{apiKey}', props.apiKey || '');
 
+      // Admin/test flows open this page with ?userId=<whitelisted id>; carry it to
+      // the next step so the chained page passes the same guard. Portal students
+      // have no userId in the URL (their identity is the portal token), and the
+      // next-step URL must stay clean of it for them.
+      const routeUserId = router.currentRoute.value.query.userId;
+      if (typeof routeUserId === "string" && routeUserId && !url.includes("userId=")) {
+        const separator = url.includes('?') ? '&' : '?';
+        url += `${separator}userId=${routeUserId}`;
+      }
+
       // Add autoStart parameter if next_step_autostart is true
       if (state.metadata?.next_step_autostart) {
         const separator = url.includes('?') ? '&' : '?';
