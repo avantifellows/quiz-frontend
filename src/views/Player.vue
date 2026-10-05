@@ -995,6 +995,7 @@ export default defineComponent({
       }
 
       const incompleteQuestionIndex = state.questions.findIndex((question, idx) => {
+        if (question.required === false) return false; // per-question opt-out
         return !isQuestionResponseComplete(question, state.responses[idx]?.answer ?? null);
       });
       if (areAllQuestionsRequired.value && incompleteQuestionIndex != -1) {

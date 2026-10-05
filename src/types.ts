@@ -194,6 +194,8 @@ export interface Question {
   solution: string[] | null;
   _id: string;
   metadata: QuestionMetadata | null;
+  // false = may be left unanswered even when the form requires all questions
+  required?: boolean | null;
   question_set_id: string;
   source_id: string | null;
 }
