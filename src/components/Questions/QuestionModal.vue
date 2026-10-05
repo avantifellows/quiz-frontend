@@ -30,7 +30,7 @@
     >
       <Body
         :text="currentQuestion.text"
-        :solutionText="currentQuestion.solution"
+        :solutionText="(currentQuestion.solution || []).join('<br>')"
         :class="bodyContainerClass"
         :options="currentQuestion.options"
         :correctAnswer="questionCorrectAnswer"
