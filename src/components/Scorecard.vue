@@ -276,7 +276,7 @@ import { ScorecardMetric, CircularProgressResult, quizTitleType, quizType, Quest
 const confetti = require("canvas-confetti");
 const PROGRESS_BAR_ANIMATION_DELAY_TIME = 500; // a time delay to be used for animating the progress bar
 const MOBILE_SCREEN_HEIGHT_THRESHOLD = 500; // the maximum height of the screen in pixels that is classified as a mobile screen
-const AUTO_REDIRECT_DELAY_MS = 3000; // wait duration before automatically navigating to next step
+const AUTO_REDIRECT_DELAY_MS = 6000; // wait duration before automatically navigating to next step
 
 export default defineComponent({
   name: "Scorecard",
