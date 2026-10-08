@@ -68,6 +68,63 @@ export function resetConfetti() {
   }
 }
 
+/**
+ * Selected 0-based option indices from a single/multi-choice answer (stored as a number
+ * array). Any other answer shape (matrix dicts, numerical, string, null) cannot drive a
+ * v1 display_condition, so it contributes no indices. Mirrors the backend
+ * `_answer_option_indices`.
+ */
+function answerOptionIndices(answer: submittedAnswer): number[] {
+  if (!Array.isArray(answer)) return [];
+  const indices: number[] = [];
+  for (const value of answer) {
+    if (typeof value == "number") indices.push(value);
+  }
+  return indices;
+}
+
+/**
+ * Visibility of every question by flat position — the single source of truth for the
+ * conditional-display rule on the frontend (mirrors the backend
+ * `_compute_form_question_visibility`).
+ *
+ * A question with no `display_condition` is always visible. Otherwise it is visible only
+ * when its trigger question is itself visible AND the trigger's answer selects one of the
+ * required `option_indices`. Visibility is transitive: a dependent of a hidden trigger is
+ * hidden. Triggers always precede their dependents (validated at creation), so a single
+ * forward pass that reads earlier positions' visibility resolves whole chains. A condition
+ * whose `source_position` is missing, out of range, or points at/after the dependent itself
+ * can never be satisfied, so the question stays hidden.
+ */
+export function computeQuestionVisibility(
+  questions: Question[],
+  answers: (submittedAnswer | undefined)[]
+): boolean[] {
+  const visibility: boolean[] = [];
+  questions.forEach((question, position) => {
+    const condition = question.display_condition;
+    if (condition == null) {
+      visibility.push(true);
+      return;
+    }
+    const source = condition.source_position;
+    if (
+      typeof source != "number" ||
+      source < 0 ||
+      source >= position ||
+      !visibility[source]
+    ) {
+      visibility.push(false);
+      return;
+    }
+    const selected = answerOptionIndices(answers[source] ?? null);
+    visibility.push(
+      selected.some((index) => condition.option_indices.includes(index))
+    );
+  });
+  return visibility;
+}
+
 export function isQuestionResponseComplete(
   questionDetail: Question,
   userAnswer: submittedAnswer

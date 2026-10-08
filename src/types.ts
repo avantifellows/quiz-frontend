@@ -183,6 +183,15 @@ interface Option {
   image: Image | null;
 }
 
+// Conditional-display rule on a dependent question. The question is shown only when the
+// trigger question at `source_position` (flat 0-based position across all question sets, in
+// quiz-document order) has an answer whose selected option indices intersect
+// `option_indices`. Absent => always visible. Mirrors the quiz-backend DisplayCondition.
+export interface DisplayCondition {
+  source_position: number;
+  option_indices: number[];
+}
+
 export interface Question {
   type: questionType;
   text: string;
@@ -202,6 +211,8 @@ export interface Question {
   required?: boolean | null;
   question_set_id: string;
   source_id: string | null;
+  // conditional display: when set, this question is shown only if the rule is satisfied
+  display_condition?: DisplayCondition | null;
 }
 
 export interface QuestionSet {
