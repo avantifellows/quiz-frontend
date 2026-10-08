@@ -190,7 +190,7 @@ import QuestionModal from "../components/Questions/QuestionModal.vue";
 import SinglePageModal from "../components/SinglePage/SinglePageModal.vue"
 import Splash from "../components/Splash.vue";
 import Scorecard from "../components/Scorecard.vue";
-import { resetConfetti, isQuestionAnswerCorrect, isQuestionFetched, createQuestionBuckets, isQuestionResponseComplete } from "../services/Functional/Utilities";
+import { resetConfetti, isQuestionAnswerCorrect, isQuestionFetched, createQuestionBuckets, isQuestionResponseComplete, computeQuestionVisibility } from "../services/Functional/Utilities";
 import QuizAPIService from "../services/API/Quiz";
 import FormAPIService from "../services/API/Form";
 import SessionAPIService from "../services/API/Session";
@@ -472,6 +472,15 @@ export default defineComponent({
         !props.landingScorecard
     );
     const numQuestions = computed(() => state.questions.length);
+    // Visibility of each question by flat position, derived from current answers. Reactive on
+    // state.responses, so resume re-derives it for free. Questions with no display_condition
+    // are always visible, so non-conditional quizzes/forms are unaffected.
+    const questionVisibility = computed(() =>
+      computeQuestionVisibility(
+        state.questions,
+        state.responses.map((response) => response?.answer ?? null)
+      )
+    );
     const isQuestionShown = computed(() => {
       return (
         state.currentQuestionIndex >= 0 && state.currentQuestionIndex < numQuestions.value
@@ -1106,6 +1115,7 @@ export default defineComponent({
 
       const incompleteQuestionIndex = state.questions.findIndex((question, idx) => {
         if (question.required === false) return false; // per-question opt-out
+        if (!questionVisibility.value[idx]) return false; // hidden by display_condition => not required
         return !isQuestionResponseComplete(question, state.responses[idx]?.answer ?? null);
       });
       if (areAllQuestionsRequired.value && incompleteQuestionIndex != -1) {
