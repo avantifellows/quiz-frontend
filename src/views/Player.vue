@@ -128,6 +128,23 @@
         </div>
       </div>
 
+      <!-- Shown after a survey is submitted, while we redirect the student to their score.
+           Replaces the form's own "thank you" scorecard with a short reassurance. -->
+      <div
+        v-if="isRedirectingAfterSurvey"
+        class="absolute inset-0 z-20 flex items-center justify-center bg-white/80"
+      >
+        <div class="flex flex-col items-center space-y-3">
+          <BaseIcon
+            name="spinner-solid"
+            iconClass="animate-spin h-10 w-10 text-gray-600"
+          />
+          <div class="text-base font-semibold text-gray-700">
+            Saving your responses...
+          </div>
+        </div>
+      </div>
+
       <Scorecard
         id="scorecardmodal"
         class="absolute z-10"
@@ -148,7 +165,7 @@
         :numQuestionsAnswered="numQuestionsAnswered"
         :hasGradedQuestions="hasGradedQuestions"
         :reviewAnswers="reviewAnswers"
-        :nextStepUrl="processedNextStepUrl"
+        :nextStepUrl="scorecardNextStepUrl"
         :nextStepText="nextStepButtonText"
         @go-back="goToPreviousQuestion"
         data-test="scorecard"
@@ -239,6 +256,18 @@ export default defineComponent({
     autoStart: {
       default: false,
       type: Boolean
+    },
+    // Set by ?landing=scorecard, used when a chained survey redirects the student back to
+    // their test: boot the already-ended session straight onto the scorecard (no splash).
+    landingScorecard: {
+      default: false,
+      type: Boolean
+    },
+    // Set by ?return_to=<test id>. On a before-scores survey this is the test the survey must
+    // send the student back to, substituted into the survey's next_step_url as {return_to}.
+    landingReturnTo: {
+      default: null,
+      type: String
     }
   },
   setup(props) {
@@ -276,6 +305,17 @@ export default defineComponent({
       marksScored: 0,
       maxMarks: 0, // maximum marks that can be scored
       isScorecardShown: false, // to show the scorecard or not
+      // True once the end-of-test gate has decided to redirect into the survey, so the brief
+      // window before navigation completes doesn't flash the scorecard underneath.
+      isScorecardRedirectingToSurvey: false,
+      // True when the student has already submitted the post-test survey. Used to suppress the
+      // scorecard's next-step CTA/countdown so a later visit to the test (e.g. "Review quiz",
+      // without ?landing=scorecard) never offers to send them back into a survey they've done.
+      hasCompletedSurvey: false,
+      // True after a survey (a form with a next_step) is submitted, while we redirect the
+      // student to their score — shows a "Saving your responses..." overlay instead of the
+      // form's own thank-you scorecard.
+      isRedirectingAfterSurvey: false,
       isComputingScore: false, // whether score computation is in progress
       hasSessionMetrics: false, // whether session metrics have been loaded
       hasQuizEnded: false, // whether the quiz has ended - only valid for quizType = assessment
@@ -500,7 +540,9 @@ export default defineComponent({
           if (!state.hasQuizEnded && (!isQuizAssessment.value || isFormQuiz.value)) {
             await endTest() // send an end-quiz event for homeworks and forms
           }
-          if (state.hasQuizEnded) {
+          // revealScorecardOrSurvey() (called by endTest) may redirect a gated test into its
+          // survey, in which case the page is navigating away and we skip showing the scorecard.
+          if (state.hasQuizEnded && !state.isScorecardRedirectingToSurvey) {
             // Always show the scorecard screen after quiz ends; content will hide scores if needed.
             state.isScorecardShown = true;
             if (!state.hasSessionMetrics && !state.isComputingScore) {
@@ -878,6 +920,44 @@ export default defineComponent({
       await getQuiz({ includeAnswers });
       await createSession();
 
+      // If the student is reopening an already-ended test that is wired to a survey (and this
+      // isn't the landing=scorecard return, which already implies the survey is done), resolve
+      // whether they've completed the survey so the scorecard can suppress its CTA/countdown.
+      // Without this, a later "Review quiz" visit would keep offering a survey they've finished.
+      if (
+        state.hasQuizEnded &&
+        state.metadata?.next_step_before_scores &&
+        !props.landingScorecard &&
+        getSurveyQuizId() &&
+        !isFormQuiz.value
+      ) {
+        const attempts = await SessionAPIService.getUserQuizAttempts(
+          props.userId as string
+        );
+        state.hasCompletedSurvey =
+          attempts.data?.[getSurveyQuizId() as string] === true;
+      }
+
+      // A chained survey redirected the student back to their test (?landing=scorecard):
+      // if the attempt is already submitted, open straight onto the scorecard instead of the
+      // splash. createSession() has already loaded metrics for an ended session. Whether the
+      // scorecard reveals scores is still governed by the quiz's own show_scores.
+      if (props.landingScorecard && state.hasQuizEnded) {
+        // Arriving here means the student just finished the survey, so it's done: suppress the
+        // scorecard's survey CTA/countdown.
+        state.hasCompletedSurvey = true;
+        // Move off the splash (currentQuestionIndex === -1) so it doesn't render behind the
+        // scorecard overlay, exactly as the normal end-of-test flow does.
+        state.currentQuestionIndex = numQuestions.value;
+        state.isScorecardShown = true;
+        if (!state.hasSessionMetrics && !state.isComputingScore) {
+          state.isComputingScore = true;
+          await fetchSessionMetricsWithRetry();
+          state.isComputingScore = false;
+        }
+        return;
+      }
+
       // Auto-start quiz if autoStart prop is true
       if (props.autoStart) {
         await startQuiz();
@@ -990,7 +1070,7 @@ export default defineComponent({
     async function endTest() {
       if (state.hasQuizEnded) {
         state.currentQuestionIndex = numQuestions.value;
-        state.isScorecardShown = true;
+        await revealScorecardOrSurvey();
         return;
       }
 
@@ -1064,6 +1144,17 @@ export default defineComponent({
       }
 
       state.hasQuizEnded = true;
+
+      // Resolve the survey gate BEFORE moving currentQuestionIndex to the end: that move fires
+      // the question-index watcher, which shows the scorecard. If we're redirecting into the
+      // survey instead, stop here so the scorecard never renders (and the watcher, seeing
+      // isScorecardRedirectingToSurvey, also stands down). Otherwise fall through and let the
+      // index move trigger the scorecard the normal way, after answers are hydrated.
+      const redirected = await revealScorecardOrSurvey();
+      if (redirected) {
+        state.isSessionAnswerRequestProcessing = false;
+        return;
+      }
       state.currentQuestionIndex = numQuestions.value;
 
       const responseMetrics = endSessionResponse.data?.metrics || null;
@@ -1083,9 +1174,87 @@ export default defineComponent({
         }
       }
 
+      // Show the scorecard only now — after the question index moved and answers/metrics are
+      // hydrated — so single-page review items never render against a null correctAnswer.
       state.isScorecardShown = true;
       state.isComputingScore = false;
       state.isSessionAnswerRequestProcessing = false;
+    }
+
+    /**
+     * The survey's quiz id, parsed from the quiz's next_step_url. For forms the path id in
+     * `/form/<id>` is the quiz _id, which is also the key used in the quiz-attempts map, so we
+     * can look up whether this student already submitted the survey. Returns null when the quiz
+     * has no next_step_url or the id can't be parsed (in which case there is no survey gate).
+     */
+    function getSurveyQuizId(): string | null {
+      const url = state.metadata?.next_step_url;
+      if (!url) return null;
+      const match = url.match(/\/(?:form|quiz)\/([^/?#]+)/);
+      return match ? match[1] : null;
+    }
+
+    /**
+     * Decide, at the end of a test, whether to redirect the student into a post-test survey
+     * (or, for a before-scores survey, back to the test scorecard) instead of showing the
+     * scorecard here. Returns true if it redirected (the caller should stop), false if the
+     * caller should show the scorecard the normal way. This function must NOT set
+     * isScorecardShown itself: the scorecard has to render only after the question index is
+     * moved and answers are hydrated, or single-page review items read a null correctAnswer.
+     */
+    async function revealScorecardOrSurvey(): Promise<boolean> {
+      const surveyQuizId = getSurveyQuizId();
+      // Gate only a test/assessment that is wired to a survey the student hasn't done yet, and
+      // only on the forward path (not a landing=scorecard return). Forms (the survey itself)
+      // follow their own next_step normally — they must never be gated, or submitting the survey
+      // would redirect back into another survey. When the gate applies, redirect straight into
+      // the survey; the survey's own header text sets the "2 min, then your score" expectation.
+      // Opt-in: only quizzes explicitly marked next_step_before_scores use the gate. Existing
+      // next_step_url flows (e.g. the NVS post-test survey, shown via a scorecard CTA) are
+      // unaffected and keep showing the scorecard first.
+      if (
+        surveyQuizId &&
+        state.metadata?.next_step_before_scores &&
+        !props.landingScorecard &&
+        !isFormQuiz.value
+      ) {
+        const attempts = await SessionAPIService.getUserQuizAttempts(
+          props.userId as string
+        );
+        const alreadyDoneSurvey = attempts.data?.[surveyQuizId] === true;
+        // Remember this so the scorecard suppresses the survey CTA/countdown once it's done.
+        state.hasCompletedSurvey = alreadyDoneSurvey;
+        if (!alreadyDoneSurvey) {
+          const surveyUrl = processedNextStepUrl.value;
+          if (surveyUrl) {
+            state.isScorecardRedirectingToSurvey = true;
+            window.location.href = surveyUrl;
+            return true;
+          }
+        }
+      }
+
+      // A before-scores survey (a form marked next_step_before_scores, chaining back to the test
+      // scorecard) submitting: skip the form's own thank-you scorecard and redirect to its
+      // next_step, showing a brief "Saving your responses..." overlay instead. This is scoped to
+      // before-scores forms so ordinary chained forms (e.g. multi-step feedback forms) keep their
+      // normal scorecard-CTA behaviour.
+      if (
+        isFormQuiz.value &&
+        state.metadata?.next_step_before_scores &&
+        processedNextStepUrl.value
+      ) {
+        // Clear the computing-scores overlay so it doesn't stack under the redirect overlay
+        // while the (now irrelevant) metrics await in endTest finishes.
+        state.isComputingScore = false;
+        state.isRedirectingAfterSurvey = true;
+        window.location.href = processedNextStepUrl.value;
+        return true;
+      }
+
+      // Not redirecting: the caller shows the scorecard the normal way (after moving the question
+      // index), so answer data is hydrated before the scorecard/review items render.
+      return false;
     }
 
     getQuizCreateSession();
@@ -1193,18 +1362,42 @@ export default defineComponent({
     const processedNextStepUrl = computed(() => {
       if (!state.metadata?.next_step_url) return "";
 
+      // Only substitute {userId} with a userId that came from the URL query (a whitelisted
+      // test/admin id). props.userId also resolves to a portal student's real internal userId,
+      // and putting that in the chained URL would 403 them (real userIds in the query are
+      // rejected) — portal students ride their portal token instead, so {userId} stays empty.
+      const routeUserId = router.currentRoute.value.query.userId;
+      const substitutableUserId =
+        typeof routeUserId === "string" && routeUserId ? routeUserId : "";
+
+      // {return_to}: the quiz id this survey should send the student back to. A before-scores
+      // survey is shared across many tests, so it can't hardcode one test id — the launching
+      // test injects its own id via {quizId} (below), and the survey reads it back from the
+      // landingReturnTo prop (?return_to=<id>) and substitutes it here. Absent → empty, handled
+      // after substitution.
+      const returnTo = props.landingReturnTo || "";
+
+      // A next_step_url that needs {return_to} but has none (stale/forwarded survey link, or the
+      // param was dropped) can't build a valid return — treat it as "no next step" so the survey
+      // falls back to its own scorecard rather than redirecting to a broken URL.
+      if (state.metadata.next_step_url.includes('{return_to}') && !returnTo) {
+        return "";
+      }
+
       let url = state.metadata.next_step_url
-        .replace('{userId}', props.userId || '')
-        .replace('{apiKey}', props.apiKey || '');
+        .replace('{userId}', substitutableUserId)
+        .replace('{apiKey}', props.apiKey || '')
+        // {quizId}: this quiz's own id, so a test can pass itself to the survey as return_to.
+        .replace('{quizId}', props.quizId || '')
+        .replace('{return_to}', returnTo);
 
       // Admin/test flows open this page with ?userId=<whitelisted id>; carry it to
       // the next step so the chained page passes the same guard. Portal students
       // have no userId in the URL (their identity is the portal token), and the
       // next-step URL must stay clean of it for them.
-      const routeUserId = router.currentRoute.value.query.userId;
-      if (typeof routeUserId === "string" && routeUserId && !url.includes("userId=")) {
+      if (substitutableUserId && !url.includes("userId=")) {
         const separator = url.includes('?') ? '&' : '?';
-        url += `${separator}userId=${routeUserId}`;
+        url += `${separator}userId=${substitutableUserId}`;
       }
 
       // Add autoStart parameter if next_step_autostart is true
@@ -1214,6 +1407,19 @@ export default defineComponent({
       }
 
       return url;
+    });
+
+    /**
+     * The next-step URL the scorecard itself shows as a CTA. When the student reached the
+     * scorecard by returning from the survey (landing=scorecard), the survey is already done,
+     * so we suppress the CTA to avoid looping them back into it. In every other case the
+     * scorecard keeps its normal next-step behaviour.
+     */
+    const scorecardNextStepUrl = computed(() => {
+      // Suppress the CTA when the student returned from the survey (landing=scorecard) or has
+      // already completed it — in both cases the survey is done, so never offer it again.
+      if (props.landingScorecard || state.hasCompletedSurvey) return "";
+      return processedNextStepUrl.value;
     });
 
     /** Get the next step button text */
@@ -1413,6 +1619,7 @@ export default defineComponent({
       starttimeSpentOnQuestionCalc,
       stoptimeSpentOnQuestionCalc,
       processedNextStepUrl,
+      scorecardNextStepUrl,
       nextStepButtonText,
       showFullText,
       singlePageHeaderText,
