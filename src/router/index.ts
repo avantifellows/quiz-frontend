@@ -107,6 +107,9 @@ const routes = [
       omrMode: route.query.omrMode === "true",
       singlePageMode: route.query.singlePageMode === "true",
       autoStart: route.query.autoStart === "true",
+      // When a chained survey redirects back here (?landing=scorecard), skip the splash
+      // and open the already-ended session straight on its scorecard.
+      landingScorecard: route.query.landing === "scorecard",
     }),
     // lazy-loading: https://router.vuejs.org/guide/advanced/lazy-loading.html
     component: () =>
@@ -126,6 +129,9 @@ const routes = [
       omrMode: route.query.omrMode === "true",
       singlePageMode: route.query.singlePageMode === "true",
       autoStart: route.query.autoStart === "true",
+      // When a chained survey redirects back here (?landing=scorecard), skip the splash
+      // and open the already-ended session straight on its scorecard.
+      landingScorecard: route.query.landing === "scorecard",
     }),
     // lazy-loading: https://router.vuejs.org/guide/advanced/lazy-loading.html
     component: () =>
