@@ -107,6 +107,12 @@ const routes = [
       omrMode: route.query.omrMode === "true",
       singlePageMode: route.query.singlePageMode === "true",
       autoStart: route.query.autoStart === "true",
+      // When a chained survey redirects back here (?landing=scorecard), skip the splash
+      // and open the already-ended session straight on its scorecard.
+      landingScorecard: route.query.landing === "scorecard",
+      // The quiz id a before-scores survey should return the student to. A shared survey reads
+      // this from ?return_to=<test id> and builds its own next_step_url back to that test.
+      landingReturnTo: getQueryValue(route.query.return_to),
     }),
     // lazy-loading: https://router.vuejs.org/guide/advanced/lazy-loading.html
     component: () =>
@@ -126,6 +132,12 @@ const routes = [
       omrMode: route.query.omrMode === "true",
       singlePageMode: route.query.singlePageMode === "true",
       autoStart: route.query.autoStart === "true",
+      // When a chained survey redirects back here (?landing=scorecard), skip the splash
+      // and open the already-ended session straight on its scorecard.
+      landingScorecard: route.query.landing === "scorecard",
+      // The quiz id a before-scores survey should return the student to. A shared survey reads
+      // this from ?return_to=<test id> and builds its own next_step_url back to that test.
+      landingReturnTo: getQueryValue(route.query.return_to),
     }),
     // lazy-loading: https://router.vuejs.org/guide/advanced/lazy-loading.html
     component: () =>

@@ -120,6 +120,10 @@ export interface QuizMetadata {
   next_step_url?: string;
   next_step_text?: string;
   next_step_autostart?: boolean;
+  // When true, the next step (a survey) is shown BEFORE the scorecard: on ending the test the
+  // student is redirected straight into the survey, and returns to the scorecard afterwards.
+  // When false/absent, the next step keeps its default behaviour — a CTA on the scorecard itself.
+  next_step_before_scores?: boolean;
   single_page_header_text?: string;
 }
 

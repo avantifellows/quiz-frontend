@@ -42,6 +42,32 @@ export default {
   },
 
   /**
+   * Returns a map of {quizId: hasQuizEnded} for every quiz the user has a session for.
+   * Used to decide whether a chained post-test survey still needs to be shown: if the
+   * survey's quiz id is present and true, the student already submitted it, so we skip it.
+   * Failure is treated as "no attempts" by the caller so a flaky read never blocks the
+   * scorecard (it just risks showing the survey again, which the backend form dedup handles).
+   */
+  async getUserQuizAttempts(
+    userId: string,
+  ): Promise<{ status: number; data?: Record<string, boolean> }> {
+    try {
+      const response = await apiClient().get(
+        `${sessionsEndpoint}user/${userId}/quiz-attempts`,
+      );
+      return { status: response.status, data: response.data };
+    } catch (error: any) {
+      if (error.code == 'ECONNABORTED') {
+        return { status: 500 }; // request timeout
+      } else if (error.response?.status != null) {
+        return { status: error.response.status, data: error.response.data };
+      } else {
+        return { status: 400 }; // bad request
+      }
+    }
+  },
+
+  /**
    * returns the details for a quiz
    * @param {string} quizId - id of the quiz for which the session is to be created
    * @param {string} userId - id of the user for which the session is to be created

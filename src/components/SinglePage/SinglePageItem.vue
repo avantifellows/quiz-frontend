@@ -1077,6 +1077,7 @@ export default defineComponent({
       }
       if (
         (!isAnswerSubmitted.value && !props.hasQuizEnded) || // before quiz has ended, if answer isn't submitted
+        props.correctAnswer == null || // answers not hydrated yet (e.g. a re-render just after end) — nothing to colour
         typeof props.correctAnswer == "string" || // check for typescript
         typeof state.draftAnswer == "string" || // check for typescript
         typeof props.correctAnswer == "number" || // check for typescript
