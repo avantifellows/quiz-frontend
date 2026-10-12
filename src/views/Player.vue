@@ -1352,9 +1352,27 @@ export default defineComponent({
       const substitutableUserId =
         typeof routeUserId === "string" && routeUserId ? routeUserId : "";
 
+      // {return_to}: the quiz id this survey should send the student back to. A before-scores
+      // survey is shared across many tests, so it can't hardcode one test id — the launching
+      // test injects its own id via {quizId} (below), and the survey reads it back from its
+      // own ?return_to=<id> and substitutes it here. Absent → empty, handled after substitution.
+      const routeReturnTo = router.currentRoute.value.query.return_to;
+      const returnTo =
+        typeof routeReturnTo === "string" && routeReturnTo ? routeReturnTo : "";
+
+      // A next_step_url that needs {return_to} but has none (stale/forwarded survey link, or the
+      // param was dropped) can't build a valid return — treat it as "no next step" so the survey
+      // falls back to its own scorecard rather than redirecting to a broken URL.
+      if (state.metadata.next_step_url.includes('{return_to}') && !returnTo) {
+        return "";
+      }
+
       let url = state.metadata.next_step_url
         .replace('{userId}', substitutableUserId)
-        .replace('{apiKey}', props.apiKey || '');
+        .replace('{apiKey}', props.apiKey || '')
+        // {quizId}: this quiz's own id, so a test can pass itself to the survey as return_to.
+        .replace('{quizId}', props.quizId || '')
+        .replace('{return_to}', returnTo);
 
       // Admin/test flows open this page with ?userId=<whitelisted id>; carry it to
       // the next step so the chained page passes the same guard. Portal students
