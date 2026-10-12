@@ -238,6 +238,18 @@ router.beforeEach(async (to) => {
       // whose cookie has since been set.
       identifiers = await getPortalIdentifiers({ force: true });
 
+      // sessionId-launched students (JNV/EnableStudents) get no persistent access_token cookie,
+      // so the verify above yields nothing. Reuse the identity in quiz_portal_session (written by
+      // this guard after a verified launch earlier in this tab) so a survey chained after their
+      // test resolves to the same student instead of 403-ing. It's per-tab, so this never carries
+      // across students on a shared device.
+      if (!identifiers?.userId) {
+        const storedQuizSession = getStoredQuizPortalSession();
+        if (storedQuizSession?.identifiers?.userId) {
+          identifiers = storedQuizSession.identifiers;
+        }
+      }
+
       if (identifiers?.userId && quizId) {
         const storedQuizSession = getStoredQuizPortalSession();
         // Persist so a refresh on this page keeps working - but never clobber
