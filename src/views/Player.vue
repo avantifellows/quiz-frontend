@@ -262,6 +262,12 @@ export default defineComponent({
     landingScorecard: {
       default: false,
       type: Boolean
+    },
+    // Set by ?return_to=<test id>. On a before-scores survey this is the test the survey must
+    // send the student back to, substituted into the survey's next_step_url as {return_to}.
+    landingReturnTo: {
+      default: null,
+      type: String
     }
   },
   setup(props) {
@@ -1139,10 +1145,16 @@ export default defineComponent({
 
       state.hasQuizEnded = true;
 
-      // Decide survey-vs-scorecard BEFORE moving currentQuestionIndex to the end: that move
-      // fires the question-index watcher, which would otherwise show the scorecard itself. By
-      // resolving the gate first, the watcher sees isScorecardRedirectingToSurvey and stands down.
-      await revealScorecardOrSurvey();
+      // Resolve the survey gate BEFORE moving currentQuestionIndex to the end: that move fires
+      // the question-index watcher, which shows the scorecard. If we're redirecting into the
+      // survey instead, stop here so the scorecard never renders (and the watcher, seeing
+      // isScorecardRedirectingToSurvey, also stands down). Otherwise fall through and let the
+      // index move trigger the scorecard the normal way, after answers are hydrated.
+      const redirected = await revealScorecardOrSurvey();
+      if (redirected) {
+        state.isSessionAnswerRequestProcessing = false;
+        return;
+      }
       state.currentQuestionIndex = numQuestions.value;
 
       const responseMetrics = endSessionResponse.data?.metrics || null;
@@ -1162,6 +1174,9 @@ export default defineComponent({
         }
       }
 
+      // Show the scorecard only now — after the question index moved and answers/metrics are
+      // hydrated — so single-page review items never render against a null correctAnswer.
+      state.isScorecardShown = true;
       state.isComputingScore = false;
       state.isSessionAnswerRequestProcessing = false;
     }
@@ -1180,13 +1195,14 @@ export default defineComponent({
     }
 
     /**
-     * Decide, at the end of a test, whether to gate the scorecard behind a post-test survey.
-     * Shows the survey interstitial only when the quiz is wired to a survey AND this student
-     * hasn't submitted it yet; otherwise shows the scorecard as before. A failed/empty attempts
-     * read falls through to showing the survey (the student can still skip, and the backend
-     * dedups a re-submission), never blocking the scorecard.
+     * Decide, at the end of a test, whether to redirect the student into a post-test survey
+     * (or, for a before-scores survey, back to the test scorecard) instead of showing the
+     * scorecard here. Returns true if it redirected (the caller should stop), false if the
+     * caller should show the scorecard the normal way. This function must NOT set
+     * isScorecardShown itself: the scorecard has to render only after the question index is
+     * moved and answers are hydrated, or single-page review items read a null correctAnswer.
      */
-    async function revealScorecardOrSurvey() {
+    async function revealScorecardOrSurvey(): Promise<boolean> {
       const surveyQuizId = getSurveyQuizId();
       // Gate only a test/assessment that is wired to a survey the student hasn't done yet, and
       // only on the forward path (not a landing=scorecard return). Forms (the survey itself)
@@ -1213,7 +1229,7 @@ export default defineComponent({
           if (surveyUrl) {
             state.isScorecardRedirectingToSurvey = true;
             window.location.href = surveyUrl;
-            return;
+            return true;
           }
         }
       }
@@ -1233,10 +1249,12 @@ export default defineComponent({
         state.isComputingScore = false;
         state.isRedirectingAfterSurvey = true;
         window.location.href = processedNextStepUrl.value;
-        return;
+        return true;
       }
 
-      state.isScorecardShown = true;
+      // Not redirecting: the caller shows the scorecard the normal way (after moving the question
+      // index), so answer data is hydrated before the scorecard/review items render.
+      return false;
     }
 
     getQuizCreateSession();
@@ -1354,11 +1372,10 @@ export default defineComponent({
 
       // {return_to}: the quiz id this survey should send the student back to. A before-scores
       // survey is shared across many tests, so it can't hardcode one test id — the launching
-      // test injects its own id via {quizId} (below), and the survey reads it back from its
-      // own ?return_to=<id> and substitutes it here. Absent → empty, handled after substitution.
-      const routeReturnTo = router.currentRoute.value.query.return_to;
-      const returnTo =
-        typeof routeReturnTo === "string" && routeReturnTo ? routeReturnTo : "";
+      // test injects its own id via {quizId} (below), and the survey reads it back from the
+      // landingReturnTo prop (?return_to=<id>) and substitutes it here. Absent → empty, handled
+      // after substitution.
+      const returnTo = props.landingReturnTo || "";
 
       // A next_step_url that needs {return_to} but has none (stale/forwarded survey link, or the
       // param was dropped) can't build a valid return — treat it as "no next step" so the survey
