@@ -94,6 +94,9 @@ describe("Survey before scorecard", () => {
       cy.location("pathname").should("eq", "/form/" + SURVEY_QUIZ_ID);
       cy.location("search").should("contain", "apiKey=pqr");
       cy.location("search").should("not.contain", "{userId}");
+      // the test injects its own id as return_to so the shared survey knows where to come back to
+      cy.location("search").should("contain", "return_to=abcd");
+      cy.location("search").should("not.contain", "{quizId}");
     });
   });
 

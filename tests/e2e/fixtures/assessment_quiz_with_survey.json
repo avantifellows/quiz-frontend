@@ -626,7 +626,8 @@
     "test_format": "full_syllabus_test",
     "chapter": null,
     "topic": null,
-    "next_step_url": "http://localhost:8081/form/survey123?apiKey={apiKey}&singlePageMode=true",
-    "next_step_text": "Continue to survey"
+    "next_step_url": "http://localhost:8081/form/survey123?apiKey={apiKey}&singlePageMode=true&return_to={quizId}",
+    "next_step_text": "Continue to survey",
+    "next_step_before_scores": true
   }
 }
