@@ -287,9 +287,10 @@
                         type="radio"
                         :name="`matrix-rating-${rowIndex}-${currentQuestionIndex}`"
                         :value="optionIndex"
-                        class="text-primary focus:ring-0 disabled:cursor-not-allowed pointer-events-none"
+                        class="text-primary focus:ring-0 disabled:cursor-not-allowed"
                         :disabled="isAnswerDisabled"
                         style="box-shadow: none"
+                        @click="selectMatrixOption(row, optionIndex)"
                         :checked="isMatrixRatingOptionSelected(row, optionIndex)"
                         :data-test="`matrixRatingSelector-${rowIndex}-${optionIndex}`"
                       />
