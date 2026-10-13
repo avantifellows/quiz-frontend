@@ -458,14 +458,18 @@ export default defineComponent({
       () =>
         state.isScorecardRedirectingToSurvey ||
         state.isRedirectingAfterSurvey ||
-        // landing straight on the scorecard: the splash would otherwise paint until the
-        // boot logic moves currentQuestionIndex off -1 and shows the scorecard. Gate on
-        // hasQuizEnded (the condition that actually leads to the scorecard) so the overlay
-        // can never stick on a page that isn't headed there.
-        (props.landingScorecard && state.hasQuizEnded && !state.isScorecardShown)
+        // Landing straight on the scorecard (?landing=scorecard): from the first paint until
+        // the scorecard shows, keep the overlay up so the splash never flashes underneath.
+        // This starts true on mount (before the session even loads), which is exactly the
+        // window the splash used to leak into on refresh.
+        (props.landingScorecard && !state.isScorecardShown)
     );
     const isSplashShown = computed(
-      () => state.currentQuestionIndex == -1 && !isTransitioning.value
+      () =>
+        state.currentQuestionIndex == -1 &&
+        !isTransitioning.value &&
+        // Belt-and-suspenders: the splash must never show on a landing-scorecard load.
+        !props.landingScorecard
     );
     const numQuestions = computed(() => state.questions.length);
     const isQuestionShown = computed(() => {
