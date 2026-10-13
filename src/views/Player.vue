@@ -1,10 +1,15 @@
 <template>
   <div class="h-full">
-    <!-- loading spinner -->
-    <div v-if="!isQuizLoaded" class="flex justify-center h-full">
+    <!-- Initial loading spinner. Same neutral white + centred spinner as the in-flow
+         transition overlay below, so every gap in the test <-> survey <-> scorecard flow
+         (first load and each page hop) shows one consistent loader with no splash/blank flash. -->
+    <div
+      v-if="!isQuizLoaded"
+      class="flex items-center justify-center h-full bg-white"
+    >
       <BaseIcon
         name="spinner-solid"
-        iconClass="animate-spin h-10 w-10 object-scale-down my-auto"
+        iconClass="animate-spin h-10 w-10 object-scale-down text-gray-600"
       />
     </div>
 
@@ -128,18 +133,24 @@
         </div>
       </div>
 
-      <!-- Shown after a survey is submitted, while we redirect the student to their score.
-           Replaces the form's own "thank you" scorecard with a short reassurance. -->
+      <!-- One consistent overlay for every hop of the test <-> survey <-> scorecard flow, so no
+           splash or blank frame flashes between full-page navigations. Covers: ending the test
+           and redirecting into the survey, returning from the survey, and landing straight on
+           the scorecard. The message reassures only after a survey submit; otherwise it's a
+           quiet spinner. -->
       <div
-        v-if="isRedirectingAfterSurvey"
-        class="absolute inset-0 z-20 flex items-center justify-center bg-white/80"
+        v-if="isTransitioning"
+        class="absolute inset-0 z-20 flex items-center justify-center bg-white"
       >
         <div class="flex flex-col items-center space-y-3">
           <BaseIcon
             name="spinner-solid"
             iconClass="animate-spin h-10 w-10 text-gray-600"
           />
-          <div class="text-base font-semibold text-gray-700">
+          <div
+            v-if="isRedirectingAfterSurvey"
+            class="text-base font-semibold text-gray-700"
+          >
             Saving your responses...
           </div>
         </div>
@@ -440,7 +451,22 @@ export default defineComponent({
       return '';
     };
 
-    const isSplashShown = computed(() => state.currentQuestionIndex == -1);
+    // True during any cross-page hop of the test <-> survey <-> scorecard flow, where the
+    // page is mounted but its real view (survey / scorecard) hasn't settled yet. Used to keep
+    // the splash from flashing underneath and to show one consistent "please wait" overlay.
+    const isTransitioning = computed(
+      () =>
+        state.isScorecardRedirectingToSurvey ||
+        state.isRedirectingAfterSurvey ||
+        // landing straight on the scorecard: the splash would otherwise paint until the
+        // boot logic moves currentQuestionIndex off -1 and shows the scorecard. Gate on
+        // hasQuizEnded (the condition that actually leads to the scorecard) so the overlay
+        // can never stick on a page that isn't headed there.
+        (props.landingScorecard && state.hasQuizEnded && !state.isScorecardShown)
+    );
+    const isSplashShown = computed(
+      () => state.currentQuestionIndex == -1 && !isTransitioning.value
+    );
     const numQuestions = computed(() => state.questions.length);
     const isQuestionShown = computed(() => {
       return (
@@ -1585,6 +1611,7 @@ export default defineComponent({
       ...toRefs(state),
       isQuestionShown,
       isSplashShown,
+      isTransitioning,
       isQuizAssessment,
       isFormQuiz,
       areAllQuestionsRequired,
