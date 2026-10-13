@@ -39,7 +39,7 @@
                     :type="optionInputType"
                     :name="`option-${optionIndex}-${$props.currentQuestionIndex}`"
                     class="place-self-center text-primary focus:ring-0 disabled:cursor-not-allowed"
-                    style="box-shadow: none"
+                    style="box-shadow: none; accent-color: #F78000"
                     @click="selectOption(optionIndex)"
                     :checked="isOptionMarked(optionIndex)"
                     :disabled="isAnswerDisabled"
@@ -162,44 +162,56 @@
                       v-for="(column, columnIndex) in $props.matrixSize?.[1] ||
                       5"
                       :key="columnIndex"
-                      class="border border-gray-200 text-center"
+                      class="border border-gray-200 text-center p-2"
+                      :class="isAnswerDisabled ? '' : 'cursor-pointer'"
+                      @click="
+                        !isAnswerDisabled &&
+                          selectOption(
+                            convertMatrixMatchOptionToString(rowIndex, columnIndex)
+                          )
+                      "
+                      :data-test="`matrixMatchSelector-${rowIndex}-${columnIndex}`"
                     >
+                      <!-- div-based checkbox (multi-select): state-driven so the mark paints
+                           reliably, unlike a native checkbox's :checked which desynced. -->
                       <div
+                        class="flex justify-center"
                         :class="
                           optionBackgroundClass(
-                            convertMatrixMatchOptionToString(
-                              rowIndex,
-                              columnIndex
-                            )
+                            convertMatrixMatchOptionToString(rowIndex, columnIndex)
                           )
                         "
                       >
-                        <input
-                          type="checkbox"
-                          :id="`${rowIndex}-${columnIndex}`"
-                          :name="`${rowIndex}-${columnIndex}-${$props.currentQuestionIndex}`"
-                          :value="`${columnIndex}`"
-                          :disabled="isAnswerDisabled"
-                          class="place-self-center text-primary focus:ring-0 disabled:cursor-not-allowed"
-                          style="box-shadow: none"
-                          @click="
-                            selectOption(
-                              convertMatrixMatchOptionToString(
-                                rowIndex,
-                                columnIndex
-                              )
-                            )
-                          "
-                          :checked="
+                        <span
+                          class="flex h-4 w-4 items-center justify-center rounded border"
+                          :class="[
                             isMatrixMatchOptionMarked(
-                              convertMatrixMatchOptionToString(
-                                rowIndex,
-                                columnIndex
-                              )
+                              convertMatrixMatchOptionToString(rowIndex, columnIndex)
                             )
-                          "
-                          :data-test="`matrixMatchSelector-${rowIndex}-${columnIndex}`"
-                        />
+                              ? 'border-primary bg-primary'
+                              : 'border-gray-400',
+                            isAnswerDisabled ? 'opacity-50' : '',
+                          ]"
+                        >
+                          <svg
+                            v-if="
+                              isMatrixMatchOptionMarked(
+                                convertMatrixMatchOptionToString(rowIndex, columnIndex)
+                              )
+                            "
+                            class="h-3 w-3 text-white"
+                            viewBox="0 0 12 12"
+                            fill="none"
+                          >
+                            <path
+                              d="M2.5 6.5L5 9L9.5 3.5"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                        </span>
                       </div>
                     </td>
                   </tr>
@@ -232,21 +244,27 @@
                     v-for="(option, optionIndex) in options"
                     :key="`single-row-matrix-rating-${optionIndex}`"
                     class="flex min-w-0 flex-col items-center"
+                    :class="isAnswerDisabled ? '' : 'cursor-pointer'"
+                    @click="!isAnswerDisabled && selectMatrixOption(singleRowMatrixRatingKey, optionIndex)"
+                    :data-test="`matrixRatingSelector-0-${optionIndex}`"
                   >
                     <div class="mb-2 text-sm font-semibold text-gray-700">
                       {{ optionIndex + 1 }}
                     </div>
-                    <input
-                      type="radio"
-                      :name="`matrix-rating-single-${currentQuestionIndex}`"
-                      :value="optionIndex"
-                      class="h-5 w-5 text-primary focus:ring-0 disabled:cursor-not-allowed"
-                      :disabled="isAnswerDisabled"
-                      style="box-shadow: none"
-                      @click="selectMatrixOption(singleRowMatrixRatingKey, optionIndex)"
-                      :checked="isMatrixRatingOptionSelected(singleRowMatrixRatingKey, optionIndex)"
-                      :data-test="`matrixRatingSelector-0-${optionIndex}`"
-                    />
+                    <span
+                      class="flex h-5 w-5 items-center justify-center rounded-full border"
+                      :class="[
+                        isMatrixRatingOptionSelected(singleRowMatrixRatingKey, optionIndex)
+                          ? 'border-primary'
+                          : 'border-gray-400',
+                        isAnswerDisabled ? 'opacity-50' : '',
+                      ]"
+                    >
+                      <span
+                        v-if="isMatrixRatingOptionSelected(singleRowMatrixRatingKey, optionIndex)"
+                        class="h-2.5 w-2.5 rounded-full bg-primary"
+                      ></span>
+                    </span>
                   </div>
                 </div>
                 <span class="mb-1 w-[4.75rem] shrink-0 whitespace-nowrap text-left text-[11px] font-medium leading-snug text-gray-600 sm:w-32 sm:text-sm md:w-40" v-html="lastMatrixRatingLabel"></span>
@@ -276,24 +294,34 @@
                     <td class="border border-gray-200 p-2 font-medium align-top whitespace-normal break-words">
                       {{ row }}
                     </td>
+                    <!-- The whole cell is the click target (and carries the data-test), so a
+                         click anywhere in it selects. The dot is a plain div driven by the
+                         boolean state: a native radio's :checked desynced from Vue's state
+                         (the state updated but the dot didn't paint until a second click). -->
                     <td
                       v-for="(option, optionIndex) in options"
                       :key="optionIndex"
-                      class="border border-gray-200 text-center p-2 align-top whitespace-normal break-words"
+                      class="border border-gray-200 p-2 align-top"
                       :class="isAnswerDisabled ? '' : 'cursor-pointer'"
                       @click="!isAnswerDisabled && selectMatrixOption(row, optionIndex)"
+                      :data-test="`matrixRatingSelector-${rowIndex}-${optionIndex}`"
                     >
-                      <input
-                        type="radio"
-                        :name="`matrix-rating-${rowIndex}-${currentQuestionIndex}`"
-                        :value="optionIndex"
-                        class="text-primary focus:ring-0 disabled:cursor-not-allowed"
-                        :disabled="isAnswerDisabled"
-                        style="box-shadow: none"
-                        @click="selectMatrixOption(row, optionIndex)"
-                        :checked="isMatrixRatingOptionSelected(row, optionIndex)"
-                        :data-test="`matrixRatingSelector-${rowIndex}-${optionIndex}`"
-                      />
+                      <div class="flex justify-center">
+                        <span
+                          class="flex h-4 w-4 items-center justify-center rounded-full border"
+                          :class="[
+                            isMatrixRatingOptionSelected(row, optionIndex)
+                              ? 'border-primary'
+                              : 'border-gray-400',
+                            isAnswerDisabled ? 'opacity-50' : '',
+                          ]"
+                        >
+                          <span
+                            v-if="isMatrixRatingOptionSelected(row, optionIndex)"
+                            class="h-2 w-2 rounded-full bg-primary"
+                          ></span>
+                        </span>
+                      </div>
                     </td>
                   </tr>
                 </tbody>
@@ -309,25 +337,30 @@
                   {{ row }}
                 </p>
                 <div class="mt-3 space-y-2">
-                  <label
+                  <div
                     v-for="(option, optionIndex) in options"
                     :key="`mobile-matrix-rating-${rowIndex}-${optionIndex}`"
                     class="flex items-start gap-2"
                     :class="isAnswerDisabled ? '' : 'cursor-pointer'"
+                    @click="!isAnswerDisabled && selectMatrixOption(row, optionIndex)"
+                    :data-test="`matrixRatingSelector-${rowIndex}-${optionIndex}`"
                   >
-                    <input
-                      type="radio"
-                      :name="`matrix-rating-${rowIndex}-${currentQuestionIndex}`"
-                      :value="optionIndex"
-                      class="mt-1 text-primary focus:ring-0 disabled:cursor-not-allowed"
-                      :disabled="isAnswerDisabled"
-                      style="box-shadow: none"
-                      @click="selectMatrixOption(row, optionIndex)"
-                      :checked="isMatrixRatingOptionSelected(row, optionIndex)"
-                      :data-test="`matrixRatingSelector-${rowIndex}-${optionIndex}`"
-                    />
+                    <span
+                      class="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border"
+                      :class="[
+                        isMatrixRatingOptionSelected(row, optionIndex)
+                          ? 'border-primary'
+                          : 'border-gray-400',
+                        isAnswerDisabled ? 'opacity-50' : '',
+                      ]"
+                    >
+                      <span
+                        v-if="isMatrixRatingOptionSelected(row, optionIndex)"
+                        class="h-2 w-2 rounded-full bg-primary"
+                      ></span>
+                    </span>
                     <span class="text-sm leading-relaxed break-words" v-html="option.text"></span>
-                  </label>
+                  </div>
                 </div>
               </div>
             </div>
@@ -550,7 +583,7 @@
                     :type="optionInputType"
                     :name="`option-${optionIndex}-${$props.currentQuestionIndex}`"
                     class="place-self-center text-primary focus:ring-0 disabled:cursor-not-allowed"
-                    style="box-shadow: none"
+                    style="box-shadow: none; accent-color: #F78000"
                     @click="selectOption(optionIndex)"
                     :checked="isOptionMarked(optionIndex)"
                     :disabled="isAnswerDisabled"
@@ -672,44 +705,56 @@
                       v-for="(column, columnIndex) in $props.matrixSize?.[1] ||
                       5"
                       :key="columnIndex"
-                      class="border border-gray-200 text-center"
+                      class="border border-gray-200 text-center p-2"
+                      :class="isAnswerDisabled ? '' : 'cursor-pointer'"
+                      @click="
+                        !isAnswerDisabled &&
+                          selectOption(
+                            convertMatrixMatchOptionToString(rowIndex, columnIndex)
+                          )
+                      "
+                      :data-test="`matrixMatchSelector-${rowIndex}-${columnIndex}`"
                     >
+                      <!-- div-based checkbox (multi-select): state-driven so the mark paints
+                           reliably, unlike a native checkbox's :checked which desynced. -->
                       <div
+                        class="flex justify-center"
                         :class="
                           optionBackgroundClass(
-                            convertMatrixMatchOptionToString(
-                              rowIndex,
-                              columnIndex
-                            )
+                            convertMatrixMatchOptionToString(rowIndex, columnIndex)
                           )
                         "
                       >
-                        <input
-                          type="checkbox"
-                          :id="`${rowIndex}-${columnIndex}`"
-                          :name="`${rowIndex}-${columnIndex}-${$props.currentQuestionIndex}`"
-                          :value="`${columnIndex}`"
-                          :disabled="isAnswerDisabled"
-                          class="place-self-center text-primary focus:ring-0 disabled:cursor-not-allowed"
-                          style="box-shadow: none"
-                          @click="
-                            selectOption(
-                              convertMatrixMatchOptionToString(
-                                rowIndex,
-                                columnIndex
-                              )
-                            )
-                          "
-                          :checked="
+                        <span
+                          class="flex h-4 w-4 items-center justify-center rounded border"
+                          :class="[
                             isMatrixMatchOptionMarked(
-                              convertMatrixMatchOptionToString(
-                                rowIndex,
-                                columnIndex
-                              )
+                              convertMatrixMatchOptionToString(rowIndex, columnIndex)
                             )
-                          "
-                          :data-test="`matrixMatchSelector-${rowIndex}-${columnIndex}`"
-                        />
+                              ? 'border-primary bg-primary'
+                              : 'border-gray-400',
+                            isAnswerDisabled ? 'opacity-50' : '',
+                          ]"
+                        >
+                          <svg
+                            v-if="
+                              isMatrixMatchOptionMarked(
+                                convertMatrixMatchOptionToString(rowIndex, columnIndex)
+                              )
+                            "
+                            class="h-3 w-3 text-white"
+                            viewBox="0 0 12 12"
+                            fill="none"
+                          >
+                            <path
+                              d="M2.5 6.5L5 9L9.5 3.5"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                        </span>
                       </div>
                     </td>
                   </tr>
@@ -1210,9 +1255,14 @@ export default defineComponent({
     }
 
     function selectMatrixOption(row: string, optionIndex: number) {
-      const currentDraft = (state.draftAnswer as Record<string, number>) || {};
-      currentDraft[matrixRatingAnswerKey(row)] = optionIndex;
-      state.draftAnswer = currentDraft;
+      const existing = (state.draftAnswer as Record<string, number>) || {};
+      // Assign a NEW object (not a mutation of the same reference) so the radios' :checked
+      // bindings re-render reliably. Mutating in place left the native radios' DOM state and
+      // Vue's :checked out of sync, which showed as "blank, then selects only on a 2nd click".
+      state.draftAnswer = {
+        ...existing,
+        [matrixRatingAnswerKey(row)]: optionIndex,
+      };
       context.emit(
         "matrix-option-selected",
         state.draftAnswer,
