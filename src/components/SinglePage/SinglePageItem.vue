@@ -280,15 +280,16 @@
                       v-for="(option, optionIndex) in options"
                       :key="optionIndex"
                       class="border border-gray-200 text-center p-2 align-top whitespace-normal break-words"
+                      :class="isAnswerDisabled ? '' : 'cursor-pointer'"
+                      @click="!isAnswerDisabled && selectMatrixOption(row, optionIndex)"
                     >
                       <input
                         type="radio"
                         :name="`matrix-rating-${rowIndex}-${currentQuestionIndex}`"
                         :value="optionIndex"
-                        class="text-primary focus:ring-0 disabled:cursor-not-allowed"
+                        class="text-primary focus:ring-0 disabled:cursor-not-allowed pointer-events-none"
                         :disabled="isAnswerDisabled"
                         style="box-shadow: none"
-                        @click="selectMatrixOption(row, optionIndex)"
                         :checked="isMatrixRatingOptionSelected(row, optionIndex)"
                         :data-test="`matrixRatingSelector-${rowIndex}-${optionIndex}`"
                       />
@@ -311,6 +312,7 @@
                     v-for="(option, optionIndex) in options"
                     :key="`mobile-matrix-rating-${rowIndex}-${optionIndex}`"
                     class="flex items-start gap-2"
+                    :class="isAnswerDisabled ? '' : 'cursor-pointer'"
                   >
                     <input
                       type="radio"
