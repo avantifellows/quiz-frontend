@@ -104,12 +104,15 @@ const routes = [
       userId: resolveUserId(route),
       ...resolveDisplayData(route),
       apiKey: route.query.apiKey,
-      omrMode: route.query.omrMode === "true",
-      singlePageMode: route.query.singlePageMode === "true",
-      autoStart: route.query.autoStart === "true",
+      omrMode: getQueryValue(route.query.omrMode) === "true",
+      singlePageMode: getQueryValue(route.query.singlePageMode) === "true",
+      // getQueryValue tolerates a param that appears more than once (?autoStart=true&autoStart=true
+      // becomes ["true","true"]); a bare `=== "true"` on the array would silently read false and
+      // disable auto-start, as happened with a next_step URL that already carried autoStart.
+      autoStart: getQueryValue(route.query.autoStart) === "true",
       // When a chained survey redirects back here (?landing=scorecard), skip the splash
       // and open the already-ended session straight on its scorecard.
-      landingScorecard: route.query.landing === "scorecard",
+      landingScorecard: getQueryValue(route.query.landing) === "scorecard",
       // The quiz id a before-scores survey should return the student to. A shared survey reads
       // this from ?return_to=<test id> and builds its own next_step_url back to that test.
       landingReturnTo: getQueryValue(route.query.return_to),
@@ -129,12 +132,15 @@ const routes = [
       userId: resolveUserId(route),
       ...resolveDisplayData(route),
       apiKey: route.query.apiKey,
-      omrMode: route.query.omrMode === "true",
-      singlePageMode: route.query.singlePageMode === "true",
-      autoStart: route.query.autoStart === "true",
+      omrMode: getQueryValue(route.query.omrMode) === "true",
+      singlePageMode: getQueryValue(route.query.singlePageMode) === "true",
+      // getQueryValue tolerates a param that appears more than once (?autoStart=true&autoStart=true
+      // becomes ["true","true"]); a bare `=== "true"` on the array would silently read false and
+      // disable auto-start, as happened with a next_step URL that already carried autoStart.
+      autoStart: getQueryValue(route.query.autoStart) === "true",
       // When a chained survey redirects back here (?landing=scorecard), skip the splash
       // and open the already-ended session straight on its scorecard.
-      landingScorecard: route.query.landing === "scorecard",
+      landingScorecard: getQueryValue(route.query.landing) === "scorecard",
       // The quiz id a before-scores survey should return the student to. A shared survey reads
       // this from ?return_to=<test id> and builds its own next_step_url back to that test.
       landingReturnTo: getQueryValue(route.query.return_to),
