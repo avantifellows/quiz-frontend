@@ -34,7 +34,8 @@
                   :data-test="`questionSetInstruction-${index}`"></p>
                 <div class="mt-4 space-y-4">
                   <!-- it is being stopping endbutton make sur eu -->
-                  <SinglePageItem v-for="(questionState, qindex) in questionSetState.paletteItems" :class="{ 'mt-4': qindex == 0 }"
+                  <template v-for="(questionState, qindex) in questionSetState.paletteItems" :key="questionState.index">
+                  <SinglePageItem v-if="questionVisibility[questionState.index]" :class="{ 'mt-4': qindex == 0 }"
                 :options="$props.questions[questionState.index].options"
                 :correctAnswer="$props.questions[questionState.index].correct_answer"
                 :questionType="$props.questions[questionState.index].type"
@@ -62,9 +63,9 @@
                 @matrix-option-selected="matrixOptionSelected"
                 @matrix-numerical-updated="matrixNumericalUpdated"
                 @matrix-subjective-updated="matrixSubjectiveUpdated"
-                :key="questionState.index"
                 :data-test="`SinglePageItem-${questionState.index}`"
                 :ref="`singlepageitem-${questionState.index}`"></SinglePageItem>
+                  </template>
                 </div>
               </div>
               <!-- Section navigation for forms paginated by question set -->
@@ -149,7 +150,8 @@ import {
 } from "vue"
 import {
   isScreenPortrait,
-  isQuestionResponseComplete
+  isQuestionResponseComplete,
+  computeQuestionVisibility
 } from "@/services/Functional/Utilities";
 import {
   Question,
@@ -363,6 +365,7 @@ export default defineComponent({
       state.previousLocalResponses[newQuestionIndex] = clonedLocalResponse;
       state.localResponses[state.localCurrentQuestionIndex].answer = draftAnswer
       context.emit("submit-omr-question", newQuestionIndex); // submit answer whenever there is an update / option selected
+      clearHiddenAnswers();
     }
 
     function clearAnswer() {
@@ -374,6 +377,7 @@ export default defineComponent({
       state.previousLocalResponses[newQuestionIndex] = clonedeep(state.localResponses[state.localCurrentQuestionIndex]);
       state.localResponses[state.localCurrentQuestionIndex].answer = answer
       context.emit("submit-omr-question", newQuestionIndex);
+      clearHiddenAnswers();
     }
 
     /** update the attempt to the current question - valid for subjective questions */
@@ -382,6 +386,7 @@ export default defineComponent({
       state.previousLocalResponses[newQuestionIndex] = clonedeep(state.localResponses[state.localCurrentQuestionIndex]);
       state.localResponses[state.localCurrentQuestionIndex].answer = answer
       context.emit("submit-omr-question", newQuestionIndex);
+      clearHiddenAnswers();
     }
 
     /** update matrix rating answer */
@@ -390,6 +395,7 @@ export default defineComponent({
       state.previousLocalResponses[newQuestionIndex] = clonedeep(state.localResponses[state.localCurrentQuestionIndex]);
       state.localResponses[state.localCurrentQuestionIndex].answer = answer
       context.emit("submit-omr-question", newQuestionIndex);
+      clearHiddenAnswers();
     }
 
     /** update matrix numerical answer */
@@ -398,6 +404,7 @@ export default defineComponent({
       state.previousLocalResponses[newQuestionIndex] = clonedeep(state.localResponses[state.localCurrentQuestionIndex]);
       state.localResponses[state.localCurrentQuestionIndex].answer = answer
       context.emit("submit-omr-question", newQuestionIndex);
+      clearHiddenAnswers();
     }
 
     /** update matrix subjective answer */
@@ -406,19 +413,24 @@ export default defineComponent({
       state.previousLocalResponses[newQuestionIndex] = clonedeep(state.localResponses[state.localCurrentQuestionIndex]);
       state.localResponses[state.localCurrentQuestionIndex].answer = answer
       context.emit("submit-omr-question", newQuestionIndex);
+      clearHiddenAnswers();
     }
 
     function endTest() {
       if (!props.hasQuizEnded && state.hasEndTestBeenClickedOnce) {
+        // count only currently-visible questions, so conditionally-hidden ones don't inflate
+        // the denominator (for non-conditional quizzes every question is visible => unchanged)
+        const visibility = questionVisibility.value;
         let attemptedQuestions = 0;
-        for (const response of props.responses) {
-          if (response.answer != null) {
-            attemptedQuestions += 1;
-          }
-        }
+        let totalVisibleQuestions = 0;
+        props.responses.forEach((response, idx) => {
+          if (!visibility[idx]) return;
+          totalVisibleQuestions += 1;
+          if (response.answer != null) attemptedQuestions += 1;
+        });
         const buttonName = isQuizAssessment.value ? "End Test" : "Submit";
         state.toast.success(
-          `You have answered ${attemptedQuestions} out of ${props.numQuestions} questions. Please verify your responses and click ${buttonName} button again to make final submission.`,
+          `You have answered ${attemptedQuestions} out of ${totalVisibleQuestions} questions. Please verify your responses and click ${buttonName} button again to make final submission.`,
           {
             position: POSITION.TOP_CENTER,
             timeout: 5000,
@@ -516,6 +528,37 @@ export default defineComponent({
 
     const isQuizAssessment = computed(() => props.quizType == "assessment" || props.quizType == "omr-assessment")
 
+    // Visibility of each question by flat position, derived from the LIVE local responses so
+    // dependents appear/disappear immediately as the user answers a trigger. Single source of
+    // truth is the shared evaluator; questions with no display_condition are always visible,
+    // so non-conditional quizzes/forms behave exactly as before.
+    const questionVisibility = computed(() =>
+      computeQuestionVisibility(
+        props.questions,
+        state.localResponses.map((response) => response?.answer ?? null)
+      )
+    )
+
+    // When a trigger's answer changes so a dependent becomes hidden, null the dependent's
+    // answer and push it to the server (same submit-omr-question path), so stale answers to
+    // hidden questions never reach the backend / BigQuery. Visibility is transitive and
+    // recomputed from current answers, so a single pass clears whole dependency chains (a
+    // grand-dependent of a now-hidden trigger is already marked hidden here). draftResponses
+    // is nulled too so the (v-if remounted) item shows empty if it ever reappears.
+    function clearHiddenAnswers() {
+      const visibility = questionVisibility.value
+      props.questions.forEach((question, idx) => {
+        if (visibility[idx]) return
+        const response = state.localResponses[idx]
+        if (response != null && response.answer != null) {
+          state.previousLocalResponses[idx] = clonedeep(response)
+          state.localResponses[idx].answer = null
+          state.draftResponses[idx] = null
+          context.emit("submit-omr-question", idx)
+        }
+      })
+    }
+
     // forms with multiple question sets show one set (section) per page
     const isSetPaginationEnabled = computed(
       () => props.quizType == "form" && !props.hasQuizEnded && props.questionSetStates.length > 1
@@ -547,6 +590,7 @@ export default defineComponent({
         const paletteItems = props.questionSetStates[state.currentSetPageIndex].paletteItems;
         const incompleteItem = paletteItems.find(
           (item) => props.questions[item.index].required !== false &&
+            questionVisibility.value[item.index] && // hidden questions aren't required
             !isQuestionResponseComplete(
               props.questions[item.index],
               state.localResponses[item.index]?.answer ?? null
@@ -698,6 +742,7 @@ export default defineComponent({
       currentQuestionResponseAnswer,
       isAttemptValid,
       isQuizAssessment,
+      questionVisibility,
       isSetPaginationEnabled,
       isLastSetPage,
       goToNextSet,
