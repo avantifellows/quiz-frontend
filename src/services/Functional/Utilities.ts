@@ -125,6 +125,18 @@ export function computeQuestionVisibility(
   return visibility;
 }
 
+/**
+ * The answer to save for a question at submission. A question hidden by display_condition
+ * always saves null, so a stale answer never reaches the backend / BigQuery — e.g. one
+ * restored locally after the save that cleared it failed.
+ */
+export function answerToSubmit(
+  answer: submittedAnswer,
+  isVisible: boolean
+): submittedAnswer {
+  return isVisible ? answer : null;
+}
+
 export function isQuestionResponseComplete(
   questionDetail: Question,
   userAnswer: submittedAnswer
