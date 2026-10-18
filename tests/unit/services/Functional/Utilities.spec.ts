@@ -1,4 +1,4 @@
-import { computeQuestionVisibility } from "@/services/Functional/Utilities";
+import { computeQuestionVisibility, answerToSubmit } from "@/services/Functional/Utilities";
 import { Question, submittedAnswer, DisplayCondition } from "@/types";
 
 // minimal Question builder — only the fields the visibility rule reads. `type` is a plain
@@ -68,5 +68,18 @@ describe("computeQuestionVisibility", () => {
     const questions = [q("matrix-rating"), q("subjective", cond(0, [0]))];
     const answers: submittedAnswer[] = [{ row: 0 }, null];
     expect(computeQuestionVisibility(questions, answers)).toEqual([true, false]);
+  });
+});
+
+describe("answerToSubmit", () => {
+  it("submits the answer of a visible question unchanged", () => {
+    expect(answerToSubmit([2], true)).toEqual([2]);
+    expect(answerToSubmit("some text", true)).toEqual("some text");
+  });
+
+  it("submits null for a hidden question, even if a stale answer is held", () => {
+    expect(answerToSubmit([2], false)).toBeNull();
+    expect(answerToSubmit("stale text", false)).toBeNull();
+    expect(answerToSubmit({ row: 1 }, false)).toBeNull();
   });
 });

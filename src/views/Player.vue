@@ -190,7 +190,7 @@ import QuestionModal from "../components/Questions/QuestionModal.vue";
 import SinglePageModal from "../components/SinglePage/SinglePageModal.vue"
 import Splash from "../components/Splash.vue";
 import Scorecard from "../components/Scorecard.vue";
-import { resetConfetti, isQuestionAnswerCorrect, isQuestionFetched, createQuestionBuckets, isQuestionResponseComplete, computeQuestionVisibility } from "../services/Functional/Utilities";
+import { resetConfetti, isQuestionAnswerCorrect, isQuestionFetched, createQuestionBuckets, isQuestionResponseComplete, computeQuestionVisibility, answerToSubmit } from "../services/Functional/Utilities";
 import QuizAPIService from "../services/API/Quiz";
 import FormAPIService from "../services/API/Form";
 import SessionAPIService from "../services/API/Session";
@@ -1129,7 +1129,8 @@ export default defineComponent({
       const responseAnswersWithPositions: UpdateSessionAnswersAtSpecificPositionsAPIPayload = [];
       for (const [idx, response] of state.responses.entries()) {
         const answerPayload: UpdateSessionAnswerAPIPayload = {
-          answer: response.answer,
+          // hidden questions always submit null (see answerToSubmit)
+          answer: answerToSubmit(response.answer, questionVisibility.value[idx] ?? true),
           visited: response.visited,
           marked_for_review: response.marked_for_review
         };
