@@ -53,23 +53,25 @@
                     v-lazy-images
                   ></div>
                 </label>
-                <!-- free-text box for the "Other" (last) option of a single-choice-other question -->
-                <div
-                  v-if="isOtherOptionWithTextBox(optionIndex)"
-                  class="mt-2 ml-6"
-                  data-test="otherTextContainer"
-                >
-                  <Textarea
-                    v-model:value="otherText"
-                    class="w-full"
-                    :boxStyling="subjectiveAnswerBoxStyling"
-                    placeholder="Please specify"
-                    :isDisabled="isAnswerDisabled"
-                    :maxHeightLimit="150"
-                    data-test="otherText"
-                  ></Textarea>
-                </div>
               </div>
+            </li>
+            <!-- free-text box for the "Other" (last) option of a single-choice-other question.
+                 Kept outside the option cards (whose large text classes it would inherit) and
+                 styled exactly like the subjective answer box, directly below "Other". -->
+            <li
+              v-if="isOtherOptionWithTextBox(otherOptionIndex)"
+              class="list-none flex flex-col mt-2"
+              data-test="otherTextContainer"
+            >
+              <Textarea
+                v-model:value="otherText"
+                class="px-1 w-full"
+                :boxStyling="subjectiveAnswerBoxStyling"
+                placeholder="Please specify"
+                :isDisabled="isAnswerDisabled"
+                :maxHeightLimit="250"
+                data-test="otherText"
+              ></Textarea>
             </li>
           </ul>
         </div>
@@ -1190,7 +1192,8 @@ export default defineComponent({
     }
 
     // index of the "Other" option of a single-choice-other question (always the last)
-    const otherOptionIndex = computed(() => props.options.length - 1);
+    // (options can arrive as null, e.g. for questions whose details were trimmed)
+    const otherOptionIndex = computed(() => (props.options || []).length - 1);
 
     // whether to show the free-text box under this option: the "Other" option is selected
     function isOtherOptionWithTextBox(optionIndex: number) {
@@ -1904,6 +1907,7 @@ export default defineComponent({
       optionBackgroundClass,
       isOptionMarked,
       isOtherOptionWithTextBox,
+      otherOptionIndex,
       selectOption,
       isAnswerSubmitted,
       labelClass,

@@ -82,4 +82,11 @@ describe("SinglePageItem.vue — single-choice-other", () => {
     await wrapper.find('[data-test="optionSelector-1"]').trigger("click");
     expect(lastEmit(wrapper)).toEqual([null, 4]);
   });
+
+  it("renders when options are null (e.g. trimmed question details)", () => {
+    const wrapper = mount(SinglePageItem, {
+      props: { options: null as unknown as [], questionType: "single-choice", showFullText: true },
+    });
+    expect(wrapper.find('[data-test="otherTextContainer"]').exists()).toBe(false);
+  });
 });
