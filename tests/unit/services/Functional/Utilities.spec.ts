@@ -1,8 +1,16 @@
-import { computeQuestionVisibility, computeQuestionLabels, answerToSubmit, shouldForceSinglePageMode } from "@/services/Functional/Utilities";
+import {
+  computeQuestionVisibility,
+  computeQuestionLabels,
+  answerToSubmit,
+  answerOptionIndices,
+  isQuestionResponseComplete,
+  shouldForceSinglePageMode,
+} from "@/services/Functional/Utilities";
 import { Question, submittedAnswer, DisplayCondition, QuizAPIResponse } from "@/types";
 
 // minimal Question builder — only the fields the visibility rule reads. `type` is a plain
-// string here (the evaluator ignores it); cast through unknown to satisfy Question.
+// string here (the evaluator reads a trigger's type to know its answer shape); cast through
+// unknown to satisfy Question.
 function q(
   type = "single-choice",
   displayCondition: DisplayCondition | null = null
@@ -183,5 +191,63 @@ describe("shouldForceSinglePageMode", () => {
       const notAForm = quiz(quizType, q(), q("subjective", cond(0, [0])));
       expect(shouldForceSinglePageMode(notAForm, paginated)).toBe(false);
     }
+  });
+});
+
+describe("single-choice-other", () => {
+  // last option is "Other"
+  const otherQuestion = {
+    type: "single-choice-other",
+    options: [{ text: "I was not aware" }, { text: "No time" }, { text: "Other" }],
+    display_condition: null,
+  } as unknown as Question;
+
+  it("reads selected indices from the {selected, other_text} answer", () => {
+    expect(
+      answerOptionIndices({ selected: [1], other_text: null }, "single-choice-other")
+    ).toEqual([1]);
+    expect(answerOptionIndices(null, "single-choice-other")).toEqual([]);
+  });
+
+  it("does not misread a matrix answer that has a 'selected' row", () => {
+    const matrixAnswer = { selected: 1 } as submittedAnswer;
+    expect(answerOptionIndices(matrixAnswer, "matrix-rating")).toEqual([]);
+    expect(answerOptionIndices(matrixAnswer)).toEqual([]);
+  });
+
+  it("is complete when a normal option is picked", () => {
+    expect(
+      isQuestionResponseComplete(otherQuestion, { selected: [0], other_text: null })
+    ).toBe(true);
+  });
+
+  it("needs non-blank text when Other is picked", () => {
+    expect(
+      isQuestionResponseComplete(otherQuestion, { selected: [2], other_text: "No internet" })
+    ).toBe(true);
+    expect(
+      isQuestionResponseComplete(otherQuestion, { selected: [2], other_text: "  " })
+    ).toBe(false);
+    expect(
+      isQuestionResponseComplete(otherQuestion, { selected: [2], other_text: null })
+    ).toBe(false);
+  });
+
+  it("is incomplete when nothing is selected or the shape is wrong", () => {
+    expect(isQuestionResponseComplete(otherQuestion, null)).toBe(false);
+    expect(
+      isQuestionResponseComplete(otherQuestion, { selected: [], other_text: null })
+    ).toBe(false);
+    expect(isQuestionResponseComplete(otherQuestion, [0])).toBe(false);
+  });
+
+  it("can trigger a follow-up question", () => {
+    const questions = [otherQuestion, q("subjective", cond(0, [1]))];
+    expect(
+      computeQuestionVisibility(questions, [{ selected: [1], other_text: null }, null], "form")
+    ).toEqual([true, true]);
+    expect(
+      computeQuestionVisibility(questions, [{ selected: [2], other_text: "x" }, null], "form")
+    ).toEqual([true, false]);
   });
 });
