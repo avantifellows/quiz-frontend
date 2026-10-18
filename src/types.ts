@@ -7,7 +7,13 @@ export type quizTitleType = string | null;
 export type textAreaValueType = string | number | null;
 export type isFirstSessionType = boolean | null;
 type quizNavigationMode = "linear" | "non-linear";
-export type submittedAnswer = number[] | string[] | string | number | Record<string, number> | Record<string, string> | null;
+// answer to a single-choice-other question: the selected option index (the LAST option is
+// "Other") and the text typed for "Other" (null otherwise)
+export interface OtherOptionAnswer {
+  selected: number[];
+  other_text: string | null;
+}
+export type submittedAnswer = number[] | string[] | string | number | Record<string, number> | Record<string, string> | OtherOptionAnswer | null;
 export type CorrectAnswerType = number[] | string[] | string | number | Record<string, number> | Record<string, string> | null;
 
 export type DisplayIdType = "user_id" | "student_id" | "apaar_id" | "candidate_id" | "teacher_id" | null;
@@ -32,6 +38,7 @@ export enum eventType {
 
 export enum questionType {
   SINGLE_CHOICE = "single-choice",
+  SINGLE_CHOICE_OTHER = "single-choice-other",
   MULTI_CHOICE = "multi-choice",
   NUMERICAL_INTEGER = "numerical-integer",
   NUMERICAL_FLOAT = "numerical-float",
@@ -72,7 +79,7 @@ export interface InputTextValidationConfig {
   invalidMessage: String;
 }
 
-export type DraftResponse = number[] | string[] | number | string | Record<string, number> | Record<string, string> | null;
+export type DraftResponse = number[] | string[] | number | string | Record<string, number> | Record<string, string> | OtherOptionAnswer | null;
 
 export interface SubmittedResponse {
   _id: string;

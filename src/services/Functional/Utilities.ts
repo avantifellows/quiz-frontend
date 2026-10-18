@@ -1,5 +1,5 @@
 import store from "@/store/index";
-import { Question, submittedAnswer, CorrectAnswerType, answerEvaluation, QuestionBucketingMap, quizType, QuizAPIResponse } from "@/types";
+import { Question, submittedAnswer, CorrectAnswerType, answerEvaluation, QuestionBucketingMap, OtherOptionAnswer, questionType, quizType, QuizAPIResponse } from "@/types";
 const isEqual = require("deep-eql");
 
 /**
@@ -69,15 +69,26 @@ export function resetConfetti() {
 }
 
 /**
- * Selected 0-based option indices from a single/multi-choice answer (stored as a number
- * array). Any other answer shape (matrix dicts, numerical, string, null) cannot drive a
- * v1 display_condition, so it contributes no indices. Mirrors the backend
- * `_answer_option_indices`.
+ * Selected 0-based option indices from a choice answer. Single/multi-choice store a number
+ * array; single-choice-other stores {selected, other_text}. Any other answer shape (matrix
+ * dicts, numerical, string, null) cannot drive a display_condition, so it contributes no
+ * indices. The question type is needed because matrix answers are objects too. Mirrors the
+ * backend `_answer_option_indices`.
  */
-function answerOptionIndices(answer: submittedAnswer): number[] {
-  if (!Array.isArray(answer)) return [];
+export function answerOptionIndices(
+  answer: submittedAnswer | undefined,
+  type?: string
+): number[] {
+  let selected: unknown = answer;
+  if (type == questionType.SINGLE_CHOICE_OTHER) {
+    selected =
+      answer != null && typeof answer == "object" && !Array.isArray(answer)
+        ? (answer as OtherOptionAnswer).selected
+        : null;
+  }
+  if (!Array.isArray(selected)) return [];
   const indices: number[] = [];
-  for (const value of answer) {
+  for (const value of selected) {
     if (typeof value == "number") indices.push(value);
   }
   return indices;
@@ -122,7 +133,7 @@ export function computeQuestionVisibility(
       visibility.push(false);
       return;
     }
-    const selected = answerOptionIndices(answers[source] ?? null);
+    const selected = answerOptionIndices(answers[source] ?? null, questions[source].type);
     visibility.push(
       selected.some((index) => condition.option_indices.includes(index))
     );
@@ -234,18 +245,31 @@ export function isQuestionResponseComplete(
     return typeof userAnswer == "number";
   }
 
+  if (questionDetail.type == questionType.SINGLE_CHOICE_OTHER) {
+    const selected = answerOptionIndices(userAnswer, questionDetail.type);
+    if (selected.length == 0) return false;
+    // the LAST option is "Other": choosing it requires the free text to be filled
+    const otherIndex = (questionDetail.options || []).length - 1;
+    if (otherIndex >= 0 && selected.includes(otherIndex)) {
+      const otherText = (userAnswer as OtherOptionAnswer).other_text;
+      return typeof otherText == "string" && otherText.trim() != "";
+    }
+    return true;
+  }
+
   if (
     questionDetail.type == "matrix-rating" ||
     questionDetail.type == "matrix-numerical" ||
     questionDetail.type == "matrix-subjective"
   ) {
     if (typeof userAnswer != "object" || Array.isArray(userAnswer)) return false;
+    const matrixAnswer = userAnswer as Record<string, number | string>; // row -> value
     const matrixRows = questionDetail.matrix_rows || [];
     if (matrixRows.length == 0) return false;
     // blank row labels are stored under the "__default__" key by the answer
     // entry components (e.g. single-row matrix ratings)
     const rowValues = matrixRows.map((row) =>
-      row in userAnswer ? userAnswer[row] : (!row || !row.trim() ? userAnswer.__default__ : undefined)
+      row in matrixAnswer ? matrixAnswer[row] : (!row || !row.trim() ? matrixAnswer.__default__ : undefined)
     );
     if (
       questionDetail.type == "matrix-subjective" ||
