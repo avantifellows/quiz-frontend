@@ -17,7 +17,7 @@ function cond(sourcePosition: number, optionIndices: number[]): DisplayCondition
 describe("computeQuestionVisibility", () => {
   it("marks every question visible when none have a display_condition", () => {
     const questions = [q(), q(), q()];
-    expect(computeQuestionVisibility(questions, [null, null, null])).toEqual([
+    expect(computeQuestionVisibility(questions, [null, null, null], "form")).toEqual([
       true,
       true,
       true,
@@ -27,25 +27,25 @@ describe("computeQuestionVisibility", () => {
   it("shows a dependent when the trigger option is selected", () => {
     const questions = [q("single-choice"), q("subjective", cond(0, [0]))];
     const answers: submittedAnswer[] = [[0], null];
-    expect(computeQuestionVisibility(questions, answers)).toEqual([true, true]);
+    expect(computeQuestionVisibility(questions, answers, "form")).toEqual([true, true]);
   });
 
   it("hides a dependent when the trigger option is not selected", () => {
     const questions = [q("single-choice"), q("subjective", cond(0, [0]))];
     const answers: submittedAnswer[] = [[1], null];
-    expect(computeQuestionVisibility(questions, answers)).toEqual([true, false]);
+    expect(computeQuestionVisibility(questions, answers, "form")).toEqual([true, false]);
   });
 
   it("intersects multi-choice answers with the required option indices", () => {
     const questions = [q("multi-choice"), q("subjective", cond(0, [2]))];
     const answers: submittedAnswer[] = [[1, 2], null];
-    expect(computeQuestionVisibility(questions, answers)).toEqual([true, true]);
+    expect(computeQuestionVisibility(questions, answers, "form")).toEqual([true, true]);
   });
 
   it("reveals multiple dependents from one trigger option", () => {
     const questions = [q(), q("subjective", cond(0, [0])), q("subjective", cond(0, [0]))];
     const answers: submittedAnswer[] = [[0], null, null];
-    expect(computeQuestionVisibility(questions, answers)).toEqual([true, true, true]);
+    expect(computeQuestionVisibility(questions, answers, "form")).toEqual([true, true, true]);
   });
 
   it("is transitive: a dependent of a hidden trigger stays hidden", () => {
@@ -53,7 +53,7 @@ describe("computeQuestionVisibility", () => {
     // condition on q1 would otherwise match
     const questions = [q(), q("single-choice", cond(0, [0])), q("subjective", cond(1, [0]))];
     const answers: submittedAnswer[] = [[1], [0], [0]];
-    expect(computeQuestionVisibility(questions, answers)).toEqual([true, false, false]);
+    expect(computeQuestionVisibility(questions, answers, "form")).toEqual([true, false, false]);
   });
 
   it("hides a question whose source is self-referential / out of range", () => {
@@ -61,13 +61,31 @@ describe("computeQuestionVisibility", () => {
       q("subjective", cond(0, [0])), // self-reference
       q("subjective", cond(5, [0])), // out of range
     ];
-    expect(computeQuestionVisibility(questions, [[0], null])).toEqual([false, false]);
+    expect(computeQuestionVisibility(questions, [[0], null], "form")).toEqual([false, false]);
   });
 
   it("treats non-list answers (matrix/numerical/string) as no selection", () => {
     const questions = [q("matrix-rating"), q("subjective", cond(0, [0]))];
     const answers: submittedAnswer[] = [{ row: 0 }, null];
-    expect(computeQuestionVisibility(questions, answers)).toEqual([true, false]);
+    expect(computeQuestionVisibility(questions, answers, "form")).toEqual([true, false]);
+  });
+
+  it("ignores display_condition outside forms: every question is visible", () => {
+    // a trigger answer that would hide q1 and q2 on a form
+    const questions = [q(), q("subjective", cond(0, [0])), q("subjective", cond(9, [0]))];
+    const answers: submittedAnswer[] = [[1], "kept", null];
+    for (const quizType of ["assessment", "homework", "omr-assessment", undefined] as const) {
+      expect(computeQuestionVisibility(questions, answers, quizType)).toEqual([
+        true,
+        true,
+        true,
+      ]);
+    }
+    expect(computeQuestionVisibility(questions, answers, "form")).toEqual([
+      true,
+      false,
+      false,
+    ]);
   });
 });
 

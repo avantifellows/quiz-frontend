@@ -535,7 +535,8 @@ export default defineComponent({
     const questionVisibility = computed(() =>
       computeQuestionVisibility(
         props.questions,
-        state.localResponses.map((response) => response?.answer ?? null)
+        state.localResponses.map((response) => response?.answer ?? null),
+        props.quizType
       )
     )
 

@@ -1,5 +1,5 @@
 import store from "@/store/index";
-import { Question, submittedAnswer, CorrectAnswerType, answerEvaluation, QuestionBucketingMap } from "@/types";
+import { Question, submittedAnswer, CorrectAnswerType, answerEvaluation, QuestionBucketingMap, quizType } from "@/types";
 const isEqual = require("deep-eql");
 
 /**
@@ -95,11 +95,16 @@ function answerOptionIndices(answer: submittedAnswer): number[] {
  * forward pass that reads earlier positions' visibility resolves whole chains. A condition
  * whose `source_position` is missing, out of range, or points at/after the dependent itself
  * can never be satisfied, so the question stays hidden.
+ *
+ * Conditional display is form-only: for any other quiz type every question is visible and
+ * display_condition is ignored, so hiding and answer-clearing never apply there.
  */
 export function computeQuestionVisibility(
   questions: Question[],
-  answers: (submittedAnswer | undefined)[]
+  answers: (submittedAnswer | undefined)[],
+  quizType: quizType | undefined
 ): boolean[] {
+  if (quizType != "form") return questions.map(() => true);
   const visibility: boolean[] = [];
   questions.forEach((question, position) => {
     const condition = question.display_condition;
