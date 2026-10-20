@@ -478,7 +478,8 @@ export default defineComponent({
     const questionVisibility = computed(() =>
       computeQuestionVisibility(
         state.questions,
-        state.responses.map((response) => response?.answer ?? null)
+        state.responses.map((response) => response?.answer ?? null),
+        state.metadata.quiz_type
       )
     );
     const isQuestionShown = computed(() => {
