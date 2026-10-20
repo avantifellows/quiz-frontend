@@ -34,6 +34,7 @@
         :reviewAnswers="reviewAnswers"
         :sessionEndTimeText="sessionEndTimeText"
         :numQuestions="maxQuestionsAllowedToAttempt"
+        :numConditionalQuestions="numConditionalQuestions"
         :quizType="computedQuizType"
         :quizTimeLimit="quizTimeLimit"
         :maxMarks="maxMarks"
@@ -481,6 +482,13 @@ export default defineComponent({
         state.responses.map((response) => response?.answer ?? null),
         state.metadata.quiz_type
       )
+    );
+    // Questions a form may hide (display_condition is form-only, like the evaluator), for the
+    // splash's "min–max questions" range.
+    const numConditionalQuestions = computed(() =>
+      isFormQuiz.value
+        ? state.questions.filter((question) => question.display_condition != null).length
+        : 0
     );
     const isQuestionShown = computed(() => {
       return (
@@ -1630,6 +1638,7 @@ export default defineComponent({
       isTransitioning,
       isQuizAssessment,
       isFormQuiz,
+      numConditionalQuestions,
       areAllQuestionsRequired,
       scorecardMetrics,
       scorecardProgress,
