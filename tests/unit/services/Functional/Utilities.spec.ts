@@ -1,5 +1,5 @@
-import { computeQuestionVisibility, answerToSubmit } from "@/services/Functional/Utilities";
-import { Question, submittedAnswer, DisplayCondition } from "@/types";
+import { computeQuestionVisibility, answerToSubmit, shouldForceSinglePageMode } from "@/services/Functional/Utilities";
+import { Question, submittedAnswer, DisplayCondition, QuizAPIResponse } from "@/types";
 
 // minimal Question builder — only the fields the visibility rule reads. `type` is a plain
 // string here (the evaluator ignores it); cast through unknown to satisfy Question.
@@ -99,5 +99,38 @@ describe("answerToSubmit", () => {
     expect(answerToSubmit([2], false)).toBeNull();
     expect(answerToSubmit("stale text", false)).toBeNull();
     expect(answerToSubmit({ row: 1 }, false)).toBeNull();
+  });
+});
+
+describe("shouldForceSinglePageMode", () => {
+  function quiz(quizType: string, ...questions: Question[]): QuizAPIResponse {
+    return {
+      metadata: { quiz_type: quizType },
+      question_sets: [{ questions: questions.slice(0, 1) }, { questions: questions.slice(1) }],
+    } as unknown as QuizAPIResponse;
+  }
+  const paginated = { singlePageMode: false, omrMode: false };
+
+  it("forces it for a form with a conditional question opened without the flag", () => {
+    // the conditional question sits in the second set
+    const form = quiz("form", q(), q("subjective", cond(0, [0])));
+    expect(shouldForceSinglePageMode(form, paginated)).toBe(true);
+  });
+
+  it("does not force it when single-page or OMR mode is already on", () => {
+    const form = quiz("form", q(), q("subjective", cond(0, [0])));
+    expect(shouldForceSinglePageMode(form, { singlePageMode: true, omrMode: false })).toBe(false);
+    expect(shouldForceSinglePageMode(form, { singlePageMode: false, omrMode: true })).toBe(false);
+  });
+
+  it("does not force it for a form without conditional questions", () => {
+    expect(shouldForceSinglePageMode(quiz("form", q(), q("subjective")), paginated)).toBe(false);
+  });
+
+  it("does not force it outside forms, even with a display_condition", () => {
+    for (const quizType of ["assessment", "homework", "omr-assessment"]) {
+      const notAForm = quiz(quizType, q(), q("subjective", cond(0, [0])));
+      expect(shouldForceSinglePageMode(notAForm, paginated)).toBe(false);
+    }
   });
 });
