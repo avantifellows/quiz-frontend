@@ -1,5 +1,5 @@
 import store from "@/store/index";
-import { Question, submittedAnswer, CorrectAnswerType, answerEvaluation, QuestionBucketingMap, quizType } from "@/types";
+import { Question, submittedAnswer, CorrectAnswerType, answerEvaluation, QuestionBucketingMap, quizType, QuizAPIResponse } from "@/types";
 const isEqual = require("deep-eql");
 
 /**
@@ -128,6 +128,23 @@ export function computeQuestionVisibility(
     );
   });
   return visibility;
+}
+
+/**
+ * Whether a quiz fetched without single-page mode must be re-shown in it. Conditional
+ * questions are only hidden in single-page mode; the question-by-question view would show
+ * a hidden question and End Test would then submit null for it, losing what the student
+ * typed. So a form with any display_condition always uses single-page mode (OMR mode
+ * already renders through the single-page view).
+ */
+export function shouldForceSinglePageMode(
+  quizDetails: QuizAPIResponse,
+  { singlePageMode, omrMode }: { singlePageMode: boolean, omrMode: boolean }
+): boolean {
+  if (singlePageMode || omrMode || quizDetails.metadata?.quiz_type != "form") return false;
+  return (quizDetails.question_sets ?? []).some((questionSet) =>
+    (questionSet.questions ?? []).some((question) => question.display_condition != null)
+  );
 }
 
 /**

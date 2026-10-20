@@ -51,7 +51,7 @@
         :questions="questions"
         class="absolute z-10"
         :class="{
-          hidden: !isOmrMode && !singlePageMode,
+          hidden: !isOmrMode && !isSinglePageMode,
         }"
         :quizType="metadata.quiz_type"
         :hasQuizEnded="hasQuizEnded"
@@ -79,13 +79,13 @@
         @submit-omr-question="submitOmrQuestion"
         @end-test="endTest"
         data-test="single-page-modal"
-        v-if="isQuestionShown && (isOmrMode || singlePageMode)"
+        v-if="isQuestionShown && (isOmrMode || isSinglePageMode)"
       ></SinglePageModal>
 
       <QuestionModal
         :questions="questions"
         :class="{
-          hidden: isOmrMode || singlePageMode,
+          hidden: isOmrMode || isSinglePageMode,
         }"
         :quizType="metadata.quiz_type"
         :hasQuizEnded="hasQuizEnded"
@@ -115,7 +115,7 @@
         @update-review-status="updateQuestionResponse"
         @end-test="endTest"
         @fetch-question-bucket="fetchQuestionBucket"
-        v-if="isQuestionShown && !isOmrMode && !singlePageMode"
+        v-if="isQuestionShown && !isOmrMode && !isSinglePageMode"
         data-test="modal"
       ></QuestionModal>
 
@@ -191,7 +191,7 @@ import QuestionModal from "../components/Questions/QuestionModal.vue";
 import SinglePageModal from "../components/SinglePage/SinglePageModal.vue"
 import Splash from "../components/Splash.vue";
 import Scorecard from "../components/Scorecard.vue";
-import { resetConfetti, isQuestionAnswerCorrect, isQuestionFetched, createQuestionBuckets, isQuestionResponseComplete, computeQuestionVisibility, answerToSubmit } from "../services/Functional/Utilities";
+import { resetConfetti, isQuestionAnswerCorrect, isQuestionFetched, createQuestionBuckets, isQuestionResponseComplete, computeQuestionVisibility, answerToSubmit, shouldForceSinglePageMode } from "../services/Functional/Utilities";
 import QuizAPIService from "../services/API/Quiz";
 import FormAPIService from "../services/API/Form";
 import SessionAPIService from "../services/API/Session";
@@ -343,6 +343,9 @@ export default defineComponent({
       timeSpentOnQuestion: [] as TimeSpentEntry[], // stores time spent on each question
       timerInterval: null as number | null, // variable used in computing time spent on question
       qsetMetrics: [] as QuestionSetMetric[],
+      // set when a form with conditional questions was opened without ?singlePageMode=true
+      // (see shouldForceSinglePageMode)
+      forceSinglePage: false,
       toast: useToast(),
     });
 
@@ -364,10 +367,13 @@ export default defineComponent({
 
     const areAllQuestionsRequired = computed(() => isFormQuiz.value && state.requireAllQuestions);
 
-    const showFullText = computed(() => !isOmrMode.value && props.singlePageMode);
+    // single-page mode from the URL, or forced for a form with conditional questions
+    const isSinglePageMode = computed(() => props.singlePageMode || state.forceSinglePage);
+
+    const showFullText = computed(() => !isOmrMode.value && isSinglePageMode.value);
 
     const singlePageHeaderText = computed(() => {
-      if (!props.singlePageMode) return "";
+      if (!isSinglePageMode.value) return "";
       const header = state.metadata?.single_page_header_text?.trim();
       return header || "";
     });
@@ -774,26 +780,45 @@ export default defineComponent({
       window.scrollTo(0, 0); // scroll up top incase users scroll down in splash screen
     }
 
+    function fetchQuizDetails(
+      { includeAnswers, singlePageMode }: { includeAnswers: boolean, singlePageMode: boolean }
+    ): Promise<QuizAPIResponse> {
+      // Use Form API service if current route is a form route
+      const isFormRoute = router.currentRoute.value.path.startsWith("/form/");
+      return isFormRoute
+        ? FormAPIService.getForm({
+          formId: props.quizId,
+          omrMode: isOmrMode.value ?? false,
+          singlePageMode
+        })
+        : QuizAPIService.getQuiz({
+          quizId: props.quizId,
+          omrMode: isOmrMode.value ?? false,
+          singlePageMode,
+          includeAnswers,
+        });
+    }
+
     async function getQuiz(
       { includeAnswers = false }: { includeAnswers?: boolean } = {}
     ) {
-      // Use Form API service if current route is a form route
-      const isFormRoute = router.currentRoute.value.path.startsWith("/form/");
-      const quizDetails : QuizAPIResponse = isFormRoute
-        ? await FormAPIService.getForm({
-          formId: props.quizId,
+      let quizDetails = await fetchQuizDetails({
+        includeAnswers,
+        singlePageMode: isSinglePageMode.value,
+      });
+      if (
+        shouldForceSinglePageMode(quizDetails, {
+          singlePageMode: isSinglePageMode.value,
           omrMode: isOmrMode.value ?? false,
-          singlePageMode: props.singlePageMode
         })
-        : await QuizAPIService.getQuiz({
-          quizId: props.quizId,
-          omrMode: isOmrMode.value ?? false,
-          singlePageMode: props.singlePageMode,
-          includeAnswers,
-        });
+      ) {
+        // refetch: only single-page mode returns every question in full
+        state.forceSinglePage = true;
+        quizDetails = await fetchQuizDetails({ includeAnswers, singlePageMode: true });
+      }
       state.quizLoadedWithAnswers = includeAnswers;
       // Bucketing stays enabled even when includeAnswers=true (large exams, slow networks).
-      applyQuizDetails(quizDetails, { enableBucketing: !props.singlePageMode });
+      applyQuizDetails(quizDetails, { enableBucketing: !isSinglePageMode.value });
     }
 
     function applyQuizDetails(quizDetails: QuizAPIResponse, { enableBucketing }: { enableBucketing: boolean }) {
@@ -1639,6 +1664,7 @@ export default defineComponent({
       isQuizAssessment,
       isFormQuiz,
       numConditionalQuestions,
+      isSinglePageMode,
       areAllQuestionsRequired,
       scorecardMetrics,
       scorecardProgress,
