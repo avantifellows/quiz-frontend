@@ -20,7 +20,7 @@
               :iconClass="metadataIconClass"
             ></BaseIcon>
             <div class="flex items-center" data-test="numQuestions">
-              <p :class="metadataTitleClass">{{ numQuestions }} questions</p>
+              <p :class="metadataTitleClass">{{ numQuestionsText }}</p>
             </div>
           </div>
           <div :class="metadataCellClass">
@@ -116,6 +116,11 @@ export default defineComponent({
       type: Number,
       required: true,
     },
+    /** questions a form shows only conditionally (display_condition); 0 elsewhere */
+    numConditionalQuestions: {
+      type: Number,
+      default: 0,
+    },
     grade: {
       type: String,
       required: true,
@@ -184,6 +189,16 @@ export default defineComponent({
 
     const isFormQuiz = computed(() => props.quizType == "form")
 
+    /** A form with conditional questions shows a range: the questions that are always
+     * shown up to all of them (conditions only ever hide questions). */
+    const numQuestionsText = computed(() => {
+      if (props.numConditionalQuestions > 0) {
+        const minQuestions = Math.max(props.numQuestions - props.numConditionalQuestions, 0);
+        return `${minQuestions}–${props.numQuestions} questions`;
+      }
+      return `${props.numQuestions} questions`;
+    });
+
     const isOmrMode = computed(() => props.quizType == "omr-assessment");
 
     const startButtonTextConfig = computed(() => {
@@ -236,6 +251,7 @@ export default defineComponent({
       displayTitle,
       isQuizAssessment,
       isFormQuiz,
+      numQuestionsText,
       startButtonTextConfig,
       startButtonIconClass,
       isSessionDataFetched,
