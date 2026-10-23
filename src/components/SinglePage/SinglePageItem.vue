@@ -1048,6 +1048,11 @@ export default defineComponent({
       type: Number,
       default: 0,
     },
+    /** number shown in the header, e.g. "2a"; defaults to position + 1 */
+    questionLabel: {
+      type: String,
+      default: null,
+    },
     showFullText: {
       type: Boolean,
       default: false,
@@ -1524,7 +1529,7 @@ export default defineComponent({
     }
 
     const questionHeaderText = computed(() => {
-      return `Q.${props.currentQuestionIndex + 1}: `;
+      return `Q.${props.questionLabel ?? props.currentQuestionIndex + 1}: `;
     });
 
     // styling class for the question image and loading spinner containers

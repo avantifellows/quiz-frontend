@@ -130,6 +130,64 @@ export function computeQuestionVisibility(
   return visibility;
 }
 
+/** 1 -> "a", 26 -> "z", 27 -> "aa" */
+function toLetters(count: number): string {
+  let letters = "";
+  while (count > 0) {
+    count -= 1;
+    letters = String.fromCharCode(97 + (count % 26)) + letters;
+    count = Math.floor(count / 26);
+  }
+  return letters;
+}
+
+/**
+ * The number shown for every question by flat position ("2" in "Q.2: ") — the single
+ * source for the single-page header and every warning that names a question. Display
+ * only: answers and BigQuery address questions by flat position, never by this label.
+ *
+ * Questions with no display_condition are numbered 1, 2, 3… in position order. A form's
+ * follow-up is numbered under its trigger: a letter under a top-level question (2a, 2b), a
+ * number under a follow-up (2a.1), alternating with depth. A quiz that is not a form, or a
+ * form without conditions, is numbered position + 1 as before. A condition the evaluator can
+ * never satisfy (bad / forward source_position) keeps position + 1; that question is never
+ * shown.
+ */
+export function computeQuestionLabels(
+  questions: Question[],
+  quizType: quizType | undefined
+): string[] {
+  const labels: string[] = [];
+  const depths: number[] = [];
+  const numFollowUps: number[] = [];
+  let numTopLevel = 0;
+  questions.forEach((question, position) => {
+    numFollowUps.push(0);
+    const condition = quizType == "form" ? question.display_condition : null;
+    if (condition == null) {
+      numTopLevel += 1;
+      labels.push(String(numTopLevel));
+      depths.push(0);
+      return;
+    }
+    const source = condition.source_position;
+    if (typeof source != "number" || source < 0 || source >= position) {
+      labels.push(String(position + 1));
+      depths.push(0);
+      return;
+    }
+    numFollowUps[source] += 1;
+    const depth = depths[source] + 1;
+    labels.push(
+      depth % 2 == 1
+        ? `${labels[source]}${toLetters(numFollowUps[source])}`
+        : `${labels[source]}.${numFollowUps[source]}`
+    );
+    depths.push(depth);
+  });
+  return labels;
+}
+
 /**
  * Whether a quiz fetched without single-page mode must be re-shown in it. Conditional
  * questions are only hidden in single-page mode; the question-by-question view would show

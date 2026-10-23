@@ -54,6 +54,7 @@
           hidden: !isOmrMode && !isSinglePageMode,
         }"
         :quizType="metadata.quiz_type"
+        :questionLabels="questionLabels"
         :hasQuizEnded="hasQuizEnded"
         :numQuestions="maxQuestionsAllowedToAttempt"
         :maxQuestionsAllowedToAttempt="currentMaxQuestionsAllowedToAttempt"
@@ -191,7 +192,7 @@ import QuestionModal from "../components/Questions/QuestionModal.vue";
 import SinglePageModal from "../components/SinglePage/SinglePageModal.vue"
 import Splash from "../components/Splash.vue";
 import Scorecard from "../components/Scorecard.vue";
-import { resetConfetti, isQuestionAnswerCorrect, isQuestionFetched, createQuestionBuckets, isQuestionResponseComplete, computeQuestionVisibility, answerToSubmit, shouldForceSinglePageMode } from "../services/Functional/Utilities";
+import { resetConfetti, isQuestionAnswerCorrect, isQuestionFetched, createQuestionBuckets, isQuestionResponseComplete, computeQuestionVisibility, computeQuestionLabels, answerToSubmit, shouldForceSinglePageMode } from "../services/Functional/Utilities";
 import QuizAPIService from "../services/API/Quiz";
 import FormAPIService from "../services/API/Form";
 import SessionAPIService from "../services/API/Session";
@@ -395,9 +396,16 @@ export default defineComponent({
       state.currentQuestionIndex = displayIndex;
     }
 
+    // The number the student sees for a question: the single-page view shows questions by
+    // position under their label; the question-by-question view numbers them in shuffled order.
+    function questionLabelForPosition(positionIndex: number) {
+      if (isOmrMode.value || isSinglePageMode.value) return questionLabels.value[positionIndex];
+      return String(displayIndexForQuestionPosition(positionIndex) + 1);
+    }
+
     function showIncompleteRequiredQuestionWarning(positionIndex: number) {
       state.toast.warning(
-        `Please answer all required questions before submitting. Question ${displayIndexForQuestionPosition(positionIndex) + 1} is incomplete.`,
+        `Please answer all required questions before submitting. Question ${questionLabelForPosition(positionIndex)} is incomplete.`,
         {
           position: POSITION.TOP_CENTER,
           timeout: 7000,
@@ -488,6 +496,11 @@ export default defineComponent({
         state.responses.map((response) => response?.answer ?? null),
         state.metadata.quiz_type
       )
+    );
+    // Number shown for each question by flat position (follow-ups under their trigger, e.g.
+    // "2a"). Single-page header and warnings all read it; display only.
+    const questionLabels = computed(() =>
+      computeQuestionLabels(state.questions, state.metadata.quiz_type)
     );
     // Questions a form may hide (display_condition is form-only, like the evaluator), for the
     // splash's "min–max questions" range.
@@ -1129,7 +1142,7 @@ export default defineComponent({
       );
       if (response.status != 200) {
         state.toast.error(
-          `Answer for Q.${newQuestionIndex + 1} not saved. Please answer again or refresh the page.`,
+          `Answer for Q.${questionLabels.value[newQuestionIndex]} not saved. Please answer again or refresh the page.`,
           {
             position: POSITION.TOP_LEFT,
             timeout: 4000,
@@ -1664,6 +1677,7 @@ export default defineComponent({
       isQuizAssessment,
       isFormQuiz,
       numConditionalQuestions,
+      questionLabels,
       isSinglePageMode,
       areAllQuestionsRequired,
       scorecardMetrics,
