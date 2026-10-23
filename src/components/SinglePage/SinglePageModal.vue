@@ -49,6 +49,7 @@
                 :submittedAnswer="draftResponses[questionState.index]"
                 :isQuestionDisabled="questionDisabledArray[questionState.index]"
                 :currentQuestionIndex="questionState.index"
+                :questionLabel="questionLabel(questionState.index)"
                 :showFullText="showFullText"
                 :questionText="$props.questions[questionState.index].text"
                 :questionImage="$props.questions[questionState.index].image"
@@ -201,6 +202,11 @@ export default defineComponent({
     quizType: {
       type: String as PropType<quizType>,
       default: "homework"
+    },
+    /** number shown for each question by flat position (computeQuestionLabels) */
+    questionLabels: {
+      type: Array as PropType<string[]>,
+      default: () => []
     },
     numQuestions: {
       type: Number,
@@ -578,6 +584,11 @@ export default defineComponent({
       });
     }
 
+    // falls back to position + 1 when the parent passes no labels
+    function questionLabel(positionIndex: number) {
+      return props.questionLabels[positionIndex] ?? String(positionIndex + 1);
+    }
+
     function goToSet(setIndex: number) {
       state.currentSetPageIndex = setIndex;
       nextTick(() => {
@@ -599,7 +610,7 @@ export default defineComponent({
         );
         if (incompleteItem != null) {
           state.toast.warning(
-            `Please answer all questions in this section before continuing. Question ${incompleteItem.index + 1} is incomplete.`,
+            `Please answer all questions in this section before continuing. Question ${questionLabel(incompleteItem.index)} is incomplete.`,
             {
               position: POSITION.TOP_CENTER,
               timeout: 5000,
@@ -744,6 +755,7 @@ export default defineComponent({
       isAttemptValid,
       isQuizAssessment,
       questionVisibility,
+      questionLabel,
       isSetPaginationEnabled,
       isLastSetPage,
       goToNextSet,

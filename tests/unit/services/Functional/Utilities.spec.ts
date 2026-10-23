@@ -1,4 +1,4 @@
-import { computeQuestionVisibility, answerToSubmit, shouldForceSinglePageMode } from "@/services/Functional/Utilities";
+import { computeQuestionVisibility, computeQuestionLabels, answerToSubmit, shouldForceSinglePageMode } from "@/services/Functional/Utilities";
 import { Question, submittedAnswer, DisplayCondition, QuizAPIResponse } from "@/types";
 
 // minimal Question builder — only the fields the visibility rule reads. `type` is a plain
@@ -86,6 +86,57 @@ describe("computeQuestionVisibility", () => {
       false,
       false,
     ]);
+  });
+});
+
+describe("computeQuestionLabels", () => {
+  it("numbers questions by position when none have a display_condition", () => {
+    expect(computeQuestionLabels([q(), q(), q()], "form")).toEqual(["1", "2", "3"]);
+  });
+
+  it("numbers follow-ups under their trigger and keeps counting top-level questions", () => {
+    // Q1, Q2 with two follow-ups, Q3 — follow-ups don't use up a top-level number
+    const questions = [
+      q(),
+      q(),
+      q("subjective", cond(1, [0])),
+      q("subjective", cond(1, [1])),
+      q(),
+    ];
+    expect(computeQuestionLabels(questions, "form")).toEqual(["1", "2", "2a", "2b", "3"]);
+  });
+
+  it("numbers a follow-up of a follow-up with a number, then a letter again", () => {
+    const questions = [
+      q(),
+      q("single-choice", cond(0, [0])),
+      q("single-choice", cond(1, [0])),
+      q("subjective", cond(2, [0])),
+    ];
+    expect(computeQuestionLabels(questions, "form")).toEqual(["1", "1a", "1a.1", "1a.1a"]);
+  });
+
+  it("labels a follow-up after its parent even when it is not directly below it", () => {
+    const questions = [q(), q(), q("subjective", cond(0, [0]))];
+    expect(computeQuestionLabels(questions, "form")).toEqual(["1", "2", "1a"]);
+  });
+
+  it("continues letters past z", () => {
+    const questions = [q(), ...Array.from({ length: 27 }, () => q("subjective", cond(0, [0])))];
+    const labels = computeQuestionLabels(questions, "form");
+    expect(labels[26]).toEqual("1z");
+    expect(labels[27]).toEqual("1aa");
+  });
+
+  it("keeps position + 1 for a condition that can never be satisfied", () => {
+    // forward / self references never show (see computeQuestionVisibility)
+    const questions = [q(), q("subjective", cond(1, [0])), q("subjective", cond(5, [0])), q()];
+    expect(computeQuestionLabels(questions, "form")).toEqual(["1", "2", "3", "2"]);
+  });
+
+  it("ignores display_condition outside forms", () => {
+    const questions = [q(), q("subjective", cond(0, [0])), q()];
+    expect(computeQuestionLabels(questions, "assessment")).toEqual(["1", "2", "3"]);
   });
 });
 
