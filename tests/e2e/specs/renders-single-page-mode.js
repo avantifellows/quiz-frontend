@@ -78,12 +78,11 @@ describe("Player for Single Page Mode with Full Text", () => {
       // Visit with singlePageMode=true query parameter
       cy.visit("/quiz/abcd?userId=test_student&apiKey=pqr&singlePageMode=true");
 
-      cy.server();
       cy.clock();
 
       // define aliases
       cy.get('[data-test="startQuiz"]').as("startQuizButton");
-      cy.route("PATCH", "/session_answers/**").as("patch_session_answers");
+      cy.intercept("PATCH", "/session_answers/**").as("patch_session_answers");
     });
 
     it("shows splash screen", () => {

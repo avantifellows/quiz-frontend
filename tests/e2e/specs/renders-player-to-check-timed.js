@@ -77,8 +77,7 @@ describe("Player for Assessment Timed quizzes", () => {
 
       // define aliasas
       cy.get('[data-test="startQuiz"]').as("startQuizButton");
-      cy.server();
-      cy.route("PATCH", "/sessions/*").as("patch_session");
+      cy.intercept("PATCH", "/sessions/*").as("patch_session");
     });
 
     describe("Timed Quiz Started", () => {
@@ -267,8 +266,7 @@ describe("Player for Assessment Timed quizzes", () => {
 
       // define aliasas
       cy.get('[data-test="startQuiz"]').as("startQuizButton");
-      cy.server();
-      cy.route("PATCH", "/sessions/*").as("patch_session");
+      cy.intercept("PATCH", "/sessions/*").as("patch_session");
     });
 
     describe("Timed Quiz Started", () => {
@@ -340,11 +338,10 @@ describe("Player for Homework Quizzes", () => {
       cy.visit("/quiz/abcd?userId=test_student&apiKey=pqr");
 
       cy.clock();
-      cy.server();
 
       // define aliasas
       cy.get('[data-test="startQuiz"]').as("startQuizButton");
-      cy.route("PATCH", "/session_answers/**").as("patch_session_answers");
+      cy.intercept("PATCH", "/session_answers/**").as("patch_session_answers");
     });
 
     describe("Quiz starts", () => {
