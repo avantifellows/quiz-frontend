@@ -60,9 +60,7 @@ jobs:
           record: true
           tag: chrome-desktop
           start: npm run serve -- --port 8081
-          # 127.0.0.1, not localhost: since 2026-10-23 localhost fails at once with "Socket
-          # closed before the connection was established" (likely tried as IPv6 ::1 first)
-          wait-on: "http://127.0.0.1:8081"
+          wait-on: "http://localhost:8081"
         env:
           VUE_APP_BACKEND: http://127.0.0.1:8001
           VUE_APP_PORTAL_BACKEND: http://127.0.0.1:8000
@@ -108,9 +106,7 @@ jobs:
           record: true
           tag: chrome-mobile
           start: npm run serve -- --port 8081
-          # 127.0.0.1, not localhost: since 2026-10-23 localhost fails at once with "Socket
-          # closed before the connection was established" (likely tried as IPv6 ::1 first)
-          wait-on: "http://127.0.0.1:8081"
+          wait-on: "http://localhost:8081"
         env:
           VUE_APP_BACKEND: http://127.0.0.1:8001
           VUE_APP_PORTAL_BACKEND: http://127.0.0.1:8000
@@ -164,9 +160,7 @@ jobs:
           record: true
           tag: firefox-desktop
           start: npm run serve -- --port 8081
-          # 127.0.0.1, not localhost: since 2026-10-23 localhost fails at once with "Socket
-          # closed before the connection was established" (likely tried as IPv6 ::1 first)
-          wait-on: "http://127.0.0.1:8081"
+          wait-on: "http://localhost:8081"
         env:
           VUE_APP_BACKEND: http://127.0.0.1:8001
           VUE_APP_PORTAL_BACKEND: http://127.0.0.1:8000
