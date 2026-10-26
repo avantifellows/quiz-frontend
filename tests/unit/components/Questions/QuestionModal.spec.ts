@@ -872,29 +872,36 @@ describe("QuestionModal.vue", () => {
   });
 
   describe("timed quiz check for warning", () => {
-    const wrapper = mount(QuestionModal, {
-      props: {
-        questions,
-        responses: clonedeep(responses),
-        currentQuestionIndex: 0,
-        questionOrder: testQuestionOrder,
-        quizType: "assessment",
-        qsetIndexLimits: qsetTestIndexLimits,
-        quizTimeLimit: { min: 0, max: 200 },
-        timeRemaining: 181
-      },
-    });
-    it("warning should be displayed if timeRemaining goes below limit", (done) => {
+    it("warning should be displayed if timeRemaining goes below limit", async () => {
       // note: warning_limit is 180 seconds (3 minutes)
-      const warningDisplayFunction = jest.spyOn(wrapper.vm, 'displayTimeLimitWarning')
-      setTimeout(() => {
+      // The countdown ticks on a real 1s setInterval from mount. Mounting at describe time
+      // and waiting 1s of wall clock let slow runs tick twice (00:02:59), so mount here
+      // and advance fake timers by exactly one tick.
+      jest.useFakeTimers();
+      const wrapper = mount(QuestionModal, {
+        props: {
+          questions,
+          responses: clonedeep(responses),
+          currentQuestionIndex: 0,
+          questionOrder: testQuestionOrder,
+          quizType: "assessment",
+          qsetIndexLimits: qsetTestIndexLimits,
+          quizTimeLimit: { min: 0, max: 200 },
+          timeRemaining: 181
+        },
+      });
+      try {
+        jest.advanceTimersByTime(1000);
+        await flushPromises();
         expect(wrapper
           .find('[data-test="header"]')
           .find('[data-test="countdownTimer"]').text()
         ).toBe("00:03:00");
         expect(wrapper.emitted()).toHaveProperty("test-warning-shown");
-        done()
-      }, 1000);
+      } finally {
+        wrapper.unmount();
+        jest.useRealTimers();
+      }
     });
   });
 

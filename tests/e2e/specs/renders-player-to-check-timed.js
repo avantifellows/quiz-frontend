@@ -86,8 +86,12 @@ describe("Player for Assessment Timed quizzes", () => {
       });
 
       describe("Quiz Started", () => {
+        // The header shows a separate phone layout below Tailwind's `sm` breakpoint (640px)
+        const headerSuffix = () =>
+          Cypress.config("viewportWidth") < 640 ? "-mobile" : "";
+
         it("Check if the test name is visible", () => {
-          cy.get('[data-test="test-name"]')
+          cy.get(`[data-test="test-name${headerSuffix()}"]`)
             .should(
               "have.text",
               "cypress assessment 1 by Avanti Fellows" // test name
@@ -96,7 +100,7 @@ describe("Player for Assessment Timed quizzes", () => {
         });
 
         it("Check if the user-id is visible", () => {
-          cy.get('[data-test="user-id"]')
+          cy.get(`[data-test="user-id${headerSuffix()}"]`)
             .should(
               "have.text",
               " Id: test_student" // Id of the student
