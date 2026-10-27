@@ -53,7 +53,7 @@ jobs:
         run: npm i cypress
 
       - name: Cypress run
-        uses: cypress-io/github-action@v3
+        uses: cypress-io/github-action@v7
         with:
           browser: chrome
           install: false
@@ -98,7 +98,7 @@ jobs:
         run: npm i cypress
 
       - name: Cypress run
-        uses: cypress-io/github-action@v3
+        uses: cypress-io/github-action@v7
         with:
           config: "viewportWidth=375,viewportHeight=667"
           browser: chrome
@@ -127,7 +127,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Cypress install
-        uses: cypress-io/github-action@v3
+        uses: cypress-io/github-action@v7
         with:
           runTests: false
 
@@ -153,7 +153,7 @@ jobs:
         run: npm i cypress
 
       - name: Cypress run
-        uses: cypress-io/github-action@v3
+        uses: cypress-io/github-action@v7
         with:
           browser: firefox
           install: false

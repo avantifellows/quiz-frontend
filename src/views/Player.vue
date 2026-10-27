@@ -34,6 +34,7 @@
         :reviewAnswers="reviewAnswers"
         :sessionEndTimeText="sessionEndTimeText"
         :numQuestions="maxQuestionsAllowedToAttempt"
+        :numConditionalQuestions="numConditionalQuestions"
         :quizType="computedQuizType"
         :quizTimeLimit="quizTimeLimit"
         :maxMarks="maxMarks"
@@ -50,9 +51,10 @@
         :questions="questions"
         class="absolute z-10"
         :class="{
-          hidden: !isOmrMode && !singlePageMode,
+          hidden: !isOmrMode && !isSinglePageMode,
         }"
         :quizType="metadata.quiz_type"
+        :questionLabels="questionLabels"
         :hasQuizEnded="hasQuizEnded"
         :numQuestions="maxQuestionsAllowedToAttempt"
         :maxQuestionsAllowedToAttempt="currentMaxQuestionsAllowedToAttempt"
@@ -78,13 +80,13 @@
         @submit-omr-question="submitOmrQuestion"
         @end-test="endTest"
         data-test="single-page-modal"
-        v-if="isQuestionShown && (isOmrMode || singlePageMode)"
+        v-if="isQuestionShown && (isOmrMode || isSinglePageMode)"
       ></SinglePageModal>
 
       <QuestionModal
         :questions="questions"
         :class="{
-          hidden: isOmrMode || singlePageMode,
+          hidden: isOmrMode || isSinglePageMode,
         }"
         :quizType="metadata.quiz_type"
         :hasQuizEnded="hasQuizEnded"
@@ -114,7 +116,7 @@
         @update-review-status="updateQuestionResponse"
         @end-test="endTest"
         @fetch-question-bucket="fetchQuestionBucket"
-        v-if="isQuestionShown && !isOmrMode && !singlePageMode"
+        v-if="isQuestionShown && !isOmrMode && !isSinglePageMode"
         data-test="modal"
       ></QuestionModal>
 
@@ -190,7 +192,7 @@ import QuestionModal from "../components/Questions/QuestionModal.vue";
 import SinglePageModal from "../components/SinglePage/SinglePageModal.vue"
 import Splash from "../components/Splash.vue";
 import Scorecard from "../components/Scorecard.vue";
-import { resetConfetti, isQuestionAnswerCorrect, isQuestionFetched, createQuestionBuckets, isQuestionResponseComplete } from "../services/Functional/Utilities";
+import { resetConfetti, isQuestionAnswerCorrect, isQuestionFetched, createQuestionBuckets, isQuestionResponseComplete, computeQuestionVisibility, computeQuestionLabels, answerToSubmit, shouldForceSinglePageMode } from "../services/Functional/Utilities";
 import QuizAPIService from "../services/API/Quiz";
 import FormAPIService from "../services/API/Form";
 import SessionAPIService from "../services/API/Session";
@@ -342,6 +344,9 @@ export default defineComponent({
       timeSpentOnQuestion: [] as TimeSpentEntry[], // stores time spent on each question
       timerInterval: null as number | null, // variable used in computing time spent on question
       qsetMetrics: [] as QuestionSetMetric[],
+      // set when a form with conditional questions was opened without ?singlePageMode=true
+      // (see shouldForceSinglePageMode)
+      forceSinglePage: false,
       toast: useToast(),
     });
 
@@ -363,10 +368,13 @@ export default defineComponent({
 
     const areAllQuestionsRequired = computed(() => isFormQuiz.value && state.requireAllQuestions);
 
-    const showFullText = computed(() => !isOmrMode.value && props.singlePageMode);
+    // single-page mode from the URL, or forced for a form with conditional questions
+    const isSinglePageMode = computed(() => props.singlePageMode || state.forceSinglePage);
+
+    const showFullText = computed(() => !isOmrMode.value && isSinglePageMode.value);
 
     const singlePageHeaderText = computed(() => {
-      if (!props.singlePageMode) return "";
+      if (!isSinglePageMode.value) return "";
       const header = state.metadata?.single_page_header_text?.trim();
       return header || "";
     });
@@ -388,9 +396,16 @@ export default defineComponent({
       state.currentQuestionIndex = displayIndex;
     }
 
+    // The number the student sees for a question: the single-page view shows questions by
+    // position under their label; the question-by-question view numbers them in shuffled order.
+    function questionLabelForPosition(positionIndex: number) {
+      if (isOmrMode.value || isSinglePageMode.value) return questionLabels.value[positionIndex];
+      return String(displayIndexForQuestionPosition(positionIndex) + 1);
+    }
+
     function showIncompleteRequiredQuestionWarning(positionIndex: number) {
       state.toast.warning(
-        `Please answer all required questions before submitting. Question ${displayIndexForQuestionPosition(positionIndex) + 1} is incomplete.`,
+        `Please answer all required questions before submitting. Question ${questionLabelForPosition(positionIndex)} is incomplete.`,
         {
           position: POSITION.TOP_CENTER,
           timeout: 7000,
@@ -472,6 +487,28 @@ export default defineComponent({
         !props.landingScorecard
     );
     const numQuestions = computed(() => state.questions.length);
+    // Visibility of each question by flat position, derived from current answers. Reactive on
+    // state.responses, so resume re-derives it for free. Questions with no display_condition
+    // are always visible, so non-conditional quizzes/forms are unaffected.
+    const questionVisibility = computed(() =>
+      computeQuestionVisibility(
+        state.questions,
+        state.responses.map((response) => response?.answer ?? null),
+        state.metadata.quiz_type
+      )
+    );
+    // Number shown for each question by flat position (follow-ups under their trigger, e.g.
+    // "2a"). Single-page header and warnings all read it; display only.
+    const questionLabels = computed(() =>
+      computeQuestionLabels(state.questions, state.metadata.quiz_type)
+    );
+    // Questions a form may hide (display_condition is form-only, like the evaluator), for the
+    // splash's "min–max questions" range.
+    const numConditionalQuestions = computed(() =>
+      isFormQuiz.value
+        ? state.questions.filter((question) => question.display_condition != null).length
+        : 0
+    );
     const isQuestionShown = computed(() => {
       return (
         state.currentQuestionIndex >= 0 && state.currentQuestionIndex < numQuestions.value
@@ -756,26 +793,45 @@ export default defineComponent({
       window.scrollTo(0, 0); // scroll up top incase users scroll down in splash screen
     }
 
+    function fetchQuizDetails(
+      { includeAnswers, singlePageMode }: { includeAnswers: boolean, singlePageMode: boolean }
+    ): Promise<QuizAPIResponse> {
+      // Use Form API service if current route is a form route
+      const isFormRoute = router.currentRoute.value.path.startsWith("/form/");
+      return isFormRoute
+        ? FormAPIService.getForm({
+          formId: props.quizId,
+          omrMode: isOmrMode.value ?? false,
+          singlePageMode
+        })
+        : QuizAPIService.getQuiz({
+          quizId: props.quizId,
+          omrMode: isOmrMode.value ?? false,
+          singlePageMode,
+          includeAnswers,
+        });
+    }
+
     async function getQuiz(
       { includeAnswers = false }: { includeAnswers?: boolean } = {}
     ) {
-      // Use Form API service if current route is a form route
-      const isFormRoute = router.currentRoute.value.path.startsWith("/form/");
-      const quizDetails : QuizAPIResponse = isFormRoute
-        ? await FormAPIService.getForm({
-          formId: props.quizId,
+      let quizDetails = await fetchQuizDetails({
+        includeAnswers,
+        singlePageMode: isSinglePageMode.value,
+      });
+      if (
+        shouldForceSinglePageMode(quizDetails, {
+          singlePageMode: isSinglePageMode.value,
           omrMode: isOmrMode.value ?? false,
-          singlePageMode: props.singlePageMode
         })
-        : await QuizAPIService.getQuiz({
-          quizId: props.quizId,
-          omrMode: isOmrMode.value ?? false,
-          singlePageMode: props.singlePageMode,
-          includeAnswers,
-        });
+      ) {
+        // refetch: only single-page mode returns every question in full
+        state.forceSinglePage = true;
+        quizDetails = await fetchQuizDetails({ includeAnswers, singlePageMode: true });
+      }
       state.quizLoadedWithAnswers = includeAnswers;
       // Bucketing stays enabled even when includeAnswers=true (large exams, slow networks).
-      applyQuizDetails(quizDetails, { enableBucketing: !props.singlePageMode });
+      applyQuizDetails(quizDetails, { enableBucketing: !isSinglePageMode.value });
     }
 
     function applyQuizDetails(quizDetails: QuizAPIResponse, { enableBucketing }: { enableBucketing: boolean }) {
@@ -1086,7 +1142,7 @@ export default defineComponent({
       );
       if (response.status != 200) {
         state.toast.error(
-          `Answer for Q.${newQuestionIndex + 1} not saved. Please answer again or refresh the page.`,
+          `Answer for Q.${questionLabels.value[newQuestionIndex]} not saved. Please answer again or refresh the page.`,
           {
             position: POSITION.TOP_LEFT,
             timeout: 4000,
@@ -1106,6 +1162,7 @@ export default defineComponent({
 
       const incompleteQuestionIndex = state.questions.findIndex((question, idx) => {
         if (question.required === false) return false; // per-question opt-out
+        if (!questionVisibility.value[idx]) return false; // hidden by display_condition => not required
         return !isQuestionResponseComplete(question, state.responses[idx]?.answer ?? null);
       });
       if (areAllQuestionsRequired.value && incompleteQuestionIndex != -1) {
@@ -1119,7 +1176,8 @@ export default defineComponent({
       const responseAnswersWithPositions: UpdateSessionAnswersAtSpecificPositionsAPIPayload = [];
       for (const [idx, response] of state.responses.entries()) {
         const answerPayload: UpdateSessionAnswerAPIPayload = {
-          answer: response.answer,
+          // hidden questions always submit null (see answerToSubmit)
+          answer: answerToSubmit(response.answer, questionVisibility.value[idx] ?? true),
           visited: response.visited,
           marked_for_review: response.marked_for_review
         };
@@ -1618,6 +1676,9 @@ export default defineComponent({
       isTransitioning,
       isQuizAssessment,
       isFormQuiz,
+      numConditionalQuestions,
+      questionLabels,
+      isSinglePageMode,
       areAllQuestionsRequired,
       scorecardMetrics,
       scorecardProgress,

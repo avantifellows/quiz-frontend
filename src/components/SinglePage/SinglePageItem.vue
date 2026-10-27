@@ -55,6 +55,24 @@
                 </label>
               </div>
             </li>
+            <!-- free-text box for the "Other" (last) option of a single-choice-other question.
+                 Kept outside the option cards (whose large text classes it would inherit) and
+                 styled exactly like the subjective answer box, directly below "Other". -->
+            <li
+              v-if="isOtherOptionWithTextBox(otherOptionIndex)"
+              class="list-none flex flex-col mt-2"
+              data-test="otherTextContainer"
+            >
+              <Textarea
+                v-model:value="otherText"
+                class="px-1 w-full"
+                :boxStyling="subjectiveAnswerBoxStyling"
+                placeholder="Please specify"
+                :isDisabled="isAnswerDisabled"
+                :maxHeightLimit="250"
+                data-test="otherText"
+              ></Textarea>
+            </li>
           </ul>
         </div>
         <!-- subjective question answer -->
@@ -971,7 +989,8 @@ import {
   ref,
 } from "vue";
 
-import { quizType, questionType, DraftResponse } from "@/types"
+import { quizType, questionType, DraftResponse, OtherOptionAnswer } from "@/types"
+import { answerOptionIndices } from "@/services/Functional/Utilities";
 import { lazyLoadImages } from "@/directives/lazyLoadImages";
 import { queueMathJaxTypeset } from "@/services/Functional/MathJax";
 
@@ -1048,6 +1067,11 @@ export default defineComponent({
       type: Number,
       default: 0,
     },
+    /** number shown in the header, e.g. "2a"; defaults to position + 1 */
+    questionLabel: {
+      type: String,
+      default: null,
+    },
     showFullText: {
       type: Boolean,
       default: false,
@@ -1090,9 +1114,15 @@ export default defineComponent({
     const state = reactive({
       questionTypesWithOptions: new Set([
         questionType.SINGLE_CHOICE,
+        questionType.SINGLE_CHOICE_OTHER,
         questionType.MULTI_CHOICE,
       ]),
       draftAnswer: props.submittedAnswer as DraftResponse, // answer for the current question
+      // text typed for the "Other" option of a single-choice-other question
+      otherText:
+        props.questionType == questionType.SINGLE_CHOICE_OTHER
+          ? (props.submittedAnswer as OtherOptionAnswer | null)?.other_text ?? ""
+          : "",
       nonGradedAnswerClass: "bg-gray-200",
       correctOptionClass: "text-white bg-green-500 border rounded-md",
       skippedCorrectOptionClass: "border-4 border-green-500 rounded-md",
@@ -1138,12 +1168,7 @@ export default defineComponent({
         props.isGradedQuestion &&
         props.correctAnswer.indexOf(answer) != -1
       ) {
-        if (
-          state.draftAnswer != null &&
-          typeof state.draftAnswer != "string" &&
-          typeof state.draftAnswer != "number" &&
-          (state.draftAnswer as (string | number)[]).indexOf(answer) != -1
-        ) {
+        if (isOptionMarked(answer as number)) {
           // if both correct and submitted option
           return state.correctOptionClass;
         }
@@ -1152,8 +1177,7 @@ export default defineComponent({
       }
       if (
         (!isQuizAssessment.value || props.hasQuizEnded) &&
-        state.draftAnswer != null &&
-        (state.draftAnswer as (string | number)[]).indexOf(answer) != -1
+        isOptionMarked(answer as number)
       ) {
         if (!props.isGradedQuestion) return state.nonGradedAnswerClass;
         return state.wrongOptionClass;
@@ -1162,11 +1186,21 @@ export default defineComponent({
 
     // whether the given option index should be marked selected
     function isOptionMarked(optionIndex: number) {
+      return answerOptionIndices(state.draftAnswer, props.questionType).includes(
+        optionIndex
+      );
+    }
+
+    // index of the "Other" option of a single-choice-other question (always the last)
+    // (options can arrive as null, e.g. for questions whose details were trimmed)
+    const otherOptionIndex = computed(() => (props.options || []).length - 1);
+
+    // whether to show the free-text box under this option: the "Other" option is selected
+    function isOtherOptionWithTextBox(optionIndex: number) {
       return (
-        state.draftAnswer != null &&
-        typeof state.draftAnswer != "string" &&
-        typeof state.draftAnswer != "number" &&
-        (state.draftAnswer as (string | number)[]).indexOf(optionIndex) != -1
+        isQuestionTypeSingleChoiceOther.value &&
+        optionIndex == otherOptionIndex.value &&
+        isOptionMarked(optionIndex)
       );
     }
 
@@ -1215,6 +1249,15 @@ export default defineComponent({
           currentResponse = [answer];
         }
         state.draftAnswer = currentResponse;
+      }
+
+      if (isQuestionTypeSingleChoiceOther.value) {
+        // same as single choice, but the answer is {selected, other_text}; picking the
+        // same option again clears it, and any change starts the "Other" text afresh
+        state.draftAnswer = isOptionMarked(answer as number)
+          ? null
+          : { selected: [answer as number], other_text: null };
+        state.otherText = "";
       }
 
       if (isQuestionTypeMultiChoice.value || isQuestionTypeMatrixMatch.value) {
@@ -1524,7 +1567,7 @@ export default defineComponent({
     }
 
     const questionHeaderText = computed(() => {
-      return `Q.${props.currentQuestionIndex + 1}: `;
+      return `Q.${props.questionLabel ?? props.currentQuestionIndex + 1}: `;
     });
 
     // styling class for the question image and loading spinner containers
@@ -1545,6 +1588,9 @@ export default defineComponent({
     );
     const isQuestionTypeSingleChoice = computed(
       () => props.questionType == questionType.SINGLE_CHOICE
+    );
+    const isQuestionTypeSingleChoiceOther = computed(
+      () => props.questionType == questionType.SINGLE_CHOICE_OTHER
     );
     const isQuestionTypeNumericalInteger = computed(
       () => props.questionType == questionType.NUMERICAL_INTEGER
@@ -1594,7 +1640,9 @@ export default defineComponent({
 
     const optionInputType = computed(() => {
       if (!areOptionsVisible.value) return null;
-      if (isQuestionTypeSingleChoice.value) return "radio";
+      if (isQuestionTypeSingleChoice.value || isQuestionTypeSingleChoiceOther.value) {
+        return "radio";
+      }
       if (isQuestionTypeMultiChoice.value) return "checkbox";
       return null;
     });
@@ -1620,6 +1668,9 @@ export default defineComponent({
       }
       if (isQuestionTypeSingleChoice.value || isQuestionTypeMultiChoice.value) {
         return Array.isArray(state.draftAnswer) && state.draftAnswer.length > 0;
+      }
+      if (isQuestionTypeSingleChoiceOther.value) {
+        return answerOptionIndices(state.draftAnswer, props.questionType).length > 0;
       }
       return true;
     });
@@ -1731,6 +1782,9 @@ export default defineComponent({
       // Only apply to full text mode with visible options
       if (!props.showFullText || !areOptionsVisible.value) return false;
 
+      // the "Other" text box needs the full width under its option
+      if (isQuestionTypeSingleChoiceOther.value) return false;
+
       // Don't show horizontally if no options
       if (!props.options || props.options.length === 0) return false;
 
@@ -1809,6 +1863,35 @@ export default defineComponent({
       }
     );
 
+    watch(
+      () => state.otherText,
+      (newValue) => {
+        // max_char_limit may arrive as null (not the -1 default) when the question has none
+        const limit = props.maxCharLimit;
+        if (
+          newValue != null &&
+          typeof limit == "number" &&
+          limit > 0 &&
+          newValue.length > limit
+        ) {
+          // prevent text longer than the character limit (e.g. via copy pasting)
+          state.otherText = newValue.substring(0, limit);
+          return; // the watcher runs again with the trimmed text
+        }
+        // only the selected "Other" option carries text
+        if (!isOtherOptionWithTextBox(otherOptionIndex.value)) return;
+        state.draftAnswer = {
+          selected: [otherOptionIndex.value],
+          other_text: newValue && newValue.trim() != "" ? newValue : null,
+        };
+        context.emit(
+          "option-selected",
+          state.draftAnswer,
+          props.currentQuestionIndex
+        );
+      }
+    );
+
     onMounted(() => {
       queueMathJaxTypeset(mathJaxRoot.value);
     });
@@ -1823,6 +1906,8 @@ export default defineComponent({
       questionHeaderText,
       optionBackgroundClass,
       isOptionMarked,
+      isOtherOptionWithTextBox,
+      otherOptionIndex,
       selectOption,
       isAnswerSubmitted,
       labelClass,
