@@ -167,7 +167,10 @@ describe("Player for Assessment quizzes", () => {
         cy.get('[data-test="modal"]')
           .get('[data-test="question-index-type')
           .should("have.text", "Q.16 | Numerical");
-        cy.get('[data-test="togglePaletteButton"]').trigger("click");
+        // force: on a phone-width viewport the optional-limit warning toast covers this button
+        cy.get('[data-test="togglePaletteButton"]').trigger("click", {
+          force: true,
+        });
         cy.get('[data-test="paletteItem-14"]').trigger("click");
 
         // clear the answer and save
@@ -183,7 +186,10 @@ describe("Player for Assessment quizzes", () => {
         cy.get('[data-test="modal"]')
           .get('[data-test="question-index-type')
           .should("have.text", "Q.16 | Numerical");
-        cy.get('[data-test="togglePaletteButton"]').trigger("click");
+        // force: on a phone-width viewport the optional-limit warning toast covers this button
+        cy.get('[data-test="togglePaletteButton"]').trigger("click", {
+          force: true,
+        });
         cy.get('[data-test="paletteItem-15"]').trigger("click");
 
         // option can be selected now!

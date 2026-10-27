@@ -29,6 +29,20 @@ describe("Splash.vue", () => {
     expect(wrapper.find('[data-test="grade"]').text()).toContain(grade + "");
   });
 
+  it("shows a range when a form has conditional questions", () => {
+    const formWrapper = mount(Splash, {
+      props: { title, subject, quizType: "form", numQuestions: 28, grade, numConditionalQuestions: 3 },
+    });
+    expect(formWrapper.find('[data-test="numQuestions"]').text()).toBe("25–28 questions");
+  });
+
+  it("shows a single count when there are no conditional questions", () => {
+    const formWrapper = mount(Splash, {
+      props: { title, subject, quizType: "form", numQuestions: 28, grade },
+    });
+    expect(formWrapper.find('[data-test="numQuestions"]').text()).toBe("28 questions");
+  });
+
   it("disables the start button if session data has not been fetched", async () => {
     await wrapper.setProps({ isFirstSession: null });
     await wrapper.find('[data-test="startQuiz"]').trigger("click");
