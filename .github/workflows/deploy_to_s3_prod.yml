@@ -10,6 +10,10 @@ name: Deploy to production
 jobs:
   build_and_deploy:
     name: Deploy
+    # id-token lets the job log in to AWS as a role (OIDC) instead of using stored keys.
+    permissions:
+      contents: read
+      id-token: write
     environment:
       name: Production
 
@@ -38,10 +42,9 @@ jobs:
         run: npm run build
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: arn:aws:iam::111766607077:role/quiz-frontend-prod-deploy
           aws-region: ap-south-1
 
       # Hashed js/css are immutable; index.html must never be cached, or students
