@@ -134,6 +134,13 @@ describe.each(["numerical-integer", "numerical-float"])(
       expect(isKeyBlocked(wrapper, "-", 1)).toBe(true);
     });
 
+    it("removes a minus sign the keypad inserted after the first character", async () => {
+      const wrapper = mountItem();
+      await answerBox(wrapper).setValue("7-6");
+      expect((answerBox(wrapper).element as HTMLTextAreaElement).value).toBe("76");
+      expect(lastEmit(wrapper)).toEqual([76, 2]);
+    });
+
     it("saves a lone minus as not answered and then the negative number", async () => {
       const wrapper = mountItem();
       await answerBox(wrapper).setValue("-");

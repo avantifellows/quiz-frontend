@@ -912,6 +912,21 @@ describe("Body.vue", () => {
         expect(lastEmittedAnswer(wrapper)).toEqual([-7]);
       });
 
+      it("opens the numeric keypad, which has a minus key on Android", () => {
+        const wrapper = mount(Body, { props: { questionType: numericalType } });
+        expect(answerBox(wrapper).attributes("inputmode")).toBe("numeric");
+      });
+
+      it("removes a minus sign the keypad inserted after the first character", async () => {
+        // the Android ".-" double-tap key can insert text beforeinput cannot block
+        const wrapper = mount(Body, { props: { questionType: numericalType } });
+        await answerBox(wrapper).setValue("7-6");
+        expect(
+          (answerBox(wrapper).element as HTMLTextAreaElement).value
+        ).toBe("76");
+        expect(lastEmittedAnswer(wrapper)).toEqual([76]);
+      });
+
       it("keeps a typed minus sign when the parent clears the draft answer", async () => {
         const wrapper = mount(Body, {
           props: { questionType: numericalType, draftAnswer: 5 },
@@ -961,6 +976,17 @@ describe("Body.vue", () => {
       expect(event.defaultPrevented).toBe(true);
     });
 
+    it("removes a second decimal point the keypad inserted", async () => {
+      const wrapper = mount(Body, {
+        props: { questionType: "numerical-float" },
+      });
+      const box = wrapper
+        .find('[data-test="numericalAnswer"]')
+        .find('[data-test="input"]');
+      await box.setValue("-3.5.6");
+      expect((box.element as HTMLTextAreaElement).value).toBe("-3.56");
+    });
+
     it("emits a negative decimal answer", async () => {
       const wrapper = mount(Body, {
         props: { questionType: "numerical-float" },
@@ -972,5 +998,18 @@ describe("Body.vue", () => {
       const emitted = wrapper.emitted("numerical-answer-entered") || [];
       expect(emitted[emitted.length - 1]).toEqual([-2.5]);
     });
+  });
+
+  it("removes a decimal point the keypad inserted into an integer answer", async () => {
+    const wrapper = mount(Body, {
+      props: { questionType: "numerical-integer" },
+    });
+    const box = wrapper
+      .find('[data-test="numericalAnswer"]')
+      .find('[data-test="input"]');
+    await box.setValue("-3.5");
+    expect((box.element as HTMLTextAreaElement).value).toBe("-35");
+    const emitted = wrapper.emitted("numerical-answer-entered") || [];
+    expect(emitted[emitted.length - 1]).toEqual([-35]);
   });
 });

@@ -6,6 +6,7 @@ import {
   isMinusSignMisplaced,
   isQuestionResponseComplete,
   numericalAnswerValue,
+  sanitizeNumericalAnswer,
   shouldForceSinglePageMode,
 } from "@/services/Functional/Utilities";
 import { Question, submittedAnswer, DisplayCondition, QuizAPIResponse } from "@/types";
@@ -297,5 +298,37 @@ describe("isMinusSignMisplaced", () => {
   it("ignores digits typed after the minus", () => {
     expect(isMinusSignMisplaced("-", "7", 1, 1)).toBe(false);
     expect(isMinusSignMisplaced("-7", "5", 2, 2)).toBe(false);
+  });
+});
+
+describe("sanitizeNumericalAnswer", () => {
+  it("keeps valid answers unchanged", () => {
+    expect(sanitizeNumericalAnswer("-7", true, 10)).toBe("-7");
+    expect(sanitizeNumericalAnswer("-2.5", true, 10)).toBe("-2.5");
+    expect(sanitizeNumericalAnswer("3.14", true, 10)).toBe("3.14");
+    expect(sanitizeNumericalAnswer("-", true, 10)).toBe("-");
+    expect(sanitizeNumericalAnswer("", true, 10)).toBe("");
+  });
+
+  it("drops a minus sign that is not the first character", () => {
+    expect(sanitizeNumericalAnswer("7-646", true, 10)).toBe("7646");
+    expect(sanitizeNumericalAnswer("--3", false, 10)).toBe("-3");
+    expect(sanitizeNumericalAnswer("-3.564-5", true, 10)).toBe("-3.5645");
+  });
+
+  it("keeps one decimal point after a digit, only when decimals are allowed", () => {
+    expect(sanitizeNumericalAnswer("3..5", true, 10)).toBe("3.5");
+    expect(sanitizeNumericalAnswer("1.2.3", true, 10)).toBe("1.23");
+    expect(sanitizeNumericalAnswer(".5", true, 10)).toBe("5");
+    expect(sanitizeNumericalAnswer("-.5", true, 10)).toBe("-5");
+    expect(sanitizeNumericalAnswer("-3.564", false, 10)).toBe("-3564");
+  });
+
+  it("drops letters and other symbols", () => {
+    expect(sanitizeNumericalAnswer("1,2 a#", true, 10)).toBe("12");
+  });
+
+  it("cuts the answer to the maximum length", () => {
+    expect(sanitizeNumericalAnswer("-1234567890", true, 10)).toBe("-123456789");
   });
 });
