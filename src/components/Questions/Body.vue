@@ -148,6 +148,7 @@
             :inputMode="getInputMode"
             :isDisabled="isAnswerDisabled"
             :maxHeightLimit="50"
+            :sanitizeValue="sanitizeNumericalInput"
             @beforeinput="preventKeypressIfApplicable"
             data-test="numericalAnswer"
           ></Textarea>
@@ -585,6 +586,7 @@ import { queueMathJaxTypeset } from "@/services/Functional/MathJax";
 import {
   isMinusSignMisplaced,
   numericalAnswerValue,
+  sanitizeNumericalAnswer,
 } from "@/services/Functional/Utilities";
 import {
   quizType,
@@ -1008,6 +1010,15 @@ export default defineComponent({
       return String(x).length >= MAX_LENGTH_NUMERICAL_CHARACTERS;
     }
 
+    // cleans whatever the keypad inserted past preventKeypressIfApplicable
+    function sanitizeNumericalInput(value: string) {
+      return sanitizeNumericalAnswer(
+        value,
+        isQuestionTypeNumericalFloat.value,
+        MAX_LENGTH_NUMERICAL_CHARACTERS
+      );
+    }
+
     // a "-" is only allowed as the first character of a numerical answer
     function isMinusSignMisplacedInAnswer(event: InputEvent) {
       const answerBox = event.target as HTMLTextAreaElement | null;
@@ -1327,12 +1338,13 @@ export default defineComponent({
         props.hasQuizEnded
     );
     // input mode refers to keypad being displayed in mobile browsers
+    // "numeric" rather than "decimal": the Android decimal keypad has no "-" key
     const getInputMode = computed(() => {
       if (
         isQuestionTypeNumericalInteger.value ||
         isQuestionTypeNumericalFloat.value
       ) {
-        return "decimal";
+        return "numeric";
       }
       return "text";
     });
@@ -1504,6 +1516,7 @@ export default defineComponent({
       isQuizAssessment,
       isAnswerDisabled,
       getInputMode,
+      sanitizeNumericalInput,
       subjectiveAnswerBoxStyling,
       numericalAnswerBoxStyling,
       isQuestionTypeNumericalFloat,

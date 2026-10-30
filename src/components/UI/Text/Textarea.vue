@@ -73,7 +73,15 @@ export default defineComponent({
     inputMode: {
       default: "text",
       type: String
-    }
+    },
+    /**
+     * optional clean-up applied to the typed value. Some Android keyboards insert text
+     * that cannot be blocked in beforeinput, so the value is corrected after it changes
+     */
+    sanitizeValue: {
+      default: null,
+      type: Function as PropType<(value: string) => string>,
+    },
   },
   setup(props, context) {
     const state = reactive({
@@ -81,6 +89,12 @@ export default defineComponent({
     });
     function inputChange(event: Event) {
       // invoked on input change
+      if (props.sanitizeValue != null && state.localValue != null) {
+        const sanitizedValue = props.sanitizeValue(String(state.localValue));
+        if (sanitizedValue != String(state.localValue)) {
+          state.localValue = sanitizedValue;
+        }
+      }
       context.emit("update:value", state.localValue);
 
       // auto expand the textbox if a `maxHeightLimit` has been specified

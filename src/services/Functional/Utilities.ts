@@ -123,6 +123,35 @@ export function isMinusSignMisplaced(
 }
 
 /**
+ * Keeps only what a numerical answer may contain: digits, a "-" as the first character
+ * and, when decimals are allowed, one "." that follows a digit, up to `maxLength`
+ * characters. Android keypads can insert characters that beforeinput cannot block (e.g.
+ * the double-tap ".-" key), so the typed value is cleaned after it changes.
+ */
+export function sanitizeNumericalAnswer(
+  answer: string,
+  allowDecimal: boolean,
+  maxLength: number
+): string {
+  let sanitized = "";
+  for (const character of answer) {
+    if (/[0-9]/.test(character)) {
+      sanitized += character;
+    } else if (character == "-" && sanitized == "") {
+      sanitized += character;
+    } else if (
+      character == "." &&
+      allowDecimal &&
+      !sanitized.includes(".") &&
+      /[0-9]$/.test(sanitized)
+    ) {
+      sanitized += character;
+    }
+  }
+  return sanitized.slice(0, maxLength);
+}
+
+/**
  * Visibility of every question by flat position — the single source of truth for the
  * conditional-display rule on the frontend (mirrors the backend
  * `_compute_form_question_visibility`).
