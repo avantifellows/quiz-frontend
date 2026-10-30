@@ -95,6 +95,34 @@ export function answerOptionIndices(
 }
 
 /**
+ * Numeric value of a numerical answer textbox. Empty text and partial negatives that are
+ * not a number yet ("-", "-.") give null, so they are saved as "not answered".
+ */
+export function numericalAnswerValue(
+  answer: string | number | null | undefined
+): number | null {
+  if (answer == null || String(answer) == "") return null;
+  const value = Number(answer);
+  return Number.isNaN(value) ? null : value;
+}
+
+/**
+ * Whether typing `insertedText` over the selection [selectionStart, selectionEnd) of a
+ * numerical answer would put a minus sign anywhere but the first character: a "-" typed
+ * after the start, or any text typed in front of an existing leading "-".
+ */
+export function isMinusSignMisplaced(
+  answer: string | number | null | undefined,
+  insertedText: string,
+  selectionStart: number,
+  selectionEnd: number
+): boolean {
+  const text = answer == null ? "" : String(answer);
+  if (text.startsWith("-") && selectionEnd == 0) return true;
+  return insertedText == "-" && selectionStart != 0;
+}
+
+/**
  * Visibility of every question by flat position — the single source of truth for the
  * conditional-display rule on the frontend (mirrors the backend
  * `_compute_form_question_visibility`).

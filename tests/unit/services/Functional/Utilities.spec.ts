@@ -3,7 +3,9 @@ import {
   computeQuestionLabels,
   answerToSubmit,
   answerOptionIndices,
+  isMinusSignMisplaced,
   isQuestionResponseComplete,
+  numericalAnswerValue,
   shouldForceSinglePageMode,
 } from "@/services/Functional/Utilities";
 import { Question, submittedAnswer, DisplayCondition, QuizAPIResponse } from "@/types";
@@ -249,5 +251,51 @@ describe("single-choice-other", () => {
     expect(
       computeQuestionVisibility(questions, [{ selected: [2], other_text: "x" }, null], "form")
     ).toEqual([true, false]);
+  });
+});
+
+describe("numericalAnswerValue", () => {
+  it("parses positive, negative and decimal answers", () => {
+    expect(numericalAnswerValue("7")).toBe(7);
+    expect(numericalAnswerValue("-7")).toBe(-7);
+    expect(numericalAnswerValue("-2.5")).toBe(-2.5);
+    expect(numericalAnswerValue(-7)).toBe(-7);
+    expect(numericalAnswerValue("0")).toBe(0);
+  });
+
+  it("treats empty and partial negative answers as not answered", () => {
+    expect(numericalAnswerValue(null)).toBeNull();
+    expect(numericalAnswerValue(undefined)).toBeNull();
+    expect(numericalAnswerValue("")).toBeNull();
+    expect(numericalAnswerValue("-")).toBeNull();
+    expect(numericalAnswerValue("-.")).toBeNull();
+  });
+});
+
+describe("isMinusSignMisplaced", () => {
+  it("allows a minus as the first character", () => {
+    expect(isMinusSignMisplaced(null, "-", 0, 0)).toBe(false);
+    expect(isMinusSignMisplaced("", "-", 0, 0)).toBe(false);
+    expect(isMinusSignMisplaced("7", "-", 0, 0)).toBe(false);
+  });
+
+  it("rejects a minus after the first character", () => {
+    expect(isMinusSignMisplaced("7", "-", 1, 1)).toBe(true);
+    expect(isMinusSignMisplaced("-7", "-", 2, 2)).toBe(true);
+  });
+
+  it("rejects typing in front of an existing minus", () => {
+    expect(isMinusSignMisplaced("-7", "-", 0, 0)).toBe(true);
+    expect(isMinusSignMisplaced("-7", "5", 0, 0)).toBe(true);
+  });
+
+  it("allows replacing a selection that covers the existing minus", () => {
+    expect(isMinusSignMisplaced("-7", "-", 0, 2)).toBe(false);
+    expect(isMinusSignMisplaced("-7", "5", 0, 1)).toBe(false);
+  });
+
+  it("ignores digits typed after the minus", () => {
+    expect(isMinusSignMisplaced("-", "7", 1, 1)).toBe(false);
+    expect(isMinusSignMisplaced("-7", "5", 2, 2)).toBe(false);
   });
 });

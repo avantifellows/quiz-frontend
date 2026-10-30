@@ -990,7 +990,11 @@ import {
 } from "vue";
 
 import { quizType, questionType, DraftResponse, OtherOptionAnswer } from "@/types"
-import { answerOptionIndices } from "@/services/Functional/Utilities";
+import {
+  answerOptionIndices,
+  isMinusSignMisplaced,
+  numericalAnswerValue,
+} from "@/services/Functional/Utilities";
 import { lazyLoadImages } from "@/directives/lazyLoadImages";
 import { queueMathJaxTypeset } from "@/services/Functional/MathJax";
 
@@ -1443,6 +1447,18 @@ export default defineComponent({
       return String(x).length >= MAX_LENGTH_NUMERICAL_CHARACTERS;
     }
 
+    // a "-" is only allowed as the first character of a numerical answer
+    function isMinusSignMisplacedInAnswer(event: InputEvent) {
+      const answerBox = event.target as HTMLTextAreaElement | null;
+      const answerLength = String(state.numericalAnswer ?? "").length;
+      return isMinusSignMisplaced(
+        state.numericalAnswer,
+        event.data as string,
+        answerBox?.selectionStart ?? answerLength,
+        answerBox?.selectionEnd ?? answerLength
+      );
+    }
+
     function preventKeypressIfApplicable(event: InputEvent) {
       function showErrorNotification(message: string) {
         const existingNotification = document.querySelector(
@@ -1516,15 +1532,17 @@ export default defineComponent({
           "8",
           "9",
           ".",
+          "-",
         ];
         const keyPressed: string = event.data;
         if (
           doNumericalCharactersExceedLimit(state.numericalAnswer) ||
           !keysAllowed.includes(keyPressed) ||
-          // if key is "." but number already has a decimal point, or key "." is entered as the first character in answer, prevent
+          isMinusSignMisplacedInAnswer(event) ||
+          // if key is "." but number already has a decimal point, or key "." is entered before any digit, prevent
           (event.data == "." &&
             (doesNumberContainDecimal(state.numericalAnswer) ||
-              state.numericalAnswer == null))
+              numericalAnswerValue(state.numericalAnswer) == null))
         ) {
           if (
             event.data == "." &&
@@ -1555,11 +1573,13 @@ export default defineComponent({
           "7",
           "8",
           "9",
+          "-",
         ];
         const keyPressed: string = event.data;
         if (
           doNumericalCharactersExceedLimit(state.numericalAnswer) ||
-          !keysAllowed.includes(keyPressed)
+          !keysAllowed.includes(keyPressed) ||
+          isMinusSignMisplacedInAnswer(event)
         ) {
           event.preventDefault();
         }
@@ -1825,21 +1845,13 @@ export default defineComponent({
     watch(
       () => state.numericalAnswer,
       (newValue) => {
-        if (String(newValue) == "" || newValue == null) {
-          state.draftAnswer = null;
-          context.emit(
-            "numerical-answer-entered",
-            null,
-            props.currentQuestionIndex
-          ); // when entire answer is deleted, set draftAnswer as null
-        } else {
-          state.draftAnswer = Number(state.numericalAnswer);
-          context.emit(
-            "numerical-answer-entered",
-            Number(state.numericalAnswer),
-            props.currentQuestionIndex
-          );
-        }
+        // when entire answer is deleted, or only "-" is typed, set draftAnswer as null
+        state.draftAnswer = numericalAnswerValue(newValue);
+        context.emit(
+          "numerical-answer-entered",
+          state.draftAnswer,
+          props.currentQuestionIndex
+        );
       }
     );
 

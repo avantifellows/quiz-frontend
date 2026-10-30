@@ -851,4 +851,126 @@ describe("Body.vue", () => {
       ).toContain("border-gray-200");
     });
   });
+
+  describe.each(["numerical-integer", "numerical-float"])(
+    "negative answers for %s questions",
+    (numericalType) => {
+      function answerBox(wrapper: ReturnType<typeof mount>) {
+        return wrapper
+          .find('[data-test="numericalAnswer"]')
+          .find('[data-test="input"]');
+      }
+
+      // dispatches the beforeinput event the browser fires for a keypress and
+      // returns whether the component blocked it
+      function isKeyBlocked(
+        wrapper: ReturnType<typeof mount>,
+        data: string,
+        caret: number
+      ) {
+        const element = answerBox(wrapper).element as HTMLTextAreaElement;
+        element.setSelectionRange(caret, caret);
+        const event = new Event("beforeinput", { cancelable: true });
+        Object.defineProperty(event, "data", { value: data });
+        element.dispatchEvent(event);
+        return event.defaultPrevented;
+      }
+
+      function lastEmittedAnswer(wrapper: ReturnType<typeof mount>) {
+        const emitted = wrapper.emitted("numerical-answer-entered") || [];
+        return emitted[emitted.length - 1];
+      }
+
+      it("allows a minus sign as the first character", () => {
+        const wrapper = mount(Body, { props: { questionType: numericalType } });
+        expect(isKeyBlocked(wrapper, "-", 0)).toBe(false);
+      });
+
+      it("blocks a minus sign after the first character", async () => {
+        const wrapper = mount(Body, { props: { questionType: numericalType } });
+        await answerBox(wrapper).setValue("7");
+        expect(isKeyBlocked(wrapper, "-", 1)).toBe(true);
+      });
+
+      it("blocks typing in front of a leading minus sign", async () => {
+        const wrapper = mount(Body, { props: { questionType: numericalType } });
+        await answerBox(wrapper).setValue("-7");
+        expect(isKeyBlocked(wrapper, "5", 0)).toBe(true);
+        expect(isKeyBlocked(wrapper, "-", 0)).toBe(true);
+        expect(isKeyBlocked(wrapper, "5", 2)).toBe(false);
+      });
+
+      it("saves a lone minus sign as not answered", async () => {
+        const wrapper = mount(Body, { props: { questionType: numericalType } });
+        await answerBox(wrapper).setValue("-");
+        expect(lastEmittedAnswer(wrapper)).toEqual([null]);
+      });
+
+      it("emits the negative number once digits follow the minus sign", async () => {
+        const wrapper = mount(Body, { props: { questionType: numericalType } });
+        await answerBox(wrapper).setValue("-7");
+        expect(lastEmittedAnswer(wrapper)).toEqual([-7]);
+      });
+
+      it("keeps a typed minus sign when the parent clears the draft answer", async () => {
+        const wrapper = mount(Body, {
+          props: { questionType: numericalType, draftAnswer: 5 },
+        });
+        await answerBox(wrapper).setValue("-");
+        await wrapper.setProps({ draftAnswer: null });
+        expect(
+          (answerBox(wrapper).element as HTMLTextAreaElement).value
+        ).toBe("-");
+      });
+
+      it("shows a negative correct answer and marks it green when matched", async () => {
+        const wrapper = mount(Body, {
+          props: {
+            questionType: numericalType,
+            submittedAnswer: -7,
+            correctAnswer: -7,
+            isAnswerSubmitted: true,
+            isGradedQuestion: true,
+            hasQuizEnded: true,
+          },
+        });
+        expect(
+          wrapper.find('[data-test="numericalCorrectAnswer"]').text()
+        ).toBe("Correct Answer: -7");
+        expect(
+          (answerBox(wrapper).element as HTMLTextAreaElement).className
+        ).toContain("text-green-500 border-green-500");
+      });
+    }
+  );
+
+  describe("negative decimal answers for numerical float questions", () => {
+    it("blocks a decimal point right after the minus sign", async () => {
+      const wrapper = mount(Body, {
+        props: { questionType: "numerical-float" },
+      });
+      const box = wrapper
+        .find('[data-test="numericalAnswer"]')
+        .find('[data-test="input"]');
+      await box.setValue("-");
+      const element = box.element as HTMLTextAreaElement;
+      element.setSelectionRange(1, 1);
+      const event = new Event("beforeinput", { cancelable: true });
+      Object.defineProperty(event, "data", { value: "." });
+      element.dispatchEvent(event);
+      expect(event.defaultPrevented).toBe(true);
+    });
+
+    it("emits a negative decimal answer", async () => {
+      const wrapper = mount(Body, {
+        props: { questionType: "numerical-float" },
+      });
+      await wrapper
+        .find('[data-test="numericalAnswer"]')
+        .find('[data-test="input"]')
+        .setValue("-2.5");
+      const emitted = wrapper.emitted("numerical-answer-entered") || [];
+      expect(emitted[emitted.length - 1]).toEqual([-2.5]);
+    });
+  });
 });
