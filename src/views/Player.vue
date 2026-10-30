@@ -1153,6 +1153,16 @@ export default defineComponent({
       }
     }
 
+    // The server says this session is already ended (409 on an answer/end write), so the
+    // first End Test did go through. Mark it ended locally and move to the scorecard/survey
+    // instead of showing the "poor connection, retry" banner in a loop.
+    async function finishAlreadyEndedSession() {
+      state.hasQuizEnded = true;
+      const redirected = await revealScorecardOrSurvey();
+      if (redirected) return;
+      state.currentQuestionIndex = numQuestions.value;
+    }
+
     async function endTest() {
       if (state.hasQuizEnded) {
         state.currentQuestionIndex = numQuestions.value;
@@ -1192,6 +1202,16 @@ export default defineComponent({
         responseAnswersWithPositions
       );
 
+      // 409 => the backend already recorded this session as ended (the first End Test
+      // went through; only the reply was lost under load). The answers are safe on the
+      // server, so stop retrying and move the student to the scorecard instead of looping
+      // on the "poor connection" banner.
+      if (updateResponse.status === 409) {
+        state.isSessionAnswerRequestProcessing = false;
+        await finishAlreadyEndedSession();
+        return;
+      }
+
       if (updateResponse.status != 200) {
         state.toast.error(
           'Unable to submit some of your answers due to poor connection. Please retry "End Test" when connection improves.',
@@ -1210,6 +1230,13 @@ export default defineComponent({
         event: eventType.END_QUIZ
       };
       const endSessionResponse = await SessionAPIService.updateSession(state.sessionId, payload);
+      if (endSessionResponse.status === 409) {
+        // Session already ended on the server (a prior End Test succeeded). Treat as done.
+        state.isComputingScore = false;
+        state.isSessionAnswerRequestProcessing = false;
+        await finishAlreadyEndedSession();
+        return;
+      }
       if (endSessionResponse.status != 200) {
         const missingPositions = endSessionResponse.data?.detail?.missing_positions;
         if (areAllQuestionsRequired.value && Array.isArray(missingPositions) && missingPositions.length > 0) {
