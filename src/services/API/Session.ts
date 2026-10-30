@@ -11,6 +11,11 @@ import {
   UpdateSessionAnswersAtSpecificPositionsAPIPayload
 } from "@/types";
 
+// End Test ships every answer in one payload (up to 180 for NEET) and then ends the
+// session; under exam-scale load these two calls need more than the default 4s before
+// the frontend gives up and (wrongly) tells the student their connection is poor.
+const END_TEST_TIMEOUT_MS = 30000;
+
 export default {
   /**
    * Preflight helper (Alt 1): tell FE whether to request quiz with answers included.
@@ -100,7 +105,8 @@ export default {
     try {
       const response = await apiClient().patch(
         sessionsEndpoint + sessionId,
-        payload
+        payload,
+        { timeout: END_TEST_TIMEOUT_MS } // ending the session must not time out at 4s under load
       );
       return { status: response.status, data: response.data };
     } catch (error: any) {
@@ -127,6 +133,10 @@ export default {
     } catch (error: any) {
       if (error.code == 'ECONNABORTED') {
         return { status: 500 }; // request timeout
+      } else if (error.response?.status != null) {
+        // Preserve the real status (e.g. 409 = quiz already ended) and its body,
+        // so callers can tell "already submitted" apart from "poor connection".
+        return { status: error.response.status, data: error.response.data };
       } else {
         return { status: 400 }; // bad request
       }
@@ -156,6 +166,8 @@ export default {
     } catch (error: any) {
       if (error.code == 'ECONNABORTED') {
         return { status: 500 }; // request timeout
+      } else if (error.response?.status != null) {
+        return { status: error.response.status }; // preserve real status (e.g. 409 quiz ended)
       } else {
         return { status: 400 }; // bad request
       }
@@ -175,12 +187,15 @@ export default {
     try {
       const response = await apiClient().patch(
         `${sessionAnswersEndpoint}${sessionId}/update-multiple-answers`,
-        payload
+        payload,
+        { timeout: END_TEST_TIMEOUT_MS } // bulk End Test write (up to 180 answers) needs > 4s
       );
       return { status: response.status };
     } catch (error: any) {
       if (error.code == 'ECONNABORTED') {
         return { status: 500 }; // request timeout
+      } else if (error.response?.status != null) {
+        return { status: error.response.status }; // preserve real status (e.g. 409 quiz ended)
       } else {
         return { status: 400 }; // bad request
       }
