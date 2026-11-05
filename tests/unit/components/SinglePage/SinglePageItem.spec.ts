@@ -90,3 +90,63 @@ describe("SinglePageItem.vue — single-choice-other", () => {
     expect(wrapper.find('[data-test="otherTextContainer"]').exists()).toBe(false);
   });
 });
+
+// numerical answers can be negative: "-" is allowed as the first character only
+describe.each(["numerical-integer", "numerical-float"])(
+  "SinglePageItem.vue — negative %s answers",
+  (numericalType) => {
+    function mountItem() {
+      return mount(SinglePageItem, {
+        props: {
+          questionType: numericalType,
+          quizType: "assessment",
+          currentQuestionIndex: 2,
+        },
+      });
+    }
+
+    function answerBox(wrapper: ReturnType<typeof mountItem>) {
+      return wrapper.find('[data-test="numericalAnswer"] textarea');
+    }
+
+    function isKeyBlocked(
+      wrapper: ReturnType<typeof mountItem>,
+      data: string,
+      caret: number
+    ) {
+      const element = answerBox(wrapper).element as HTMLTextAreaElement;
+      element.setSelectionRange(caret, caret);
+      const event = new Event("beforeinput", { cancelable: true });
+      Object.defineProperty(event, "data", { value: data });
+      element.dispatchEvent(event);
+      return event.defaultPrevented;
+    }
+
+    function lastEmit(wrapper: ReturnType<typeof mountItem>) {
+      const emitted = wrapper.emitted("numerical-answer-entered") || [];
+      return emitted[emitted.length - 1];
+    }
+
+    it("allows a leading minus sign and blocks one later in the answer", async () => {
+      const wrapper = mountItem();
+      expect(isKeyBlocked(wrapper, "-", 0)).toBe(false);
+      await answerBox(wrapper).setValue("7");
+      expect(isKeyBlocked(wrapper, "-", 1)).toBe(true);
+    });
+
+    it("removes a minus sign the keypad inserted after the first character", async () => {
+      const wrapper = mountItem();
+      await answerBox(wrapper).setValue("7-6");
+      expect((answerBox(wrapper).element as HTMLTextAreaElement).value).toBe("76");
+      expect(lastEmit(wrapper)).toEqual([76, 2]);
+    });
+
+    it("saves a lone minus as not answered and then the negative number", async () => {
+      const wrapper = mountItem();
+      await answerBox(wrapper).setValue("-");
+      expect(lastEmit(wrapper)).toEqual([null, 2]);
+      await answerBox(wrapper).setValue("-7");
+      expect(lastEmit(wrapper)).toEqual([-7, 2]);
+    });
+  }
+);

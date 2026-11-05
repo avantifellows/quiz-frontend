@@ -95,6 +95,63 @@ export function answerOptionIndices(
 }
 
 /**
+ * Numeric value of a numerical answer textbox. Empty text and partial negatives that are
+ * not a number yet ("-", "-.") give null, so they are saved as "not answered".
+ */
+export function numericalAnswerValue(
+  answer: string | number | null | undefined
+): number | null {
+  if (answer == null || String(answer) == "") return null;
+  const value = Number(answer);
+  return Number.isNaN(value) ? null : value;
+}
+
+/**
+ * Whether typing `insertedText` over the selection [selectionStart, selectionEnd) of a
+ * numerical answer would put a minus sign anywhere but the first character: a "-" typed
+ * after the start, or any text typed in front of an existing leading "-".
+ */
+export function isMinusSignMisplaced(
+  answer: string | number | null | undefined,
+  insertedText: string,
+  selectionStart: number,
+  selectionEnd: number
+): boolean {
+  const text = answer == null ? "" : String(answer);
+  if (text.startsWith("-") && selectionEnd == 0) return true;
+  return insertedText == "-" && selectionStart != 0;
+}
+
+/**
+ * Keeps only what a numerical answer may contain: digits, a "-" as the first character
+ * and, when decimals are allowed, one "." that follows a digit, up to `maxLength`
+ * characters. Android keypads can insert characters that beforeinput cannot block (e.g.
+ * the double-tap ".-" key), so the typed value is cleaned after it changes.
+ */
+export function sanitizeNumericalAnswer(
+  answer: string,
+  allowDecimal: boolean,
+  maxLength: number
+): string {
+  let sanitized = "";
+  for (const character of answer) {
+    if (/[0-9]/.test(character)) {
+      sanitized += character;
+    } else if (character == "-" && sanitized == "") {
+      sanitized += character;
+    } else if (
+      character == "." &&
+      allowDecimal &&
+      !sanitized.includes(".") &&
+      /[0-9]$/.test(sanitized)
+    ) {
+      sanitized += character;
+    }
+  }
+  return sanitized.slice(0, maxLength);
+}
+
+/**
  * Visibility of every question by flat position — the single source of truth for the
  * conditional-display rule on the frontend (mirrors the backend
  * `_compute_form_question_visibility`).
