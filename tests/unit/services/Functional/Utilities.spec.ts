@@ -3,7 +3,10 @@ import {
   computeQuestionLabels,
   answerToSubmit,
   answerOptionIndices,
+  isMinusSignMisplaced,
   isQuestionResponseComplete,
+  numericalAnswerValue,
+  sanitizeNumericalAnswer,
   shouldForceSinglePageMode,
 } from "@/services/Functional/Utilities";
 import { Question, submittedAnswer, DisplayCondition, QuizAPIResponse } from "@/types";
@@ -249,5 +252,83 @@ describe("single-choice-other", () => {
     expect(
       computeQuestionVisibility(questions, [{ selected: [2], other_text: "x" }, null], "form")
     ).toEqual([true, false]);
+  });
+});
+
+describe("numericalAnswerValue", () => {
+  it("parses positive, negative and decimal answers", () => {
+    expect(numericalAnswerValue("7")).toBe(7);
+    expect(numericalAnswerValue("-7")).toBe(-7);
+    expect(numericalAnswerValue("-2.5")).toBe(-2.5);
+    expect(numericalAnswerValue(-7)).toBe(-7);
+    expect(numericalAnswerValue("0")).toBe(0);
+  });
+
+  it("treats empty and partial negative answers as not answered", () => {
+    expect(numericalAnswerValue(null)).toBeNull();
+    expect(numericalAnswerValue(undefined)).toBeNull();
+    expect(numericalAnswerValue("")).toBeNull();
+    expect(numericalAnswerValue("-")).toBeNull();
+    expect(numericalAnswerValue("-.")).toBeNull();
+  });
+});
+
+describe("isMinusSignMisplaced", () => {
+  it("allows a minus as the first character", () => {
+    expect(isMinusSignMisplaced(null, "-", 0, 0)).toBe(false);
+    expect(isMinusSignMisplaced("", "-", 0, 0)).toBe(false);
+    expect(isMinusSignMisplaced("7", "-", 0, 0)).toBe(false);
+  });
+
+  it("rejects a minus after the first character", () => {
+    expect(isMinusSignMisplaced("7", "-", 1, 1)).toBe(true);
+    expect(isMinusSignMisplaced("-7", "-", 2, 2)).toBe(true);
+  });
+
+  it("rejects typing in front of an existing minus", () => {
+    expect(isMinusSignMisplaced("-7", "-", 0, 0)).toBe(true);
+    expect(isMinusSignMisplaced("-7", "5", 0, 0)).toBe(true);
+  });
+
+  it("allows replacing a selection that covers the existing minus", () => {
+    expect(isMinusSignMisplaced("-7", "-", 0, 2)).toBe(false);
+    expect(isMinusSignMisplaced("-7", "5", 0, 1)).toBe(false);
+  });
+
+  it("ignores digits typed after the minus", () => {
+    expect(isMinusSignMisplaced("-", "7", 1, 1)).toBe(false);
+    expect(isMinusSignMisplaced("-7", "5", 2, 2)).toBe(false);
+  });
+});
+
+describe("sanitizeNumericalAnswer", () => {
+  it("keeps valid answers unchanged", () => {
+    expect(sanitizeNumericalAnswer("-7", true, 10)).toBe("-7");
+    expect(sanitizeNumericalAnswer("-2.5", true, 10)).toBe("-2.5");
+    expect(sanitizeNumericalAnswer("3.14", true, 10)).toBe("3.14");
+    expect(sanitizeNumericalAnswer("-", true, 10)).toBe("-");
+    expect(sanitizeNumericalAnswer("", true, 10)).toBe("");
+  });
+
+  it("drops a minus sign that is not the first character", () => {
+    expect(sanitizeNumericalAnswer("7-646", true, 10)).toBe("7646");
+    expect(sanitizeNumericalAnswer("--3", false, 10)).toBe("-3");
+    expect(sanitizeNumericalAnswer("-3.564-5", true, 10)).toBe("-3.5645");
+  });
+
+  it("keeps one decimal point after a digit, only when decimals are allowed", () => {
+    expect(sanitizeNumericalAnswer("3..5", true, 10)).toBe("3.5");
+    expect(sanitizeNumericalAnswer("1.2.3", true, 10)).toBe("1.23");
+    expect(sanitizeNumericalAnswer(".5", true, 10)).toBe("5");
+    expect(sanitizeNumericalAnswer("-.5", true, 10)).toBe("-5");
+    expect(sanitizeNumericalAnswer("-3.564", false, 10)).toBe("-3564");
+  });
+
+  it("drops letters and other symbols", () => {
+    expect(sanitizeNumericalAnswer("1,2 a#", true, 10)).toBe("12");
+  });
+
+  it("cuts the answer to the maximum length", () => {
+    expect(sanitizeNumericalAnswer("-1234567890", true, 10)).toBe("-123456789");
   });
 });
