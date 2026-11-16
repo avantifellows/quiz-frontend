@@ -67,6 +67,14 @@ describe('InstructionPage', () => {
     it("Test Paper Pattern should not be Visible", async () => {
       expect(wrapper.find('[data-test="test-fst"]').exists()).toBe(false);
     });
+
+    it("matches the palette colours in the symbol legend", () => {
+      // palette: red = visited but not answered, grey = not visited yet
+      const legendRow = (label: string) =>
+        wrapper.find(`[data-test="legend-${label}"]`).element.parentElement as HTMLElement;
+      expect(legendRow("notAnswered").querySelector(".bg-red-300")).not.toBeNull();
+      expect(legendRow("notVisited").querySelector(".bg-gray-100")).not.toBeNull();
+    });
   });
 
   describe('when test_format is FST', () => {

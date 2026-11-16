@@ -44,7 +44,8 @@ bucket; the OMR formula keeps them visible.
 click goes through the summary. No "time's up" message for now.
 **Rationale:** Matches `main`: a timed test is submitted the moment time runs out.
 Routing time-up through the summary let students keep working after zero.
-**Consequences:** Every path that shows the scorecard also closes the summary.
+**Consequences:** The summary closes from a watcher on `hasQuizEnded`, which every end
+path sets (including main's 409 and survey-redirect paths).
 
 ### D9 — Ignore concurrent end-test calls
 **Decision:** `endTest()` is a thin wrapper with an in-flight flag; calls made while a

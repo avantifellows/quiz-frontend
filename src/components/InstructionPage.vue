@@ -52,7 +52,7 @@
     <div v-if="isTestFST" data-test="test-fst">
       <h4 class="text-lg font-bold m-6">Test Paper Pattern</h4>
       <!-- Printing subjects extracted from questionSet.title -->
-      <p class="ml-6 mr-4 mb-2 text-justify">
+      <p class="ml-6 mr-4 mb-2">
         The following are the subjects in the test:
         <strong>
           <span v-for="(part, index) in subjectNames" :key="part">
@@ -86,7 +86,7 @@
       />
     </div>
     <div class="ml-11 mr-4">
-      <ol class="text-justify">
+      <ol>
         <li>{{ $t("generalInstructions.timerInfo") }}</li>
         <li>
           {{ $t("generalInstructions.paletteInfo") }}
@@ -107,11 +107,11 @@
             </div>
             <div class="flex items-center my-2 md:mx-4">
               <Error></Error>
-              <span class="ml-6 mr-6">{{ $t("generalInstructions.notVisited") }}</span>
+              <span class="ml-6 mr-6" data-test="legend-notAnswered">{{ $t("generalInstructions.notAnswered") }}</span>
             </div>
             <div class="flex items-center my-2 md:mx-4">
               <Neutral></Neutral>
-              <span class="ml-6 mr-6">{{ $t("generalInstructions.notAnswered") }}</span>
+              <span class="ml-6 mr-6" data-test="legend-notVisited">{{ $t("generalInstructions.notVisited") }}</span>
             </div>
             <div class="relative flex items-center border border-violet-600 p-2 rounded-md my-2 md:mx-4 w-full">
               <Review class="mr-2"></Review>
@@ -126,10 +126,10 @@
 
     <h4 class="text-lg font-bold m-6">{{ $t("answeringQuestion.title") }}</h4>
     <div class="ml-11 mr-4">
-      <ol class="text-justify">
+      <ol>
         <li>
           {{ $t("answeringQuestion.procedureForMCQ") }}
-          <ol class="ml-7 list-[lower-alpha] text-justify">
+          <ol class="ml-7 list-[lower-alpha]">
             <li>{{ $t("answeringQuestion.selectAnswer") }}</li>
             <li>{{ $t("answeringQuestion.deselectAnswer") }}</li>
             <li>{{ $t("answeringQuestion.changeAnswer") }}</li>
@@ -146,7 +146,7 @@
     </div>
     <div class="mt-5 ml-6 mr-4 flex border-red-400 border-1 p-2" v-if="!isOmrMode">
       <div class="float-left text-red-400 pr-5 pl-3 text-xl font-bold">!</div>
-      <div class="float-right text-justify pr-2">
+      <div class="float-right pr-2">
         {{ $t("answeringQuestion.noteSaveAnswer") }}
       </div>
     </div>

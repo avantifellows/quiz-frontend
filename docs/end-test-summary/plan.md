@@ -1,9 +1,9 @@
 # End-Test Summary — Plan
 
-## State (as of 2026-11-17)
+## State (as of 2026-11-17, evening)
 - Branch: `feat/end-test-summary` (created from local `main` @ 17c7e4b).
-- All changes **staged but NOT committed** — user wants to test manually before any commit.
-- `main` is clean. `origin/main` is **19 commits ahead** of local `main`.
+- Committed: feature (84007ab), Group 1 fixes (f06eb14), merge of origin/main (811e184).
+  Branch is level with origin/main; not pushed.
 
 ## DONE
 - Traced end-test flow (frontend + backend); see architecture.md.
@@ -30,30 +30,18 @@
   - +4 tests; full suite 182 pass, lint clean, build ok.
 
 ## IN PROGRESS
-- User re-testing the E1–E6 fixes (local Mongo; quiz 6a8439725a5f2a69e8b72fb1 reset for
-  dev_1/dev_2; quizzes have a 200 s limit, so timeouts reproduce in ~3.5 min).
-- Manual testing by user, two ways:
-  1. Local backend + frontend against **local Mongo** (user has local org key + quizzes).
-     Backend: `export MONGO_AUTH_CREDENTIALS="mongodb://127.0.0.1:27017"; export
-     MONGO_DB_NAME="quiz"; ./startServerMac.sh` (don't edit backend `.env` — it holds the
-     staging Atlas URI). Frontend: `npm run serve` (`.env.local` → `127.0.0.1:8000`).
-  2. Same, but backend on **staging Mongo** (backend `.env` as-is) across assessment /
-     homework / omr / form. Note: submitting writes real sessions to staging DB.
-  - URL: `http://localhost:8080/quiz/{quizId}?userId=test_student&apiKey={orgKey}`.
-    `userId` must be whitelisted (`test_admin|test_student|dev_1|dev_2`); `apiKey` must be
-    an org key in the Mongo the backend is connected to (Player checks it → else 403).
+- UI audit fixes on this branch, one report group at a time (user decides each).
+  - Group 2 (instructions page) fixed, uncommitted: I1 legend colours swapped back to
+    match the palette (+ regression test); I2 `text-justify` removed (5 places).
+  - Next: Group 3 (palette), then Group 4.
+- Merge resolution: summary modal now closes from a `hasQuizEnded` watcher (covers
+  main's 409 "already ended" and survey-redirect paths). Verified in-app.
 
 ## NEXT
-1. After user approves testing: commit on `feat/end-test-summary`.
-2. `git fetch` + rebase onto `origin/main`. **Expect conflicts**: remote has 7 forms
-   commits touching `SinglePageModal.vue` (+153 lines: section pagination, per-question
-   required flag, validate-section-before-Next) and `Player.vue`.
-3. After rebase, re-verify:
-   - forms still keep their toast gate and required-field validation in `Player.endTest()`
-     (remote "honor per-question required flag" may have changed `areAllQuestionsRequired`).
-   - full test suite, lint, build.
+1. Commit Group 2 when the user asks.
+2. Groups 3–4 of the UI report.
+3. `npm install` locally (main moved Cypress 9 → 12) before running E2E.
 4. Open PR only when user asks.
-
 
 ## BLOCKED
 - None.

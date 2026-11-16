@@ -25,8 +25,9 @@ Header countdown == 0 ─▶ child @end-test-by-time ─▶ Player.endTestByTime
                                                      close summary ─▶ endTest()
 heartbeat / resume sees time_remaining == 0 ──────────────────────▶ endTest()
 ```
-`endTest()` ignores calls while one is in flight (D9) and closes the summary whenever
-it shows the scorecard. Children close their palette before emitting either event.
+`endTest()` ignores calls while one is in flight (D9). A watcher on `hasQuizEnded`
+closes the summary, so every end path (Yes, time-up, heartbeat, 409 "already ended",
+survey redirect) closes it. Children close their palette before emitting either event.
 
 ## Stacking order
 header `z-20` < palette, footer `z-50` < summary modal `z-[60]` < toasts.
