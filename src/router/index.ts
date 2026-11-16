@@ -104,9 +104,18 @@ const routes = [
       userId: resolveUserId(route),
       ...resolveDisplayData(route),
       apiKey: route.query.apiKey,
-      omrMode: route.query.omrMode === "true",
-      singlePageMode: route.query.singlePageMode === "true",
-      autoStart: route.query.autoStart === "true",
+      omrMode: getQueryValue(route.query.omrMode) === "true",
+      singlePageMode: getQueryValue(route.query.singlePageMode) === "true",
+      // getQueryValue tolerates a param that appears more than once (?autoStart=true&autoStart=true
+      // becomes ["true","true"]); a bare `=== "true"` on the array would silently read false and
+      // disable auto-start, as happened with a next_step URL that already carried autoStart.
+      autoStart: getQueryValue(route.query.autoStart) === "true",
+      // When a chained survey redirects back here (?landing=scorecard), skip the splash
+      // and open the already-ended session straight on its scorecard.
+      landingScorecard: getQueryValue(route.query.landing) === "scorecard",
+      // The quiz id a before-scores survey should return the student to. A shared survey reads
+      // this from ?return_to=<test id> and builds its own next_step_url back to that test.
+      landingReturnTo: getQueryValue(route.query.return_to),
     }),
     // lazy-loading: https://router.vuejs.org/guide/advanced/lazy-loading.html
     component: () =>
@@ -123,9 +132,18 @@ const routes = [
       userId: resolveUserId(route),
       ...resolveDisplayData(route),
       apiKey: route.query.apiKey,
-      omrMode: route.query.omrMode === "true",
-      singlePageMode: route.query.singlePageMode === "true",
-      autoStart: route.query.autoStart === "true",
+      omrMode: getQueryValue(route.query.omrMode) === "true",
+      singlePageMode: getQueryValue(route.query.singlePageMode) === "true",
+      // getQueryValue tolerates a param that appears more than once (?autoStart=true&autoStart=true
+      // becomes ["true","true"]); a bare `=== "true"` on the array would silently read false and
+      // disable auto-start, as happened with a next_step URL that already carried autoStart.
+      autoStart: getQueryValue(route.query.autoStart) === "true",
+      // When a chained survey redirects back here (?landing=scorecard), skip the splash
+      // and open the already-ended session straight on its scorecard.
+      landingScorecard: getQueryValue(route.query.landing) === "scorecard",
+      // The quiz id a before-scores survey should return the student to. A shared survey reads
+      // this from ?return_to=<test id> and builds its own next_step_url back to that test.
+      landingReturnTo: getQueryValue(route.query.return_to),
     }),
     // lazy-loading: https://router.vuejs.org/guide/advanced/lazy-loading.html
     component: () =>
@@ -214,6 +232,43 @@ router.beforeEach(async (to) => {
       // TODO: validate launch token mode/audience once reporting mints quiz-scoped
       // review tokens. Today report -> quiz review reuses the report launch token.
       identifiers = await getPortalIdentifiers({ force: true, launchToken });
+    }
+
+    if (!identifiers && !launchToken) {
+      // A portal student arriving without a launch token and without a stored
+      // session for THIS quiz id - e.g. a next_step_url link from another
+      // quiz's scorecard, or a survey/form chained after a test. Fall back to
+      // the portal access token on this device (cookie on .avantifellows.org,
+      // server-verified via /auth/verify; expired tokens go through one
+      // refresh). force: true so a previously cached null can't 403 a user
+      // whose cookie has since been set.
+      identifiers = await getPortalIdentifiers({ force: true });
+
+      // sessionId-launched students (JNV/EnableStudents) get no persistent access_token cookie,
+      // so the verify above yields nothing. Reuse the identity in quiz_portal_session (written by
+      // this guard after a verified launch earlier in this tab) so a survey chained after their
+      // test resolves to the same student instead of 403-ing. It's per-tab, so this never carries
+      // across students on a shared device.
+      if (!identifiers?.userId) {
+        const storedQuizSession = getStoredQuizPortalSession();
+        if (storedQuizSession?.identifiers?.userId) {
+          identifiers = storedQuizSession.identifiers;
+        }
+      }
+
+      if (identifiers?.userId && quizId) {
+        const storedQuizSession = getStoredQuizPortalSession();
+        // Persist so a refresh on this page keeps working - but never clobber
+        // another student's live session in this tab; their mid-quiz refresh
+        // must keep resolving to them. This navigation still proceeds with the
+        // cookie identity via to.meta below.
+        if (
+          !storedQuizSession ||
+          storedQuizSession.identifiers.userId === identifiers.userId
+        ) {
+          persistQuizPortalSession(quizId, identifiers);
+        }
+      }
     }
 
     to.meta.portalIdentifiers = identifiers;

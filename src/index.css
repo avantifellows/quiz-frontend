@@ -311,6 +311,16 @@ menu {
 }
 
 /*
+The reset above leaves outside list markers no room inside a table cell, so they spill
+past its border (CMS question tables). Restore padding there only; see nex-gen-cms#199.
+*/
+
+td ol,
+td ul {
+  padding-left: 1.5em;
+}
+
+/*
 Prevent resizing textareas horizontally by default.
 */
 

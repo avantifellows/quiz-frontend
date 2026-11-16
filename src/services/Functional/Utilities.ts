@@ -1,5 +1,5 @@
 import store from "@/store/index";
-import { Question, submittedAnswer, CorrectAnswerType, answerEvaluation, QuestionBucketingMap, SubmittedResponse, EndTestBuckets } from "@/types";
+import { Question, submittedAnswer, CorrectAnswerType, answerEvaluation, QuestionBucketingMap, OtherOptionAnswer, questionType, quizType, QuizAPIResponse, SubmittedResponse, EndTestBuckets } from "@/types";
 const isEqual = require("deep-eql");
 
 /**
@@ -93,6 +93,223 @@ export function resetConfetti() {
   }
 }
 
+/**
+ * Selected 0-based option indices from a choice answer. Single/multi-choice store a number
+ * array; single-choice-other stores {selected, other_text}. Any other answer shape (matrix
+ * dicts, numerical, string, null) cannot drive a display_condition, so it contributes no
+ * indices. The question type is needed because matrix answers are objects too. Mirrors the
+ * backend `_answer_option_indices`.
+ */
+export function answerOptionIndices(
+  answer: submittedAnswer | undefined,
+  type?: string
+): number[] {
+  let selected: unknown = answer;
+  if (type == questionType.SINGLE_CHOICE_OTHER) {
+    selected =
+      answer != null && typeof answer == "object" && !Array.isArray(answer)
+        ? (answer as OtherOptionAnswer).selected
+        : null;
+  }
+  if (!Array.isArray(selected)) return [];
+  const indices: number[] = [];
+  for (const value of selected) {
+    if (typeof value == "number") indices.push(value);
+  }
+  return indices;
+}
+
+/**
+ * Numeric value of a numerical answer textbox. Empty text and partial negatives that are
+ * not a number yet ("-", "-.") give null, so they are saved as "not answered".
+ */
+export function numericalAnswerValue(
+  answer: string | number | null | undefined
+): number | null {
+  if (answer == null || String(answer) == "") return null;
+  const value = Number(answer);
+  return Number.isNaN(value) ? null : value;
+}
+
+/**
+ * Whether typing `insertedText` over the selection [selectionStart, selectionEnd) of a
+ * numerical answer would put a minus sign anywhere but the first character: a "-" typed
+ * after the start, or any text typed in front of an existing leading "-".
+ */
+export function isMinusSignMisplaced(
+  answer: string | number | null | undefined,
+  insertedText: string,
+  selectionStart: number,
+  selectionEnd: number
+): boolean {
+  const text = answer == null ? "" : String(answer);
+  if (text.startsWith("-") && selectionEnd == 0) return true;
+  return insertedText == "-" && selectionStart != 0;
+}
+
+/**
+ * Keeps only what a numerical answer may contain: digits, a "-" as the first character
+ * and, when decimals are allowed, one "." that follows a digit, up to `maxLength`
+ * characters. Android keypads can insert characters that beforeinput cannot block (e.g.
+ * the double-tap ".-" key), so the typed value is cleaned after it changes.
+ */
+export function sanitizeNumericalAnswer(
+  answer: string,
+  allowDecimal: boolean,
+  maxLength: number
+): string {
+  let sanitized = "";
+  for (const character of answer) {
+    if (/[0-9]/.test(character)) {
+      sanitized += character;
+    } else if (character == "-" && sanitized == "") {
+      sanitized += character;
+    } else if (
+      character == "." &&
+      allowDecimal &&
+      !sanitized.includes(".") &&
+      /[0-9]$/.test(sanitized)
+    ) {
+      sanitized += character;
+    }
+  }
+  return sanitized.slice(0, maxLength);
+}
+
+/**
+ * Visibility of every question by flat position — the single source of truth for the
+ * conditional-display rule on the frontend (mirrors the backend
+ * `_compute_form_question_visibility`).
+ *
+ * A question with no `display_condition` is always visible. Otherwise it is visible only
+ * when its trigger question is itself visible AND the trigger's answer selects one of the
+ * required `option_indices`. Visibility is transitive: a dependent of a hidden trigger is
+ * hidden. Triggers always precede their dependents (validated at creation), so a single
+ * forward pass that reads earlier positions' visibility resolves whole chains. A condition
+ * whose `source_position` is missing, out of range, or points at/after the dependent itself
+ * can never be satisfied, so the question stays hidden.
+ *
+ * Conditional display is form-only: for any other quiz type every question is visible and
+ * display_condition is ignored, so hiding and answer-clearing never apply there.
+ */
+export function computeQuestionVisibility(
+  questions: Question[],
+  answers: (submittedAnswer | undefined)[],
+  quizType: quizType | undefined
+): boolean[] {
+  if (quizType != "form") return questions.map(() => true);
+  const visibility: boolean[] = [];
+  questions.forEach((question, position) => {
+    const condition = question.display_condition;
+    if (condition == null) {
+      visibility.push(true);
+      return;
+    }
+    const source = condition.source_position;
+    if (
+      typeof source != "number" ||
+      source < 0 ||
+      source >= position ||
+      !visibility[source]
+    ) {
+      visibility.push(false);
+      return;
+    }
+    const selected = answerOptionIndices(answers[source] ?? null, questions[source].type);
+    visibility.push(
+      selected.some((index) => condition.option_indices.includes(index))
+    );
+  });
+  return visibility;
+}
+
+/** 1 -> "a", 26 -> "z", 27 -> "aa" */
+function toLetters(count: number): string {
+  let letters = "";
+  while (count > 0) {
+    count -= 1;
+    letters = String.fromCharCode(97 + (count % 26)) + letters;
+    count = Math.floor(count / 26);
+  }
+  return letters;
+}
+
+/**
+ * The number shown for every question by flat position ("2" in "Q.2: ") — the single
+ * source for the single-page header and every warning that names a question. Display
+ * only: answers and BigQuery address questions by flat position, never by this label.
+ *
+ * Questions with no display_condition are numbered 1, 2, 3… in position order. A form's
+ * follow-up is numbered under its trigger: a letter under a top-level question (2a, 2b), a
+ * number under a follow-up (2a.1), alternating with depth. A quiz that is not a form, or a
+ * form without conditions, is numbered position + 1 as before. A condition the evaluator can
+ * never satisfy (bad / forward source_position) keeps position + 1; that question is never
+ * shown.
+ */
+export function computeQuestionLabels(
+  questions: Question[],
+  quizType: quizType | undefined
+): string[] {
+  const labels: string[] = [];
+  const depths: number[] = [];
+  const numFollowUps: number[] = [];
+  let numTopLevel = 0;
+  questions.forEach((question, position) => {
+    numFollowUps.push(0);
+    const condition = quizType == "form" ? question.display_condition : null;
+    if (condition == null) {
+      numTopLevel += 1;
+      labels.push(String(numTopLevel));
+      depths.push(0);
+      return;
+    }
+    const source = condition.source_position;
+    if (typeof source != "number" || source < 0 || source >= position) {
+      labels.push(String(position + 1));
+      depths.push(0);
+      return;
+    }
+    numFollowUps[source] += 1;
+    const depth = depths[source] + 1;
+    labels.push(
+      depth % 2 == 1
+        ? `${labels[source]}${toLetters(numFollowUps[source])}`
+        : `${labels[source]}.${numFollowUps[source]}`
+    );
+    depths.push(depth);
+  });
+  return labels;
+}
+
+/**
+ * Whether a quiz fetched without single-page mode must be re-shown in it. Conditional
+ * questions are only hidden in single-page mode; the question-by-question view would show
+ * a hidden question and End Test would then submit null for it, losing what the student
+ * typed. So a form with any display_condition always uses single-page mode (OMR mode
+ * already renders through the single-page view).
+ */
+export function shouldForceSinglePageMode(
+  quizDetails: QuizAPIResponse,
+  { singlePageMode, omrMode }: { singlePageMode: boolean, omrMode: boolean }
+): boolean {
+  if (singlePageMode || omrMode || quizDetails.metadata?.quiz_type != "form") return false;
+  return (quizDetails.question_sets ?? []).some((questionSet) =>
+    (questionSet.questions ?? []).some((question) => question.display_condition != null)
+  );
+}
+
+/**
+ * The answer to save for a question at submission. A question hidden by display_condition
+ * always saves null, so a stale answer never reaches the backend / BigQuery — e.g. one
+ * restored locally after the save that cleared it failed.
+ */
+export function answerToSubmit(
+  answer: submittedAnswer,
+  isVisible: boolean
+): submittedAnswer {
+  return isVisible ? answer : null;
+}
+
 export function isQuestionResponseComplete(
   questionDetail: Question,
   userAnswer: submittedAnswer
@@ -110,15 +327,32 @@ export function isQuestionResponseComplete(
     return typeof userAnswer == "number";
   }
 
+  if (questionDetail.type == questionType.SINGLE_CHOICE_OTHER) {
+    const selected = answerOptionIndices(userAnswer, questionDetail.type);
+    if (selected.length == 0) return false;
+    // the LAST option is "Other": choosing it requires the free text to be filled
+    const otherIndex = (questionDetail.options || []).length - 1;
+    if (otherIndex >= 0 && selected.includes(otherIndex)) {
+      const otherText = (userAnswer as OtherOptionAnswer).other_text;
+      return typeof otherText == "string" && otherText.trim() != "";
+    }
+    return true;
+  }
+
   if (
     questionDetail.type == "matrix-rating" ||
     questionDetail.type == "matrix-numerical" ||
     questionDetail.type == "matrix-subjective"
   ) {
     if (typeof userAnswer != "object" || Array.isArray(userAnswer)) return false;
+    const matrixAnswer = userAnswer as Record<string, number | string>; // row -> value
     const matrixRows = questionDetail.matrix_rows || [];
     if (matrixRows.length == 0) return false;
-    const rowValues = matrixRows.map((row) => userAnswer[row]);
+    // blank row labels are stored under the "__default__" key by the answer
+    // entry components (e.g. single-row matrix ratings)
+    const rowValues = matrixRows.map((row) =>
+      row in matrixAnswer ? matrixAnswer[row] : (!row || !row.trim() ? matrixAnswer.__default__ : undefined)
+    );
     if (
       questionDetail.type == "matrix-subjective" ||
       questionDetail.type == "matrix-numerical"

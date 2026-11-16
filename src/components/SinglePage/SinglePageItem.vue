@@ -39,7 +39,7 @@
                     :type="optionInputType"
                     :name="`option-${optionIndex}-${$props.currentQuestionIndex}`"
                     class="place-self-center text-primary focus:ring-0 disabled:cursor-not-allowed"
-                    style="box-shadow: none"
+                    style="box-shadow: none; accent-color: #F78000"
                     @click="selectOption(optionIndex)"
                     :checked="isOptionMarked(optionIndex)"
                     :disabled="isAnswerDisabled"
@@ -54,6 +54,24 @@
                   ></div>
                 </label>
               </div>
+            </li>
+            <!-- free-text box for the "Other" (last) option of a single-choice-other question.
+                 Kept outside the option cards (whose large text classes it would inherit) and
+                 styled exactly like the subjective answer box, directly below "Other". -->
+            <li
+              v-if="isOtherOptionWithTextBox(otherOptionIndex)"
+              class="list-none flex flex-col mt-2"
+              data-test="otherTextContainer"
+            >
+              <Textarea
+                v-model:value="otherText"
+                class="px-1 w-full"
+                :boxStyling="subjectiveAnswerBoxStyling"
+                placeholder="Please specify"
+                :isDisabled="isAnswerDisabled"
+                :maxHeightLimit="250"
+                data-test="otherText"
+              ></Textarea>
             </li>
           </ul>
         </div>
@@ -114,6 +132,7 @@
             :inputMode="getInputMode"
             :isDisabled="isAnswerDisabled"
             :maxHeightLimit="50"
+            :sanitizeValue="sanitizeNumericalInput"
             @beforeinput="preventKeypressIfApplicable"
             data-test="numericalAnswer"
           ></Textarea>
@@ -162,44 +181,56 @@
                       v-for="(column, columnIndex) in $props.matrixSize?.[1] ||
                       5"
                       :key="columnIndex"
-                      class="border border-gray-200 text-center"
+                      class="border border-gray-200 text-center p-2"
+                      :class="isAnswerDisabled ? '' : 'cursor-pointer'"
+                      @click="
+                        !isAnswerDisabled &&
+                          selectOption(
+                            convertMatrixMatchOptionToString(rowIndex, columnIndex)
+                          )
+                      "
+                      :data-test="`matrixMatchSelector-${rowIndex}-${columnIndex}`"
                     >
+                      <!-- div-based checkbox (multi-select): state-driven so the mark paints
+                           reliably, unlike a native checkbox's :checked which desynced. -->
                       <div
+                        class="flex justify-center"
                         :class="
                           optionBackgroundClass(
-                            convertMatrixMatchOptionToString(
-                              rowIndex,
-                              columnIndex
-                            )
+                            convertMatrixMatchOptionToString(rowIndex, columnIndex)
                           )
                         "
                       >
-                        <input
-                          type="checkbox"
-                          :id="`${rowIndex}-${columnIndex}`"
-                          :name="`${rowIndex}-${columnIndex}-${$props.currentQuestionIndex}`"
-                          :value="`${columnIndex}`"
-                          :disabled="isAnswerDisabled"
-                          class="place-self-center text-primary focus:ring-0 disabled:cursor-not-allowed"
-                          style="box-shadow: none"
-                          @click="
-                            selectOption(
-                              convertMatrixMatchOptionToString(
-                                rowIndex,
-                                columnIndex
-                              )
-                            )
-                          "
-                          :checked="
+                        <span
+                          class="flex h-4 w-4 items-center justify-center rounded border"
+                          :class="[
                             isMatrixMatchOptionMarked(
-                              convertMatrixMatchOptionToString(
-                                rowIndex,
-                                columnIndex
-                              )
+                              convertMatrixMatchOptionToString(rowIndex, columnIndex)
                             )
-                          "
-                          :data-test="`matrixMatchSelector-${rowIndex}-${columnIndex}`"
-                        />
+                              ? 'border-primary bg-primary'
+                              : 'border-gray-400',
+                            isAnswerDisabled ? 'opacity-50' : '',
+                          ]"
+                        >
+                          <svg
+                            v-if="
+                              isMatrixMatchOptionMarked(
+                                convertMatrixMatchOptionToString(rowIndex, columnIndex)
+                              )
+                            "
+                            class="h-3 w-3 text-white"
+                            viewBox="0 0 12 12"
+                            fill="none"
+                          >
+                            <path
+                              d="M2.5 6.5L5 9L9.5 3.5"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                        </span>
                       </div>
                     </td>
                   </tr>
@@ -232,21 +263,27 @@
                     v-for="(option, optionIndex) in options"
                     :key="`single-row-matrix-rating-${optionIndex}`"
                     class="flex min-w-0 flex-col items-center"
+                    :class="isAnswerDisabled ? '' : 'cursor-pointer'"
+                    @click="!isAnswerDisabled && selectMatrixOption(singleRowMatrixRatingKey, optionIndex)"
+                    :data-test="`matrixRatingSelector-0-${optionIndex}`"
                   >
                     <div class="mb-2 text-sm font-semibold text-gray-700">
                       {{ optionIndex + 1 }}
                     </div>
-                    <input
-                      type="radio"
-                      :name="`matrix-rating-single-${currentQuestionIndex}`"
-                      :value="optionIndex"
-                      class="h-5 w-5 text-primary focus:ring-0 disabled:cursor-not-allowed"
-                      :disabled="isAnswerDisabled"
-                      style="box-shadow: none"
-                      @click="selectMatrixOption(singleRowMatrixRatingKey, optionIndex)"
-                      :checked="isMatrixRatingOptionSelected(singleRowMatrixRatingKey, optionIndex)"
-                      :data-test="`matrixRatingSelector-0-${optionIndex}`"
-                    />
+                    <span
+                      class="flex h-5 w-5 items-center justify-center rounded-full border"
+                      :class="[
+                        isMatrixRatingOptionSelected(singleRowMatrixRatingKey, optionIndex)
+                          ? 'border-primary'
+                          : 'border-gray-400',
+                        isAnswerDisabled ? 'opacity-50' : '',
+                      ]"
+                    >
+                      <span
+                        v-if="isMatrixRatingOptionSelected(singleRowMatrixRatingKey, optionIndex)"
+                        class="h-2.5 w-2.5 rounded-full bg-primary"
+                      ></span>
+                    </span>
                   </div>
                 </div>
                 <span class="mb-1 w-[4.75rem] shrink-0 whitespace-nowrap text-left text-[11px] font-medium leading-snug text-gray-600 sm:w-32 sm:text-sm md:w-40" v-html="lastMatrixRatingLabel"></span>
@@ -276,22 +313,34 @@
                     <td class="border border-gray-200 p-2 font-medium align-top whitespace-normal break-words">
                       {{ row }}
                     </td>
+                    <!-- The whole cell is the click target (and carries the data-test), so a
+                         click anywhere in it selects. The dot is a plain div driven by the
+                         boolean state: a native radio's :checked desynced from Vue's state
+                         (the state updated but the dot didn't paint until a second click). -->
                     <td
                       v-for="(option, optionIndex) in options"
                       :key="optionIndex"
-                      class="border border-gray-200 text-center p-2 align-top whitespace-normal break-words"
+                      class="border border-gray-200 p-2 align-top"
+                      :class="isAnswerDisabled ? '' : 'cursor-pointer'"
+                      @click="!isAnswerDisabled && selectMatrixOption(row, optionIndex)"
+                      :data-test="`matrixRatingSelector-${rowIndex}-${optionIndex}`"
                     >
-                      <input
-                        type="radio"
-                        :name="`matrix-rating-${rowIndex}-${currentQuestionIndex}`"
-                        :value="optionIndex"
-                        class="text-primary focus:ring-0 disabled:cursor-not-allowed"
-                        :disabled="isAnswerDisabled"
-                        style="box-shadow: none"
-                        @click="selectMatrixOption(row, optionIndex)"
-                        :checked="isMatrixRatingOptionSelected(row, optionIndex)"
-                        :data-test="`matrixRatingSelector-${rowIndex}-${optionIndex}`"
-                      />
+                      <div class="flex justify-center">
+                        <span
+                          class="flex h-4 w-4 items-center justify-center rounded-full border"
+                          :class="[
+                            isMatrixRatingOptionSelected(row, optionIndex)
+                              ? 'border-primary'
+                              : 'border-gray-400',
+                            isAnswerDisabled ? 'opacity-50' : '',
+                          ]"
+                        >
+                          <span
+                            v-if="isMatrixRatingOptionSelected(row, optionIndex)"
+                            class="h-2 w-2 rounded-full bg-primary"
+                          ></span>
+                        </span>
+                      </div>
                     </td>
                   </tr>
                 </tbody>
@@ -307,24 +356,30 @@
                   {{ row }}
                 </p>
                 <div class="mt-3 space-y-2">
-                  <label
+                  <div
                     v-for="(option, optionIndex) in options"
                     :key="`mobile-matrix-rating-${rowIndex}-${optionIndex}`"
                     class="flex items-start gap-2"
+                    :class="isAnswerDisabled ? '' : 'cursor-pointer'"
+                    @click="!isAnswerDisabled && selectMatrixOption(row, optionIndex)"
+                    :data-test="`matrixRatingSelector-${rowIndex}-${optionIndex}`"
                   >
-                    <input
-                      type="radio"
-                      :name="`matrix-rating-${rowIndex}-${currentQuestionIndex}`"
-                      :value="optionIndex"
-                      class="mt-1 text-primary focus:ring-0 disabled:cursor-not-allowed"
-                      :disabled="isAnswerDisabled"
-                      style="box-shadow: none"
-                      @click="selectMatrixOption(row, optionIndex)"
-                      :checked="isMatrixRatingOptionSelected(row, optionIndex)"
-                      :data-test="`matrixRatingSelector-${rowIndex}-${optionIndex}`"
-                    />
+                    <span
+                      class="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border"
+                      :class="[
+                        isMatrixRatingOptionSelected(row, optionIndex)
+                          ? 'border-primary'
+                          : 'border-gray-400',
+                        isAnswerDisabled ? 'opacity-50' : '',
+                      ]"
+                    >
+                      <span
+                        v-if="isMatrixRatingOptionSelected(row, optionIndex)"
+                        class="h-2 w-2 rounded-full bg-primary"
+                      ></span>
+                    </span>
                     <span class="text-sm leading-relaxed break-words" v-html="option.text"></span>
-                  </label>
+                  </div>
                 </div>
               </div>
             </div>
@@ -547,7 +602,7 @@
                     :type="optionInputType"
                     :name="`option-${optionIndex}-${$props.currentQuestionIndex}`"
                     class="place-self-center text-primary focus:ring-0 disabled:cursor-not-allowed"
-                    style="box-shadow: none"
+                    style="box-shadow: none; accent-color: #F78000"
                     @click="selectOption(optionIndex)"
                     :checked="isOptionMarked(optionIndex)"
                     :disabled="isAnswerDisabled"
@@ -621,6 +676,7 @@
             :inputMode="getInputMode"
             :isDisabled="isAnswerDisabled"
             :maxHeightLimit="50"
+            :sanitizeValue="sanitizeNumericalInput"
             @beforeinput="preventKeypressIfApplicable"
             data-test="numericalAnswer"
           ></Textarea>
@@ -669,44 +725,56 @@
                       v-for="(column, columnIndex) in $props.matrixSize?.[1] ||
                       5"
                       :key="columnIndex"
-                      class="border border-gray-200 text-center"
+                      class="border border-gray-200 text-center p-2"
+                      :class="isAnswerDisabled ? '' : 'cursor-pointer'"
+                      @click="
+                        !isAnswerDisabled &&
+                          selectOption(
+                            convertMatrixMatchOptionToString(rowIndex, columnIndex)
+                          )
+                      "
+                      :data-test="`matrixMatchSelector-${rowIndex}-${columnIndex}`"
                     >
+                      <!-- div-based checkbox (multi-select): state-driven so the mark paints
+                           reliably, unlike a native checkbox's :checked which desynced. -->
                       <div
+                        class="flex justify-center"
                         :class="
                           optionBackgroundClass(
-                            convertMatrixMatchOptionToString(
-                              rowIndex,
-                              columnIndex
-                            )
+                            convertMatrixMatchOptionToString(rowIndex, columnIndex)
                           )
                         "
                       >
-                        <input
-                          type="checkbox"
-                          :id="`${rowIndex}-${columnIndex}`"
-                          :name="`${rowIndex}-${columnIndex}-${$props.currentQuestionIndex}`"
-                          :value="`${columnIndex}`"
-                          :disabled="isAnswerDisabled"
-                          class="place-self-center text-primary focus:ring-0 disabled:cursor-not-allowed"
-                          style="box-shadow: none"
-                          @click="
-                            selectOption(
-                              convertMatrixMatchOptionToString(
-                                rowIndex,
-                                columnIndex
-                              )
-                            )
-                          "
-                          :checked="
+                        <span
+                          class="flex h-4 w-4 items-center justify-center rounded border"
+                          :class="[
                             isMatrixMatchOptionMarked(
-                              convertMatrixMatchOptionToString(
-                                rowIndex,
-                                columnIndex
-                              )
+                              convertMatrixMatchOptionToString(rowIndex, columnIndex)
                             )
-                          "
-                          :data-test="`matrixMatchSelector-${rowIndex}-${columnIndex}`"
-                        />
+                              ? 'border-primary bg-primary'
+                              : 'border-gray-400',
+                            isAnswerDisabled ? 'opacity-50' : '',
+                          ]"
+                        >
+                          <svg
+                            v-if="
+                              isMatrixMatchOptionMarked(
+                                convertMatrixMatchOptionToString(rowIndex, columnIndex)
+                              )
+                            "
+                            class="h-3 w-3 text-white"
+                            viewBox="0 0 12 12"
+                            fill="none"
+                          >
+                            <path
+                              d="M2.5 6.5L5 9L9.5 3.5"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                        </span>
                       </div>
                     </td>
                   </tr>
@@ -923,7 +991,13 @@ import {
   ref,
 } from "vue";
 
-import { quizType, questionType, DraftResponse } from "@/types"
+import { quizType, questionType, DraftResponse, OtherOptionAnswer } from "@/types"
+import {
+  answerOptionIndices,
+  isMinusSignMisplaced,
+  numericalAnswerValue,
+  sanitizeNumericalAnswer,
+} from "@/services/Functional/Utilities";
 import { lazyLoadImages } from "@/directives/lazyLoadImages";
 import { queueMathJaxTypeset } from "@/services/Functional/MathJax";
 
@@ -1000,6 +1074,11 @@ export default defineComponent({
       type: Number,
       default: 0,
     },
+    /** number shown in the header, e.g. "2a"; defaults to position + 1 */
+    questionLabel: {
+      type: String,
+      default: null,
+    },
     showFullText: {
       type: Boolean,
       default: false,
@@ -1042,9 +1121,15 @@ export default defineComponent({
     const state = reactive({
       questionTypesWithOptions: new Set([
         questionType.SINGLE_CHOICE,
+        questionType.SINGLE_CHOICE_OTHER,
         questionType.MULTI_CHOICE,
       ]),
       draftAnswer: props.submittedAnswer as DraftResponse, // answer for the current question
+      // text typed for the "Other" option of a single-choice-other question
+      otherText:
+        props.questionType == questionType.SINGLE_CHOICE_OTHER
+          ? (props.submittedAnswer as OtherOptionAnswer | null)?.other_text ?? ""
+          : "",
       nonGradedAnswerClass: "bg-gray-200",
       correctOptionClass: "text-white bg-green-500 border rounded-md",
       skippedCorrectOptionClass: "border-4 border-green-500 rounded-md",
@@ -1077,6 +1162,7 @@ export default defineComponent({
       }
       if (
         (!isAnswerSubmitted.value && !props.hasQuizEnded) || // before quiz has ended, if answer isn't submitted
+        props.correctAnswer == null || // answers not hydrated yet (e.g. a re-render just after end) — nothing to colour
         typeof props.correctAnswer == "string" || // check for typescript
         typeof state.draftAnswer == "string" || // check for typescript
         typeof props.correctAnswer == "number" || // check for typescript
@@ -1089,12 +1175,7 @@ export default defineComponent({
         props.isGradedQuestion &&
         props.correctAnswer.indexOf(answer) != -1
       ) {
-        if (
-          state.draftAnswer != null &&
-          typeof state.draftAnswer != "string" &&
-          typeof state.draftAnswer != "number" &&
-          (state.draftAnswer as (string | number)[]).indexOf(answer) != -1
-        ) {
+        if (isOptionMarked(answer as number)) {
           // if both correct and submitted option
           return state.correctOptionClass;
         }
@@ -1103,8 +1184,7 @@ export default defineComponent({
       }
       if (
         (!isQuizAssessment.value || props.hasQuizEnded) &&
-        state.draftAnswer != null &&
-        (state.draftAnswer as (string | number)[]).indexOf(answer) != -1
+        isOptionMarked(answer as number)
       ) {
         if (!props.isGradedQuestion) return state.nonGradedAnswerClass;
         return state.wrongOptionClass;
@@ -1113,11 +1193,21 @@ export default defineComponent({
 
     // whether the given option index should be marked selected
     function isOptionMarked(optionIndex: number) {
+      return answerOptionIndices(state.draftAnswer, props.questionType).includes(
+        optionIndex
+      );
+    }
+
+    // index of the "Other" option of a single-choice-other question (always the last)
+    // (options can arrive as null, e.g. for questions whose details were trimmed)
+    const otherOptionIndex = computed(() => (props.options || []).length - 1);
+
+    // whether to show the free-text box under this option: the "Other" option is selected
+    function isOtherOptionWithTextBox(optionIndex: number) {
       return (
-        state.draftAnswer != null &&
-        typeof state.draftAnswer != "string" &&
-        typeof state.draftAnswer != "number" &&
-        (state.draftAnswer as (string | number)[]).indexOf(optionIndex) != -1
+        isQuestionTypeSingleChoiceOther.value &&
+        optionIndex == otherOptionIndex.value &&
+        isOptionMarked(optionIndex)
       );
     }
 
@@ -1168,6 +1258,15 @@ export default defineComponent({
         state.draftAnswer = currentResponse;
       }
 
+      if (isQuestionTypeSingleChoiceOther.value) {
+        // same as single choice, but the answer is {selected, other_text}; picking the
+        // same option again clears it, and any change starts the "Other" text afresh
+        state.draftAnswer = isOptionMarked(answer as number)
+          ? null
+          : { selected: [answer as number], other_text: null };
+        state.otherText = "";
+      }
+
       if (isQuestionTypeMultiChoice.value || isQuestionTypeMatrixMatch.value) {
         if (state.draftAnswer == null) {
           state.draftAnswer = [];
@@ -1206,9 +1305,14 @@ export default defineComponent({
     }
 
     function selectMatrixOption(row: string, optionIndex: number) {
-      const currentDraft = (state.draftAnswer as Record<string, number>) || {};
-      currentDraft[matrixRatingAnswerKey(row)] = optionIndex;
-      state.draftAnswer = currentDraft;
+      const existing = (state.draftAnswer as Record<string, number>) || {};
+      // Assign a NEW object (not a mutation of the same reference) so the radios' :checked
+      // bindings re-render reliably. Mutating in place left the native radios' DOM state and
+      // Vue's :checked out of sync, which showed as "blank, then selects only on a 2nd click".
+      state.draftAnswer = {
+        ...existing,
+        [matrixRatingAnswerKey(row)]: optionIndex,
+      };
       context.emit(
         "matrix-option-selected",
         state.draftAnswer,
@@ -1346,6 +1450,27 @@ export default defineComponent({
       return String(x).length >= MAX_LENGTH_NUMERICAL_CHARACTERS;
     }
 
+    // cleans whatever the keypad inserted past preventKeypressIfApplicable
+    function sanitizeNumericalInput(value: string) {
+      return sanitizeNumericalAnswer(
+        value,
+        isQuestionTypeNumericalFloat.value,
+        MAX_LENGTH_NUMERICAL_CHARACTERS
+      );
+    }
+
+    // a "-" is only allowed as the first character of a numerical answer
+    function isMinusSignMisplacedInAnswer(event: InputEvent) {
+      const answerBox = event.target as HTMLTextAreaElement | null;
+      const answerLength = String(state.numericalAnswer ?? "").length;
+      return isMinusSignMisplaced(
+        state.numericalAnswer,
+        event.data as string,
+        answerBox?.selectionStart ?? answerLength,
+        answerBox?.selectionEnd ?? answerLength
+      );
+    }
+
     function preventKeypressIfApplicable(event: InputEvent) {
       function showErrorNotification(message: string) {
         const existingNotification = document.querySelector(
@@ -1419,15 +1544,17 @@ export default defineComponent({
           "8",
           "9",
           ".",
+          "-",
         ];
         const keyPressed: string = event.data;
         if (
           doNumericalCharactersExceedLimit(state.numericalAnswer) ||
           !keysAllowed.includes(keyPressed) ||
-          // if key is "." but number already has a decimal point, or key "." is entered as the first character in answer, prevent
+          isMinusSignMisplacedInAnswer(event) ||
+          // if key is "." but number already has a decimal point, or key "." is entered before any digit, prevent
           (event.data == "." &&
             (doesNumberContainDecimal(state.numericalAnswer) ||
-              state.numericalAnswer == null))
+              numericalAnswerValue(state.numericalAnswer) == null))
         ) {
           if (
             event.data == "." &&
@@ -1458,11 +1585,13 @@ export default defineComponent({
           "7",
           "8",
           "9",
+          "-",
         ];
         const keyPressed: string = event.data;
         if (
           doNumericalCharactersExceedLimit(state.numericalAnswer) ||
-          !keysAllowed.includes(keyPressed)
+          !keysAllowed.includes(keyPressed) ||
+          isMinusSignMisplacedInAnswer(event)
         ) {
           event.preventDefault();
         }
@@ -1470,7 +1599,7 @@ export default defineComponent({
     }
 
     const questionHeaderText = computed(() => {
-      return `Q.${props.currentQuestionIndex + 1}: `;
+      return `Q.${props.questionLabel ?? props.currentQuestionIndex + 1}: `;
     });
 
     // styling class for the question image and loading spinner containers
@@ -1491,6 +1620,9 @@ export default defineComponent({
     );
     const isQuestionTypeSingleChoice = computed(
       () => props.questionType == questionType.SINGLE_CHOICE
+    );
+    const isQuestionTypeSingleChoiceOther = computed(
+      () => props.questionType == questionType.SINGLE_CHOICE_OTHER
     );
     const isQuestionTypeNumericalInteger = computed(
       () => props.questionType == questionType.NUMERICAL_INTEGER
@@ -1540,7 +1672,9 @@ export default defineComponent({
 
     const optionInputType = computed(() => {
       if (!areOptionsVisible.value) return null;
-      if (isQuestionTypeSingleChoice.value) return "radio";
+      if (isQuestionTypeSingleChoice.value || isQuestionTypeSingleChoiceOther.value) {
+        return "radio";
+      }
       if (isQuestionTypeMultiChoice.value) return "checkbox";
       return null;
     });
@@ -1566,6 +1700,9 @@ export default defineComponent({
       }
       if (isQuestionTypeSingleChoice.value || isQuestionTypeMultiChoice.value) {
         return Array.isArray(state.draftAnswer) && state.draftAnswer.length > 0;
+      }
+      if (isQuestionTypeSingleChoiceOther.value) {
+        return answerOptionIndices(state.draftAnswer, props.questionType).length > 0;
       }
       return true;
     });
@@ -1616,12 +1753,13 @@ export default defineComponent({
         props.hasQuizEnded
     );
     // input mode refers to keypad being displayed in mobile browsers
+    // "numeric" rather than "decimal": the Android decimal keypad has no "-" key
     const getInputMode = computed(() => {
       if (
         isQuestionTypeNumericalInteger.value ||
         isQuestionTypeNumericalFloat.value
       ) {
-        return "decimal";
+        return "numeric";
       }
       return "text";
     });
@@ -1677,6 +1815,9 @@ export default defineComponent({
       // Only apply to full text mode with visible options
       if (!props.showFullText || !areOptionsVisible.value) return false;
 
+      // the "Other" text box needs the full width under its option
+      if (isQuestionTypeSingleChoiceOther.value) return false;
+
       // Don't show horizontally if no options
       if (!props.options || props.options.length === 0) return false;
 
@@ -1717,21 +1858,13 @@ export default defineComponent({
     watch(
       () => state.numericalAnswer,
       (newValue) => {
-        if (String(newValue) == "" || newValue == null) {
-          state.draftAnswer = null;
-          context.emit(
-            "numerical-answer-entered",
-            null,
-            props.currentQuestionIndex
-          ); // when entire answer is deleted, set draftAnswer as null
-        } else {
-          state.draftAnswer = Number(state.numericalAnswer);
-          context.emit(
-            "numerical-answer-entered",
-            Number(state.numericalAnswer),
-            props.currentQuestionIndex
-          );
-        }
+        // when entire answer is deleted, or only "-" is typed, set draftAnswer as null
+        state.draftAnswer = numericalAnswerValue(newValue);
+        context.emit(
+          "numerical-answer-entered",
+          state.draftAnswer,
+          props.currentQuestionIndex
+        );
       }
     );
 
@@ -1755,6 +1888,35 @@ export default defineComponent({
       }
     );
 
+    watch(
+      () => state.otherText,
+      (newValue) => {
+        // max_char_limit may arrive as null (not the -1 default) when the question has none
+        const limit = props.maxCharLimit;
+        if (
+          newValue != null &&
+          typeof limit == "number" &&
+          limit > 0 &&
+          newValue.length > limit
+        ) {
+          // prevent text longer than the character limit (e.g. via copy pasting)
+          state.otherText = newValue.substring(0, limit);
+          return; // the watcher runs again with the trimmed text
+        }
+        // only the selected "Other" option carries text
+        if (!isOtherOptionWithTextBox(otherOptionIndex.value)) return;
+        state.draftAnswer = {
+          selected: [otherOptionIndex.value],
+          other_text: newValue && newValue.trim() != "" ? newValue : null,
+        };
+        context.emit(
+          "option-selected",
+          state.draftAnswer,
+          props.currentQuestionIndex
+        );
+      }
+    );
+
     onMounted(() => {
       queueMathJaxTypeset(mathJaxRoot.value);
     });
@@ -1769,6 +1931,8 @@ export default defineComponent({
       questionHeaderText,
       optionBackgroundClass,
       isOptionMarked,
+      isOtherOptionWithTextBox,
+      otherOptionIndex,
       selectOption,
       isAnswerSubmitted,
       labelClass,
@@ -1808,6 +1972,7 @@ export default defineComponent({
       isQuizAssessment,
       isAnswerDisabled,
       getInputMode,
+      sanitizeNumericalInput,
       subjectiveAnswerBoxStyling,
       numericalAnswerBoxStyling,
       isQuestionTypeNumericalFloat,

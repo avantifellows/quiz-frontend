@@ -171,11 +171,26 @@ describe("Form with Matrix Questions Tests", () => {
       // Q5: matrix rating - select all 5 rows
       cy.get('[data-test="question-index-type"]').should("contain", "Q.5");
       cy.get('[data-test="matrixRatingContainer"]').should("be.visible");
-      cy.get('[data-test="matrixRatingSelector-0-2"]').first().click();
-      cy.get('[data-test="matrixRatingSelector-1-1"]').first().click();
-      cy.get('[data-test="matrixRatingSelector-2-0"]').first().click();
-      cy.get('[data-test="matrixRatingSelector-3-4"]').first().click();
-      cy.get('[data-test="matrixRatingSelector-4-3"]').first().click();
+      cy.get('[data-test="matrixRatingSelector-0-2"]')
+        .filter(":visible")
+        .first()
+        .click();
+      cy.get('[data-test="matrixRatingSelector-1-1"]')
+        .filter(":visible")
+        .first()
+        .click();
+      cy.get('[data-test="matrixRatingSelector-2-0"]')
+        .filter(":visible")
+        .first()
+        .click();
+      cy.get('[data-test="matrixRatingSelector-3-4"]')
+        .filter(":visible")
+        .first()
+        .click();
+      cy.get('[data-test="matrixRatingSelector-4-3"]')
+        .filter(":visible")
+        .first()
+        .click();
       cy.get('[data-test="submitButton"]').click();
       cy.wait("@patchSessionAnswer");
 

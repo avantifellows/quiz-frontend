@@ -15,24 +15,27 @@
     />
     <div class="flex flex-col w-full h-full -z-10" :class="{ 'mt-20 mb-20': isQuizAssessment }">
       <div class="h-full">
-        <div class="scroll-container flex flex-col grow bg-indigo-50 w-full justify-between overflow-y-auto" :class="{ 'mt-24': isQuizAssessment }">
+        <div class="scroll-container flex flex-col grow bg-indigo-50 w-full justify-between overflow-y-auto" :class="{ 'mt-24': isQuizAssessment }" ref="scrollContainer">
           <div class="flex justify-center w-full mx-auto py-4 px-4 pb-24">
             <div class="flex flex-col w-full sm:w-5/6 max-w-4xl bg-white rounded-lg shadow-sm p-2 sm:p-6 mb-12">
-              <div v-for="(questionSetState, index) in questionSetStates" :key="index" class="space-y-2 pb-[56px]">
-                <div v-if="shouldShowQuestionSetHeaders" class="bg-gray-300">
+              <div
+                v-if="$props.singlePageHeaderText"
+                class="mx-4 mt-2 mb-4 text-lg sm:text-xl whitespace-pre-wrap"
+                data-test="singlePageHeaderText"
+              >
+                {{ $props.singlePageHeaderText }}
+              </div>
+              <div v-for="(questionSetState, index) in questionSetStates" :key="index" class="space-y-2 pb-[56px]"
+                v-show="!isSetPaginationEnabled || index === currentSetPageIndex">
+                <div v-if="questionSetState.title" class="bg-gray-300">
                   <p :class="titleTextClass" :data-test="`questionSetTitle-${index}`">{{ questionSetState.title }}</p>
-                </div>
-                <div
-                  v-if="index === 0 && $props.singlePageHeaderText"
-                  class="mx-4 mt-2 mb-4 text-lg sm:text-xl whitespace-pre-wrap"
-                >
-                  {{ $props.singlePageHeaderText }}
                 </div>
                 <p :class="instructionTextClass" v-html="questionSetState.instructionText"
                   :data-test="`questionSetInstruction-${index}`"></p>
                 <div class="mt-4 space-y-4">
                   <!-- it is being stopping endbutton make sur eu -->
-                  <SinglePageItem v-for="(questionState, qindex) in questionSetState.paletteItems" :class="{ 'mt-4': qindex == 0 }"
+                  <template v-for="(questionState, qindex) in questionSetState.paletteItems" :key="questionState.index">
+                  <SinglePageItem v-if="questionVisibility[questionState.index]" :class="{ 'mt-4': qindex == 0 }"
                 :options="$props.questions[questionState.index].options"
                 :correctAnswer="$props.questions[questionState.index].correct_answer"
                 :questionType="$props.questions[questionState.index].type"
@@ -46,27 +49,64 @@
                 :submittedAnswer="draftResponses[questionState.index]"
                 :isQuestionDisabled="questionDisabledArray[questionState.index]"
                 :currentQuestionIndex="questionState.index"
+                :questionLabel="questionLabel(questionState.index)"
                 :showFullText="showFullText"
                 :questionText="$props.questions[questionState.index].text"
                 :questionImage="$props.questions[questionState.index].image"
-                :solutionText="$props.questions[questionState.index].solution"
+                :solutionText="($props.questions[questionState.index].solution || []).join('<br>')"
                 :difficulty="$props.questions[questionState.index].metadata?.difficulty_label || $props.questions[questionState.index].metadata?.difficulty"
                 :difficultyBadgeClass="$props.questions[questionState.index].metadata?.difficulty_badge_class"
                 :displaySolution="displaySolution"
-                :isRequiredQuestion="areAllQuestionsRequired"
+                :isRequiredQuestion="areAllQuestionsRequired && $props.questions[questionState.index].required !== false"
                 @option-selected="questionOptionSelected"
                 @subjective-answer-entered="subjectiveAnswerUpdated"
                 @numerical-answer-entered="numericalAnswerUpdated"
                 @matrix-option-selected="matrixOptionSelected"
                 @matrix-numerical-updated="matrixNumericalUpdated"
                 @matrix-subjective-updated="matrixSubjectiveUpdated"
-                :key="questionState.index"
                 :data-test="`SinglePageItem-${questionState.index}`"
                 :ref="`singlepageitem-${questionState.index}`"></SinglePageItem>
+                  </template>
                 </div>
               </div>
+              <!-- Section navigation for forms paginated by question set -->
+              <div
+                v-if="isSetPaginationEnabled && !hasQuizEnded"
+                class="flex justify-between items-center gap-2 py-8 pb-24 px-2 sm:px-4"
+                data-test="sectionNavigation"
+              >
+                <button
+                  v-if="currentSetPageIndex > 0"
+                  @click="goToPreviousSet"
+                  class="bg-white border border-gray-400 text-gray-700 hover:bg-gray-100 text-lg font-bold py-4 px-8 rounded-2xl shadow-xl"
+                  data-test="previousSectionButton"
+                >
+                  Previous
+                </button>
+                <div v-else></div>
+                <p class="text-slate-500 text-sm sm:text-base" data-test="sectionPageIndicator">
+                  Section {{ currentSetPageIndex + 1 }} of {{ questionSetStates.length }}
+                </p>
+                <button
+                  v-if="!isLastSetPage"
+                  @click="goToNextSet"
+                  class="bg-emerald-500 hover:bg-emerald-600 text-white text-lg font-bold py-4 px-8 rounded-2xl shadow-xl"
+                  data-test="nextSectionButton"
+                >
+                  Next
+                </button>
+                <button
+                  v-else
+                  @click="endTest"
+                  :disabled="isSessionAnswerRequestProcessing"
+                  class="bg-emerald-500 hover:bg-emerald-600 text-white text-lg font-bold py-4 px-8 rounded-2xl shadow-xl disabled:opacity-50 disabled:pointer-events-none"
+                  data-test="submit-button"
+                >
+                  Submit
+                </button>
+              </div>
               <!-- Submit button for non-assessment quizzes (forms/homework) -->
-              <div v-if="!isQuizAssessment && !hasQuizEnded" class="flex justify-center py-8 pb-24">
+              <div v-else-if="!isQuizAssessment && !hasQuizEnded" class="flex justify-center py-8 pb-24">
                 <button
                   @click="endTest"
                   :disabled="isSessionAnswerRequestProcessing"
@@ -105,10 +145,14 @@ import {
   toRefs,
   onUnmounted,
   computed,
-  watch
+  watch,
+  ref,
+  nextTick
 } from "vue"
 import {
-  isScreenPortrait
+  isScreenPortrait,
+  isQuestionResponseComplete,
+  computeQuestionVisibility
 } from "@/services/Functional/Utilities";
 import {
   Question,
@@ -158,6 +202,11 @@ export default defineComponent({
     quizType: {
       type: String as PropType<quizType>,
       default: "homework"
+    },
+    /** number shown for each question by flat position (computeQuestionLabels) */
+    questionLabels: {
+      type: Array as PropType<string[]>,
+      default: () => []
     },
     numQuestions: {
       type: Number,
@@ -248,7 +297,10 @@ export default defineComponent({
         "text-lg sm:text-xl text-base mx-4 m-2 leading-tight whitespace-pre-wrap text-slate-500",
       titleTextClass:
         "text-lg sm:text-xl text-base mx-4 py-2 font-medium leading-tight whitespace-pre-wrap bg-gray-300",
+      currentSetPageIndex: 0, // index of the question set currently shown when forms are paginated by set
     })
+
+    const scrollContainer = ref<HTMLElement | null>(null)
 
     // display warning when time remaining goes below this threshold (in minutes)
     const timeLimitWarningThreshold: number = 3
@@ -319,6 +371,7 @@ export default defineComponent({
       state.previousLocalResponses[newQuestionIndex] = clonedLocalResponse;
       state.localResponses[state.localCurrentQuestionIndex].answer = draftAnswer
       context.emit("submit-omr-question", newQuestionIndex); // submit answer whenever there is an update / option selected
+      clearHiddenAnswers();
     }
 
     function clearAnswer() {
@@ -330,6 +383,7 @@ export default defineComponent({
       state.previousLocalResponses[newQuestionIndex] = clonedeep(state.localResponses[state.localCurrentQuestionIndex]);
       state.localResponses[state.localCurrentQuestionIndex].answer = answer
       context.emit("submit-omr-question", newQuestionIndex);
+      clearHiddenAnswers();
     }
 
     /** update the attempt to the current question - valid for subjective questions */
@@ -338,6 +392,7 @@ export default defineComponent({
       state.previousLocalResponses[newQuestionIndex] = clonedeep(state.localResponses[state.localCurrentQuestionIndex]);
       state.localResponses[state.localCurrentQuestionIndex].answer = answer
       context.emit("submit-omr-question", newQuestionIndex);
+      clearHiddenAnswers();
     }
 
     /** update matrix rating answer */
@@ -346,6 +401,7 @@ export default defineComponent({
       state.previousLocalResponses[newQuestionIndex] = clonedeep(state.localResponses[state.localCurrentQuestionIndex]);
       state.localResponses[state.localCurrentQuestionIndex].answer = answer
       context.emit("submit-omr-question", newQuestionIndex);
+      clearHiddenAnswers();
     }
 
     /** update matrix numerical answer */
@@ -354,6 +410,7 @@ export default defineComponent({
       state.previousLocalResponses[newQuestionIndex] = clonedeep(state.localResponses[state.localCurrentQuestionIndex]);
       state.localResponses[state.localCurrentQuestionIndex].answer = answer
       context.emit("submit-omr-question", newQuestionIndex);
+      clearHiddenAnswers();
     }
 
     /** update matrix subjective answer */
@@ -362,6 +419,7 @@ export default defineComponent({
       state.previousLocalResponses[newQuestionIndex] = clonedeep(state.localResponses[state.localCurrentQuestionIndex]);
       state.localResponses[state.localCurrentQuestionIndex].answer = answer
       context.emit("submit-omr-question", newQuestionIndex);
+      clearHiddenAnswers();
     }
 
     function endTest() {
@@ -369,14 +427,19 @@ export default defineComponent({
       // confirmed by the EndTestSummaryModal in Player.vue, so they emit directly.
       const isForm = props.quizType === "form";
       if (isForm && !props.hasQuizEnded && state.hasEndTestBeenClickedOnce) {
+        // count only currently-visible questions, so conditionally-hidden ones don't inflate
+        // the denominator (for non-conditional quizzes every question is visible => unchanged)
+        const visibility = questionVisibility.value;
         let attemptedQuestions = 0;
-        for (const response of props.responses) {
-          if (response.answer != null) {
-            attemptedQuestions += 1;
-          }
-        }
+        let totalVisibleQuestions = 0;
+        props.responses.forEach((response, idx) => {
+          if (!visibility[idx]) return;
+          totalVisibleQuestions += 1;
+          if (response.answer != null) attemptedQuestions += 1;
+        });
+        const buttonName = isQuizAssessment.value ? "End Test" : "Submit";
         state.toast.success(
-          `You have answered ${attemptedQuestions} out of ${props.numQuestions} questions. Please verify your responses and click Submit button again to make final submission.`,
+          `You have answered ${attemptedQuestions} out of ${totalVisibleQuestions} questions. Please verify your responses and click ${buttonName} button again to make final submission.`,
           {
             position: POSITION.TOP_CENTER,
             timeout: 5000,
@@ -475,8 +538,117 @@ export default defineComponent({
     })
 
     const isQuizAssessment = computed(() => props.quizType == "assessment" || props.quizType == "omr-assessment")
-    const shouldShowQuestionSetHeaders = computed(
-      () => !(props.quizType == "form" && props.showFullText)
+
+    // Visibility of each question by flat position, derived from the LIVE local responses so
+    // dependents appear/disappear immediately as the user answers a trigger. Single source of
+    // truth is the shared evaluator; questions with no display_condition are always visible,
+    // so non-conditional quizzes/forms behave exactly as before.
+    const questionVisibility = computed(() =>
+      computeQuestionVisibility(
+        props.questions,
+        state.localResponses.map((response) => response?.answer ?? null),
+        props.quizType
+      )
+    )
+
+    // When a trigger's answer changes so a dependent becomes hidden, null the dependent's
+    // answer and push it to the server (same submit-omr-question path), so stale answers to
+    // hidden questions never reach the backend / BigQuery. Visibility is transitive and
+    // recomputed from current answers, so a single pass clears whole dependency chains (a
+    // grand-dependent of a now-hidden trigger is already marked hidden here). draftResponses
+    // is nulled too so the (v-if remounted) item shows empty if it ever reappears.
+    function clearHiddenAnswers() {
+      const visibility = questionVisibility.value
+      props.questions.forEach((question, idx) => {
+        if (visibility[idx]) return
+        const response = state.localResponses[idx]
+        if (response != null && response.answer != null) {
+          state.previousLocalResponses[idx] = clonedeep(response)
+          state.localResponses[idx].answer = null
+          state.draftResponses[idx] = null
+          context.emit("submit-omr-question", idx)
+        }
+      })
+    }
+
+    // forms with multiple question sets show one set (section) per page
+    const isSetPaginationEnabled = computed(
+      () => props.quizType == "form" && !props.hasQuizEnded && props.questionSetStates.length > 1
+    )
+
+    const isLastSetPage = computed(
+      () => state.currentSetPageIndex >= props.questionSetStates.length - 1
+    )
+
+    function getSetIndexForQuestion(questionIndex: number) {
+      return props.questionSetStates.findIndex((questionSetState) => {
+        const paletteItems = questionSetState.paletteItems;
+        if (!paletteItems.length) return false;
+        const lowIndex = paletteItems[0].index;
+        return questionIndex >= lowIndex && questionIndex < lowIndex + paletteItems.length;
+      });
+    }
+
+    // falls back to position + 1 when the parent passes no labels
+    function questionLabel(positionIndex: number) {
+      return props.questionLabels[positionIndex] ?? String(positionIndex + 1);
+    }
+
+    function goToSet(setIndex: number) {
+      state.currentSetPageIndex = setIndex;
+      nextTick(() => {
+        if (scrollContainer.value != null) scrollContainer.value.scrollTop = 0;
+      });
+    }
+
+    function goToNextSet() {
+      if (isLastSetPage.value) return;
+      if (props.areAllQuestionsRequired) {
+        const paletteItems = props.questionSetStates[state.currentSetPageIndex].paletteItems;
+        const incompleteItem = paletteItems.find(
+          (item) => props.questions[item.index].required !== false &&
+            questionVisibility.value[item.index] && // hidden questions aren't required
+            !isQuestionResponseComplete(
+              props.questions[item.index],
+              state.localResponses[item.index]?.answer ?? null
+            )
+        );
+        if (incompleteItem != null) {
+          state.toast.warning(
+            `Please answer all questions in this section before continuing. Question ${questionLabel(incompleteItem.index)} is incomplete.`,
+            {
+              position: POSITION.TOP_CENTER,
+              timeout: 5000,
+              draggablePercent: 0.4
+            }
+          );
+          const questionElement = document.querySelector(`[data-test="SinglePageItem-${incompleteItem.index}"]`);
+          if (questionElement != null) questionElement.scrollIntoView({ block: "start" });
+          return;
+        }
+      }
+      goToSet(state.currentSetPageIndex + 1);
+    }
+
+    function goToPreviousSet() {
+      if (state.currentSetPageIndex > 0) goToSet(state.currentSetPageIndex - 1);
+    }
+
+    // when the parent navigates to a question on another page (e.g. an unanswered
+    // required question on submit), switch to that section's page and scroll to it
+    watch(
+      () => props.currentQuestionIndex,
+      (newIndex: number) => {
+        if (!isSetPaginationEnabled.value) return;
+        const setIndex = getSetIndexForQuestion(newIndex);
+        if (setIndex == -1 || setIndex == state.currentSetPageIndex) return;
+        state.currentSetPageIndex = setIndex;
+        nextTick(() => {
+          const questionElement = document.querySelector(`[data-test="SinglePageItem-${newIndex}"]`);
+          if (questionElement != null) questionElement.scrollIntoView({ block: "start" });
+          else if (scrollContainer.value != null) scrollContainer.value.scrollTop = 0;
+        });
+      }
     )
 
     const optionalLimitReachedArray = computed(() => {
@@ -587,7 +759,13 @@ export default defineComponent({
       currentQuestionResponseAnswer,
       isAttemptValid,
       isQuizAssessment,
-      shouldShowQuestionSetHeaders,
+      questionVisibility,
+      questionLabel,
+      isSetPaginationEnabled,
+      isLastSetPage,
+      goToNextSet,
+      goToPreviousSet,
+      scrollContainer,
       optionalLimitReachedArray,
       questionDisabledArray,
       numericalAnswerUpdated,

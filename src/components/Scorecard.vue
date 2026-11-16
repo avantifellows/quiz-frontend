@@ -39,6 +39,32 @@
             </div>
           </div>
 
+          <!-- next step CTA: kept above the scores so students see it without scrolling -->
+          <div
+            v-if="nextStepUrl && showScores"
+            class="flex flex-col gap-2 items-center mb-6"
+          >
+            <icon-button
+              :titleConfig="nextStepButtonTitleConfig"
+              :buttonClass="nextStepButtonClass + ' w-full max-w-xs'"
+              @click="proceedToNextStep"
+              data-test="proceed-next"
+            ></icon-button>
+            <p
+              v-if="autoRedirectCountdown > 0"
+              class="text-xs text-gray-500 text-center"
+            >
+              Redirecting in {{ autoRedirectCountdown }}s…
+              <button
+                type="button"
+                class="ml-1 text-xs font-semibold text-emerald-600 hover:underline"
+                @click="cancelAutoRedirect"
+              >
+                Stay here
+              </button>
+            </p>
+          </div>
+
           <!-- canvas element for drawing the confetti -->
           <canvas id="confetticanvas" class="fixed z-50 pointer-events-none"></canvas>
 
@@ -105,50 +131,9 @@
               </div>
             </div>
 
-            <!-- action buttons when showing scores -->
+            <!-- action buttons when showing scores (next step CTA lives above the scores) -->
             <div v-if="showScores" class="flex justify-center mt-6" ignore-share-scorecard>
-              <!-- when both next step and share are available -->
-              <div v-if="nextStepUrl" class="flex flex-col gap-4 items-center w-full max-w-xs">
-                <icon-button
-                  v-if="reviewAnswers"
-                  :titleConfig="backButtonTitleConfig"
-                  :buttonClass="backButtonClass + ' w-full'"
-                  @click="goBack"
-                  data-test="see-answers"
-                ></icon-button>
-
-                <!-- share button -->
-                <icon-button
-                  :titleConfig="shareButtonTitleConfig"
-                  :buttonClass="shareButtonClass + ' w-full'"
-                  @click="shareScorecard"
-                  data-test="share"
-                ></icon-button>
-
-                <!-- next step button -->
-                <icon-button
-                  :titleConfig="nextStepButtonTitleConfig"
-                  :buttonClass="nextStepButtonClass + ' w-full'"
-                  @click="proceedToNextStep"
-                  data-test="proceed-next"
-                ></icon-button>
-                <p
-                  v-if="autoRedirectCountdown > 0"
-                  class="text-xs text-gray-500 text-center"
-                >
-                  Redirecting in {{ autoRedirectCountdown }}s…
-                  <button
-                    type="button"
-                    class="ml-1 text-xs font-semibold text-emerald-600 hover:underline"
-                    @click="cancelAutoRedirect"
-                  >
-                    Stay here
-                  </button>
-                </p>
-              </div>
-
-              <!-- when only share is available (no next step) -->
-              <div v-else class="flex flex-col gap-4 items-center w-full max-w-xs">
+              <div class="flex flex-col gap-4 items-center w-full max-w-xs">
                 <icon-button
                   v-if="reviewAnswers"
                   :titleConfig="backButtonTitleConfig"
@@ -276,7 +261,7 @@ import { ScorecardMetric, CircularProgressResult, quizTitleType, quizType, Quest
 const confetti = require("canvas-confetti");
 const PROGRESS_BAR_ANIMATION_DELAY_TIME = 500; // a time delay to be used for animating the progress bar
 const MOBILE_SCREEN_HEIGHT_THRESHOLD = 500; // the maximum height of the screen in pixels that is classified as a mobile screen
-const AUTO_REDIRECT_DELAY_MS = 3000; // wait duration before automatically navigating to next step
+const AUTO_REDIRECT_DELAY_MS = 6000; // wait duration before automatically navigating to next step
 
 export default defineComponent({
   name: "Scorecard",
