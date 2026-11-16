@@ -75,6 +75,13 @@ describe('InstructionPage', () => {
       expect(legendRow("notAnswered").querySelector(".bg-red-300")).not.toBeNull();
       expect(legendRow("notVisited").querySelector(".bg-gray-100")).not.toBeNull();
     });
+
+    it("lays out the marked-for-review row like the other legend rows", () => {
+      const row = (label: string) =>
+        (wrapper.find(`[data-test="legend-${label}"]`).element.parentElement as HTMLElement).className;
+      expect(row("markedForReview")).toBe(row("notVisited"));
+      expect(wrapper.text()).not.toContain("NEW");
+    });
   });
 
   describe('when test_format is FST', () => {

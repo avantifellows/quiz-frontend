@@ -100,7 +100,7 @@
         </li>
         <li v-if="!isOmrMode">
           {{ $t("generalInstructions.paletteSymbols") }}
-          <div class="flex flex-wrap mx-2 md:mx-4 my-2">
+          <div class="grid md:grid-cols-2 md:gap-x-4 mx-2 md:mx-4 my-2">
             <div class="flex items-center my-2 md:mx-4">
               <Success></Success>
               <span class="ml-6 mr-6">{{ $t("generalInstructions.answered") }}</span>
@@ -113,10 +113,9 @@
               <Neutral></Neutral>
               <span class="ml-6 mr-6" data-test="legend-notVisited">{{ $t("generalInstructions.notVisited") }}</span>
             </div>
-            <div class="relative flex items-center border border-violet-600 p-2 rounded-md my-2 md:mx-4 w-full">
-              <Review class="mr-2"></Review>
-              <span class="ml-6 mr-6">{{ $t("generalInstructions.markedForReview") }}</span>
-              <span class="bg-violet-800 text-white text-xs font-bold py-0.5 px-2 rounded-full">NEW</span>
+            <div class="flex items-center my-2 md:mx-4">
+              <Review></Review>
+              <span class="ml-6 mr-6" data-test="legend-markedForReview">{{ $t("generalInstructions.markedForReview") }}</span>
             </div>
           </div>
         </li>
@@ -134,10 +133,7 @@
             <li>{{ $t("answeringQuestion.deselectAnswer") }}</li>
             <li>{{ $t("answeringQuestion.changeAnswer") }}</li>
             <li v-if="!isOmrMode">{{ $t("answeringQuestion.saveAnswer") }}</li>
-            <li class="relative border border-violet-600 p-2 rounded-md" v-if="!isOmrMode">
-              {{  $t("answeringQuestion.reviewQuestion") }}
-              <span class="bg-violet-800 text-white text-xs font-bold py-0.5 px-2 rounded-full">NEW</span>
-            </li>
+            <li v-if="!isOmrMode">{{ $t("answeringQuestion.reviewQuestion") }}</li>
           </ol>
         </li>
         <li v-if="!isOmrMode">{{ $t("answeringQuestion.changeAnsweredQuestion") }}</li>
