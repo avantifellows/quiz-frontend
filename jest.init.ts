@@ -46,6 +46,19 @@ const messages = {
       title: "Answering a Question",
       procedureForMCQ: "Follow these steps for MCQ questions.",
     },
+    endTestSummary: {
+      examTitle: "Exam Summary",
+      summaryTitle: "Summary",
+      totalQuestions: "No of Questions",
+      answered: "Answered",
+      notAnswered: "Not Answered",
+      markedForReview: "Marked for Review",
+      notVisited: "Not Visited",
+      confirmExam: "Are you sure you want to submit for final marking?",
+      confirmHomework: "Submit your answers?",
+      yes: "Yes",
+      no: "No",
+    },
   },
   hi: {
     generalInstructions: {

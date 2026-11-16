@@ -24,5 +24,19 @@
     "changeAnsweredQuestion": "To change your answer to a question that has already been answered, first select that question for answering and then follow the procedure for answering that type of question.",
     "noteLanguage": "We have translated the papers to the best of our ability. If there are any mismatches in the text or any incorrect words, please refer to the English version and consider it as final. ",
     "noteSaveAnswer": "Note that selecting an option does NOT save your answer to the current question. Click on Save & Next to save your answer for the current question and then go to the next question."
+  },
+
+  "endTestSummary": {
+    "examTitle": "Exam Summary",
+    "summaryTitle": "Summary",
+    "totalQuestions": "No of Questions",
+    "answered": "Answered",
+    "notAnswered": "Not Answered",
+    "markedForReview": "Marked for Review",
+    "notVisited": "Not Visited",
+    "confirmExam": "Are you sure you want to submit for final marking? No changes will be allowed after submission.",
+    "confirmHomework": "Submit your answers? You won't be able to change them afterwards.",
+    "yes": "Yes",
+    "no": "No"
   }
 }

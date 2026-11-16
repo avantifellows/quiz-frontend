@@ -365,16 +365,18 @@ export default defineComponent({
     }
 
     function endTest() {
-      if (!props.hasQuizEnded && state.hasEndTestBeenClickedOnce) {
+      // Forms keep the original two-click toast confirmation. Assessments/OMR are
+      // confirmed by the EndTestSummaryModal in Player.vue, so they emit directly.
+      const isForm = props.quizType === "form";
+      if (isForm && !props.hasQuizEnded && state.hasEndTestBeenClickedOnce) {
         let attemptedQuestions = 0;
         for (const response of props.responses) {
           if (response.answer != null) {
             attemptedQuestions += 1;
           }
         }
-        const buttonName = isQuizAssessment.value ? "End Test" : "Submit";
         state.toast.success(
-          `You have answered ${attemptedQuestions} out of ${props.numQuestions} questions. Please verify your responses and click ${buttonName} button again to make final submission.`,
+          `You have answered ${attemptedQuestions} out of ${props.numQuestions} questions. Please verify your responses and click Submit button again to make final submission.`,
           {
             position: POSITION.TOP_CENTER,
             timeout: 5000,

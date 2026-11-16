@@ -71,7 +71,7 @@
         v-model:responses="responses"
         v-model:previousOmrResponses="previousOmrResponses"
         @submit-omr-question="submitOmrQuestion"
-        @end-test="endTest"
+        @end-test="requestEndTest"
         data-test="single-page-modal"
         v-if="isQuestionShown && (isOmrMode || singlePageMode)"
       ></SinglePageModal>
@@ -107,11 +107,20 @@
         v-model:previousResponse="previousResponse"
         @submit-question="submitQuestion"
         @update-review-status="updateQuestionResponse"
-        @end-test="endTest"
+        @end-test="requestEndTest"
         @fetch-question-bucket="fetchQuestionBucket"
         v-if="isQuestionShown && !isOmrMode && !singlePageMode"
         data-test="modal"
       ></QuestionModal>
+
+      <EndTestSummaryModal
+        :show="showEndTestSummary"
+        :variant="endTestSummaryVariant"
+        :buckets="endTestBuckets"
+        :isProcessing="isSessionAnswerRequestProcessing"
+        @confirm="onEndTestConfirm"
+        @cancel="showEndTestSummary = false"
+      ></EndTestSummaryModal>
 
       <div
         v-if="isComputingScore"
@@ -162,7 +171,8 @@ import QuestionModal from "../components/Questions/QuestionModal.vue";
 import SinglePageModal from "../components/SinglePage/SinglePageModal.vue"
 import Splash from "../components/Splash.vue";
 import Scorecard from "../components/Scorecard.vue";
-import { resetConfetti, isQuestionAnswerCorrect, isQuestionFetched, createQuestionBuckets, isQuestionResponseComplete } from "../services/Functional/Utilities";
+import EndTestSummaryModal from "../components/EndTestSummaryModal.vue";
+import { resetConfetti, isQuestionAnswerCorrect, isQuestionFetched, createQuestionBuckets, isQuestionResponseComplete, computeEndTestBuckets } from "../services/Functional/Utilities";
 import QuizAPIService from "../services/API/Quiz";
 import FormAPIService from "../services/API/Form";
 import SessionAPIService from "../services/API/Session";
@@ -190,7 +200,9 @@ import {
   QuestionSetMetric,
   QuestionSetMetricPayload,
   SessionMetricsPayload,
-  DisplayIdType
+  DisplayIdType,
+  EndTestBuckets,
+  EndTestSummaryVariant
 } from "../types";
 import { useToast, POSITION } from "vue-toastification"
 import BaseIcon from "../components/UI/Icons/BaseIcon.vue";
@@ -205,7 +217,8 @@ export default defineComponent({
     QuestionModal,
     Scorecard,
     BaseIcon,
-    SinglePageModal
+    SinglePageModal,
+    EndTestSummaryModal
   },
   props: {
     quizId: {
@@ -276,6 +289,7 @@ export default defineComponent({
       marksScored: 0,
       maxMarks: 0, // maximum marks that can be scored
       isScorecardShown: false, // to show the scorecard or not
+      showEndTestSummary: false, // whether the end-test confirmation summary modal is shown
       isComputingScore: false, // whether score computation is in progress
       hasSessionMetrics: false, // whether session metrics have been loaded
       hasQuizEnded: false, // whether the quiz has ended - only valid for quizType = assessment
@@ -987,6 +1001,37 @@ export default defineComponent({
       }
     }
 
+    // Buckets shown in the end-test summary modal. Derived from state.responses so
+    // the five categories are mutually exclusive and always sum to the total.
+    // (Marking a question for review clears its answer, so "answered" and
+    // "marked_for_review" never overlap.)
+    const endTestBuckets = computed<EndTestBuckets>(() => computeEndTestBuckets(state.responses));
+
+    // exam: full columns; homework: full columns + neutral wording;
+    // omr: reduced columns (no marked-for-review / not-visited).
+    const endTestSummaryVariant = computed<EndTestSummaryVariant>(() => {
+      if (state.metadata.quiz_type === "homework") return "homework";
+      if (isOmrMode.value || props.singlePageMode) return "omr";
+      return "exam";
+    });
+
+    // Called on End-Test click. Forms keep their own confirmation (in SinglePageModal)
+    // and an already-ended quiz just reopens the scorecard, so both bypass the modal.
+    function requestEndTest() {
+      if (state.hasQuizEnded || isFormQuiz.value) {
+        endTest();
+        return;
+      }
+      state.showEndTestSummary = true;
+    }
+
+    // "Yes" in the summary modal. endTest() shows the scorecard on success, or toasts
+    // an error and resets flags on failure; in both cases we close the summary modal.
+    async function onEndTestConfirm() {
+      await endTest();
+      state.showEndTestSummary = false;
+    }
+
     async function endTest() {
       if (state.hasQuizEnded) {
         state.currentQuestionIndex = numQuestions.value;
@@ -1387,6 +1432,10 @@ export default defineComponent({
       submitOmrQuestion,
       goToPreviousQuestion,
       endTest,
+      requestEndTest,
+      onEndTestConfirm,
+      endTestBuckets,
+      endTestSummaryVariant,
       currentMaxQuestionsAllowedToAttempt,
       currentQsetTitle,
       questionSetStates,

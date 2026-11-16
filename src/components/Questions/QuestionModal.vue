@@ -266,8 +266,7 @@ export default defineComponent({
       toast: useToast(),
       isDraftAnswerCleared: false, // whether the draft answer has been cleared but not yet submitted
       isPaletteVisible: false, // whether the question palette is visible
-      reRenderKey: false, // a key to re-render a component
-      hasEndTestBeenClickedOnce: true
+      reRenderKey: false // a key to re-render a component
     })
 
     // display warning when time remaining goes below this threshold (in minutes)
@@ -515,33 +514,9 @@ To attempt Q.${props.currentQuestionIndex + 1}, unselect an answer to another qu
     }
 
     function endTest() {
-      if (!props.hasQuizEnded && state.hasEndTestBeenClickedOnce) {
-        let attemptedQuestions = 0;
-        let markedForReviewAndUnansweredQuestions = 0;
-        for (const response of props.responses) {
-          if (response.answer != null) {
-            attemptedQuestions += 1;
-          }
-          if (response.marked_for_review == true && response.answer == null) {
-            markedForReviewAndUnansweredQuestions += 1
-          }
-        }
-        state.toast.success(
-            `Total Questions: ${props.numQuestions}
-Questions Answered: ${attemptedQuestions}
-Questions Marked for Review and Unanswered: ${markedForReviewAndUnansweredQuestions}
-\nUse the Question Palette to review all questions.
-For final submission, click the End Test button again.`,
-            {
-              position: POSITION.TOP_CENTER,
-              timeout: 6000,
-              draggablePercent: 0.4
-            }
-        )
-        state.hasEndTestBeenClickedOnce = false;
-      } else {
-        context.emit("end-test")
-      }
+      // Confirmation is now handled by the EndTestSummaryModal (in Player.vue);
+      // just forward the request.
+      context.emit("end-test")
     }
 
     function endTestByTime() {
