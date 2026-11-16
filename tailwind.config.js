@@ -17,17 +17,19 @@ module.exports = {
         xxs: "0.80rem",
       },
     },
+    // Keep these in ascending order: Tailwind emits media queries in this order, so a
+    // breakpoint listed after a larger one overrides it (sm: used to win over lg:/xl:).
     screens: {
       "bp-320": "320px",
       "bp-360": "360px",
       "bp-420": "420px",
       "bp-500": "500px",
-      md: "768px",
-      lg: "1024px",
-      xl: "1280px",
-      "2xl": "1536px",
+      sm: defaultTheme.screens.sm, // 640px
+      md: defaultTheme.screens.md, // 768px
       custom: "870px", // Custom breakpoint at 870px
-      ...defaultTheme.screens,
+      lg: defaultTheme.screens.lg, // 1024px
+      xl: defaultTheme.screens.xl, // 1280px
+      "2xl": defaultTheme.screens["2xl"], // 1536px
     },
   },
   plugins: [],
