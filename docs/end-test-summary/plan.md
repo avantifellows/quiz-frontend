@@ -31,14 +31,21 @@
 
 ## IN PROGRESS
 - UI audit fixes on this branch, one report group at a time (user decides each).
-  - Group 2 (instructions page) fixed, uncommitted: I1 legend colours swapped back to
-    match the palette (+ regression test); I2 `text-justify` removed (5 places).
-  - Next: Group 3 (palette), then Group 4.
+  - Group 2 (instructions page) committed (f575d4d).
+  - Group 3 (palette) built, uncommitted, awaiting user's visual check: 44px tiles with
+    the number inside + dark outline for current; review mode adds a corner result badge
+    (user may revisit); filled/outlined Palette|Instructions toggle (hidden in OMR); compact
+    legend, no counts (user's call); auto-fill grid; backdrop + close button; palette
+    width `max-w-md` (sm: breakpoint bug, see Q9); en/hi strings. Deferred: pinned
+    section headings.
+  - New finding Q9: `sm:` overrides md/lg/xl app-wide (tailwind screens order). Needs
+    the user's decision; not fixed.
+  - Next: Group 4.
 - Merge resolution: summary modal now closes from a `hasQuizEnded` watcher (covers
   main's 409 "already ended" and survey-redirect paths). Verified in-app.
 
 ## NEXT
-1. Commit Group 2 when the user asks.
+1. Commit Group 3 when the user approves the screenshots.
 2. Groups 3–4 of the UI report.
 3. `npm install` locally (main moved Cypress 9 → 12) before running E2E.
 4. Open PR only when user asks.

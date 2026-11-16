@@ -37,5 +37,18 @@
     "yes": "हाँ",
     "no": "नहीं",
     "attemptLimit": "आप अधिकतम {count} प्रश्नों का उत्तर दे सकते हैं।"
+  },
+  "palette": {
+    "paletteTab": "पैलेट",
+    "instructionsTab": "निर्देश",
+    "close": "पैलेट बंद करें",
+    "answered": "उत्तर दिए गए",
+    "notAnswered": "उत्तर नहीं दिए गए",
+    "notVisited": "नहीं देखे गए",
+    "markedForReview": "समीक्षा के लिए चिह्नित",
+    "correct": "सही",
+    "wrong": "गलत",
+    "skipped": "छोड़े गए",
+    "partiallyCorrect": "आंशिक रूप से सही"
   }
 }

@@ -1,60 +1,50 @@
 <template>
-  <div class="flex flex-col items-center">
-    <Success
-      v-if="state == 'success'"
-      :hasQuizEnded="hasQuizEnded"
-      data-test="success"
-    ></Success>
-    <Error
-      v-else-if="state == 'error'"
-      :hasQuizEnded="hasQuizEnded"
-      data-test="error"
-    ></Error>
-    <PartialSuccess
-      v-else-if="state == 'partial-success'"
-      :hasQuizEnded="hasQuizEnded"
-      data-test="partial-success"
-    ></PartialSuccess>
-    <Neutral
-      v-else-if="state == 'neutral'"
-      :hasQuizEnded="hasQuizEnded"
-      data-test="neutral"
-    ></Neutral>
-    <Review
-      v-else-if="state == 'review'"
-      :hasQuizEnded="hasQuizEnded"
-      data-test="review"
-    ></Review>
-    <p
-      class="mt-2 bg-gray-200 border-gray-500 border-1 rounded-md px-2 text-xs"
-      :class="{
-        'bg-gray-200 border-gray-500': !isHighlighted,
-        'bg-yellow-200 border-yellow-500': isHighlighted,
-      }"
-      data-test="index"
-    >
-      {{ index + 1 }}
-    </p>
-  </div>
+  <button
+    type="button"
+    class="palette-tile relative flex items-center justify-center w-11 h-11 rounded-lg border-2 text-sm font-bold text-gray-800"
+    :class="[stateClass, { 'ring-2 ring-offset-2 ring-gray-800': isHighlighted }]"
+    :aria-current="isHighlighted ? 'true' : undefined"
+  >
+    <span data-test="index">{{ index + 1 }}</span>
+    <!-- status for screen readers (and tests); the fill colour shows it visually -->
+    <span class="sr-only" :data-test="state">{{ stateLabel }}</span>
+    <BaseIcon
+      v-if="hasQuizEnded && badgeIcon"
+      :name="badgeIcon"
+      iconClass="palette-tile-badge absolute -top-1.5 -right-1.5 w-4 h-4"
+      data-test="badge"
+    ></BaseIcon>
+  </button>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue";
-import Success from "./Success.vue";
-import PartialSuccess from "./PartialSuccess.vue"
-import Error from "./Error.vue";
-import Neutral from "./Neutral.vue";
-import Review from "./Review.vue";
+import { defineComponent, computed, PropType } from "vue";
+import { useI18n } from "vue-i18n";
+import BaseIcon from "@/components/UI/Icons/BaseIcon.vue";
 import { questionState } from "@/types";
+import {
+  paletteTileStateClass,
+  paletteTileEndedStateClass,
+  paletteEndedBadgeIcon,
+} from "./Utils";
+
+const stateLabelKey: Record<string, string> = {
+  success: "palette.answered",
+  error: "palette.notAnswered",
+  neutral: "palette.notVisited",
+  review: "palette.markedForReview",
+};
+const endedStateLabelKey: Record<string, string> = {
+  success: "palette.correct",
+  error: "palette.wrong",
+  neutral: "palette.skipped",
+  "partial-success": "palette.partiallyCorrect",
+};
 
 export default defineComponent({
   name: "Item",
   components: {
-    Success,
-    PartialSuccess,
-    Error,
-    Neutral,
-    Review
+    BaseIcon,
   },
   props: {
     state: {
@@ -74,6 +64,29 @@ export default defineComponent({
       default: false,
     },
   },
-  setup() {},
+  setup(props) {
+    const { t } = useI18n();
+    const stateClass = computed(() =>
+      props.hasQuizEnded
+        ? paletteTileEndedStateClass[props.state]
+        : paletteTileStateClass[props.state]
+    );
+    const badgeIcon = computed(() => paletteEndedBadgeIcon[props.state]);
+    const stateLabel = computed(() => {
+      const key = props.hasQuizEnded
+        ? endedStateLabelKey[props.state]
+        : stateLabelKey[props.state];
+      return key ? t(key) : "";
+    });
+    return { stateClass, badgeIcon, stateLabel };
+  },
 });
 </script>
+
+<style scoped>
+/* the round icons are fixed 44px SVGs; scale them to the badge */
+.palette-tile :deep(.palette-tile-badge svg) {
+  width: 100%;
+  height: 100%;
+}
+</style>

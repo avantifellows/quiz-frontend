@@ -96,6 +96,15 @@
       ></Footer>
     </div>
 
+    <!-- Dims the question and footer behind the palette; clicking it closes the palette.
+         Same z-index as the footer but later in the DOM, so it sits above it. -->
+    <div
+      v-if="isPaletteVisible"
+      class="fixed inset-x-0 bottom-0 top-20 z-50 bg-black/40"
+      @click="isPaletteVisible = false"
+      data-test="paletteBackdrop"
+    ></div>
+
     <!-- Palette Overlay - positioned above footer -->
     <QuestionPalette
       v-if="isPaletteVisible"
@@ -108,8 +117,9 @@
       :maxMarks="maxMarks"
       :numQuestions="numQuestions"
       :quizTimeLimit="quizTimeLimit"
-      class="fixed left-0 top-20 h-[calc(100vh-5rem)] w-full sm:w-2/3 lg:w-1/2 xl:w-1/3 z-50 bg-white overflow-y-auto"
+      class="fixed left-0 top-20 h-[calc(100vh-5rem)] w-full max-w-md z-50 bg-white overflow-y-auto"
       @navigate="navigateToQuestion"
+      @close="isPaletteVisible = false"
       data-test="questionPalette"
     >
     </QuestionPalette>

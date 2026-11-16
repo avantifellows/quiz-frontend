@@ -60,6 +60,19 @@ const messages = {
       no: "No",
       attemptLimit: "You can attempt up to {count} questions.",
     },
+    palette: {
+      paletteTab: "Palette",
+      instructionsTab: "Instructions",
+      close: "Close palette",
+      answered: "Answered",
+      notAnswered: "Not Answered",
+      notVisited: "Not Visited",
+      markedForReview: "Marked for Review",
+      correct: "Correct",
+      wrong: "Wrong",
+      skipped: "Skipped",
+      partiallyCorrect: "Partially Correct",
+    },
   },
   hi: {
     generalInstructions: {

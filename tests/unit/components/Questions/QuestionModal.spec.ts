@@ -296,6 +296,12 @@ describe("QuestionModal.vue", () => {
         await wrapper.find('[data-test="endTestButton"]').trigger("click");
         expect(wrapper.vm.isPaletteVisible).toBe(false);
       });
+      it("closes the palette when its backdrop is clicked", async () => {
+        wrapper.vm.isPaletteVisible = true;
+        await flushPromises();
+        await wrapper.find('[data-test="paletteBackdrop"]').trigger("click");
+        expect(wrapper.vm.isPaletteVisible).toBe(false);
+      });
       it("emits end-test-by-time, not end-test, when time runs out", async () => {
         wrapper.vm.isPaletteVisible = true;
         wrapper.findComponent({ name: "Header" }).vm.$emit("end-test-by-time");
