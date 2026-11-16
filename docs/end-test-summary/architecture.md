@@ -19,11 +19,25 @@ child @end-test  ──▶  Player.requestEndTest()
    return to question                   unchanged: batch answers → end-quiz → metrics)
 ```
 
+Time-up bypasses the summary:
+```
+Header countdown == 0 ─▶ child @end-test-by-time ─▶ Player.endTestByTime()
+                                                     close summary ─▶ endTest()
+heartbeat / resume sees time_remaining == 0 ──────────────────────▶ endTest()
+```
+`endTest()` ignores calls while one is in flight (D9) and closes the summary whenever
+it shows the scorecard. Children close their palette before emitting either event.
+
+## Stacking order
+header `z-20` < palette, footer `z-50` < summary modal `z-[60]` < toasts.
+
 ## New component: `src/components/EndTestSummaryModal.vue`
 Props:
 - `show: boolean`
 - `variant: 'exam' | 'homework' | 'omr'` — controls title, columns, confirm copy
 - `buckets: { total, answered, notAnswered, markedForReview, notVisited }`
+- `maxQuestionsAllowedToAttempt: number` — shows "You can attempt up to N questions."
+  when N < total (D10)
 - `isProcessing: boolean` — bound to `isSessionAnswerRequestProcessing`; disables buttons
   and shows a spinner on "Yes" so the student can't double-submit.
 
@@ -45,7 +59,8 @@ notVisited       = responses.filter(r => !r.visited).length
 notAnswered      = total - answered - markedForReview - notVisited
 ```
 (`notAnswered` is derived so the five always sum to `total`.)
-For `omr` variant only `total / answered / notAnswered` are rendered.
+For `omr` variant only `total / answered / notAnswered` are rendered, and
+`notAnswered = total − answered` (D5).
 
 ## Changes to existing components
 - `QuestionModal.vue`: remove the `endTest()` toast gate + `hasEndTestBeenClickedOnce`;

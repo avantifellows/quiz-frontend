@@ -37,6 +37,7 @@
     "confirmExam": "Are you sure you want to submit for final marking? No changes will be allowed after submission.",
     "confirmHomework": "Submit your answers? You won't be able to change them afterwards.",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "attemptLimit": "You can attempt up to {count} questions."
   }
 }

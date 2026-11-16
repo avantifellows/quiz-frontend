@@ -58,6 +58,7 @@ const messages = {
       confirmHomework: "Submit your answers?",
       yes: "Yes",
       no: "No",
+      attemptLimit: "You can attempt up to {count} questions.",
     },
   },
   hi: {

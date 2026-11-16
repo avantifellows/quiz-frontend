@@ -51,3 +51,6 @@ These mirror the existing palette states (`neutral`/`success`/`review`/`error`,
 - English + Hindi strings via existing i18n.
 - Forms behave exactly as today.
 - Double-submission prevented while the request is in flight.
+- When time runs out, the test submits immediately with no confirmation (as on `main`),
+  and the summary never stays open over the scorecard.
+- OMR summary counts every unanswered question.

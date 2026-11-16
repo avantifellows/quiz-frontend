@@ -72,6 +72,7 @@
         v-model:previousOmrResponses="previousOmrResponses"
         @submit-omr-question="submitOmrQuestion"
         @end-test="requestEndTest"
+        @end-test-by-time="endTestByTime"
         data-test="single-page-modal"
         v-if="isQuestionShown && (isOmrMode || singlePageMode)"
       ></SinglePageModal>
@@ -108,6 +109,7 @@
         @submit-question="submitQuestion"
         @update-review-status="updateQuestionResponse"
         @end-test="requestEndTest"
+        @end-test-by-time="endTestByTime"
         @fetch-question-bucket="fetchQuestionBucket"
         v-if="isQuestionShown && !isOmrMode && !singlePageMode"
         data-test="modal"
@@ -117,6 +119,7 @@
         :show="showEndTestSummary"
         :variant="endTestSummaryVariant"
         :buckets="endTestBuckets"
+        :maxQuestionsAllowedToAttempt="maxQuestionsAllowedToAttempt"
         :isProcessing="isSessionAnswerRequestProcessing"
         @confirm="onEndTestConfirm"
         @cancel="showEndTestSummary = false"
@@ -1001,12 +1004,6 @@ export default defineComponent({
       }
     }
 
-    // Buckets shown in the end-test summary modal. Derived from state.responses so
-    // the five categories are mutually exclusive and always sum to the total.
-    // (Marking a question for review clears its answer, so "answered" and
-    // "marked_for_review" never overlap.)
-    const endTestBuckets = computed<EndTestBuckets>(() => computeEndTestBuckets(state.responses));
-
     // exam: full columns; homework: full columns + neutral wording;
     // omr: reduced columns (no marked-for-review / not-visited).
     const endTestSummaryVariant = computed<EndTestSummaryVariant>(() => {
@@ -1014,6 +1011,14 @@ export default defineComponent({
       if (isOmrMode.value || props.singlePageMode) return "omr";
       return "exam";
     });
+
+    // Buckets shown in the end-test summary modal. Derived from state.responses so
+    // the categories are mutually exclusive and always sum to the total.
+    // (Marking a question for review clears its answer, so "answered" and
+    // "marked_for_review" never overlap.)
+    const endTestBuckets = computed<EndTestBuckets>(() =>
+      computeEndTestBuckets(state.responses, endTestSummaryVariant.value === "omr")
+    );
 
     // Called on End-Test click. Forms keep their own confirmation (in SinglePageModal)
     // and an already-ended quiz just reopens the scorecard, so both bypass the modal.
@@ -1032,9 +1037,30 @@ export default defineComponent({
       state.showEndTestSummary = false;
     }
 
+    // Time is up: submit straight away, without asking for confirmation.
+    function endTestByTime() {
+      state.showEndTestSummary = false;
+      endTest();
+    }
+
+    // Several paths can end the test at almost the same moment (the countdown hitting
+    // zero, the heartbeat seeing time_remaining == 0, "Yes" in the summary modal).
+    // Only the first one submits; the others are ignored while it is in flight.
+    let isEndTestInFlight = false;
     async function endTest() {
+      if (isEndTestInFlight) return;
+      isEndTestInFlight = true;
+      try {
+        await submitEndTest();
+      } finally {
+        isEndTestInFlight = false;
+      }
+    }
+
+    async function submitEndTest() {
       if (state.hasQuizEnded) {
         state.currentQuestionIndex = numQuestions.value;
+        state.showEndTestSummary = false;
         state.isScorecardShown = true;
         return;
       }
@@ -1127,6 +1153,7 @@ export default defineComponent({
         }
       }
 
+      state.showEndTestSummary = false;
       state.isScorecardShown = true;
       state.isComputingScore = false;
       state.isSessionAnswerRequestProcessing = false;
@@ -1433,6 +1460,7 @@ export default defineComponent({
       goToPreviousQuestion,
       endTest,
       requestEndTest,
+      endTestByTime,
       onEndTestConfirm,
       endTestBuckets,
       endTestSummaryVariant,

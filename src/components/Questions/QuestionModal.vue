@@ -515,14 +515,16 @@ To attempt Q.${props.currentQuestionIndex + 1}, unselect an answer to another qu
 
     function endTest() {
       // Confirmation is now handled by the EndTestSummaryModal (in Player.vue);
-      // just forward the request.
+      // close the palette so it can't cover the modal, then forward the request.
+      state.isPaletteVisible = false;
       context.emit("end-test")
     }
 
     function endTestByTime() {
-      // same function as above -- can update later for new feature
+      // time is up: submit without asking, so this must not go through the summary modal
       if (!props.hasQuizEnded && isQuizAssessment.value) {
-        context.emit("end-test")
+        state.isPaletteVisible = false;
+        context.emit("end-test-by-time")
       }
     }
 
@@ -718,6 +720,7 @@ To attempt Q.${props.currentQuestionIndex + 1}, unselect an answer to another qu
     "update:previousResponse",
     "submit-question",
     "end-test",
+    "end-test-by-time",
     "fetch-question-bucket",
     "test-warning-shown",
     "test-optional-warning-shown",

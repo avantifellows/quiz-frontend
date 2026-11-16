@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="show"
-    class="fixed inset-0 z-40 flex items-center justify-center bg-black/50 p-4"
+    class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
     role="dialog"
     aria-modal="true"
     data-test="endTestSummaryModal"
@@ -51,6 +51,15 @@
           </span>
         </div>
       </div>
+
+      <!-- "Choose N of M" quizzes: the tiles count every question, but only N can be attempted -->
+      <p
+        v-if="showAttemptLimit"
+        class="text-center text-sm font-semibold text-gray-600 -mt-2 mb-6"
+        data-test="summaryAttemptLimit"
+      >
+        {{ $t("endTestSummary.attemptLimit", { count: maxQuestionsAllowedToAttempt }) }}
+      </p>
 
       <hr class="border-gray-200" />
 
@@ -113,6 +122,10 @@ export default defineComponent({
     buckets: {
       type: Object as PropType<EndTestBuckets>,
       required: true
+    },
+    maxQuestionsAllowedToAttempt: {
+      type: Number,
+      default: 0
     },
     isProcessing: {
       type: Boolean,
@@ -188,7 +201,13 @@ export default defineComponent({
       return [total, answered, notAnswered, markedForReview, notVisited];
     });
 
-    return { title, confirmText, stats };
+    const showAttemptLimit = computed(
+      () =>
+        props.maxQuestionsAllowedToAttempt > 0 &&
+        props.maxQuestionsAllowedToAttempt < props.buckets.total
+    );
+
+    return { title, confirmText, stats, showAttemptLimit };
   }
 });
 </script>

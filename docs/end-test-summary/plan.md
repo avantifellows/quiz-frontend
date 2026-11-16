@@ -1,6 +1,6 @@
 # End-Test Summary — Plan
 
-## State (as of 2026-10-12)
+## State (as of 2026-11-17)
 - Branch: `feat/end-test-summary` (created from local `main` @ 17c7e4b).
 - All changes **staged but NOT committed** — user wants to test manually before any commit.
 - `main` is clean. `origin/main` is **19 commits ahead** of local `main`.
@@ -18,8 +18,20 @@
 - `SinglePageModal.vue`: toast gate kept for `form` only.
 - Tests: `Utilities.spec.ts` (4), `EndTestSummaryModal.spec.ts` (7). Full suite 178 pass,
   lint clean, build 0 errors.
+- UI audit (2026-11-16) found 6 issues in this feature (report E1–E6,
+  https://claude.ai/artifact/1CZBH7UWnceFHvd7HdoSTf). Fixed 2026-11-17, unstaged on top
+  of the staged work:
+  - E1 time-up bypasses summary (D8); double-submit guard (D9).
+  - E2 summary closes whenever the scorecard shows.
+  - E3 palette closes on End Test / time-up.
+  - E4 modal `z-[60]`, above header/palette/footer.
+  - E5 OMR Not Answered = Total − Answered (D5).
+  - E6 attempt-limit line (D10), en + hi.
+  - +4 tests; full suite 182 pass, lint clean, build ok.
 
 ## IN PROGRESS
+- User re-testing the E1–E6 fixes (local Mongo; quiz 6a8439725a5f2a69e8b72fb1 reset for
+  dev_1/dev_2; quizzes have a 200 s limit, so timeouts reproduce in ~3.5 min).
 - Manual testing by user, two ways:
   1. Local backend + frontend against **local Mongo** (user has local org key + quizzes).
      Backend: `export MONGO_AUTH_CREDENTIALS="mongodb://127.0.0.1:27017"; export
@@ -42,10 +54,6 @@
    - full test suite, lint, build.
 4. Open PR only when user asks.
 
-## OPEN QUESTION (user to decide)
-- Summary "Total" = `state.responses.length` (all questions) so buckets always sum.
-  Old toast showed `maxQuestionsAllowedToAttempt` (sum of per-set attemptable). They
-  differ only for "choose N of M" quizzes. Keep current, or reconcile differently?
 
 ## BLOCKED
 - None.

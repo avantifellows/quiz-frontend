@@ -77,4 +77,22 @@ describe("computeEndTestBuckets", () => {
     ];
     expect(computeEndTestBuckets(responses).answered).toBe(1);
   });
+
+  it("counts untouched OMR questions as not answered instead of hiding them", () => {
+    // OMR leaves untouched questions with visited=false; the OMR summary has no
+    // "not visited" column, so they must show up under "not answered".
+    const responses: SubmittedResponse[] = [
+      makeResponse({ answer: [1], visited: true }),
+      makeResponse({ answer: null, visited: true }),
+      makeResponse({ answer: null, visited: false }),
+      makeResponse({ answer: null, visited: false })
+    ];
+    expect(computeEndTestBuckets(responses, true)).toEqual({
+      total: 4,
+      answered: 1,
+      notAnswered: 3,
+      markedForReview: 0,
+      notVisited: 0
+    });
+  });
 });

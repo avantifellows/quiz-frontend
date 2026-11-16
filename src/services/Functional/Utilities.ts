@@ -9,9 +9,18 @@ const isEqual = require("deep-eql");
  * "marked_for_review" never overlap, and "not answered" is derived as the
  * remainder so the invariant holds by construction.
  */
-export function computeEndTestBuckets(responses: SubmittedResponse[]): EndTestBuckets {
+export function computeEndTestBuckets(
+  responses: SubmittedResponse[],
+  isOmr = false
+): EndTestBuckets {
   const total = responses.length;
   const answered = responses.filter((response) => response.answer != null).length;
+  // OMR shows only total / answered / not answered, and a question there stays
+  // "not visited" until it is touched, so every unanswered question must land in
+  // notAnswered or it would be hidden from the summary.
+  if (isOmr) {
+    return { total, answered, notAnswered: total - answered, markedForReview: 0, notVisited: 0 };
+  }
   const markedForReview = responses.filter((response) => response.marked_for_review).length;
   const notVisited = responses.filter((response) => !response.visited).length;
   const notAnswered = total - answered - markedForReview - notVisited;

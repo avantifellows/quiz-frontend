@@ -23,9 +23,12 @@ state is unreachable in this product.
 the summary to the state language students already saw.
 
 ### D5 — OMR shows only Total / Answered / Not Answered
-**Decision:** OMR variant drops Marked-for-Review and Not-Visited.
-**Rationale:** OMR forces `marked_for_review=false` (`Player.vue:973`) and shows all
-questions at once, so "not visited" isn't meaningful.
+**Decision:** OMR variant drops Marked-for-Review and Not-Visited, and computes
+Not Answered = Total − Answered.
+**Rationale:** OMR forces `marked_for_review=false` and shows all questions at once, so
+"not visited" isn't meaningful to the student. But OMR still leaves untouched questions
+with `visited=false`, so the generic formula would put them in the hidden Not-Visited
+bucket; the OMR formula keeps them visible.
 
 ### D6 — Forms unchanged
 **Decision:** Keep the existing SinglePageModal toast two-click gate for `form`.
@@ -34,3 +37,26 @@ questions at once, so "not visited" isn't meaningful.
 ### D7 — Homework = same buckets, neutral wording
 **Decision:** Same 5 buckets as assessment, titled "Summary", softer confirm copy.
 **Rationale:** Consistency; homework still has visited/review/answered states.
+
+### D8 — Time-up submits without the summary
+**Decision:** The countdown reaching zero emits `end-test-by-time`, which calls
+`Player.endTest()` directly (closing the summary and palette). Only a student's End Test
+click goes through the summary. No "time's up" message for now.
+**Rationale:** Matches `main`: a timed test is submitted the moment time runs out.
+Routing time-up through the summary let students keep working after zero.
+**Consequences:** Every path that shows the scorecard also closes the summary.
+
+### D9 — Ignore concurrent end-test calls
+**Decision:** `endTest()` is a thin wrapper with an in-flight flag; calls made while a
+submission is running return immediately.
+**Rationale:** Countdown, heartbeat (`time_remaining == 0`) and "Yes" can fire together.
+A second call can't change the score (backend keeps existing metrics), but its answer
+write can get a 409 and show a false "poor connection" error, and it rewrites
+`end_quiz_time`. A local flag is enough; `isSessionAnswerRequestProcessing` is not
+used because answer saves also set it and would block a time-up submit.
+
+### D10 — "Choose N of M": keep total, add attempt-limit line
+**Decision:** Tiles keep counting every question (so they sum and match the palette); a
+line "You can attempt up to N questions." appears when N < total.
+**Rationale:** Splash, the old toast and the scorecard all use N; the palette uses M.
+**Alternatives:** Show N as total (tiles stop summing); rename tile only.

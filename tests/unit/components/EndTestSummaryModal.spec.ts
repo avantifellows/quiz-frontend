@@ -77,6 +77,20 @@ describe("EndTestSummaryModal", () => {
     expect(wrapper.emitted()).toHaveProperty("cancel");
   });
 
+  it("shows the attempt limit only when it is below the total", () => {
+    const limited = mount(EndTestSummaryModal, {
+      props: { show: true, variant: "exam", buckets, maxQuestionsAllowedToAttempt: 37 }
+    });
+    expect(limited.find('[data-test="summaryAttemptLimit"]').text()).toBe(
+      "You can attempt up to 37 questions."
+    );
+
+    const unlimited = mount(EndTestSummaryModal, {
+      props: { show: true, variant: "exam", buckets, maxQuestionsAllowedToAttempt: buckets.total }
+    });
+    expect(unlimited.find('[data-test="summaryAttemptLimit"]').exists()).toBe(false);
+  });
+
   it("disables the buttons while processing", () => {
     const wrapper = mount(EndTestSummaryModal, {
       props: { show: true, variant: "exam", buckets, isProcessing: true }
