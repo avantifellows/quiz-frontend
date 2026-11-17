@@ -188,9 +188,9 @@ describe("Player for Assessment Timed quizzes", () => {
           .get('[data-test="endTestButton"]')
           .trigger("click");
 
-        // click again since endTest button protected by additional click
+        // confirm in the end-test summary
         cy.get('[data-test="modal"]')
-          .get('[data-test="endTestButton"]')
+          .get('[data-test="summaryYesButton"]')
           .trigger("click");
 
         // wait for END_QUIZ patch to be called

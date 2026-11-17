@@ -157,4 +157,24 @@ describe('InstructionPage', () => {
       expect(wrapper.find(`[data-test="questionSetTitle-${questionSetIndex}"]`).text()).toBe("Maths - Set 1");
     });
   });
+
+  describe("duration", () => {
+    const durationText = (max: number) =>
+      mount(InstructionPage, {
+        props: {
+          title: "Geometry Quiz",
+          quizType: "assessment",
+          quizTimeLimit: { min: 0, max },
+          questionSetStates: [],
+        },
+      }).find('[data-test="quiz-time-limit"]').text();
+
+    it("shows whole minutes and leftover seconds instead of a fraction", () => {
+      expect(durationText(10800)).toBe("180 minutes");
+      expect(durationText(200)).toBe("3 minutes 20 seconds");
+      expect(durationText(60)).toBe("1 minute");
+      expect(durationText(45)).toBe("45 seconds");
+      expect(durationText(61)).toBe("1 minute 1 second");
+    });
+  });
 });

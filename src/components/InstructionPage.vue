@@ -21,7 +21,7 @@
       <tr>
         <th class="border-black border-1 text-left px-4 py-2">Duration</th>
         <td class="border-black border-1 px-4 py-2" data-test="quiz-time-limit">
-          {{ ($props.quizTimeLimit?.max || 0) / 60 }} minutes
+          {{ formattedDuration }}
         </td>
       </tr>
       <!-- row 4 -->
@@ -214,6 +214,19 @@ export default defineComponent({
       currentLocale: locale.value,
     });
     const isTestFST = computed(() => props.testFormat == "full_syllabus_test");
+    /**
+     * time_limit.max is in seconds; show whole minutes plus any leftover seconds
+     * (e.g. 200 -> "3 minutes 20 seconds", not "3.3333333333333335 minutes")
+     */
+    const formattedDuration = computed(() => {
+      const totalSeconds = Math.round(props.quizTimeLimit?.max || 0);
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      const unit = (value: number, name: string) => `${value} ${name}${value == 1 ? "" : "s"}`;
+      if (seconds == 0) return unit(minutes, "minute");
+      if (minutes == 0) return unit(seconds, "second");
+      return `${unit(minutes, "minute")} ${unit(seconds, "second")}`;
+    });
 
     // to extract the questionSetTitles from questionSets (eg. Physics - Section A)
     const questionSetTitles = computed(() => {
@@ -277,6 +290,7 @@ export default defineComponent({
     };
 
     return {
+      formattedDuration,
       isTestFST,
       questionSetTitles,
       subjectNames,

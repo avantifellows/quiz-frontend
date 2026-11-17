@@ -239,10 +239,8 @@ describe("Player for Assessment quizzes", () => {
           .find('[data-test="endTestButton"]')
           .click();
 
-        // Additional check to ensure the button click was successful
-        cy.get('[data-test="modal"]')
-          .find('[data-test="endTestButton"]')
-          .click();
+        // confirm in the end-test summary
+        cy.get('[data-test="summaryYesButton"]').click();
 
         // Wait for the scorecard to become visible
         cy.get('[data-test="scorecard"]').should("be.visible");

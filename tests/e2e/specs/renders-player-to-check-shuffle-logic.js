@@ -60,7 +60,7 @@ describe("Player for Assessment quizzes", () => {
       it("Checking if the palette displays question indices in the correct order", () => {
         cy.get('[data-test="togglePaletteButton"]').trigger("click");
         for (let i = 0; i < 24; i++) {
-          cy.get(`[data-test="paletteItem-${i}"]`).should(
+          cy.get(`[data-test="paletteItem-${i}"] [data-test="index"]`).should(
             "have.text",
             `${i + 1}`
           );

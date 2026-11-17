@@ -249,9 +249,9 @@ describe("Player for Assessment quizzes", () => {
           .get('[data-test="endTestButton"]')
           .trigger("click");
 
-        // additional click to protect endTest button
+        // confirm in the end-test summary
         cy.get('[data-test="modal"]')
-          .get('[data-test="endTestButton"]')
+          .get('[data-test="summaryYesButton"]')
           .trigger("click");
 
         // number of skipped questions shown in scorecard
@@ -267,8 +267,8 @@ describe("Player for Assessment quizzes", () => {
             .trigger("click");
 
           cy.get('[data-test="modal"]')
-            .get('[data-test="endTestButton"]')
-            .trigger("click"); // additional click to protect endTest button
+            .get('[data-test="summaryYesButton"]')
+            .trigger("click"); // confirm in the end-test summary
         });
 
         it("shows scorecard upon selecting End Test", () => {
@@ -311,14 +311,16 @@ describe("Player for Assessment quizzes", () => {
 
         it("moves to question when clicking on item on question palette", () => {
           // index for the item corresponding to question 1 should be highlighted
-          cy.get('[data-test="questionPalette"]')
-            .get('[data-test="paletteItem-0"]')
-            .get('[data-test="index"]')
-            .should("have.class", "bg-yellow-200");
-
-          cy.get('[data-test="paletteItem-2"]')
-            .get('[data-test="index"]')
-            .should("have.class", "bg-gray-200");
+          cy.get('[data-test="questionPalette"]').should("exist");
+          cy.get('[data-test="paletteItem-0"]').should(
+            "have.attr",
+            "aria-current",
+            "true"
+          );
+          cy.get('[data-test="paletteItem-2"]').should(
+            "not.have.attr",
+            "aria-current"
+          );
 
           // click the 3rd item in the question palette
           cy.get('[data-test="paletteItem-2"]').trigger("click");
@@ -330,13 +332,15 @@ describe("Player for Assessment quizzes", () => {
           cy.get('[data-test="togglePaletteButton"]').trigger("click");
 
           // index for the item corresponding to question 3 should be highlighted
-          cy.get('[data-test="paletteItem-0"]')
-            .get('[data-test="index"]')
-            .should("have.class", "bg-gray-200");
-
-          cy.get('[data-test="paletteItem-2"]')
-            .get('[data-test="index"]')
-            .should("have.class", "bg-yellow-200");
+          cy.get('[data-test="paletteItem-0"]').should(
+            "not.have.attr",
+            "aria-current"
+          );
+          cy.get('[data-test="paletteItem-2"]').should(
+            "have.attr",
+            "aria-current",
+            "true"
+          );
 
           // check if question_set subset pattern is working well
           cy.intercept("GET", "/questions/*", {
@@ -355,9 +359,11 @@ describe("Player for Assessment quizzes", () => {
           cy.get('[data-test="togglePaletteButton"]').trigger("click");
 
           // index for the item corresponding to the last question should be highlighted
-          cy.get('[data-test="paletteItem-22"]')
-            .get('[data-test="index"]')
-            .should("have.class", "bg-gray-200");
+          cy.get('[data-test="paletteItem-22"]').should(
+            "have.attr",
+            "aria-current",
+            "true"
+          );
         });
       });
 
@@ -487,9 +493,9 @@ describe("Player for Assessment quizzes", () => {
             .get('[data-test="endTestButton"]')
             .trigger("click");
 
-          // additional click to protect endTest button
+          // confirm in the end-test summary
           cy.get('[data-test="modal"]')
-            .get('[data-test="endTestButton"]')
+            .get('[data-test="summaryYesButton"]')
             .trigger("click");
 
           cy.get('[data-test="scorecard"]')

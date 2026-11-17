@@ -39,7 +39,7 @@
     Tried and reverted at the user's request: two-row phone bottom bar; window-based
     image layout (it also changed the scorecard). Skipped by user: Q2 Hindi labels,
     Q6 confetti, Q8 toast position.
-  - Scorecard review (2026-11-17), uncommitted, awaiting user test: S1 See Answers same
+  - Scorecard review (2026-11-17), committed 124ea78: S1 See Answers same
     size as Share; S2/S3 section table is a real auto-layout `<table>` (index.css forces
     `table-layout: fixed`), short headings, % in heading, max 1 decimal; S4 metric cards in
     one row on phone; S5 all columns shown (no `isScreenPortrait` gate); S6 one emoji
@@ -48,8 +48,11 @@
     overlap the question bar; no guard added (not requested).
   - Homework has no End Test button, so the summary's homework variant was removed (D7).
 
+- PR #250 opened 2026-11-17 (https://github.com/avantifellows/quiz-frontend/pull/250).
+  Screenshots live on orphan branch `pr-assets/end-test-summary`; keep it until merged.
+
 ## NEXT
-1. Push / open PR when the user asks.
+1. Address PR review comments; delete `pr-assets/end-test-summary` after merge.
 2. `npm install` locally (main moved Cypress 9 → 12) before running E2E.
 
 ## BLOCKED
