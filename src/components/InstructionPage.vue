@@ -100,7 +100,7 @@
         </li>
         <li v-if="!isOmrMode">
           {{ $t("generalInstructions.paletteSymbols") }}
-          <div class="grid md:grid-cols-2 md:gap-x-4 mx-2 md:mx-4 my-2">
+          <div class="grid mx-2 md:mx-4 my-2">
             <div class="flex items-center my-2 md:mx-4">
               <Success></Success>
               <span class="ml-6 mr-6">{{ $t("generalInstructions.answered") }}</span>
