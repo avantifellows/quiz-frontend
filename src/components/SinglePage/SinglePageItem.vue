@@ -566,10 +566,10 @@
 
     <!-- Bubble/OMR mode layout (original) -->
     <div v-else class="flex flex-row w-full">
-      <!-- question number and type information-->
-      <div class="basis-3/12">
+      <!-- question number; a fixed-width column on wider screens so it sits next to its options -->
+      <div class="basis-3/12 md:basis-auto md:w-28 shrink-0">
         <p
-          :class="questionHeaderTextClass"
+          :class="omrQuestionLabelClass"
           data-test="question-header-text"
           v-html="questionHeaderText"
         ></p>
@@ -1137,6 +1137,9 @@ export default defineComponent({
       disabledOptionClass: "bg-gray-200",
       questionHeaderTextClass:
         "text-lg md:text-xl lg:text-2xl mx-2 md:mx-10 py-6 text-center leading-tight whitespace-pre-wrap",
+      // OMR rows: the label sits right next to its options on wider screens
+      omrQuestionLabelClass:
+        "text-lg md:text-xl lg:text-2xl mx-2 py-6 text-center md:text-right leading-tight whitespace-pre-wrap",
       questionTextClass:
         "text-lg md:text-xl lg:text-2xl mx-4 mt-6 m-2 font-bold leading-tight whitespace-pre-wrap",
       optionTextClass:
@@ -1799,7 +1802,7 @@ export default defineComponent({
           (isAnswerSubmitted.value && !props.isGradedQuestion) ||
           (isQuizAssessment.value && !props.hasQuizEnded),
       },
-      "h-12 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed",
+      "h-16 bp-500:h-12 resize-none overflow-hidden px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed",
     ]);
 
     /**

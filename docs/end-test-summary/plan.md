@@ -1,6 +1,6 @@
 # End-Test Summary — Plan
 
-## State (as of 2026-11-17, evening)
+## State (as of 2026-11-18)
 - Branch: `feat/end-test-summary` (created from local `main` @ 17c7e4b).
 - Committed: feature (84007ab), Group 1 fixes (f06eb14), merge of origin/main (811e184).
   Branch is level with origin/main; not pushed.
@@ -30,25 +30,20 @@
   - +4 tests; full suite 182 pass, lint clean, build ok.
 
 ## IN PROGRESS
-- UI audit fixes on this branch, one report group at a time (user decides each).
-  - Group 2 (instructions page) committed (f575d4d).
-  - Group 3 (palette) built, uncommitted, awaiting user's visual check: 44px tiles with
-    the number inside + dark outline for current; review mode adds a corner result badge
-    (user may revisit); filled/outlined Palette|Instructions toggle (hidden in OMR); compact
-    legend, no counts (user's call); auto-fill grid; backdrop + close button; palette
-    width `max-w-md` (sm: breakpoint bug, see Q9); en/hi strings. Deferred: pinned
-    section headings.
-  - New finding Q9: `sm:` overrides md/lg/xl app-wide (tailwind screens order). Needs
-    the user's decision; not fixed.
-  - Next: Group 4.
-- Merge resolution: summary modal now closes from a `hasQuizEnded` watcher (covers
-  main's 409 "already ended" and survey-redirect paths). Verified in-app.
+- UI audit fixes, all on this branch (user's choice), one report group at a time.
+  - Group 2 (instructions) committed; legend later made one column (it is also shown
+    inside the 448px palette, where two columns squeezed the text).
+  - Group 3 (palette) committed (7aaf8ec). Deferred: pinned section headings.
+  - Group 4: Q9 Tailwind screens order committed (4cf7d82). Q3 number box, Q4 no
+    "no data" + grey Previous, Q5 OMR label column, Q7 smaller splash art committed.
+    Tried and reverted at the user's request: two-row phone bottom bar; window-based
+    image layout (it also changed the scorecard). Skipped by user: Q2 Hindi labels,
+    Q6 confetti, Q8 toast position.
+  - Homework has no End Test button, so the summary's homework variant was removed (D7).
 
 ## NEXT
-1. Commit Group 3 when the user approves the screenshots.
-2. Groups 3–4 of the UI report.
-3. `npm install` locally (main moved Cypress 9 → 12) before running E2E.
-4. Open PR only when user asks.
+1. Push / open PR when the user asks.
+2. `npm install` locally (main moved Cypress 9 → 12) before running E2E.
 
 ## BLOCKED
 - None.

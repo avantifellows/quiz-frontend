@@ -1384,7 +1384,7 @@ export default defineComponent({
           (props.isAnswerSubmitted && !props.isGradedQuestion) ||
           (isQuizAssessment.value && !props.hasQuizEnded),
       },
-      "h-12 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed",
+      "h-16 bp-500:h-12 resize-none overflow-hidden px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed",
     ]);
 
     state.subjectiveAnswer = defaultSubjectiveAnswer.value;

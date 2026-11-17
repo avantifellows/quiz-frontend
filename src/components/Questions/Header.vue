@@ -53,22 +53,22 @@
     <div class="bg-gray-200 border-b border-gray-300 px-4 py-3">
       <!-- Mobile: Test Name (truncated) -->
       <div class="sm:hidden flex flex-col gap-2">
-        <h1 class="text-base font-semibold text-gray-800 truncate" data-test="test-name-mobile">
-          {{ $props.title || "no data" }}
+        <h1 v-if="$props.title" class="text-base font-semibold text-gray-800 truncate" data-test="test-name-mobile">
+          {{ $props.title }}
         </h1>
         <div class="flex items-center">
-          <div class="text-sm text-gray-700 font-semibold px-3 py-1.5 bg-gray-300 rounded inline-block" data-test="user-id-mobile">
-            Id: {{ displayUserId || "no data" }}
+          <div v-if="displayUserId" class="text-sm text-gray-700 font-semibold px-3 py-1.5 bg-gray-300 rounded inline-block" data-test="user-id-mobile">
+            Id: {{ displayUserId }}
           </div>
         </div>
       </div>
       <!-- Tablet+: Test Name and ID side by side (no truncate) -->
       <div class="hidden sm:flex sm:justify-between sm:items-center gap-4">
-        <h1 class="text-lg font-semibold text-gray-800 flex-1 break-words" data-test="test-name">
-          {{ $props.title || "no data" }}
+        <h1 v-if="$props.title" class="text-lg font-semibold text-gray-800 flex-1 break-words" data-test="test-name">
+          {{ $props.title }}
         </h1>
-        <div class="text-base text-gray-700 font-semibold whitespace-nowrap px-4 py-2 bg-gray-300 rounded" data-test="user-id">
-          Id: {{ displayUserId || "no data" }}
+        <div v-if="displayUserId" class="ml-auto text-base text-gray-700 font-semibold whitespace-nowrap px-4 py-2 bg-gray-300 rounded" data-test="user-id">
+          Id: {{ displayUserId }}
         </div>
       </div>
     </div>

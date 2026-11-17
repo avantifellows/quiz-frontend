@@ -25,12 +25,20 @@ describe("Basic tests on Header", () => {
     })
 
     it("testName is truncating or not", () => {
+      const wrapper = mount(Header, { props: { title: "Mock Test series 1" } });
       const testNameElement = wrapper.find('[data-test="test-name"]').text();
       const maxCharacterWidth = 12.6; // Maximum width in characters
       const expectedTruncatedText = testNameElement.slice(0, maxCharacterWidth) + '...'
       expect(expectedTruncatedText).toContain("...")
     })
   })
+
+  it("hides the title and ID instead of showing \"no data\" when they are missing", () => {
+    const wrapper = mount(Header);
+    expect(wrapper.find('[data-test="test-name"]').exists()).toBe(false);
+    expect(wrapper.find('[data-test="user-id"]').exists()).toBe(false);
+    expect(wrapper.text()).not.toContain("no data");
+  });
 
   it("emits end-test upon clicking End Test button", () => {
     wrapper.find('[data-test="endTestButton"]').trigger("click");

@@ -175,7 +175,7 @@ export default defineComponent({
         "text-xs bp-500:text-sm lg:text-base xl:text-lg font-bold",
       assessmentNavigationButtonClass: [
         {
-          "bg-yellow-500 hover:bg-yellow-600 ring-yellow-500 px-6 bp-500:px-8 rounded-2xl":
+          "bg-yellow-500 hover:bg-yellow-600 ring-yellow-500 px-6 bp-500:px-8 rounded-2xl disabled:bg-gray-300 disabled:hover:bg-gray-300":
             !isQuizAssessment.value || isFormQuiz.value,
           "bg-white hover:bg-gray-100 px-4 bp-500:px-6 rounded-lg sm:rounded-xl lg:rounded-2xl":
             isQuizAssessment.value && !isFormQuiz.value,
