@@ -1548,9 +1548,9 @@ export default defineComponent({
 
     const scorecardGreeting = computed(() => {
       if (isFormQuiz.value) {
-        return "Thank you for completing the questionnaire! 📝";
+        return "Thank you for completing the questionnaire!";
       }
-      return "Hooray! Congrats on completing the quiz! 🎉";
+      return "Hooray! Congrats on completing the quiz!";
     });
 
     /** Process the next step URL by replacing parameters */
