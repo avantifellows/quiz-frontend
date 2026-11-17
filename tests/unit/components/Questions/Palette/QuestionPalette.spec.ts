@@ -109,11 +109,6 @@ describe("QuestionPalette.vue", () => {
     expect(wrapper.find('[data-test="toggleInstructions"]').attributes("aria-pressed")).toBe("false");
   });
 
-  it("emits close from the close button", async () => {
-    await wrapper.find('[data-test="closePalette"]').trigger("click");
-    expect(wrapper.emitted()).toHaveProperty("close");
-  });
-
   it("shows instructions without the Palette/Instructions toggle in OMR mode", () => {
     const omr = mount(QuestionPalette, {
       props: { title: "OMR", subject: "Maths", numQuestions: 10, maxMarks: 100, isOmrMode: true },

@@ -61,7 +61,6 @@ const messages = {
     palette: {
       paletteTab: "Palette",
       instructionsTab: "Instructions",
-      close: "Close palette",
       answered: "Answered",
       notAnswered: "Not Answered",
       notVisited: "Not Visited",

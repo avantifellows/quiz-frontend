@@ -1,38 +1,27 @@
 <template>
   <div class="bg-white p-4 bp-500:p-6 overflow-auto">
-    <div class="flex items-center gap-3">
-      <!-- Palette / Instructions: the selected view is filled. OMR has only instructions. -->
-      <div
-        v-if="!isOmrMode"
-        class="flex flex-1 rounded-xl border-2 border-primary overflow-hidden"
-        role="group"
-      >
-        <button
-          :class="tabClass(showPaletteButton)"
-          :aria-pressed="showPaletteButton"
-          type="button"
-          @click="togglePalette"
-          data-test="togglePalette"
-        >{{ $t("palette.paletteTab") }}</button>
-        <button
-          :class="tabClass(showInstructionButton)"
-          :aria-pressed="showInstructionButton"
-          type="button"
-          @click="toggleInstructions"
-          data-test="toggleInstructions"
-        >{{ $t("palette.instructionsTab") }}</button>
-      </div>
+    <!-- Palette / Instructions: the selected view is filled. OMR has only instructions.
+         No close button: the header's menu button stays visible above the palette, and the
+         backdrop closes it on wider screens. -->
+    <div
+      v-if="!isOmrMode"
+      class="flex rounded-xl border-2 border-primary overflow-hidden"
+      role="group"
+    >
       <button
+        :class="tabClass(showPaletteButton)"
+        :aria-pressed="showPaletteButton"
         type="button"
-        class="ml-auto shrink-0 flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700"
-        :aria-label="$t('palette.close')"
-        @click="$emit('close')"
-        data-test="closePalette"
-      >
-        <svg class="w-5 h-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
-          <path d="M5 5l10 10M15 5L5 15" />
-        </svg>
-      </button>
+        @click="togglePalette"
+        data-test="togglePalette"
+      >{{ $t("palette.paletteTab") }}</button>
+      <button
+        :class="tabClass(showInstructionButton)"
+        :aria-pressed="showInstructionButton"
+        type="button"
+        @click="toggleInstructions"
+        data-test="toggleInstructions"
+      >{{ $t("palette.instructionsTab") }}</button>
     </div>
       <InstructionPage
       v-if="showInstructionButton"
@@ -219,7 +208,7 @@ export default defineComponent({
       legendKeys
     };
   },
-  emits: ["navigate", "close"],
+  emits: ["navigate"],
 });
 </script>
 

@@ -2,7 +2,7 @@
   <div class="flex flex-col justify-center h-full" >
     <BaseIcon
       name="splash"
-      iconClass="w-11/12 bp-500:w-9/12 md:w-6/12 lg:w-4/12 xl:w-3/12 mt-24 sm:mt-16 lg:mt-8 place-self-center"
+      iconClass="w-11/12 bp-500:w-9/12 md:w-6/12 lg:w-5/12 mt-24 sm:mt-16 place-self-center"
     />
     <div
       class="bg-primary flex flex-col space-y-16 bp-360:space-y-14 bp-420:space-y-10 lg:space-y-12 items-center rounded-2xl py-12 bp-500:py-10 md:py-11 lg:py-12"

@@ -132,7 +132,6 @@
       :maxMarks="maxMarks" :numQuestions="numQuestions" :quizTimeLimit="quizTimeLimit" :isOmrMode=true
       class="fixed left-0 top-20 h-[calc(100vh-5rem)] w-full max-w-md z-50 bg-white overflow-y-auto"
       @navigate="navigateToQuestion"
-      @close="isPaletteVisible = false"
       data-test="questionPalette">
     </QuestionPalette>
   </div>

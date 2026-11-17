@@ -121,7 +121,7 @@
               data-test="qset-table"
             >
               <!-- table-auto: index.css makes every table fixed-layout (equal columns) -->
-              <table class="w-full table-auto border-collapse text-xs bp-360:text-sm sm:text-base text-gray-800">
+              <table class="w-full table-auto border-collapse text-xs sm:text-sm md:text-base text-gray-800">
                 <thead>
                   <tr class="border-0 border-b-2 border-solid border-gray-400">
                     <th :class="[tableCellClass, 'text-left font-bold align-bottom break-normal']">Section</th>
@@ -379,7 +379,7 @@ export default defineComponent({
         "flex justify-center bg-back-color hover:bg-primary-hover px-6 py-3 rounded-2xl md:rounded-xl shadow-xl cursor-pointer disabled:opacity-50 disabled:pointer-events-none",
       shareButtonClass:
         "flex justify-center bg-emerald-500 hover:bg-emerald-600 px-6 py-3 rounded-2xl md:rounded-xl shadow-xl cursor-pointer",
-      tableCellClass: "px-1 bp-360:px-2 sm:px-4 py-2",
+      tableCellClass: "px-1 bp-360:px-1.5 sm:px-2 md:px-4 py-2",
       isPortrait: true,
       isMobileLandscape: false, // whether the screen corresponds to a mobile screen in landscape mode
       confettiHandler,
