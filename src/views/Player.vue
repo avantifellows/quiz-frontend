@@ -1180,10 +1180,10 @@ export default defineComponent({
       state.currentQuestionIndex = numQuestions.value;
     }
 
-    // exam: full columns; homework: full columns + neutral wording;
-    // omr: reduced columns (no marked-for-review / not-visited).
+    // exam: full columns; omr: reduced columns (no marked-for-review / not-visited).
+    // Homework never reaches the summary: it has no End Test button and ends itself
+    // after the last question.
     const endTestSummaryVariant = computed<EndTestSummaryVariant>(() => {
-      if (state.metadata.quiz_type === "homework") return "homework";
       if (isOmrMode.value || props.singlePageMode) return "omr";
       return "exam";
     });

@@ -24,7 +24,7 @@
         <div
           v-for="stat in stats"
           :key="stat.key"
-          class="flex flex-col items-center px-6 text-center"
+          class="flex flex-col items-center justify-between px-6 text-center"
         >
           <span class="text-sm font-semibold text-gray-500 leading-tight">
             {{ stat.label }}
@@ -136,17 +136,8 @@ export default defineComponent({
   setup(props) {
     const { t } = useI18n();
 
-    const title = computed(() =>
-      props.variant === "homework"
-        ? t("endTestSummary.summaryTitle")
-        : t("endTestSummary.examTitle")
-    );
-
-    const confirmText = computed(() =>
-      props.variant === "homework"
-        ? t("endTestSummary.confirmHomework")
-        : t("endTestSummary.confirmExam")
-    );
+    const title = computed(() => t("endTestSummary.examTitle"));
+    const confirmText = computed(() => t("endTestSummary.confirmExam"));
 
     // Reused palette colours: answered=emerald, notAnswered=red,
     // markedForReview=violet, notVisited=gray.

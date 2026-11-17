@@ -35,7 +35,7 @@ header `z-20` < palette, footer `z-50` < summary modal `z-[60]` < toasts.
 ## New component: `src/components/EndTestSummaryModal.vue`
 Props:
 - `show: boolean`
-- `variant: 'exam' | 'homework' | 'omr'` — controls title, columns, confirm copy
+- `variant: 'exam' | 'omr'` — controls the columns (homework never shows the summary, D7)
 - `buckets: { total, answered, notAnswered, markedForReview, notVisited }`
 - `maxQuestionsAllowedToAttempt: number` — shows "You can attempt up to N questions."
   when N < total (D10)

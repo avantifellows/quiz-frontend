@@ -29,7 +29,7 @@ These mirror the existing palette states (`neutral`/`success`/`review`/`error`,
 | Quiz type | Confirmation UI | Columns |
 |---|---|---|
 | assessment (normal mode) | New **Exam Summary** modal | Full 5-bucket |
-| homework (normal mode) | New **Summary** modal (neutral wording) | Full 5-bucket |
+| homework | **Unchanged** — no End Test button; ends itself after the last question | n/a |
 | omr-assessment | New **Exam Summary** modal | Total / Answered / Not Answered only |
 | form | **Unchanged** — keep existing toast two-click gate | n/a |
 
@@ -41,11 +41,10 @@ These mirror the existing palette states (`neutral`/`success`/`review`/`error`,
 - **Copy:**
   - assessment/omr: "Are you sure you want to submit for final marking? No changes will be
     allowed after submission."
-  - homework: softer, e.g. "Submit your answers? You won't be able to change them after."
 - **OMR** drops Marked-for-Review (unsupported) and Not-Visited (all questions shown at once).
 
 ## Success criteria
-- Every End-Test click (assessment/homework/omr) shows the modal — no more one-time gate.
+- Every End-Test click (assessment/omr) shows the modal — no more one-time gate.
 - Buckets always sum to total (unit-tested).
 - Modal is fully usable on smallest supported breakpoint (`bp-320`, 320px).
 - English + Hindi strings via existing i18n.

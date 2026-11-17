@@ -1,7 +1,7 @@
 # End-Test Summary — Decisions
 
 ### D1 — Replace the toast gate, don't stack on it
-**Decision:** The new modal replaces the two-click toast gate for assessment/homework/omr.
+**Decision:** The new modal replaces the two-click toast gate for assessment/omr.
 `hasEndTestBeenClickedOnce` is removed from those paths.
 **Rationale:** The gate never re-arms, so later clicks submit unconfirmed. A modal every
 time is both safer and simpler.
@@ -34,9 +34,12 @@ bucket; the OMR formula keeps them visible.
 **Decision:** Keep the existing SinglePageModal toast two-click gate for `form`.
 **Rationale:** Explicit user instruction; forms have no marking/exam semantics.
 
-### D7 — Homework = same buckets, neutral wording
-**Decision:** Same 5 buckets as assessment, titled "Summary", softer confirm copy.
-**Rationale:** Consistency; homework still has visited/review/answered states.
+### D7 — No summary for homework
+**Decision:** Homework keeps its existing flow; the summary has no homework variant.
+**Rationale:** Homework has no header, so no End Test button and no palette; it ends
+itself after the last question (`Player.vue` question-index watcher). A homework variant
+could never be shown. Found during manual testing.
+**Alternatives:** Add an End Test button to homework — a product change for the team.
 
 ### D8 — Time-up submits without the summary
 **Decision:** The countdown reaching zero emits `end-test-by-time`, which calls

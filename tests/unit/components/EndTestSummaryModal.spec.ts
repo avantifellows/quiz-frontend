@@ -41,11 +41,6 @@ describe("EndTestSummaryModal", () => {
     ]);
   });
 
-  it("renders all five buckets for the homework variant", () => {
-    const wrapper = mountModal("homework");
-    expect(wrapper.vm.stats).toHaveLength(5);
-  });
-
   it("renders only total/answered/notAnswered for the omr variant", () => {
     const wrapper = mountModal("omr");
     expect(wrapper.vm.stats.map((s: { key: string }) => s.key)).toEqual([

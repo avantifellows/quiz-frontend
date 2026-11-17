@@ -388,4 +388,4 @@ export interface EndTestBuckets {
   notVisited: number;
 }
 
-export type EndTestSummaryVariant = "exam" | "homework" | "omr";
+export type EndTestSummaryVariant = "exam" | "omr";
