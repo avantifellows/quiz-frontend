@@ -140,9 +140,10 @@ describe("Player for Assessment Timed quizzes", () => {
 
       it("countdown timer background should be gray when time remaining more than warning time", () => {
         // warning time limit is 3 minutes (180 seconds)
+        // normal style: soft grey tint
         cy.get(`[data-test="countdownTimer"`).should(
           "have.class",
-          "bg-gray-500"
+          "bg-gray-100"
         );
       });
 
