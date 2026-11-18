@@ -1,77 +1,47 @@
 <template>
-  <div class="fixed top-0 left-0 w-full z-20">
-    <!-- Main Header Bar -->
-    <div class="flex w-full justify-between items-center bg-gray-200 p-4">
-      <!-- Left: Hamburger -->
-      <div class="flex items-center">
-        <icon-button
-          :iconConfig="togglePaletteButtonIconConfig"
-          :buttonClass="togglePaletteButtonClass"
-          :isDisabled="isSessionAnswerRequestProcessing"
-          @click="togglePalette"
-          data-test="togglePaletteButton"
-        ></icon-button>
-      </div>
+  <!-- One fixed row: menu | centred timer | End Test. 52px on phones, 60px from lg.
+       QuestionModal, SinglePageModal and the palette are offset by this height.
+       The test name and ID are in a context strip at the top of the question area. -->
+  <div
+    class="fixed top-0 left-0 w-full z-20 flex items-center gap-2 lg:gap-3 h-[52px] lg:h-[60px] px-3 lg:px-6 bg-white border-b border-gray-200"
+  >
+    <icon-button
+      :iconConfig="togglePaletteButtonIconConfig"
+      :buttonClass="togglePaletteButtonClass"
+      :isDisabled="isSessionAnswerRequestProcessing"
+      @click="togglePalette"
+      data-test="togglePaletteButton"
+    ></icon-button>
 
-      <!-- Right: Controls -->
-      <div class="flex items-center gap-3">
-        <!-- toggle omr button -->
-        <icon-button
-          v-if="shouldShowOmrToggle"
-          :titleConfig="toggleButtonTextConfig"
-          :iconConfig="toggleButtonIconConfig"
-          :buttonClass="toggleButtonIconClass"
-          class="rounded-2xl shadow-lg"
-          data-test="toggleOmrMode"
-          @click="toggleOmrMode"
-        ></icon-button>
-        <div
-          v-if="showTimer"
-          class="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:gap-3"
-        >
-          <icon-button
-            v-if="showTimer"
-            :titleConfig="countdownTimerTitleConfig"
-            :buttonClass="countdownTimerClass"
-            data-test="countdownTimer"
-          ></icon-button>
-        </div>
-
-        <!-- end-test button -->
-        <icon-button
-          :titleConfig="endTestButtonTitleConfig"
-          :buttonClass="endTestButtonClass"
-          :iconConfig="endTestButtonIconConfig"
-          :isDisabled="isSessionAnswerRequestProcessing"
-          @click="endTest"
-          data-test="endTestButton"
-        ></icon-button>
-      </div>
+    <!-- centre slot: the countdown -->
+    <div class="flex-1 min-w-0 flex justify-center">
+      <!-- toggle omr button -->
+      <icon-button
+        v-if="shouldShowOmrToggle"
+        :titleConfig="toggleButtonTextConfig"
+        :iconConfig="toggleButtonIconConfig"
+        :buttonClass="toggleButtonIconClass"
+        class="rounded-2xl shadow-lg"
+        data-test="toggleOmrMode"
+        @click="toggleOmrMode"
+      ></icon-button>
+      <div
+        v-if="showTimer"
+        :class="countdownTimerClass"
+        role="timer"
+        data-test="countdownTimer"
+      >{{ countdownTimerText }}</div>
     </div>
 
-    <!-- Info Bar: Test Name and User ID (stacked on mobile) -->
-    <div class="bg-gray-200 border-b border-gray-300 px-4 py-3">
-      <!-- Mobile: Test Name (truncated) -->
-      <div class="sm:hidden flex flex-col gap-2">
-        <h1 v-if="$props.title" class="text-base font-semibold text-gray-800 truncate" data-test="test-name-mobile">
-          {{ $props.title }}
-        </h1>
-        <div class="flex items-center">
-          <div v-if="displayUserId" class="text-sm text-gray-700 font-semibold px-3 py-1.5 bg-gray-300 rounded inline-block" data-test="user-id-mobile">
-            Id: {{ displayUserId }}
-          </div>
-        </div>
-      </div>
-      <!-- Tablet+: Test Name and ID side by side (no truncate) -->
-      <div class="hidden sm:flex sm:justify-between sm:items-center gap-4">
-        <h1 v-if="$props.title" class="text-lg font-semibold text-gray-800 flex-1 break-words" data-test="test-name">
-          {{ $props.title }}
-        </h1>
-        <div v-if="displayUserId" class="ml-auto text-base text-gray-700 font-semibold whitespace-nowrap px-4 py-2 bg-gray-300 rounded" data-test="user-id">
-          Id: {{ displayUserId }}
-        </div>
-      </div>
-    </div>
+    <!-- end-test button -->
+    <icon-button
+      :titleConfig="endTestButtonTitleConfig"
+      :buttonClass="endTestButtonClass"
+      :iconConfig="endTestButtonIconConfig"
+      :isDisabled="isSessionAnswerRequestProcessing"
+      @click="endTest"
+      data-test="endTestButton"
+    ></icon-button>
   </div>
 </template>
 
@@ -135,12 +105,12 @@ export default defineComponent({
   setup(props, context) {
     const state = reactive({
       endTestButtonClass:
-        "bg-emerald-500 hover:bg-emerald-600 ring-emerald-500 p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl disabled:opacity-50 disabled:pointer-events-none",
+        "shrink-0 h-11 px-3.5 lg:px-[18px] rounded-[10px] bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 disabled:pointer-events-none",
       localIsPaletteVisible: props.isPaletteVisible,
       countdownTimerNormal:
-        "bg-gray-500 ring-gray-500 p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl hover:cursor-default",
+        "flex items-center h-[38px] px-3.5 rounded-[10px] bg-gray-100 text-gray-900 text-[17px] bp-360:text-lg lg:text-xl font-bold tracking-[0.03em] tabular-nums",
       countdownTimerAlert:
-        "bg-red-600 ring-red-500 p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl hover:cursor-default",
+        "flex items-center h-[38px] px-3.5 rounded-[10px] bg-red-100 text-red-700 text-[17px] bp-360:text-lg lg:text-xl font-bold tracking-[0.03em] tabular-nums",
       timeRemaining: props.timeRemaining
     });
     const isSmallScreen = ref(false);
@@ -222,8 +192,7 @@ export default defineComponent({
 
     const endTestButtonTitleConfig = computed(() => ({
       value: props.hasQuizEnded ? "See Results" : "End Test",
-      class:
-        "text-white text-sm bp-500:text-md lg:text-lg xl:text-xl font-bold",
+      class: "text-white text-sm lg:text-base font-semibold whitespace-nowrap",
     }));
 
     const endTestButtonIconConfig = computed(() => {
@@ -263,12 +232,7 @@ export default defineComponent({
       return padWithZeroes(Math.trunc(state.timeRemaining / 60 / 60) % 24)
     })
 
-    const countdownTimerTitleConfig = computed(() => (
-      {
-        value: `${hours.value}:${minutes.value}:${seconds.value}`,
-        class:
-        "text-white text-sm bp-500:text-md lg:text-lg xl:text-xl font-bold"
-      }));
+    const countdownTimerText = computed(() => `${hours.value}:${minutes.value}:${seconds.value}`);
 
     watch(
       () => state.timeRemaining,
@@ -291,10 +255,10 @@ export default defineComponent({
 
     const togglePaletteButtonClass = computed(() => [
       {
-        "bg-gray-300": !props.isPaletteVisible,
+        "bg-transparent hover:bg-gray-100": !props.isPaletteVisible,
         "bg-gray-600": props.isPaletteVisible,
       },
-      `rounded-md border shadow-lg ring-primary h-12 w-12 p-2 self-center`,
+      `shrink-0 rounded-[10px] h-11 w-11 p-2.5`,
     ]);
 
     const togglePaletteButtonIconConfig = computed(() => ({
@@ -305,7 +269,7 @@ export default defineComponent({
           "text-white": props.isPaletteVisible,
           "text-black": !props.isPaletteVisible,
         },
-        `fill-current h-8 w-8`,
+        `fill-current h-6 w-6`,
       ],
     }));
 
@@ -342,7 +306,7 @@ export default defineComponent({
       togglePaletteButtonIconConfig,
       togglePaletteButtonClass,
       countdownTimerClass,
-      countdownTimerTitleConfig,
+      countdownTimerText,
       shouldShowOmrToggle,
       toggleButtonIconClass,
       toggleButtonIconConfig,

@@ -13,9 +13,11 @@
       :displayId="displayId"
       data-test="infoBar"
     />
-    <div class="flex flex-col w-full h-full -z-10" :class="{ 'mt-20 mb-20': isQuizAssessment }">
+    <div class="flex flex-col w-full h-full -z-10" :class="{ 'mt-[52px] lg:mt-[60px] mb-20': isQuizAssessment }">
       <div class="h-full">
-        <div class="scroll-container flex flex-col grow bg-indigo-50 w-full justify-between overflow-y-auto" :class="{ 'mt-24': isQuizAssessment }" ref="scrollContainer">
+        <div class="scroll-container flex flex-col grow bg-indigo-50 w-full justify-between overflow-y-auto" ref="scrollContainer">
+          <!-- OMR: test name + ID strip, scrolls with the page (Header.vue has only menu / timer / End Test) -->
+          <InfoBar v-if="isQuizAssessment" :title="title" :userId="userId" :displayId="displayId" class="w-full" />
           <div class="flex justify-center w-full mx-auto py-4 px-4 pb-24">
             <div class="flex flex-col w-full sm:w-5/6 max-w-4xl bg-white rounded-lg shadow-sm p-2 sm:p-6 mb-12">
               <div
@@ -123,14 +125,14 @@
     </div>
 
     <!-- Dims the page behind the palette; clicking it closes the palette -->
-    <div v-if="isPaletteVisible" class="fixed inset-x-0 bottom-0 top-20 z-50 bg-black/40"
+    <div v-if="isPaletteVisible" class="fixed inset-x-0 bottom-0 top-[52px] lg:top-[60px] z-50 bg-black/40"
       @click="isPaletteVisible = false" data-test="paletteBackdrop"></div>
 
     <!-- Palette Overlay - positioned above content -->
     <QuestionPalette v-if="isPaletteVisible" :hasQuizEnded="hasQuizEnded" :questionSetStates="questionSetStates"
       :currentQuestionIndex="currentQuestionIndex" :title="title" :subject="subject" :testFormat="testFormat"
       :maxMarks="maxMarks" :numQuestions="numQuestions" :quizTimeLimit="quizTimeLimit" :isOmrMode=true
-      class="fixed left-0 top-20 h-[calc(100vh-5rem)] w-full max-w-md z-50 bg-white overflow-y-auto"
+      class="fixed left-0 top-[52px] lg:top-[60px] h-[calc(100vh-52px)] lg:h-[calc(100vh-60px)] w-full max-w-md z-50 bg-white overflow-y-auto"
       @navigate="navigateToQuestion"
       data-test="questionPalette">
     </QuestionPalette>

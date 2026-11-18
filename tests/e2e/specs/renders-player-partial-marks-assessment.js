@@ -112,7 +112,7 @@ describe("Player for Assessment quizzes with partial marks", () => {
         // question 2 - skipped; end test
         cy.get('[data-test="modal"]')
           .get('[data-test="question-index-type')
-          .should("have.text", "Q.2 | Multiple Answer");
+          .should("have.text", "Q2 · Multiple Answer");
         cy.get('[data-test="modal"]')
           .get('[data-test="endTestButton"]')
           .trigger("click");
@@ -189,7 +189,7 @@ describe("Player for Assessment quizzes with partial marks", () => {
         // end test
         cy.get('[data-test="modal"]')
           .get('[data-test="question-index-type')
-          .should("have.text", "Q.2 | Multiple Answer");
+          .should("have.text", "Q2 · Multiple Answer");
         cy.get('[data-test="modal"]')
           .get('[data-test="endTestButton"]')
           .trigger("click");

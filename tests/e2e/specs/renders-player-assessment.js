@@ -149,7 +149,7 @@ describe("Player for Assessment quizzes", () => {
           // move back to the previous question
           cy.get('[data-test="modal"]')
             .get('[data-test="question-index-type"]')
-            .should("have.text", "Q.2 | Multiple Answer");
+            .should("have.text", "Q2 · Multiple Answer");
           cy.get('[data-test="modal"]')
             .get('[data-test="previousQuestionButton"]')
             .trigger("click");
@@ -217,7 +217,7 @@ describe("Player for Assessment quizzes", () => {
         // question 2
         cy.get('[data-test="modal"]')
           .get('[data-test="question-index-type"]')
-          .should("have.text", "Q.2 | Multiple Answer");
+          .should("have.text", "Q2 · Multiple Answer");
         cy.get('[data-test="modal"]')
           .get('[data-test="optionSelector-0"]')
           .trigger("click");
@@ -228,7 +228,7 @@ describe("Player for Assessment quizzes", () => {
         // question 3
         cy.get('[data-test="modal"]')
           .get('[data-test="question-index-type"]')
-          .should("have.text", "Q.3 | Multiple Answer");
+          .should("have.text", "Q3 · Multiple Answer");
         cy.get('[data-test="modal"]')
           .get('[data-test="optionSelector-0"]')
           .trigger("click");
@@ -239,7 +239,7 @@ describe("Player for Assessment quizzes", () => {
         // question 4 -- typed but not submitted!
         cy.get('[data-test="modal"]')
           .get('[data-test="question-index-type"]')
-          .should("have.text", "Q.4 | Numerical Integer");
+          .should("have.text", "Q4 · Numerical Integer");
         cy.get('[data-test="modal"]')
           .get('[data-test="numericalAnswer"]')
           .type("3");
@@ -376,7 +376,7 @@ describe("Player for Assessment quizzes", () => {
           cy.get('[data-test="paletteItem-3"]').trigger("click");
           cy.get('[data-test="question-index-type"]').should(
             "have.text",
-            "Q.4 | Numerical Integer" // Q.{Question Number} | {Question Type}}
+            "Q4 · Numerical Integer" // Q{Question Number} · {Question Type}
           );
           cy.get('[data-test="question-subject-section"]').should(
             "have.text",
@@ -388,7 +388,7 @@ describe("Player for Assessment quizzes", () => {
           cy.get('[data-test="paletteItem-8"]').trigger("click");
           cy.get('[data-test="question-index-type"]').should(
             "have.text",
-            "Q.9 | Matrix Matching" // Q.{Question Number} | {Question Type}}
+            "Q9 · Matrix Matching" // Q{Question Number} · {Question Type}
           );
         });
       });
@@ -570,7 +570,7 @@ describe("Player for Assessment quizzes", () => {
         // move back to the previous question
         cy.get('[data-test="modal"]')
           .get('[data-test="question-index-type"]')
-          .should("have.text", "Q.2 | Multiple Answer");
+          .should("have.text", "Q2 · Multiple Answer");
         cy.get('[data-test="modal"]')
           .get('[data-test="previousQuestionButton"]')
           .trigger("click");
@@ -593,7 +593,7 @@ describe("Player for Assessment quizzes", () => {
         // move back to the previous question
         cy.get('[data-test="modal"]')
           .get('[data-test="question-index-type"]')
-          .should("have.text", "Q.2 | Multiple Answer");
+          .should("have.text", "Q2 · Multiple Answer");
         cy.get('[data-test="modal"]')
           .get('[data-test="previousQuestionButton"]')
           .trigger("click");

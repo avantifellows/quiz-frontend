@@ -26,9 +26,11 @@
       data-test="infoBar"
     />
     <div
-      class="scroll-container flex flex-col grow bg-white w-full justify-between overflow-hidden pt-7"
+      class="scroll-container flex flex-col grow bg-white w-full justify-between overflow-hidden"
     >
       <Body
+        :userId="userId"
+        :displayId="displayId"
         :text="currentQuestion.text"
         :solutionText="(currentQuestion.solution || []).join('<br>')"
         :class="bodyContainerClass"
@@ -100,7 +102,7 @@
          Same z-index as the footer but later in the DOM, so it sits above it. -->
     <div
       v-if="isPaletteVisible"
-      class="fixed inset-x-0 bottom-0 top-20 z-50 bg-black/40"
+      class="fixed inset-x-0 bottom-0 top-[52px] lg:top-[60px] z-50 bg-black/40"
       @click="isPaletteVisible = false"
       data-test="paletteBackdrop"
     ></div>
@@ -117,7 +119,7 @@
       :maxMarks="maxMarks"
       :numQuestions="numQuestions"
       :quizTimeLimit="quizTimeLimit"
-      class="fixed left-0 top-20 h-[calc(100vh-5rem)] w-full max-w-md z-50 bg-white overflow-y-auto"
+      class="fixed left-0 top-[52px] lg:top-[60px] h-[calc(100vh-52px)] lg:h-[calc(100vh-60px)] w-full max-w-md z-50 bg-white overflow-y-auto"
       @navigate="navigateToQuestion"
       data-test="questionPalette"
     >
@@ -543,7 +545,7 @@ To attempt Q.${props.currentQuestionIndex + 1}, unselect an answer to another qu
     })
 
     const bodyContainerClass = computed(() => ({
-      "mt-36": isQuizAssessment.value
+      "mt-[52px] lg:mt-[60px]": isQuizAssessment.value // fixed header height (Header.vue)
     }))
 
     const currentQuestion = computed(

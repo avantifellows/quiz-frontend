@@ -7,31 +7,26 @@ describe("Basic tests on Header", () => {
     expect(wrapper).toBeTruthy();
   });
 
-  describe("Title and ID Header", () => {
-    it("Student ID Visible", () => {
-      const wrapper = mount(Header, {
-        props: { userId: "12345" }
-      })
-      const userIdText = wrapper.find('[data-test="user-id"]').text()
-      expect(userIdText).toEqual("Id: 12345")
-    })
+  it("shows only menu, timer and End Test: the test name and ID live in the context strip", () => {
+    const wrapper = mount(Header, {
+      props: { title: "Mock Test series 1", userId: "12345", hasTimeLimit: true, timeRemaining: 600 },
+    });
+    expect(wrapper.find('[data-test="togglePaletteButton"]').exists()).toBe(true);
+    expect(wrapper.find('[data-test="countdownTimer"]').exists()).toBe(true);
+    expect(wrapper.find('[data-test="endTestButton"]').exists()).toBe(true);
+    expect(wrapper.find('[data-test="test-name"]').exists()).toBe(false);
+    expect(wrapper.find('[data-test="user-id"]').exists()).toBe(false);
+  });
 
-    it("testname Visible", () => {
-      const wrapper = mount(Header, {
-        props: { title: "Mock Test series 1 for All over India for Government school Students by Avanti Fellows NGO" }
-      })
-      const testNameElement = wrapper.find('[data-test="test-name"]').text();
-      expect(testNameElement).toEqual("Mock Test series 1 for All over India for Government school Students by Avanti Fellows NGO");
-    })
-
-    it("testName is truncating or not", () => {
-      const wrapper = mount(Header, { props: { title: "Mock Test series 1" } });
-      const testNameElement = wrapper.find('[data-test="test-name"]').text();
-      const maxCharacterWidth = 12.6; // Maximum width in characters
-      const expectedTruncatedText = testNameElement.slice(0, maxCharacterWidth) + '...'
-      expect(expectedTruncatedText).toContain("...")
-    })
-  })
+  it("tints the timer red under the warning limit", async () => {
+    const wrapper = mount(Header, {
+      props: { hasTimeLimit: true, warningTimeLimit: 3, timeRemaining: 600 },
+    });
+    expect(wrapper.find('[data-test="countdownTimer"]').classes()).toContain("bg-gray-100");
+    await wrapper.setProps({ timeRemaining: 179 });
+    expect(wrapper.find('[data-test="countdownTimer"]').classes()).toContain("bg-red-100");
+    expect(wrapper.find('[data-test="countdownTimer"]').text()).toBe("00:02:59");
+  });
 
   it("hides the title and ID instead of showing \"no data\" when they are missing", () => {
     const wrapper = mount(Header);

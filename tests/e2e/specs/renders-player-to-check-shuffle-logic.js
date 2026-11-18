@@ -47,7 +47,7 @@ describe("Player for Assessment quizzes", () => {
 
         cy.get('[data-test="modal"]')
           .get('[data-test="question-index-type"]')
-          .should("have.text", "Q.11 | Numerical");
+          .should("have.text", "Q11 · Numerical");
 
         cy.get('[data-test="footer"]')
           .get('[data-test="nextQuestionButton"]')
@@ -55,7 +55,7 @@ describe("Player for Assessment quizzes", () => {
 
         cy.get('[data-test="modal"]')
           .get('[data-test="question-index-type"]')
-          .should("have.text", "Q.12 | Numerical");
+          .should("have.text", "Q12 · Numerical");
       });
       it("Checking if the palette displays question indices in the correct order", () => {
         cy.get('[data-test="togglePaletteButton"]').trigger("click");

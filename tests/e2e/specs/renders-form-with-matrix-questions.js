@@ -79,17 +79,17 @@ describe("Form with Matrix Questions Tests", () => {
 
     it("starts the form and shows first question", () => {
       cy.get("@startQuizButton").click();
-      cy.get('[data-test="question-index-type"]').should("contain", "Q.1");
+      cy.get('[data-test="question-index-type"]').should("contain", "Q1 ·");
     });
 
     it("completes subjective question (Q1)", () => {
       cy.get("@startQuizButton").click();
-      cy.get('[data-test="question-index-type"]').should("contain", "Q.1");
+      cy.get('[data-test="question-index-type"]').should("contain", "Q1 ·");
       cy.get('[data-test="subjectiveAnswer"]').type("John Doe");
       cy.get('[data-test="submitButton"]').should("not.be.disabled");
       cy.get('[data-test="submitButton"]').click();
       cy.wait("@patchSessionAnswer");
-      cy.get('[data-test="question-index-type"]').should("contain", "Q.2");
+      cy.get('[data-test="question-index-type"]').should("contain", "Q2 ·");
     });
 
     it("completes single choice question (Q2)", () => {
@@ -99,44 +99,44 @@ describe("Form with Matrix Questions Tests", () => {
       cy.get('[data-test="submitButton"]').click();
       cy.wait("@patchSessionAnswer");
       // Q2
-      cy.get('[data-test="question-index-type"]').should("contain", "Q.2");
+      cy.get('[data-test="question-index-type"]').should("contain", "Q2 ·");
       cy.get('[data-test="optionSelector-1"]').click();
       cy.get('[data-test="submitButton"]').should("not.be.disabled");
       cy.get('[data-test="submitButton"]').click();
       cy.wait("@patchSessionAnswer");
-      cy.get('[data-test="question-index-type"]').should("contain", "Q.3");
+      cy.get('[data-test="question-index-type"]').should("contain", "Q3 ·");
     });
 
     it("navigates to matrix rating question (Q5)", () => {
       cy.get("@startQuizButton").click();
 
       // Q1: subjective
-      cy.get('[data-test="question-index-type"]').should("contain", "Q.1");
+      cy.get('[data-test="question-index-type"]').should("contain", "Q1 ·");
       cy.get('[data-test="subjectiveAnswer"]').type("John Doe");
       cy.get('[data-test="submitButton"]').click();
       cy.wait("@patchSessionAnswer");
 
       // Q2: single choice
-      cy.get('[data-test="question-index-type"]').should("contain", "Q.2");
+      cy.get('[data-test="question-index-type"]').should("contain", "Q2 ·");
       cy.get('[data-test="optionSelector-1"]').click();
       cy.get('[data-test="submitButton"]').click();
       cy.wait("@patchSessionAnswer");
 
       // Q3: multi choice
-      cy.get('[data-test="question-index-type"]').should("contain", "Q.3");
+      cy.get('[data-test="question-index-type"]').should("contain", "Q3 ·");
       cy.get('[data-test="optionSelector-0"]').click();
       cy.get('[data-test="optionSelector-1"]').click();
       cy.get('[data-test="submitButton"]').click();
       cy.wait("@patchSessionAnswer");
 
       // Q4: single choice
-      cy.get('[data-test="question-index-type"]').should("contain", "Q.4");
+      cy.get('[data-test="question-index-type"]').should("contain", "Q4 ·");
       cy.get('[data-test="optionSelector-2"]').click();
       cy.get('[data-test="submitButton"]').click();
       cy.wait("@patchSessionAnswer");
 
       // Q5: matrix rating
-      cy.get('[data-test="question-index-type"]').should("contain", "Q.5");
+      cy.get('[data-test="question-index-type"]').should("contain", "Q5 ·");
       cy.get('[data-test="matrixRatingContainer"]').should("be.visible");
     });
 
@@ -144,32 +144,32 @@ describe("Form with Matrix Questions Tests", () => {
       cy.get("@startQuizButton").click();
 
       // Q1: subjective
-      cy.get('[data-test="question-index-type"]').should("contain", "Q.1");
+      cy.get('[data-test="question-index-type"]').should("contain", "Q1 ·");
       cy.get('[data-test="subjectiveAnswer"]').type("John Doe");
       cy.get('[data-test="submitButton"]').click();
       cy.wait("@patchSessionAnswer");
 
       // Q2: single choice
-      cy.get('[data-test="question-index-type"]').should("contain", "Q.2");
+      cy.get('[data-test="question-index-type"]').should("contain", "Q2 ·");
       cy.get('[data-test="optionSelector-1"]').click();
       cy.get('[data-test="submitButton"]').click();
       cy.wait("@patchSessionAnswer");
 
       // Q3: multi choice
-      cy.get('[data-test="question-index-type"]').should("contain", "Q.3");
+      cy.get('[data-test="question-index-type"]').should("contain", "Q3 ·");
       cy.get('[data-test="optionSelector-0"]').click();
       cy.get('[data-test="optionSelector-1"]').click();
       cy.get('[data-test="submitButton"]').click();
       cy.wait("@patchSessionAnswer");
 
       // Q4: single choice
-      cy.get('[data-test="question-index-type"]').should("contain", "Q.4");
+      cy.get('[data-test="question-index-type"]').should("contain", "Q4 ·");
       cy.get('[data-test="optionSelector-2"]').click();
       cy.get('[data-test="submitButton"]').click();
       cy.wait("@patchSessionAnswer");
 
       // Q5: matrix rating - select all 5 rows
-      cy.get('[data-test="question-index-type"]').should("contain", "Q.5");
+      cy.get('[data-test="question-index-type"]').should("contain", "Q5 ·");
       cy.get('[data-test="matrixRatingContainer"]').should("be.visible");
       cy.get('[data-test="matrixRatingSelector-0-2"]')
         .filter(":visible")
@@ -195,7 +195,7 @@ describe("Form with Matrix Questions Tests", () => {
       cy.wait("@patchSessionAnswer");
 
       // Q6: matrix numerical
-      cy.get('[data-test="question-index-type"]').should("contain", "Q.6");
+      cy.get('[data-test="question-index-type"]').should("contain", "Q6 ·");
     });
   });
 
@@ -213,7 +213,7 @@ describe("Form with Matrix Questions Tests", () => {
     it("shows review entry instead of opening the scorecard directly", () => {
       cy.get('[data-test="scorecard"]').should("not.be.visible");
       cy.get('[data-test="startQuiz"]').should("have.text", "Review").click();
-      cy.get('[data-test="question-index-type"]').should("contain", "Q.1");
+      cy.get('[data-test="question-index-type"]').should("contain", "Q1 ·");
       cy.get('[data-test="subjectiveAnswer"] [data-test="input"]')
         .should("have.value", "John Doe")
         .and("be.disabled");
