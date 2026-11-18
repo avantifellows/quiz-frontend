@@ -68,7 +68,7 @@ function stubTestQuiz({ quizAttempts }) {
 function startAndEndTest() {
   cy.get('[data-test="startQuiz"]').trigger("click");
   cy.get('[data-test="endTestButton"]').trigger("click");
-  cy.get('[data-test="endTestButton"]').trigger("click"); // 2nd click = final submission
+  cy.get('[data-test="summaryYesButton"]').trigger("click"); // confirm in the end-test summary
 }
 
 describe("Survey before scorecard", () => {

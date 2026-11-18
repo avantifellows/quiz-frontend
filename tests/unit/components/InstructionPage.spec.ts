@@ -67,6 +67,21 @@ describe('InstructionPage', () => {
     it("Test Paper Pattern should not be Visible", async () => {
       expect(wrapper.find('[data-test="test-fst"]').exists()).toBe(false);
     });
+
+    it("matches the palette colours in the symbol legend", () => {
+      // palette: red = visited but not answered, grey = not visited yet
+      const legendRow = (label: string) =>
+        wrapper.find(`[data-test="legend-${label}"]`).element.parentElement as HTMLElement;
+      expect(legendRow("notAnswered").querySelector(".bg-red-300")).not.toBeNull();
+      expect(legendRow("notVisited").querySelector(".bg-gray-100")).not.toBeNull();
+    });
+
+    it("lays out the marked-for-review row like the other legend rows", () => {
+      const row = (label: string) =>
+        (wrapper.find(`[data-test="legend-${label}"]`).element.parentElement as HTMLElement).className;
+      expect(row("markedForReview")).toBe(row("notVisited"));
+      expect(wrapper.text()).not.toContain("NEW");
+    });
   });
 
   describe('when test_format is FST', () => {
@@ -140,6 +155,26 @@ describe('InstructionPage', () => {
 
       questionSetIndex = 1;
       expect(wrapper.find(`[data-test="questionSetTitle-${questionSetIndex}"]`).text()).toBe("Maths - Set 1");
+    });
+  });
+
+  describe("duration", () => {
+    const durationText = (max: number) =>
+      mount(InstructionPage, {
+        props: {
+          title: "Geometry Quiz",
+          quizType: "assessment",
+          quizTimeLimit: { min: 0, max },
+          questionSetStates: [],
+        },
+      }).find('[data-test="quiz-time-limit"]').text();
+
+    it("shows whole minutes and leftover seconds instead of a fraction", () => {
+      expect(durationText(10800)).toBe("180 minutes");
+      expect(durationText(200)).toBe("3 minutes 20 seconds");
+      expect(durationText(60)).toBe("1 minute");
+      expect(durationText(45)).toBe("45 seconds");
+      expect(durationText(61)).toBe("1 minute 1 second");
     });
   });
 });

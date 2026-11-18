@@ -89,5 +89,31 @@ describe("QuestionPalette.vue", () => {
       expect(wrapper.emitted()).toHaveProperty("navigate");
       expect(wrapper.emitted().navigate[0]).toEqual([questionIndex]);
     });
+
+    it("marks only the current question's tile as current", () => {
+      expect(wrapper.find('[data-test="paletteItem-1"]').attributes("aria-current")).toBe("true");
+      expect(wrapper.find('[data-test="paletteItem-0"]').attributes("aria-current")).toBeUndefined();
+    });
+
+    it("shows a result badge on each tile only after the quiz has ended", async () => {
+      await wrapper.setProps({ hasQuizEnded: false });
+      expect(wrapper.find('[data-test="paletteItem-0"] [data-test="badge"]').exists()).toBe(false);
+      await wrapper.setProps({ hasQuizEnded: true });
+      expect(wrapper.find('[data-test="paletteItem-0"] [data-test="badge"]').exists()).toBe(true);
+    });
+  });
+
+  it("fills the selected view's tab", async () => {
+    await wrapper.find('[data-test="togglePalette"]').trigger("click");
+    expect(wrapper.find('[data-test="togglePalette"]').attributes("aria-pressed")).toBe("true");
+    expect(wrapper.find('[data-test="toggleInstructions"]').attributes("aria-pressed")).toBe("false");
+  });
+
+  it("shows instructions without the Palette/Instructions toggle in OMR mode", () => {
+    const omr = mount(QuestionPalette, {
+      props: { title: "OMR", subject: "Maths", numQuestions: 10, maxMarks: 100, isOmrMode: true },
+    });
+    expect(omr.find('[data-test="togglePalette"]').exists()).toBe(false);
+    expect(omr.find('[data-test="instruction-page"]').exists()).toBe(true);
   });
 });

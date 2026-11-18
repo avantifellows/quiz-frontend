@@ -13,9 +13,11 @@
       :displayId="displayId"
       data-test="infoBar"
     />
-    <div class="flex flex-col w-full h-full -z-10" :class="{ 'mt-20 mb-20': isQuizAssessment }">
+    <div class="flex flex-col w-full h-full -z-10" :class="{ 'mt-[52px] lg:mt-[60px] mb-20': isQuizAssessment }">
       <div class="h-full">
-        <div class="scroll-container flex flex-col grow bg-indigo-50 w-full justify-between overflow-y-auto" :class="{ 'mt-24': isQuizAssessment }" ref="scrollContainer">
+        <div class="scroll-container flex flex-col grow bg-indigo-50 w-full justify-between overflow-y-auto" ref="scrollContainer">
+          <!-- OMR: test name + ID strip, scrolls with the page (Header.vue has only menu / timer / End Test) -->
+          <InfoBar v-if="isQuizAssessment" :title="title" :userId="userId" :displayId="displayId" class="w-full" />
           <div class="flex justify-center w-full mx-auto py-4 px-4 pb-24">
             <div class="flex flex-col w-full sm:w-5/6 max-w-4xl bg-white rounded-lg shadow-sm p-2 sm:p-6 mb-12">
               <div
@@ -122,11 +124,15 @@
       </div>
     </div>
 
+    <!-- Dims the page behind the palette; clicking it closes the palette -->
+    <div v-if="isPaletteVisible" class="fixed inset-x-0 bottom-0 top-[52px] lg:top-[60px] z-50 bg-black/40"
+      @click="isPaletteVisible = false" data-test="paletteBackdrop"></div>
+
     <!-- Palette Overlay - positioned above content -->
     <QuestionPalette v-if="isPaletteVisible" :hasQuizEnded="hasQuizEnded" :questionSetStates="questionSetStates"
       :currentQuestionIndex="currentQuestionIndex" :title="title" :subject="subject" :testFormat="testFormat"
       :maxMarks="maxMarks" :numQuestions="numQuestions" :quizTimeLimit="quizTimeLimit" :isOmrMode=true
-      class="fixed left-0 top-20 h-[calc(100vh-5rem)] w-full sm:w-2/3 lg:w-1/2 xl:w-1/3 z-50 bg-white overflow-y-auto"
+      class="fixed left-0 top-[52px] lg:top-[60px] h-[calc(100vh-52px)] lg:h-[calc(100vh-60px)] w-full max-w-md z-50 bg-white overflow-y-auto"
       @navigate="navigateToQuestion"
       data-test="questionPalette">
     </QuestionPalette>
@@ -423,7 +429,10 @@ export default defineComponent({
     }
 
     function endTest() {
-      if (!props.hasQuizEnded && state.hasEndTestBeenClickedOnce) {
+      // Forms keep the original two-click toast confirmation. Assessments/OMR are
+      // confirmed by the EndTestSummaryModal in Player.vue, so they emit directly.
+      const isForm = props.quizType === "form";
+      if (isForm && !props.hasQuizEnded && state.hasEndTestBeenClickedOnce) {
         // count only currently-visible questions, so conditionally-hidden ones don't inflate
         // the denominator (for non-conditional quizzes every question is visible => unchanged)
         const visibility = questionVisibility.value;
@@ -445,14 +454,16 @@ export default defineComponent({
         )
         state.hasEndTestBeenClickedOnce = false;
       } else {
+        state.isPaletteVisible = false;
         context.emit("end-test")
       }
     }
 
     function endTestByTime() {
-      // same function as above -- can update later for new feature
+      // time is up: submit without asking, so this must not go through the summary modal
       if (!props.hasQuizEnded && isQuizAssessment.value) {
-        context.emit("end-test")
+        state.isPaletteVisible = false;
+        context.emit("end-test-by-time")
       }
     }
 
@@ -775,6 +786,7 @@ export default defineComponent({
     "update:previousOmrResponses",
     "submit-question",
     "end-test",
+    "end-test-by-time",
     "fetch-question-bucket",
     "test-warning-shown",
     "test-optional-warning-shown",

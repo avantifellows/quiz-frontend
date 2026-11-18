@@ -112,14 +112,14 @@ describe("Player for Assessment quizzes with partial marks", () => {
         // question 2 - skipped; end test
         cy.get('[data-test="modal"]')
           .get('[data-test="question-index-type')
-          .should("have.text", "Q.2 | Multiple Answer");
+          .should("have.text", "Q2 · Multiple Answer");
         cy.get('[data-test="modal"]')
           .get('[data-test="endTestButton"]')
           .trigger("click");
 
-        // additional click to protect endTest button
+        // confirm in the end-test summary
         cy.get('[data-test="modal"]')
-          .get('[data-test="endTestButton"]')
+          .get('[data-test="summaryYesButton"]')
           .trigger("click");
 
         // number of skipped questions shown in scorecard
@@ -153,9 +153,9 @@ describe("Player for Assessment quizzes with partial marks", () => {
           .get('[data-test="endTestButton"]')
           .trigger("click");
 
-        // additional click to protect endTest button
+        // confirm in the end-test summary
         cy.get('[data-test="modal"]')
-          .get('[data-test="endTestButton"]')
+          .get('[data-test="summaryYesButton"]')
           .trigger("click");
 
         // number of wrong questions shown in scorecard
@@ -189,14 +189,14 @@ describe("Player for Assessment quizzes with partial marks", () => {
         // end test
         cy.get('[data-test="modal"]')
           .get('[data-test="question-index-type')
-          .should("have.text", "Q.2 | Multiple Answer");
+          .should("have.text", "Q2 · Multiple Answer");
         cy.get('[data-test="modal"]')
           .get('[data-test="endTestButton"]')
           .trigger("click");
 
-        // additional click to protect endTest button
+        // confirm in the end-test summary
         cy.get('[data-test="modal"]')
-          .get('[data-test="endTestButton"]')
+          .get('[data-test="summaryYesButton"]')
           .trigger("click");
 
         // number of partially correct shown in scorecard
@@ -220,8 +220,8 @@ describe("Player for Assessment quizzes with partial marks", () => {
             .trigger("click");
 
           cy.get('[data-test="modal"]')
-            .get('[data-test="endTestButton"]')
-            .trigger("click"); // additional click to protect endTest button
+            .get('[data-test="summaryYesButton"]')
+            .trigger("click"); // confirm in the end-test summary
         });
 
         it("shows scorecard upon selecting End Test", () => {

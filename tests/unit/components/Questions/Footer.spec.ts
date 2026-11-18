@@ -107,6 +107,12 @@ describe("Footer.vue", () => {
       expect(wrapper.emitted()).toHaveProperty("continue");
     });
 
+    it("shows Next disabled on the last question instead of hiding it", () => {
+      const last = mount(Footer, { props: { quizType: "assessment", isNextButtonShown: false } });
+      expect(last.find('[data-test="nextQuestionButton"]').exists()).toBe(true);
+      expect(last.get('[data-test="nextQuestionButton"]').attributes().disabled).toBeDefined();
+    });
+
     describe("answer selected", () => {
       beforeEach(async () => {
         await wrapper.setProps({

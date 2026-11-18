@@ -1,6 +1,31 @@
 import store from "@/store/index";
-import { Question, submittedAnswer, CorrectAnswerType, answerEvaluation, QuestionBucketingMap, OtherOptionAnswer, questionType, quizType, QuizAPIResponse } from "@/types";
+import { Question, submittedAnswer, CorrectAnswerType, answerEvaluation, QuestionBucketingMap, OtherOptionAnswer, questionType, quizType, QuizAPIResponse, SubmittedResponse, EndTestBuckets } from "@/types";
 const isEqual = require("deep-eql");
+
+/**
+ * Computes the end-test summary buckets from the list of responses.
+ * The buckets are mutually exclusive and always sum to the total number of
+ * responses: marking a question for review clears its answer, so "answered" and
+ * "marked_for_review" never overlap, and "not answered" is derived as the
+ * remainder so the invariant holds by construction.
+ */
+export function computeEndTestBuckets(
+  responses: SubmittedResponse[],
+  isOmr = false
+): EndTestBuckets {
+  const total = responses.length;
+  const answered = responses.filter((response) => response.answer != null).length;
+  // OMR shows only total / answered / not answered, and a question there stays
+  // "not visited" until it is touched, so every unanswered question must land in
+  // notAnswered or it would be hidden from the summary.
+  if (isOmr) {
+    return { total, answered, notAnswered: total - answered, markedForReview: 0, notVisited: 0 };
+  }
+  const markedForReview = responses.filter((response) => response.marked_for_review).length;
+  const notVisited = responses.filter((response) => !response.visited).length;
+  const notAnswered = total - answered - markedForReview - notVisited;
+  return { total, answered, notAnswered, markedForReview, notVisited };
+}
 
 /**
  * custom logic for deciding when the screen is considered to be in portrait mode

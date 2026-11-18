@@ -12,10 +12,10 @@
         }"
       >
         <!-- Main content card -->
-        <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mx-4">
+        <div class="bg-white rounded-xl shadow-lg p-4 bp-360:p-6 md:p-8 mx-4">
           <!-- scorecard greeting with icon -->
           <div class="text-center mb-6">
-            <div class="text-4xl mb-3">🎉</div>
+            <div class="text-4xl mb-3">{{ isFormQuiz ? "📝" : "🎉" }}</div>
             <div
               class="text-xl md:text-2xl lg:text-3xl font-extrabold font-sans text-gray-800"
             >
@@ -82,53 +82,69 @@
             >
             </CircularProgress>
 
-            <!-- metric boxes -->
+            <!-- metric boxes: one compact row on phone, icon beside the value from 500px -->
             <div
               v-if="hasGradedQuestions && !isFormQuiz"
-              class="flex flex-col bp-500:flex-row justify-center space-y-3 bp-500:space-x-4 bp-500:space-y-0 mb-6"
+              class="flex flex-row justify-center gap-2 bp-500:gap-4 mb-6"
             >
               <div
                 v-for="(metric, metricIndex) in metrics"
-                class="rounded-lg bg-gradient-to-r from-amber-400 to-orange-400 flex flex-row items-center px-4 py-3 shadow-md"
+                class="flex-1 min-w-0 bp-500:flex-none rounded-lg bg-gradient-to-r from-amber-400 to-orange-400 flex flex-col bp-500:flex-row items-center text-center bp-500:text-left px-2 py-3 bp-500:px-4 shadow-md"
                 :key="metricIndex"
               >
-                <!-- metric icon -->
-                <BaseIcon
-                  :name="metric.icon.source"
-                  :iconClass="metric.icon.class"
-                  class="mr-3"
-                ></BaseIcon>
+                <!-- metric icon: fixed-height slot on phone so the values line up across cards -->
+                <div class="h-10 bp-500:h-auto flex items-center mb-1 bp-500:mb-0 bp-500:mr-3">
+                  <BaseIcon
+                    :name="metric.icon.source"
+                    :iconClass="metric.icon.class"
+                  ></BaseIcon>
+                </div>
                 <!-- metric content -->
                 <div class="flex flex-col">
                   <p
-                    class="text-2xl md:text-3xl font-bold text-gray-800"
+                    class="text-xl bp-500:text-2xl md:text-3xl font-bold text-gray-800"
                     :data-test="`metricValue-${metricIndex}`"
                   >
                     {{ metric.value }}
                   </p>
-                  <p class="text-sm font-medium text-gray-700">
+                  <p class="text-xs bp-500:text-sm font-medium text-gray-700">
                     {{ metric.name }}
                   </p>
                 </div>
               </div>
             </div>
 
-            <!-- question set metrics table -->
-            <div v-if="isQuizAssessment" class="bg-gray-50 rounded-lg p-4 mb-6 overflow-auto">
-              <div class="flex border-b-2 border-gray-400 p-2 font-bold">
-                <div :class="tableCellClass">Name</div>
-                <div :class="tableCellClass">Marks Scored</div>
-                <div v-if="!isPortrait" :class="tableCellClass">Total No. Of Questions</div>
-                <div :class="tableCellClass">Attempt Rate (%)</div>
-                <div :class="tableCellClass">Accuracy Rate (%)</div>
-              </div>
-              <div v-for="metric in $props.qsetMetrics" :key="metric.qset_id" class="flex border-b border-gray-100 p-2">
-                <div :class="tableCellClass">{{ metric.name }}</div>
-                <div :class="tableCellClass">{{ metric.marksScored }}</div>
-                <div v-if="!isPortrait" :class="tableCellClass">{{ metric.maxQuestionsAllowedToAttempt }}</div>
-                <div :class="tableCellClass">{{ formatPercentage(metric.attemptRate) }}</div>
-                <div :class="tableCellClass">{{ formatPercentage(metric.accuracyRate) }}</div>
-              </div>
+            <!-- question set metrics table: a real table so header and rows share column widths -->
+            <div
+              v-if="isQuizAssessment"
+              class="bg-gray-50 rounded-lg px-1 py-2 sm:p-4 mb-6 overflow-x-auto max-w-2xl mx-auto"
+              data-test="qset-table"
+            >
+              <!-- table-auto: index.css makes every table fixed-layout (equal columns) -->
+              <table class="w-full table-auto border-collapse text-xs sm:text-sm md:text-base text-gray-800">
+                <thead>
+                  <tr class="border-0 border-b-2 border-solid border-gray-400">
+                    <th :class="[tableCellClass, 'text-left font-bold align-bottom break-normal']">Section</th>
+                    <th :class="[tableCellClass, 'text-center font-bold align-bottom break-normal']">Marks</th>
+                    <th :class="[tableCellClass, 'text-center font-bold align-bottom break-normal']">Total Qs</th>
+                    <th :class="[tableCellClass, 'text-center font-bold align-bottom break-normal']">Attempt %</th>
+                    <th :class="[tableCellClass, 'text-center font-bold align-bottom break-normal']">Accuracy %</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="metric in $props.qsetMetrics"
+                    :key="metric.qset_id"
+                    class="border-0 border-b border-solid border-gray-200"
+                  >
+                    <td :class="[tableCellClass, 'text-left break-words']">{{ metric.name }}</td>
+                    <td :class="[tableCellClass, 'text-center']">{{ metric.marksScored }}</td>
+                    <td :class="[tableCellClass, 'text-center']">{{ metric.maxQuestionsAllowedToAttempt }}</td>
+                    <td :class="[tableCellClass, 'text-center']">{{ formatPercentage(metric.attemptRate) }}</td>
+                    <td :class="[tableCellClass, 'text-center']">{{ formatPercentage(metric.accuracyRate) }}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
 
             <!-- action buttons when showing scores (next step CTA lives above the scores) -->
@@ -360,10 +376,10 @@ export default defineComponent({
       reRenderKey: false, // a key to re-render a component
       // classes for watch again button
       backButtonClass:
-        "bg-back-color hover:bg-primary-hover bp-500:w-40 px-6 py-3 bp-500:p-4 bp-500:px-10 sm:p-6 rounded-2xl md:rounded-xl shadow-xl disabled:opacity-50 disabled:pointer-events-none",
+        "flex justify-center bg-back-color hover:bg-primary-hover px-6 py-3 rounded-2xl md:rounded-xl shadow-xl cursor-pointer disabled:opacity-50 disabled:pointer-events-none",
       shareButtonClass:
         "flex justify-center bg-emerald-500 hover:bg-emerald-600 px-6 py-3 rounded-2xl md:rounded-xl shadow-xl cursor-pointer",
-      tableCellClass: "px-2 sm:px-4 flex-1 whitespace-normal break-words",
+      tableCellClass: "px-1 bp-360:px-1.5 sm:px-2 md:px-4 py-2",
       isPortrait: true,
       isMobileLandscape: false, // whether the screen corresponds to a mobile screen in landscape mode
       confettiHandler,
@@ -571,8 +587,9 @@ export default defineComponent({
       }
     }
 
+    /** percentage without a % sign (the column heading has it); at most one decimal, so 0 not 0.00 */
     function formatPercentage(value: number) {
-      return `${(value * 100).toFixed(2)}%`;
+      return `${Number((value * 100).toFixed(1))}`;
     }
 
     /**

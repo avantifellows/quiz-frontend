@@ -130,7 +130,7 @@ describe("Player for Assessment quizzes", () => {
         // question 13
         cy.get('[data-test="modal"]')
           .get('[data-test="question-index-type')
-          .should("have.text", "Q.14 | Multiple Answer");
+          .should("have.text", "Q14 · Multiple Answer");
         cy.get('[data-test="modal"]')
           .get('[data-test="optionSelector-0"]')
           .trigger("click");
@@ -141,7 +141,7 @@ describe("Player for Assessment quizzes", () => {
         // question 14
         cy.get('[data-test="modal"]')
           .get('[data-test="question-index-type')
-          .should("have.text", "Q.15 | Multiple Answer");
+          .should("have.text", "Q15 · Multiple Answer");
         cy.get('[data-test="modal"]')
           .get('[data-test="optionSelector-0"]')
           .trigger("click");
@@ -153,7 +153,7 @@ describe("Player for Assessment quizzes", () => {
       it("cannot select answer for question once optional limit reached", () => {
         cy.get('[data-test="modal"]')
           .get('[data-test="question-index-type')
-          .should("have.text", "Q.16 | Numerical");
+          .should("have.text", "Q16 · Numerical");
         cy.get('[data-test="togglePaletteButton"]').trigger("click");
         cy.get('[data-test="paletteItem-15"]').trigger("click");
 
@@ -166,7 +166,7 @@ describe("Player for Assessment quizzes", () => {
         // pick 3rd question in 2nd qset
         cy.get('[data-test="modal"]')
           .get('[data-test="question-index-type')
-          .should("have.text", "Q.16 | Numerical");
+          .should("have.text", "Q16 · Numerical");
         // force: on a phone-width viewport the optional-limit warning toast covers this button
         cy.get('[data-test="togglePaletteButton"]').trigger("click", {
           force: true,
@@ -185,7 +185,7 @@ describe("Player for Assessment quizzes", () => {
         // now go to 4th question in 2nd qset
         cy.get('[data-test="modal"]')
           .get('[data-test="question-index-type')
-          .should("have.text", "Q.16 | Numerical");
+          .should("have.text", "Q16 · Numerical");
         // force: on a phone-width viewport the optional-limit warning toast covers this button
         cy.get('[data-test="togglePaletteButton"]').trigger("click", {
           force: true,
@@ -239,10 +239,8 @@ describe("Player for Assessment quizzes", () => {
           .find('[data-test="endTestButton"]')
           .click();
 
-        // Additional check to ensure the button click was successful
-        cy.get('[data-test="modal"]')
-          .find('[data-test="endTestButton"]')
-          .click();
+        // confirm in the end-test summary
+        cy.get('[data-test="summaryYesButton"]').click();
 
         // Wait for the scorecard to become visible
         cy.get('[data-test="scorecard"]').should("be.visible");

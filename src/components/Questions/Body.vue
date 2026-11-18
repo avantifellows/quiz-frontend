@@ -5,7 +5,18 @@
     :class="{ 'bg-gray-50': isPaletteVisible }"
   >
     <div class="overflow-y-auto flex flex-col w-full">
-      <div class="bg-gray-300">
+      <!-- context strip: test name + student ID; scrolls away with the question
+           (homework / forms show the same strip in InfoBar instead) -->
+      <div
+        v-if="isQuizAssessment && (title || displayUserId)"
+        class="flex items-center gap-3 px-4 lg:px-8 py-2 bg-gray-50 border-b border-gray-200 text-[13px] lg:text-sm leading-[18px]"
+        data-test="context-strip"
+      >
+        <span v-if="title" class="flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-medium text-gray-700" :title="title" data-test="test-name">{{ title }}</span>
+        <span v-if="displayUserId" class="flex-none ml-auto font-semibold text-gray-900 tabular-nums whitespace-nowrap" data-test="user-id">ID: {{ displayUserId }}</span>
+      </div>
+      <!-- meta row: question number + type on the left, section tag on the right -->
+      <div class="flex items-center justify-between gap-3 mx-6 md:mx-10 px-4 pt-4">
         <!-- questionHeaderPrefix shows the question index no. and the type of question -->
         <p
           :class="questionHeaderPrefixClass"
@@ -18,6 +29,16 @@
           data-test="question-subject-section"
           v-html="questionHeaderSuffix"
         ></p>
+      </div>
+      <!-- question status, shown above the question so it stays visible on long questions -->
+      <div
+        v-if="isQuizAssessment && !hasQuizEnded && !isSessionAnswerRequestProcessing"
+        class="mx-6 md:mx-10 px-4 pt-2"
+        data-test="question-status"
+      >
+      <span v-if="isMarkedForReview" class="bg-violet-500 text-white text-xs font-bold py-0.5 px-2 rounded-full mr-1">MARKED FOR REVIEW</span>
+      <span v-if="isAnswerSubmitted" class="bg-emerald-600 text-white text-xs font-bold py-0.5 px-2 rounded-full mr-1">ANSWERED</span>
+      <span v-if="!isAnswerSubmitted" class="bg-red-500 text-white text-xs font-bold py-0.5 px-2 rounded-full mr-1">NOT ANSWERED</span>
       </div>
       <!-- question text -->
       <div class="mx-6 md:mx-10" v-bind="isQuizAssessment && !hasQuizEnded ? { inert: true } : {}">
@@ -534,15 +555,6 @@
           </div>
         </div>
       </div>
-      <!-- labels -->
-      <div
-        v-if="isQuizAssessment && !hasQuizEnded && !isSessionAnswerRequestProcessing"
-        class="mx-6 md:mx-10 pb-4"
-      >
-      <span v-if="isMarkedForReview" class="bg-violet-500 text-white text-xs font-bold py-0.5 px-2 rounded-full mr-1">MARKED FOR REVIEW</span>
-      <span v-if="isAnswerSubmitted" class="bg-emerald-600 text-white text-xs font-bold py-0.5 px-2 rounded-full mr-1">ANSWERED</span>
-      <span v-if="!isAnswerSubmitted" class="bg-red-500 text-white text-xs font-bold py-0.5 px-2 rounded-full mr-1">NOT ANSWERED</span>
-      </div>
       <!-- difficulty badge (shown only when quiz has ended) -->
       <div class="mx-6 md:mx-10 pt-4" v-if="$props.difficulty && $props.hasQuizEnded">
         <span class="text-lg font-bold mb-2 inline-block mr-2">Difficulty:</span>
@@ -731,6 +743,15 @@ export default defineComponent({
       type: [null, String] as PropType<quizTitleType>,
       required: true,
     },
+    /** student's user id / display id, shown in the context strip (assessment) */
+    userId: {
+      type: String,
+      default: "",
+    },
+    displayId: {
+      type: String,
+      default: "",
+    },
     subject: {
       type: String,
       required: true,
@@ -775,12 +796,12 @@ export default defineComponent({
         "text-lg md:text-xl lg:text-2xl mx-4 m-2 text-center leading-tight whitespace-pre-wrap",
       // <!-- questionHeaderPrefix shows the question index no. and the type of question -->
       questionHeaderPrefixClass:
-        "float-left text-lg sm:text-xl mx-4 m-2 text-left leading-tight whitespace-pre-wrap text-base",
+        "m-0 text-[15px] lg:text-base font-bold text-gray-900 leading-tight",
       // <!-- questionHeaderSuffix shows the subject and section no. of question -->
       questionHeaderSuffixClass:
-        "float-right text-lg sm:text-xl mx-4 m-2 text-right leading-tight whitespace-pre-wrap text-base",
+        "m-0 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap px-2 py-[3px] rounded-md bg-orange-100 text-orange-800 text-[13px] font-bold leading-tight",
       questionTextClass:
-        "text-lg base:text-lg lg:text-xl mx-4 mt-6 m-2 font-bold leading-tight whitespace-pre-wrap",
+        "text-lg base:text-lg lg:text-xl mx-4 mt-3 m-2 font-bold leading-tight whitespace-pre-wrap",
       solutionTextClass:
         "p-2 text-base base:text-lg lg:text-xl mx-2 whitespace-pre-wrap",
       optionTextClass:
@@ -1163,9 +1184,9 @@ export default defineComponent({
     }
 
     const questionHeaderPrefix = computed(() => {
-      return `Q.${
+      return `Q${
         props.currentQuestionIndex + 1
-      } | ${questionTypeHeaderMapping.get(props.questionType)}`;
+      } · ${questionTypeHeaderMapping.get(props.questionType)}`;
     });
 
     const questionHeaderSuffix = computed(() => {
@@ -1384,7 +1405,7 @@ export default defineComponent({
           (props.isAnswerSubmitted && !props.isGradedQuestion) ||
           (isQuizAssessment.value && !props.hasQuizEnded),
       },
-      "h-12 px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed",
+      "h-16 bp-500:h-12 resize-none overflow-hidden px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-primary disabled:cursor-not-allowed",
     ]);
 
     state.subjectiveAnswer = defaultSubjectiveAnswer.value;
@@ -1471,6 +1492,7 @@ export default defineComponent({
       ...toRefs(state),
       mathJaxRoot,
       questionHeaderPrefix,
+      displayUserId: computed(() => props.displayId || props.userId || ""),
       questionHeaderSuffix,
       stopImageLoading,
       isSolutionTextPresent,

@@ -1,44 +1,50 @@
 <template>
+  <!-- One white bar for every quiz type: joined ‹|› navigation on the left, the actions on the right.
+       Phones (< 640px): Save & Next / Submit grows to fill the row but is capped at 12rem, and is never
+       narrower than the other buttons. From 640px (tablets and laptops): labelled Previous / Next,
+       actions grouped on the right, Save & Next a fixed 10rem. -->
   <div
-    class="flex w-full lg:p-6 justify-between z-50 place-self-end"
-    :class="{
-      'bg-white p-4': !isQuizAssessment,
-      'bg-gray-200 py-4 px-2': isQuizAssessment,
-    }"
+    class="flex w-full items-center gap-1.5 sm:gap-3 px-3 sm:px-6 py-2.5 sm:py-3 bg-white border-t border-gray-200 z-50 place-self-end"
   >
-    <div :class="[
-      !hasQuizEnded ? 'place-self-start flex h-full space-x-1': 'flex h-full w-full justify-between'
-    ]">
+    <!-- previous / next: joined; labelled from 640px and in review mode -->
+    <div
+      class="flex h-11 border border-gray-300 rounded-[10px] overflow-hidden"
+      :class="[
+        hasQuizEnded ? 'flex-1 sm:flex-none' : 'flex-none',
+        { hidden: isOmrMode },
+      ]"
+    >
       <!-- back button - assessment and homework -->
       <icon-button
         :iconConfig="previousQuestionButtonIconConfig"
-        :buttonClass="assessmentNavigationButtonClass"
-        :class="[
-          { hidden: isOmrMode },
-        ]"
+        :titleConfig="previousButtonTitleConfig"
+        :buttonClass="navigationButtonClass"
         :isDisabled="isSessionAnswerRequestProcessing || !isPreviousButtonShown"
         ariaLabel="Previous Question"
         @click="goToPreviousQuestion"
         data-test="previousQuestionButton"
       ></icon-button>
-      <!-- forward button - assessment and forms when quiz ended -->
-      <icon-button
-        :class="[
-          { hidden: isOmrMode },
-        ]"
-        v-if="(isQuizAssessment && isNextButtonShown) || (isFormQuiz && hasQuizEnded && isNextButtonShown) || (!isQuizAssessment && !isFormQuiz && hasQuizEnded && isNextButtonShown)"
-        :iconConfig="nextQuestionButtonIconConfig"
-        :buttonClass="assessmentNavigationButtonClass"
-        :isDisabled="isSessionAnswerRequestProcessing"
-        ariaLabel="Next Question"
-        @click="goToNextQuestion"
-        data-test="nextQuestionButton"
-      ></icon-button>
+      <!-- forward button - assessment always; homework / forms once the quiz has ended.
+           Shown disabled on the last question instead of disappearing. -->
+      <template v-if="isQuizAssessment || hasQuizEnded">
+        <span aria-hidden="true" class="w-px bg-gray-300"></span>
+        <icon-button
+          :iconConfig="nextQuestionButtonIconConfig"
+          :titleConfig="nextButtonTitleConfig"
+          :buttonClass="navigationButtonClass"
+          innerContainerClass="flex w-full justify-center flex-row-reverse space-x-reverse"
+          :isDisabled="isSessionAnswerRequestProcessing || !isNextButtonShown"
+          ariaLabel="Next Question"
+          @click="goToNextQuestion"
+          data-test="nextQuestionButton"
+        ></icon-button>
+      </template>
     </div>
 
+    <!-- assessment actions; from 640px they sit together on the right -->
     <div
       v-if="isQuizAssessment && !hasQuizEnded"
-      class="flex space-x-1 sm:space-x-4"
+      class="contents sm:flex sm:gap-2 sm:ml-auto"
     >
       <!-- clear button - assessment -->
       <icon-button
@@ -63,25 +69,12 @@
       @click="toggleMarkForReview"
       data-test="markForReviewButton"
       ></icon-button>
-    </div>
 
-    <div class="place-self-end flex h-full">
-      <!-- submit/continue button - homework and forms when quiz active-->
-      <icon-button
-        v-if="!isQuizAssessment && !hasQuizEnded"
-        :titleConfig="submitButtonTitleConfig"
-        :iconConfig="submitButtonIconConfig"
-        :buttonClass="submitButtonClass"
-        :isDisabled="(!isAnswerSubmitted && !isSubmitEnabled) || isSessionAnswerRequestProcessing"
-        @click="submitQuestion"
-        data-test="submitButton"
-      ></icon-button>
       <!-- save&next button - assessment-->
       <icon-button
         :class="{
           hidden: isOmrMode
         }"
-        v-if="isQuizAssessment && !hasQuizEnded"
         :titleConfig="saveAndNextButtonTitleConfig"
         :iconConfig="saveAndNextButtonIconConfig"
         :buttonClass="saveAndNextButtonClass"
@@ -90,6 +83,17 @@
         data-test="saveAndNextButton"
       ></icon-button>
     </div>
+
+    <!-- submit/continue button - homework and forms when quiz active-->
+    <icon-button
+      v-if="!isQuizAssessment && !hasQuizEnded"
+      :titleConfig="submitButtonTitleConfig"
+      :iconConfig="submitButtonIconConfig"
+      :buttonClass="submitButtonClass"
+      :isDisabled="(!isAnswerSubmitted && !isSubmitEnabled) || isSessionAnswerRequestProcessing"
+      @click="submitQuestion"
+      data-test="submitButton"
+    ></icon-button>
   </div>
 </template>
 
@@ -160,82 +164,75 @@ export default defineComponent({
     const isFormQuiz = computed(() => props.quizType == "form");
     const isSmallScreen = ref(false);
     const updateScreenSize = () => {
-      isSmallScreen.value = window.matchMedia("(max-width: 560px)").matches;
+      // same 640px switch as the layout classes (sm:), so labels and layout change together
+      isSmallScreen.value = window.matchMedia("(max-width: 639px)").matches;
+      isTinyScreen.value = window.matchMedia("(max-width: 359px)").matches;
     };
+    const isTinyScreen = ref(false); // below 360px "Save & Next" becomes "Save ›" so nothing wraps
     const state = reactive({
-      assessmentNavigationButtonIconClass: [
-        {
-          "text-yellow-800 h-6 w-4": !isQuizAssessment.value || isFormQuiz.value,
-          "text-gray-600 h-3 w-2 sm:h-5 sm:w-3 lg:h-6 lg:w-4":
-            isQuizAssessment.value && !isFormQuiz.value,
-        },
-        "fill-current",
-      ],
-      assessmentTextButtonTitleClass:
-        "text-xs bp-500:text-sm lg:text-base xl:text-lg font-bold",
-      assessmentNavigationButtonClass: [
-        {
-          "bg-yellow-500 hover:bg-yellow-600 ring-yellow-500 px-6 bp-500:px-8 rounded-2xl":
-            !isQuizAssessment.value || isFormQuiz.value,
-          "bg-white hover:bg-gray-100 px-4 bp-500:px-6 rounded-lg sm:rounded-xl lg:rounded-2xl":
-            isQuizAssessment.value && !isFormQuiz.value,
-        },
-        "p-2 bp-500:p-4 shadow-xl",
-      ],
-      assessmentTextButtonClass:
-        "p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl disabled:opacity-50 disabled:cursor-not-allowed",
+      navigationIconClass: "flex items-center fill-current text-gray-700 h-4 w-3",
+      outlinedButtonClass:
+        "flex-none h-11 px-2.5 bp-360:px-3 sm:px-[18px] rounded-[10px] border disabled:opacity-50 disabled:cursor-not-allowed",
+      buttonTitleClass: "text-sm sm:text-base font-semibold whitespace-nowrap",
     });
-
+    /** each half of the joined ‹|› control; grows to fill the row in review mode */
+    const navigationButtonClass = computed(() => [
+      "h-full bg-white hover:bg-gray-50 gap-1.5 disabled:hover:bg-white",
+      props.hasQuizEnded ? "flex-1 sm:flex-none px-4" : "w-9 bp-360:w-10 sm:w-auto sm:px-4",
+    ]);
+    /** "Previous" / "Next" labels: from 640px always; on phones only in review mode (when ‹ › have the row) */
+    const navigationTitleClass = computed(() => [
+      "text-sm sm:text-base font-semibold text-gray-700 whitespace-nowrap",
+      props.hasQuizEnded ? "" : "hidden sm:inline",
+    ]);
     const previousQuestionButtonIconConfig = ref({
       enabled: true,
       iconName: "right-arrow",
-      iconClass: [
-        state.assessmentNavigationButtonIconClass,
-        "transform rotate-180",
-      ],
+      iconClass: [state.navigationIconClass, "transform -scale-x-100"], // mirror, not rotate: rotating moved it off-centre
     } as IconButtonIconConfig);
-
     const nextQuestionButtonIconConfig = ref({
       enabled: true,
       iconName: "right-arrow",
-      iconClass: state.assessmentNavigationButtonIconClass,
+      iconClass: state.navigationIconClass,
     } as IconButtonIconConfig);
-
+    const previousButtonTitleConfig = computed(() => ({
+      value: "Previous",
+      class: navigationTitleClass.value,
+    } as IconButtonTitleConfig));
+    const nextButtonTitleConfig = computed(() => ({
+      value: "Next",
+      class: navigationTitleClass.value,
+    } as IconButtonTitleConfig));
     const clearButtonClass = ref([
-      state.assessmentTextButtonClass,
-      "bg-white hover:bg-gray-50",
+      state.outlinedButtonClass,
+      // on phones, spare width collects here (between ‹|› and the actions) instead of stretching Save
+      "ml-auto sm:ml-0 border-gray-300 bg-white hover:bg-gray-50",
     ]);
-
     const markForReviewButtonClass = ref([
-      state.assessmentTextButtonClass,
-      "bg-white hover:bg-gray-50",
+      state.outlinedButtonClass,
+      "border-violet-300 bg-violet-50 hover:bg-violet-100",
     ]);
-
     const saveAndNextButtonClass = ref([
-      state.assessmentTextButtonClass,
-      "bg-white hover:bg-gray-50",
+      "flex-1 min-w-0 max-w-[12rem] sm:flex-none sm:max-w-none sm:min-w-[10rem] h-11 px-2 sm:px-[22px] rounded-[10px] gap-2",
+      "bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed",
     ]);
-
     const clearButtonTitleConfig = ref({
       value: "Clear",
-      class: [state.assessmentTextButtonTitleClass, "text-gray-600"],
+      class: [state.buttonTitleClass, "text-gray-700"],
     } as IconButtonTitleConfig);
-
     const markForReviewButtonTitleConfig = computed(() => ({
-      value: isSmallScreen.value ? "Review >" : "Mark For Review & Next",
-      class: ["text-xxs bp-500:text-sm lg:text-base xl:text-lg font-bold", "text-violet-500"],
+      value: isTinyScreen.value ? "Review" : isSmallScreen.value ? "Review >" : "Mark For Review & Next",
+      class: [state.buttonTitleClass, "text-violet-500"],
     } as IconButtonTitleConfig));
-
-    const saveAndNextButtonTitleConfig = ref({
-      value: "Save & Next",
-      class: [state.assessmentTextButtonTitleClass, "text-emerald-500"],
-    } as IconButtonTitleConfig);
-
+    const saveAndNextButtonTitleConfig = computed(() => ({
+      value: isTinyScreen.value ? "Save ›" : "Save & Next",
+      class: [state.buttonTitleClass, "text-white"],
+    } as IconButtonTitleConfig));
     const saveAndNextButtonIconConfig = computed(() => {
       return {
         enabled: props.isSessionAnswerRequestProcessing,
         iconName: "spinner-solid",
-        iconClass: "animate-spin h-4 w-4 text-primary",
+        iconClass: "animate-spin h-4 w-4 text-white",
       };
     });
 
@@ -305,7 +302,7 @@ export default defineComponent({
       return {
         value: buttonText,
         class:
-          "text-white text-md bp-500:text-lg lg:text-xl xl:text-2xl font-bold",
+          "text-white text-sm sm:text-base font-semibold whitespace-nowrap",
       } as IconButtonTitleConfig;
     });
 
@@ -313,7 +310,7 @@ export default defineComponent({
       return {
         enabled: props.isSessionAnswerRequestProcessing,
         iconName: "spinner-solid",
-        iconClass: "animate-spin h-4 w-4 text-primary",
+        iconClass: "animate-spin h-4 w-4 text-white",
       };
     });
 
@@ -324,9 +321,7 @@ export default defineComponent({
         "bg-primary hover:bg-primary-hover ring-primary":
           props.isAnswerSubmitted && !isFormQuiz.value,
       },
-      isFormQuiz.value
-        ? "p-3 px-6 bp-500:p-4 bp-500:px-8 rounded-2xl shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-        : "p-4 px-8 bp-500:p-6 bp-500:px-12 rounded-2xl shadow-xl disabled:opacity-50 disabled:cursor-not-allowed",
+      "flex-1 min-w-0 max-w-[12rem] ml-auto sm:flex-none sm:max-w-none sm:min-w-[10rem] h-11 px-4 sm:px-[22px] rounded-[10px] gap-2 disabled:opacity-50 disabled:cursor-not-allowed",
     ]);
 
     // Setup listeners for screen size changes
@@ -343,6 +338,9 @@ export default defineComponent({
       ...toRefs(state),
       previousQuestionButtonIconConfig,
       nextQuestionButtonIconConfig,
+      previousButtonTitleConfig,
+      nextButtonTitleConfig,
+      navigationButtonClass,
       clearButtonClass,
       markForReviewButtonClass,
       saveAndNextButtonClass,

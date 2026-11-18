@@ -1,22 +1,27 @@
 <template>
-  <div class="bg-white p-4 sm:p-6 lg:p-8 overflow-auto sm:w-1/3 lg:w-1/3 xl:w-1/3">
-    <div class="inline-flex justify-center rounded-md w-full" role="group">
-      <button
+  <div class="bg-white p-4 bp-500:p-6 overflow-auto">
+    <!-- Palette / Instructions: the selected view is filled. OMR has only instructions.
+         No close button: the header's menu button stays visible above the palette, and the
+         backdrop closes it on wider screens. -->
+    <div
       v-if="!isOmrMode"
-        :class="togglePaletteButtonClass"
-        class="mr-1"
+      class="flex rounded-xl border-2 border-primary overflow-hidden"
+      role="group"
+    >
+      <button
+        :class="tabClass(showPaletteButton)"
+        :aria-pressed="showPaletteButton"
         type="button"
         @click="togglePalette"
         data-test="togglePalette"
-      >PALETTE</button>
+      >{{ $t("palette.paletteTab") }}</button>
       <button
-        :class="toggleInstructionsButtonClass"
-        class="ml-1"
+        :class="tabClass(showInstructionButton)"
+        :aria-pressed="showInstructionButton"
         type="button"
         @click="toggleInstructions"
-        :disabled="isOmrMode"
         data-test="toggleInstructions"
-      >INSTRUCTIONS</button>
+      >{{ $t("palette.instructionsTab") }}</button>
     </div>
       <InstructionPage
       v-if="showInstructionButton"
@@ -31,43 +36,36 @@
       data-test="instruction-page"
     />
     <div v-if="showPaletteButton && !isOmrMode" data-test="question-palette">
-      <div
-        class="bg-gray-200 rounded-md p-4 grid grid-rows-2 space-y-2 mt-6"
-      >
-        <div class="grid grid-cols-2">
-          <Success
-            :title="legendSuccessText"
-            :hasQuizEnded="hasQuizEnded"
-          ></Success>
-          <Error :title="legendErrorText" :hasQuizEnded="hasQuizEnded"></Error>
-        </div>
-
-        <div class="grid grid-cols-2">
-          <Neutral
-          :title="legendNeutralText"
-          :hasQuizEnded="hasQuizEnded"
-        ></Neutral>
-        <div v-if="!hasQuizEnded">
-          <Review
-          title="Marked For Review"
-          :hasQuizEnded="hasQuizEnded"
-          ></Review>
-        </div>
-          <div v-if="hasQuizEnded">
-            <PartialSuccess :title="legendPartialSuccessText" :hasQuizEnded="hasQuizEnded"></PartialSuccess>
-          </div>
+      <div class="mt-4 grid grid-cols-2 gap-x-3 gap-y-2 rounded-lg bg-gray-100 px-3 py-2.5">
+        <div
+          v-for="key in legendKeys"
+          :key="key.label"
+          class="flex items-center gap-2 text-sm font-semibold text-gray-700 leading-tight"
+        >
+          <BaseIcon
+            v-if="hasQuizEnded"
+            :name="key.icon"
+            iconClass="palette-legend-icon w-5 h-5 shrink-0"
+            data-test="quizEndedIcon"
+          ></BaseIcon>
+          <span
+            v-else
+            class="w-5 h-5 shrink-0 rounded border-2"
+            :class="key.swatchClass"
+            data-test="quizInProgressIcon"
+          ></span>
+          <span>{{ key.label }}</span>
         </div>
       </div>
 
       <div
-        v-for="(questionSetState, index) in questionSetStates" :key="index" class="space-y-2">
+        v-for="(questionSetState, index) in questionSetStates" :key="index" class="mt-6">
           <p :class="titleTextClass" :data-test="`paletteTitle-${index}`">{{ questionSetState.title }}</p>
           <div :class="instructionTextClass" :data-test="`paletteInstruction-${index}`" v-html="questionSetState.instructionText"></div>
-          <div class="grid grid-cols-5 bp-500:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 mt-4 space-y-4">
+          <div class="mt-3 grid grid-cols-[repeat(auto-fill,minmax(2.75rem,1fr))] gap-x-2 gap-y-3 justify-items-center">
             <PaletteItem
               v-for="(questionState, qindex) in questionSetState.paletteItems"
               class="hover:cursor-pointer"
-              :class="{ 'mt-4': qindex == 0 }"
               :key="qindex"
               :index="questionState.index"
               :hasQuizEnded="hasQuizEnded"
@@ -83,24 +81,18 @@
 </template>
 
 <script lang="ts">
-import Success from "./Success.vue";
-import PartialSuccess from "./PartialSuccess.vue";
-import Error from "./Error.vue";
-import Neutral from "./Neutral.vue";
-import Review from "./Review.vue";
 import PaletteItem from "./Item.vue";
+import BaseIcon from "@/components/UI/Icons/BaseIcon.vue";
+import { paletteTileStateClass, paletteTileEndedStateClass, paletteEndedBadgeIcon } from "./Utils";
 import InstructionPage from "@/components/InstructionPage.vue";
 import { TimeLimit, questionSetPalette, quizTitleType, testFormat } from "@/types";
 import { defineComponent, computed, PropType, reactive } from "vue";
+import { useI18n } from "vue-i18n";
 
 export default defineComponent({
   components: {
-    Success,
-    PartialSuccess,
-    Error,
-    Neutral,
-    Review,
     PaletteItem,
+    BaseIcon,
     InstructionPage
   },
   props: {
@@ -153,13 +145,11 @@ export default defineComponent({
       }
     }
 
+    const { t } = useI18n();
+
     const state = reactive({
-      instructionTextClass:
-      "text-lg md:text-xl lg:text-2xl mx-4 mt-2 leading-none text-slate-500",
-      titleTextClass:
-      "text-lg md:text-xl lg:text-2xl mx-4 mt-10 font-bold leading-tight whitespace-pre-wrap",
-      instructionsButtonClass:
-      "bg-gray-300 w-full font-bold ring-gray-500 p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl",
+      instructionTextClass: "mt-1 text-sm leading-snug text-slate-500",
+      titleTextClass: "text-base md:text-lg font-bold leading-tight whitespace-pre-wrap",
       // Set initial state based on isOmrMode
       showInstructions: props.isOmrMode,
       showPalette: !props.isOmrMode,
@@ -178,52 +168,54 @@ export default defineComponent({
         state.showInstructions = !state.showInstructions;
       }
     }
-    const legendSuccessText = computed(() =>
-      props.hasQuizEnded ? "Correct" : "Answered"
-    );
-    const legendErrorText = computed(() =>
-      props.hasQuizEnded ? "Wrong" : "Not Answered"
-    );
-    const legendNeutralText = computed(() =>
-      props.hasQuizEnded ? "Skipped" : "Not Visited"
-    );
-
-    const legendPartialSuccessText = "Partially Correct"
 
     const showInstructionButton = computed(() => state.showInstructions == true)
     const showPaletteButton = computed(() => state.showPalette == true)
 
-    const toggleInstructionsButtonClass = computed(() => [
-      {
-        "bg-primary": props.isOmrMode || !showInstructionButton.value,
-        "bg-orange-300 hover:cursor-not-allowed": !props.isOmrMode && showInstructionButton.value,
-      },
-      `w-1/2 font-bold text-white p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl border shadow-lg ring-primary`,
-    ]);
+    // segmented toggle: the selected half is filled, the other is outlined
+    function tabClass(isSelected: boolean) {
+      return [
+        "flex-1 py-2 px-3 text-sm bp-420:text-base font-bold",
+        isSelected ? "bg-primary text-white" : "bg-white text-primary hover:bg-orange-50",
+      ];
+    }
 
-    const togglePaletteButtonClass = computed(() => [
-      {
-        "bg-primary": !showPaletteButton.value,
-        "bg-orange-300 hover:cursor-not-allowed": showPaletteButton.value,
-      },
-      `w-1/2 font-bold text-white p-2 px-4 bp-500:p-4 bp-500:px-6 rounded-lg sm:rounded-2xl shadow-xl border shadow-lg ring-primary`,
-    ]);
+    // in progress: the question's status; after the quiz: its result
+    const legendKeys = computed(() =>
+      props.hasQuizEnded
+        ? [
+            { state: "success", label: t("palette.correct") },
+            { state: "error", label: t("palette.wrong") },
+            { state: "neutral", label: t("palette.skipped") },
+            { state: "partial-success", label: t("palette.partiallyCorrect") },
+          ].map((key) => ({ ...key, icon: paletteEndedBadgeIcon[key.state], swatchClass: paletteTileEndedStateClass[key.state] }))
+        : [
+            { state: "success", label: t("palette.answered") },
+            { state: "error", label: t("palette.notAnswered") },
+            { state: "neutral", label: t("palette.notVisited") },
+            { state: "review", label: t("palette.markedForReview") },
+          ].map((key) => ({ ...key, icon: "", swatchClass: paletteTileStateClass[key.state] }))
+    );
 
     return {
       ...state,
       navigateToQuestion,
       toggleInstructions,
       togglePalette,
-      legendSuccessText,
-      legendPartialSuccessText,
       showInstructionButton,
       showPaletteButton,
-      toggleInstructionsButtonClass,
-      togglePaletteButtonClass,
-      legendErrorText,
-      legendNeutralText
+      tabClass,
+      legendKeys
     };
   },
   emits: ["navigate"],
 });
 </script>
+
+<style scoped>
+/* the round result icons are fixed 44px SVGs; scale them to the legend */
+:deep(.palette-legend-icon svg) {
+  width: 100%;
+  height: 100%;
+}
+</style>

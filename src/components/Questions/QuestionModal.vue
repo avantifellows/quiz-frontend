@@ -26,9 +26,11 @@
       data-test="infoBar"
     />
     <div
-      class="scroll-container flex flex-col grow bg-white w-full justify-between overflow-hidden pt-7"
+      class="scroll-container flex flex-col grow bg-white w-full justify-between overflow-hidden"
     >
       <Body
+        :userId="userId"
+        :displayId="displayId"
         :text="currentQuestion.text"
         :solutionText="(currentQuestion.solution || []).join('<br>')"
         :class="bodyContainerClass"
@@ -96,6 +98,15 @@
       ></Footer>
     </div>
 
+    <!-- Dims the question and footer behind the palette; clicking it closes the palette.
+         Same z-index as the footer but later in the DOM, so it sits above it. -->
+    <div
+      v-if="isPaletteVisible"
+      class="fixed inset-x-0 bottom-0 top-[52px] lg:top-[60px] z-50 bg-black/40"
+      @click="isPaletteVisible = false"
+      data-test="paletteBackdrop"
+    ></div>
+
     <!-- Palette Overlay - positioned above footer -->
     <QuestionPalette
       v-if="isPaletteVisible"
@@ -108,7 +119,7 @@
       :maxMarks="maxMarks"
       :numQuestions="numQuestions"
       :quizTimeLimit="quizTimeLimit"
-      class="fixed left-0 top-20 h-[calc(100vh-5rem)] w-full sm:w-2/3 lg:w-1/2 xl:w-1/3 z-50 bg-white overflow-y-auto"
+      class="fixed left-0 top-[52px] lg:top-[60px] h-[calc(100vh-52px)] lg:h-[calc(100vh-60px)] w-full max-w-md z-50 bg-white overflow-y-auto"
       @navigate="navigateToQuestion"
       data-test="questionPalette"
     >
@@ -266,8 +277,7 @@ export default defineComponent({
       toast: useToast(),
       isDraftAnswerCleared: false, // whether the draft answer has been cleared but not yet submitted
       isPaletteVisible: false, // whether the question palette is visible
-      reRenderKey: false, // a key to re-render a component
-      hasEndTestBeenClickedOnce: true
+      reRenderKey: false // a key to re-render a component
     })
 
     // display warning when time remaining goes below this threshold (in minutes)
@@ -515,39 +525,17 @@ To attempt Q.${props.currentQuestionIndex + 1}, unselect an answer to another qu
     }
 
     function endTest() {
-      if (!props.hasQuizEnded && state.hasEndTestBeenClickedOnce) {
-        let attemptedQuestions = 0;
-        let markedForReviewAndUnansweredQuestions = 0;
-        for (const response of props.responses) {
-          if (response.answer != null) {
-            attemptedQuestions += 1;
-          }
-          if (response.marked_for_review == true && response.answer == null) {
-            markedForReviewAndUnansweredQuestions += 1
-          }
-        }
-        state.toast.success(
-            `Total Questions: ${props.numQuestions}
-Questions Answered: ${attemptedQuestions}
-Questions Marked for Review and Unanswered: ${markedForReviewAndUnansweredQuestions}
-\nUse the Question Palette to review all questions.
-For final submission, click the End Test button again.`,
-            {
-              position: POSITION.TOP_CENTER,
-              timeout: 6000,
-              draggablePercent: 0.4
-            }
-        )
-        state.hasEndTestBeenClickedOnce = false;
-      } else {
-        context.emit("end-test")
-      }
+      // Confirmation is now handled by the EndTestSummaryModal (in Player.vue);
+      // close the palette so it can't cover the modal, then forward the request.
+      state.isPaletteVisible = false;
+      context.emit("end-test")
     }
 
     function endTestByTime() {
-      // same function as above -- can update later for new feature
+      // time is up: submit without asking, so this must not go through the summary modal
       if (!props.hasQuizEnded && isQuizAssessment.value) {
-        context.emit("end-test")
+        state.isPaletteVisible = false;
+        context.emit("end-test-by-time")
       }
     }
 
@@ -557,7 +545,7 @@ For final submission, click the End Test button again.`,
     })
 
     const bodyContainerClass = computed(() => ({
-      "mt-36": isQuizAssessment.value
+      "mt-[52px] lg:mt-[60px]": isQuizAssessment.value // fixed header height (Header.vue)
     }))
 
     const currentQuestion = computed(
@@ -743,6 +731,7 @@ For final submission, click the End Test button again.`,
     "update:previousResponse",
     "submit-question",
     "end-test",
+    "end-test-by-time",
     "fetch-question-bucket",
     "test-warning-shown",
     "test-optional-warning-shown",

@@ -1012,4 +1012,49 @@ describe("Body.vue", () => {
     const emitted = wrapper.emitted("numerical-answer-entered") || [];
     expect(emitted[emitted.length - 1]).toEqual([-35]);
   });
+
+  describe("context strip, meta row and status (assessment)", () => {
+    const mountAssessment = (props = {}) =>
+      mount(Body, {
+        props: {
+          quizType: "assessment",
+          title: "JEE Main Mock Test 3",
+          displayId: "20185600341",
+          questionType: "single-choice",
+          currentQuestionIndex: 0,
+          questionSetTitle: "Physics",
+          ...props,
+        },
+      });
+
+    it("shows the test name and the full ID above the question", () => {
+      const wrapper = mountAssessment();
+      expect(wrapper.find('[data-test="context-strip"]').exists()).toBe(true);
+      expect(wrapper.find('[data-test="test-name"]').text()).toBe("JEE Main Mock Test 3");
+      expect(wrapper.find('[data-test="user-id"]').text()).toBe("ID: 20185600341");
+    });
+
+    it("falls back to the user id when there is no display id", () => {
+      const wrapper = mountAssessment({ displayId: "", userId: "test_student" });
+      expect(wrapper.find('[data-test="user-id"]').text()).toBe("ID: test_student");
+    });
+
+    it("labels the question as 'Q1 · Type' with the section next to it", () => {
+      const wrapper = mountAssessment();
+      expect(wrapper.find('[data-test="question-index-type"]').text()).toBe("Q1 · Single Choice");
+      expect(wrapper.find('[data-test="question-subject-section"]').text()).toBe("Physics");
+    });
+
+    it("shows the answer status above the question text", () => {
+      const wrapper = mountAssessment();
+      const html = wrapper.html();
+      expect(wrapper.find('[data-test="question-status"]').text()).toContain("NOT ANSWERED");
+      expect(html.indexOf('data-test="question-status"')).toBeLessThan(html.indexOf('data-test="text"'));
+    });
+
+    it("does not show the strip for homework (InfoBar shows it there)", () => {
+      const wrapper = mountAssessment({ quizType: "homework" });
+      expect(wrapper.find('[data-test="context-strip"]').exists()).toBe(false);
+    });
+  });
 });

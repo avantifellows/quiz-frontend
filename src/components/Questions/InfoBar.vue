@@ -1,28 +1,11 @@
 <template>
-  <div class="bg-gray-200 border-b border-gray-300 px-4 py-3">
-    <!-- Mobile: Title (truncated), ID, and Logout stacked -->
-    <div class="sm:hidden flex flex-col gap-2">
-      <h1 class="text-base font-semibold text-gray-800 truncate" data-test="test-name-mobile">
-        {{ title || "no data" }}
-      </h1>
-      <div class="flex items-center">
-        <div class="text-sm text-gray-700 font-semibold px-3 py-1.5 bg-gray-300 rounded inline-block" data-test="user-id-mobile">
-          Id: {{ displayUserId || "no data" }}
-        </div>
-      </div>
-    </div>
-
-    <!-- Tablet+: Title, ID, and Logout side by side -->
-    <div class="hidden sm:flex sm:justify-between sm:items-center gap-4">
-      <h1 class="text-lg font-semibold text-gray-800 flex-1 break-words" data-test="test-name">
-        {{ title || "no data" }}
-      </h1>
-      <div class="flex items-center gap-4">
-        <div class="text-base text-gray-700 font-semibold whitespace-nowrap px-4 py-2 bg-gray-300 rounded" data-test="user-id">
-          Id: {{ displayUserId || "no data" }}
-        </div>
-      </div>
-    </div>
+  <!-- Homework / forms: the same context strip as the assessment question area (Body.vue) -->
+  <div
+    v-if="title || displayUserId"
+    class="flex items-center gap-3 px-4 lg:px-8 py-2 bg-gray-50 border-b border-gray-200 text-[13px] lg:text-sm leading-[18px]"
+  >
+    <span v-if="title" class="flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-medium text-gray-700" :title="title" data-test="test-name">{{ title }}</span>
+    <span v-if="displayUserId" class="flex-none ml-auto font-semibold text-gray-900 tabular-nums whitespace-nowrap" data-test="user-id">ID: {{ displayUserId }}</span>
   </div>
 </template>
 

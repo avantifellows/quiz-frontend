@@ -86,25 +86,17 @@ describe("Player for Assessment Timed quizzes", () => {
       });
 
       describe("Quiz Started", () => {
-        // The header shows a separate phone layout below Tailwind's `sm` breakpoint (640px)
-        const headerSuffix = () =>
-          Cypress.config("viewportWidth") < 640 ? "-mobile" : "";
-
+        // The test name and ID are in the context strip at the top of the question area
+        // (one layout at every width; the header holds only menu / timer / End Test)
         it("Check if the test name is visible", () => {
-          cy.get(`[data-test="test-name${headerSuffix()}"]`)
-            .should(
-              "have.text",
-              "cypress assessment 1 by Avanti Fellows" // test name
-            )
+          cy.get('[data-test="test-name"]')
+            .should("have.text", "cypress assessment 1 by Avanti Fellows") // test name
             .and("be.visible");
         });
 
         it("Check if the user-id is visible", () => {
-          cy.get(`[data-test="user-id${headerSuffix()}"]`)
-            .should(
-              "have.text",
-              " Id: test_student" // Id of the student
-            )
+          cy.get('[data-test="user-id"]')
+            .should("have.text", "ID: test_student") // Id of the student
             .and("be.visible");
         });
 
@@ -148,9 +140,10 @@ describe("Player for Assessment Timed quizzes", () => {
 
       it("countdown timer background should be gray when time remaining more than warning time", () => {
         // warning time limit is 3 minutes (180 seconds)
+        // normal style: soft grey tint
         cy.get(`[data-test="countdownTimer"`).should(
           "have.class",
-          "bg-gray-500"
+          "bg-gray-100"
         );
       });
 
@@ -188,9 +181,9 @@ describe("Player for Assessment Timed quizzes", () => {
           .get('[data-test="endTestButton"]')
           .trigger("click");
 
-        // click again since endTest button protected by additional click
+        // confirm in the end-test summary
         cy.get('[data-test="modal"]')
-          .get('[data-test="endTestButton"]')
+          .get('[data-test="summaryYesButton"]')
           .trigger("click");
 
         // wait for END_QUIZ patch to be called
@@ -286,9 +279,10 @@ describe("Player for Assessment Timed quizzes", () => {
       });
 
       it("countdown timer background should be red when time remaining less than warning time", () => {
+        // warning style: red tint
         cy.get(`[data-test="countdownTimer"`).should(
           "have.class",
-          "bg-red-600"
+          "bg-red-100"
         );
       });
 

@@ -21,7 +21,7 @@
       <tr>
         <th class="border-black border-1 text-left px-4 py-2">Duration</th>
         <td class="border-black border-1 px-4 py-2" data-test="quiz-time-limit">
-          {{ ($props.quizTimeLimit?.max || 0) / 60 }} minutes
+          {{ formattedDuration }}
         </td>
       </tr>
       <!-- row 4 -->
@@ -52,7 +52,7 @@
     <div v-if="isTestFST" data-test="test-fst">
       <h4 class="text-lg font-bold m-6">Test Paper Pattern</h4>
       <!-- Printing subjects extracted from questionSet.title -->
-      <p class="ml-6 mr-4 mb-2 text-justify">
+      <p class="ml-6 mr-4 mb-2">
         The following are the subjects in the test:
         <strong>
           <span v-for="(part, index) in subjectNames" :key="part">
@@ -86,7 +86,7 @@
       />
     </div>
     <div class="ml-11 mr-4">
-      <ol class="text-justify">
+      <ol>
         <li>{{ $t("generalInstructions.timerInfo") }}</li>
         <li>
           {{ $t("generalInstructions.paletteInfo") }}
@@ -100,23 +100,22 @@
         </li>
         <li v-if="!isOmrMode">
           {{ $t("generalInstructions.paletteSymbols") }}
-          <div class="flex flex-wrap mx-2 md:mx-4 my-2">
+          <div class="grid mx-2 md:mx-4 my-2">
             <div class="flex items-center my-2 md:mx-4">
               <Success></Success>
               <span class="ml-6 mr-6">{{ $t("generalInstructions.answered") }}</span>
             </div>
             <div class="flex items-center my-2 md:mx-4">
               <Error></Error>
-              <span class="ml-6 mr-6">{{ $t("generalInstructions.notVisited") }}</span>
+              <span class="ml-6 mr-6" data-test="legend-notAnswered">{{ $t("generalInstructions.notAnswered") }}</span>
             </div>
             <div class="flex items-center my-2 md:mx-4">
               <Neutral></Neutral>
-              <span class="ml-6 mr-6">{{ $t("generalInstructions.notAnswered") }}</span>
+              <span class="ml-6 mr-6" data-test="legend-notVisited">{{ $t("generalInstructions.notVisited") }}</span>
             </div>
-            <div class="relative flex items-center border border-violet-600 p-2 rounded-md my-2 md:mx-4 w-full">
-              <Review class="mr-2"></Review>
-              <span class="ml-6 mr-6">{{ $t("generalInstructions.markedForReview") }}</span>
-              <span class="bg-violet-800 text-white text-xs font-bold py-0.5 px-2 rounded-full">NEW</span>
+            <div class="flex items-center my-2 md:mx-4">
+              <Review></Review>
+              <span class="ml-6 mr-6" data-test="legend-markedForReview">{{ $t("generalInstructions.markedForReview") }}</span>
             </div>
           </div>
         </li>
@@ -126,18 +125,15 @@
 
     <h4 class="text-lg font-bold m-6">{{ $t("answeringQuestion.title") }}</h4>
     <div class="ml-11 mr-4">
-      <ol class="text-justify">
+      <ol>
         <li>
           {{ $t("answeringQuestion.procedureForMCQ") }}
-          <ol class="ml-7 list-[lower-alpha] text-justify">
+          <ol class="ml-7 list-[lower-alpha]">
             <li>{{ $t("answeringQuestion.selectAnswer") }}</li>
             <li>{{ $t("answeringQuestion.deselectAnswer") }}</li>
             <li>{{ $t("answeringQuestion.changeAnswer") }}</li>
             <li v-if="!isOmrMode">{{ $t("answeringQuestion.saveAnswer") }}</li>
-            <li class="relative border border-violet-600 p-2 rounded-md" v-if="!isOmrMode">
-              {{  $t("answeringQuestion.reviewQuestion") }}
-              <span class="bg-violet-800 text-white text-xs font-bold py-0.5 px-2 rounded-full">NEW</span>
-            </li>
+            <li v-if="!isOmrMode">{{ $t("answeringQuestion.reviewQuestion") }}</li>
           </ol>
         </li>
         <li v-if="!isOmrMode">{{ $t("answeringQuestion.changeAnsweredQuestion") }}</li>
@@ -146,7 +142,7 @@
     </div>
     <div class="mt-5 ml-6 mr-4 flex border-red-400 border-1 p-2" v-if="!isOmrMode">
       <div class="float-left text-red-400 pr-5 pl-3 text-xl font-bold">!</div>
-      <div class="float-right text-justify pr-2">
+      <div class="float-right pr-2">
         {{ $t("answeringQuestion.noteSaveAnswer") }}
       </div>
     </div>
@@ -218,6 +214,19 @@ export default defineComponent({
       currentLocale: locale.value,
     });
     const isTestFST = computed(() => props.testFormat == "full_syllabus_test");
+    /**
+     * time_limit.max is in seconds; show whole minutes plus any leftover seconds
+     * (e.g. 200 -> "3 minutes 20 seconds", not "3.3333333333333335 minutes")
+     */
+    const formattedDuration = computed(() => {
+      const totalSeconds = Math.round(props.quizTimeLimit?.max || 0);
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      const unit = (value: number, name: string) => `${value} ${name}${value == 1 ? "" : "s"}`;
+      if (seconds == 0) return unit(minutes, "minute");
+      if (minutes == 0) return unit(seconds, "second");
+      return `${unit(minutes, "minute")} ${unit(seconds, "second")}`;
+    });
 
     // to extract the questionSetTitles from questionSets (eg. Physics - Section A)
     const questionSetTitles = computed(() => {
@@ -281,6 +290,7 @@ export default defineComponent({
     };
 
     return {
+      formattedDuration,
       isTestFST,
       questionSetTitles,
       subjectNames,

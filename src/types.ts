@@ -378,3 +378,14 @@ export interface CircularProgressResult {
 export interface JnvDict {
   [index : string] : string[];
 }
+
+// Buckets shown in the end-test summary modal. Mutually exclusive; sum == total.
+export interface EndTestBuckets {
+  total: number;
+  answered: number;
+  notAnswered: number;
+  markedForReview: number;
+  notVisited: number;
+}
+
+export type EndTestSummaryVariant = "exam" | "omr";

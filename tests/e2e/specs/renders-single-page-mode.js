@@ -209,9 +209,9 @@ describe("Player for Single Page Mode with Full Text", () => {
           .get('[data-test="endTestButton"]')
           .trigger("click");
 
-        // additional click to protect endTest button
+        // confirm in the end-test summary
         cy.get('[data-test="single-page-modal"]')
-          .get('[data-test="endTestButton"]')
+          .get('[data-test="summaryYesButton"]')
           .trigger("click");
 
         // check if update all session answers request is made
@@ -234,8 +234,8 @@ describe("Player for Single Page Mode with Full Text", () => {
             .trigger("click");
 
           cy.get('[data-test="single-page-modal"]')
-            .get('[data-test="endTestButton"]')
-            .trigger("click"); // additional click to protect endTest button
+            .get('[data-test="summaryYesButton"]')
+            .trigger("click"); // confirm in the end-test summary
         });
 
         it("shows scorecard upon selecting End Test", () => {
